@@ -1,0 +1,83 @@
+/* Custom Input Box */
+.input-box {
+  background: var(--color-primary-light);
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  padding: 0 15px;
+  height: 42px;
+}
+.hidden {
+  display: none !important;
+}
+.input-box i {
+  color: var(--text-main);
+  margin-right: 10px;
+}
+
+.input-box input {
+  background: transparent;
+  width: 100%;
+  font-size: 14px;
+}
+
+/* Base Button */
+.btn {
+  padding: 8px 20px;
+  border-radius: 20px;
+  font-size: 14px;
+  font-weight: 600;
+  transition: all var(--transition-fast);
+}
+
+.btn-primary {
+  background: var(--color-primary-dark);
+  color: var(--text-white);
+}
+
+.btn-primary:hover {
+  opacity: 0.9;
+  transform: translateY(-1px);
+}
+
+/* Custom Table UI with Animations */
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  transition: opacity var(--transition-normal),
+    transform var(--transition-normal);
+}
+
+.data-table.fade-out {
+  opacity: 0;
+  transform: translateY(8px);
+}
+
+.data-table th,
+.data-table td {
+  padding: 12px 10px;
+  text-align: center;
+  font-size: 14px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.data-table th {
+  font-weight: bold;
+}
+
+.data-table input[type="text"],
+.data-table input[type="number"] {
+  width: 60px;
+  height: 28px;
+  border: 1px solid var(--border-dark);
+  border-radius: 4px;
+  text-align: center;
+}
+
+.status-dot {
+  width: 20px;
+  height: 20px;
+  background-color: var(--color-primary);
+  border-radius: 50%;
+  display: inline-block;
+}

@@ -1,0 +1,21 @@
+:root {
+  /* Header & Tone chính */
+  --header-bg: #60a5fa; /* Xanh dương sáng của Header */
+  --header-btn-active: #1d4ed8; /* Nút Nhập điểm (xanh đậm) */
+  --header-btn-border: #ffffff; /* Viền nút Xuất file */
+
+  /* Sidebar */
+  --sidebar-bg: #ebf8ff; /* Xanh nhạt của Sidebar */
+  --sidebar-active-bg: #bfdbfe; /* Mảng nền xanh khi chọn tab */
+  --sidebar-active-line: #1e3a8a; /* Đường gạch chân tab active */
+
+  /* Main Content */
+  --bg-main: #ffffff; /* Nền trắng thuần cho vùng làm việc */
+
+  /* UI Elements */
+  --search-border: #6b7280;
+  --month-select-bg: #60a5fa;
+  --input-border: #4b5563;
+  --text-main: #1f2937;
+  --text-muted: #6b7280;
+}
