@@ -175,5 +175,6 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   // Chạy lần đầu
+  // Bỏ vì đợi fetch dữ liệu từ mock.json xong mới render
   // renderAll();
 });
