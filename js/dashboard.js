@@ -1,13 +1,15 @@
 document.addEventListener("DOMContentLoaded", function () {
   // Dữ liệu giả lập UI
-  var mockStudents = [
-    { id: "000000", name: "Nguyễn Văn A", class: "1A" },
-    { id: "000001", name: "Nguyễn Thị B", class: "1B" },
-    { id: "000002", name: "Lê Hoàng C", class: "1A" },
-    { id: "000003", name: "Vũ Thị D", class: "1B" },
-  ];
-
-  var currentMode = "input"; // "input" | "export" | "manage"
+  
+  let mockStudents;
+  fetch("./mock.json")
+    .then((response) => response.json())
+    .then((data) => {
+      mockStudents = data;
+      renderAll();
+    });
+  
+  let currentMode = "input"; // "input" | "export" | "manage"
 
   // 1. Render Bảng Điểm Danh
   function renderAttendance() {
@@ -86,6 +88,7 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   // 3. Render có hiệu ứng mượt (Transition)
+  
   function renderAll() {
     var tables = document.querySelectorAll(".data-table");
     tables.forEach(function (t) {
@@ -172,5 +175,5 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   // Chạy lần đầu
-  renderAll();
+  // renderAll();
 });

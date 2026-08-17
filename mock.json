@@ -1,0 +1,12 @@
+[
+    { "id": "000000", "name": "Nguyễn Văn A", "class": "1A" },
+    { "id": "000001", "name": "Nguyễn Thị B", "class": "1B" },
+    { "id": "000002", "name": "Lê Hoàng C", "class": "1A" },
+    { "id": "000003", "name": "Vũ Thị D", "class": "1B" },
+    { "id": "000004", "name": "Trần Văn E", "class": "1A" },
+    { "id": "000005", "name": "Phạm Thị F", "class": "1B" },
+    { "id": "000006", "name": "Nguyễn Văn G", "class": "1C" },
+    { "id": "000007", "name": "Lê Thị H", "class": "1C" },
+    { "id": "000008", "name": "Vũ Văn I", "class": "1D" },
+    { "id": "000009", "name": "Trần Thị J", "class": "1D" }
+]
