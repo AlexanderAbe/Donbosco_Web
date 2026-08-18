@@ -1,0 +1,24 @@
+:root {
+  --primary-blue: #60a5fa;
+  --dark-blue: #1e3a8a;
+  --bg-sidebar: #e0f2fe;
+  --bg-active: #bae6fd;
+  --text-color: #000000;
+  --border-color: #e5e7eb;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: Arial, sans-serif;
+}
+
+body {
+  background-color: #ffffff;
+  color: var(--text-color);
+}
+
+.hidden {
+  display: none !important;
+}
