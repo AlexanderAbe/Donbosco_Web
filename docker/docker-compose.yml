@@ -1,0 +1,15 @@
+services:
+  postgres:
+    image: postgres:18.6
+    container_name: postgres_donbosco
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: mysecretpassword
+      POSTGRES_DB: db_donbosco
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata_donbosco:/var/lib/postgresql
+
+volumes:
+  pgdata_donbosco:
