@@ -1,9 +1,26 @@
 const express = require('express');
 const expressLayouts = require('express-ejs-layouts');
 const path = require('path');
+require('dotenv').config(); // Đọc file .env
+const { Pool } = require('pg'); // Import thư viện pg
 
 const app = express();
 const PORT = 3000;
+
+// Cấu hình kết nối PostgreSQL (Supabase)
+const pool = new Pool({
+  connectionString: `postgresql://${process.env.DB_USER}:${process.env.DB_PASSWORD}@${process.env.DB_HOST}:${process.env.DB_PORT}/${process.env.DB_NAME}`,
+  ssl: { rejectUnauthorized: false } // Bắt buộc khi kết nối Supabase từ bên ngoài
+});
+
+// Test nhanh kết nối cơ sở dữ liệu khi khởi động server
+pool.query('SELECT NOW()', (err, res) => {
+  if (err) {
+    console.error('❌ Lỗi kết nối Supabase:', err.message);
+  } else {
+    console.log('✅ Kết nối Supabase thành công! Thời gian server:', res.rows[0].now);
+  }
+});
 
 // 1. Middleware đọc dữ liệu gửi từ Form (bắt buộc để lấy SĐT và Mật khẩu từ POST)
 app.use(express.urlencoded({ extended: true }));
@@ -28,15 +45,20 @@ app.get('/login', (req, res) => {
 });
 
 // 2. Xử lý khi người dùng bấm nút "Đăng nhập"
-app.post('/login', (req, res) => {
+app.post('/login', async (req, res) => {
     const { phone, password } = req.body;
     
-    // In thông tin nhập ra Terminal để kiểm tra thử
     console.log(`👉 Đang thử đăng nhập với SĐT: ${phone} | Mật khẩu: ${password}`);
 
-    // Sau này sẽ kiểm tra tài khoản trong CSDL tại đây.
-    // Tạm thời cho chuyển hướng về trang chủ thành công:
-    res.redirect('/');
+    try {
+        // Sau này bạn có thể query trực tiếp Supabase tại đây thế này:
+        // const result = await pool.query('SELECT * FROM thieu_nhi WHERE phone = $1', [phone]);
+        
+        res.redirect('/');
+    } catch (error) {
+        console.error(error);
+        res.status(500).send("Lỗi truy vấn cơ sở dữ liệu");
+    }
 });
 
 // ==========================================
