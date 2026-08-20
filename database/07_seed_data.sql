@@ -44,6 +44,20 @@ INSERT INTO GLV (ten_thanh, ho_va_ten_lot, ten, ngay_sinh, gioi_tinh, sdt) VALUE
 ('Giuse', 'Nguyễn Văn', 'An', '1995-05-15', 'Nam', '0901112233'),
 ('Têrêsa', 'Trần Thị', 'Bình', '1998-10-20', 'Nữ', '0904445566');
 
+UPDATE TAI_KHOAN
+SET is_admin = TRUE
+WHERE username = '0901112233';
+
+-- Cấp quyền Ban Điều Hành (BDH) cho id_glv = 1 (nếu chưa có)
+INSERT INTO PHAN_CONG_BDH (id_glv)
+VALUES (1)
+ON CONFLICT DO NOTHING;
+
+-- Cấp quyền Trưởng Khối cho id_glv = 1 (nếu chưa có)
+INSERT INTO PHAN_CONG_TRUONG_KHOI (id_glv)
+VALUES (1)
+ON CONFLICT DO NOTHING;
+
 
 -- 6. Thêm Thiếu nhi mẫu (Trigger sẽ tự động sinh mã `mstn` dạng YY + id + Giới tính)
 INSERT INTO THIEU_NHI (ten_thanh, ho_va_ten_lot, ten, gioi_tinh, ngay_sinh, dia_chi) VALUES

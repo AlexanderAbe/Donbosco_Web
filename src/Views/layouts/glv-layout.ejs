@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= typeof title != 'undefined' ? title : 'Giáo Lý Viên - Xứ Đoàn Don Bosco' %></title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/css/reset.css">
+    <link rel="stylesheet" href="/css/glv-layout.css">
+</head>
+<body>
+
+<!-- HEADER (Màu Xanh nước biển chủ đạo) -->
+<header class="glv-header">
+    <div class="header-left">
+        <!-- Nút mở menu mobile -->
+        <button class="menu-toggle-btn" id="menuToggleBtn" title="Mở menu">
+            <i class="fa-solid fa-bars"></i>
+        </button>
+        <div class="logo-circle">
+            <img src="/imgs/Logo.png" alt="Logo" onerror="this.src='https://via.placeholder.com/40'">
+        </div>
+        <div class="church-info">
+            <h2>Xứ Đoàn Don Bosco</h2>
+            <p>Giáo Lý Viên</p>
+        </div>
+    </div>
+
+    <div class="header-right">
+        <%- include('../partials/role-switcher', { isGlv: true }) %>
+    </div>
+</header>
+
+<!-- SIDEBAR DỌC -->
+<aside class="glv-sidebar" id="glvSidebar">
+    
+    <ul class="sidebar-menu">
+        <!-- Mục đơn: Lớp của tôi -->
+        <li class="menu-item">
+            <a href="/glv" class="menu-link">
+                <span><i class="fa-solid fa-chalkboard-user"></i> Lớp của tôi</span>
+            </a>
+        </li>
+
+        <!-- Mục lớn có Sub-menu 1: Quản lý lớp học -->
+        <li class="menu-item">
+            <button class="dropdown-toggle" type="button">
+                <span><i class="fa-solid fa-school"></i> Quản Lý Lớp Học</span>
+                <span class="arrow-icon"><i class="fa-solid fa-chevron-right"></i></span>
+            </button>
+            <ul class="submenu">
+                <li><a href="/glv/danh-sach-lop">Danh sách thiếu nhi</a></li>
+                <li><a href="/glv/bang-diem">Xem bảng điểm</a></li>
+            </ul>
+        </li>
+
+        <!-- Mục lớn có Sub-menu 2: Nhập điểm -->
+        <li class="menu-item">
+            <button class="dropdown-toggle" type="button">
+                <span><i class="fa-solid fa-pen-to-square"></i> Nhập điểm</span>
+                <span class="arrow-icon"><i class="fa-solid fa-chevron-right"></i></span>
+            </button>
+            <ul class="submenu">
+                <li><a href="/glv/kiem-tra">Kiểm tra</a></li>
+                <li><a href="/glv/diem-danh">Điểm danh</a></li>
+                <li><a href="/glv/ky-luat">Kỷ luật</a></li>
+            </ul>
+        </li>
+    </ul>
+
+    <%- include('../partials/sidebar-footer') %>
+</aside>
+
+    <!-- MÀN HÌNH TỐI KHI MỞ SIDEBAR TRÊN MOBILE -->
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <%- include('../partials/toast') %>
+
+    <!-- NỘI DUNG CHÍNH CỦA TRANG -->
+    <main class="main-container">
+        <%- body %>
+    </main>
+
+    <!-- Nhúng file JavaScript riêng -->
+    <script src="/javascript/glv-layout.js"></script>
+</body>
+</html>

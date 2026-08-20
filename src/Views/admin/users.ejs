@@ -1,0 +1,35 @@
+<link rel="stylesheet" href="/css/admin-users.css">
+
+<div class="dashboard-container">
+    <!-- Tiêu đề trang -->
+    <div class="page-header" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px; margin-bottom: 24px;">
+        <div>
+            <h1>Quản lý người dùng</h1>
+            <p>Quản lý tài khoản Giáo lý viên, phân quyền và trạng thái truy cập hệ thống</p>
+        </div>
+    </div>
+
+    <!-- 1. BẢNG TÀI KHOẢN ĐANG HOẠT ĐỘNG -->
+    <%- include('../partials/user-table-section', {
+        users: activeUsers,
+        type: 'active',
+        title: 'Tài khoản đang hoạt động',
+        titleColor: '#166534',
+        iconClass: 'fa-solid fa-user-check',
+        cardStyle: 'margin-bottom: 32px;',
+        showSearch: true,
+        emptyMessage: 'Không có tài khoản nào đang hoạt động.'
+    }) %>
+
+    <!-- 2. BẢNG TÀI KHOẢN ĐÃ BỊ KHÓA -->
+    <%- include('../partials/user-table-section', {
+        users: lockedUsers,
+        type: 'locked',
+        title: 'Tài khoản đã bị khóa',
+        titleColor: '#991b1b',
+        iconClass: 'fa-solid fa-user-lock',
+        cardStyle: '',
+        showSearch: false,
+        emptyMessage: 'Không có tài khoản nào đang bị khóa. Tuyệt vời!'
+    }) %>
+</div>

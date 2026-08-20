@@ -6,49 +6,75 @@
 CREATE OR REPLACE FUNCTION fn_tu_dong_tao_mstn_after()
 RETURNS TRIGGER AS $$
 DECLARE
-    v_nam_hoc VARCHAR(2);
-    v_ky_tu_gioi_tinh VARCHAR(1);
-    v_mstn_moi VARCHAR(30);
+    v_nam_hien_tai VARCHAR(2);
+    v_id_hex VARCHAR(3);
+    v_tuoi INT;
+    v_ky_tu_nganh VARCHAR(1);
+    v_mstn_moi VARCHAR(20);
 BEGIN
+    -- Chỉ sinh mã nếu mstn đang trống
     IF NEW.mstn IS NULL OR NEW.mstn = '' THEN
-        v_nam_hoc := TO_CHAR(CURRENT_DATE, 'YY');
-        
-        IF NEW.gioi_tinh = 'Nam' THEN
-            v_ky_tu_gioi_tinh := 'A';
+        -- 1. Lấy 2 số cuối năm hiện tại
+        v_nam_hien_tai := TO_CHAR(CURRENT_DATE, 'YY');
+
+        -- 2. Chuyển id_tn (lúc này đã được DB sinh ra chắc chắn) sang Hex 3 ký tự
+        v_id_hex := UPPER(LPAD(to_hex(NEW.id_tn), 3, '0'));
+
+        -- 3. Tính tuổi tại thời điểm thêm mới để gán Ngành (chỉ tính 1 lần này duy nhất)
+        v_tuoi := EXTRACT(YEAR FROM AGE(CURRENT_DATE, NEW.ngay_sinh));
+
+        IF v_tuoi BETWEEN 6 AND 8 THEN
+            v_ky_tu_nganh := 'A'; -- Ấu
+        ELSIF v_tuoi BETWEEN 9 AND 11 THEN
+            v_ky_tu_nganh := 'T'; -- Thiếu
+        ELSIF v_tuoi BETWEEN 12 AND 14 THEN
+            v_ky_tu_nganh := 'N'; -- Nghĩa
+        ELSIF v_tuoi BETWEEN 15 AND 17 THEN
+            v_ky_tu_nganh := 'H'; -- Hiệp
         ELSE
-            v_ky_tu_gioi_tinh := 'B';
+            v_ky_tu_nganh := 'O'; -- Ngoài phạm vi
         END IF;
 
-        v_mstn_moi := v_nam_hoc || LPAD(CAST(NEW.id_tn AS TEXT), 4, '0') || v_ky_tu_gioi_tinh;
+        -- 4. Ghép mã MSTN: YY + Hex(3) + Ngành
+        v_mstn_moi := v_nam_hien_tai || v_id_hex || v_ky_tu_nganh;
 
-        UPDATE THIEU_NHI 
-        SET mstn = v_mstn_moi 
+        -- 5. Cập nhật ngược lại vào bảng (chỉ chạy 1 lần khi insert)
+        UPDATE THIEU_NHI
+        SET mstn = v_mstn_moi
         WHERE id_tn = NEW.id_tn;
     END IF;
-    
+
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
 
+-- Tạo Trigger AFTER INSERT
 DROP TRIGGER IF EXISTS trg_sinh_mstn_thieu_nhi ON THIEU_NHI;
 CREATE TRIGGER trg_sinh_mstn_thieu_nhi
 AFTER INSERT ON THIEU_NHI
 FOR EACH ROW
 EXECUTE FUNCTION fn_tu_dong_tao_mstn_after();
 
+CREATE EXTENSION IF NOT EXISTS pgcrypto;
 
 -- B. Trigger tự động tạo tài khoản khi thêm Giáo lý viên mới
 CREATE OR REPLACE FUNCTION fn_tu_dong_tao_tai_khoan_glv()
 RETURNS TRIGGER AS $$
+DECLARE
+    raw_password TEXT;
 BEGIN
+    -- 1. Lấy ngày sinh dạng DDMMYYYY (hoặc mặc định '123456')
+    raw_password := COALESCE(TO_CHAR(NEW.ngay_sinh::DATE, 'DDMMYYYY'), '123456');
+
+    -- 2. Insert vào TAI_KHOAN với mật khẩu đã được mã hóa bằng bcrypt (dùng pgcrypto)
     INSERT INTO TAI_KHOAN (username, password_hash, is_admin, id_glv)
     VALUES (
         NEW.sdt,
-        -- Lấy ngày sinh chuyển thành chuỗi DDMMYYYY (Ví dụ: 15/05/1995 -> '15051995')
-        COALESCE(TO_CHAR(NEW.ngay_sinh::DATE, 'DDMMYYYY'), '123456'),
+        crypt(raw_password, gen_salt('bf')), -- Mã hóa bcrypt tự động trong PostgreSQL
         FALSE,
         NEW.id_glv
     );
+
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;

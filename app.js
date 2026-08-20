@@ -1,77 +1,55 @@
 const express = require('express');
 const expressLayouts = require('express-ejs-layouts');
 const path = require('path');
-require('dotenv').config(); // Đọc file .env
-const { Pool } = require('pg'); // Import thư viện pg
+const session = require('express-session');
+require('dotenv').config();
+require('./config/database');
 
 const app = express();
 const PORT = 3000;
 
-// Cấu hình kết nối PostgreSQL (Supabase)
-const pool = new Pool({
-  connectionString: `postgresql://${process.env.DB_USER}:${process.env.DB_PASSWORD}@${process.env.DB_HOST}:${process.env.DB_PORT}/${process.env.DB_NAME}`,
-  ssl: { rejectUnauthorized: false } // Bắt buộc khi kết nối Supabase từ bên ngoài
-});
-
-// Test nhanh kết nối cơ sở dữ liệu khi khởi động server
-pool.query('SELECT NOW()', (err, res) => {
-  if (err) {
-    console.error('❌ Lỗi kết nối Supabase:', err.message);
-  } else {
-    console.log('✅ Kết nối Supabase thành công! Thời gian server:', res.rows[0].now);
-  }
-});
-
-// 1. Middleware đọc dữ liệu gửi từ Form (bắt buộc để lấy SĐT và Mật khẩu từ POST)
+// Cấu hình cơ bản
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
-
-// 2. Cấu hình EJS & Layouts
-app.set('view engine', 'ejs');
-app.set('views', path.join(__dirname, 'src', 'Views'));
-app.use(expressLayouts);
-app.set('layout', 'layouts/GLVLayout');
-
-// 3. Cấu hình thư mục chứa CSS, JS, Ảnh (public)
 app.use(express.static(path.join(__dirname, 'public')));
 
-// ==========================================
-// ROUTE TRANG LOGIN
-// ==========================================
+// Session
+app.use(session({
+    secret: process.env.SESSION_SECRET,
+    resave: false,
+    saveUninitialized: false,
+    cookie: { 
+        maxAge: 30 * 60 * 1000 // Tăng lên 30 phút cho thoải mái sử dụng
+    } 
+}));
 
-// 1. Hiển thị giao diện Đăng nhập ({ layout: false } để tắt Header chung)
-app.get('/login', (req, res) => {
-    res.render('login', { layout: false });
+// Truyền session và flash message vào view
+app.use((req, res, next) => {
+    res.locals.session = req.session; 
+    res.locals.success = req.session.successMessage;
+    delete req.session.successMessage;
+    next();
 });
 
-// 2. Xử lý khi người dùng bấm nút "Đăng nhập"
-app.post('/login', async (req, res) => {
-    const { phone, password } = req.body;
-    
-    console.log(`👉 Đang thử đăng nhập với SĐT: ${phone} | Mật khẩu: ${password}`);
+// View Engine & Layouts
+app.set('view engine', 'ejs');
+app.set('views', path.join(__dirname, 'src', 'views'));
+app.use(expressLayouts);
+app.set('layout', 'layouts/glv-layout');
 
-    try {
-        // Sau này bạn có thể query trực tiếp Supabase tại đây thế này:
-        // const result = await pool.query('SELECT * FROM thieu_nhi WHERE phone = $1', [phone]);
-        
-        res.redirect('/');
-    } catch (error) {
-        console.error(error);
-        res.status(500).send("Lỗi truy vấn cơ sở dữ liệu");
-    }
-});
+// Routes
+app.use('/auth', require('./src/routes/auth-route'));
+app.use('/admin', require('./src/routes/admin-route'));
+app.use('/bdh', require('./src/routes/bdh-route'));
+app.use('/truong-khoi', require('./src/routes/truong-khoi-route'));
+app.use('/glv', require('./src/routes/glv-route'));
 
-// ==========================================
-// CÁC ROUTE NỘI BỘ (Có sử dụng MasterLayout)
-// ==========================================
-
+// Trang chủ chuyển hướng về đăng nhập
 app.get('/', (req, res) => {
-    res.render('glv/nhap_diem', { 
-        title: 'Trang Chủ - Nhập Điểm' 
-    });
+    res.redirect('/auth/login');
 });
 
 // Khởi động Server
 app.listen(PORT, () => {
-    console.log(`Server đang chạy tại: http://localhost:${PORT}`);
+    console.log(`Server running at http://localhost:${PORT}`);
 });

@@ -1,0 +1,390 @@
+:root {
+    /* --- BẢNG MÀU VÀNG THEO QUY TẮC 60-30-10 --- */
+    --bg-60-main: #fffbe8;      /* 60%: Nền tổng thể (vàng kem cực nhạt, sáng) */
+    --bg-60-surface: #ffffff;   /* 60%: Nền các card, sidebar, header */
+    
+    --primary-30: #d97706;      /* 30%: Màu thương hiệu chủ đạo (Vàng hổ phách / Amber) */
+    --primary-30-hover: #b45309;/* 30%: Màu khi hover đậm hơn một chút */
+    --primary-30-light: #fef3c7;/* 30%: Nền nhấn nhẹ dạng tint */
+    
+    --accent-10: #ea580c;       /* 10%: Màu điểm nhấn (Cam/Vàng đậm cho hành động nổi bật) */
+    
+    --text-main: #334155;       /* Chữ chính (xám đậm dễ đọc) */
+    --text-muted: #64748b;      /* Chữ phụ, mô tả */
+    --border-color: #fef08a40;  /* Viền nhẹ nhàng */
+    
+    --sidebar-width: 280px;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: var(--bg-60-main); /* 60% nền chính */
+    color: var(--text-main);
+}
+
+/* --- HEADER (Nằm ngang trên cùng) --- */
+.tk-header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 60px;
+    background-color: #ffcc00;
+    border-bottom: 1px solid #fde68a; /* Đường viền đồng điệu tông vàng */
+    box-shadow: 0 1px 3px rgba(217, 119, 6, 0.08);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 24px;
+    z-index: 1200;
+}
+
+.header-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.menu-toggle-btn {
+    display: none;
+    background: none;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    color: var(--text-main);
+    padding: 4px 8px;
+}
+
+.logo-circle img {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid var(--primary-30); /* 30% điểm nhấn thương hiệu */
+}
+
+.church-info h2 {
+    font-size: 15px;
+    margin: 0;
+    font-weight: 700;
+    color: #000000;
+}
+
+.church-info p {
+    font-size: 11px;
+    margin: 0;
+    color: var(--text-muted);
+}
+
+/* Nút Switch trên Header */
+.header-right {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.switch-btn {
+    background-color: var(--primary-30-light);
+    border: 1px solid #fde68a;
+    color: #78350f;
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.switch-btn:hover {
+    background-color: #78350f; /* Chuyển sang màu vàng đậm/hổ phách khi rê chuột */
+    color: #ffffff;            /* Đổi chữ sang trắng để nổi bật trên nền đậm */
+    border-color: #78350f;
+}
+
+/* --- SIDEBAR CHO MÁY TÍNH --- */
+.tk-sidebar {
+    position: fixed;
+    top: 60px;
+    left: 0;
+    width: var(--sidebar-width);
+    height: calc(100vh - 60px);
+    background-color: var(--bg-60-surface); /* 60% */
+    box-shadow: 2px 0 8px rgba(217, 119, 6, 0.04);
+    z-index: 1100;
+    display: flex;
+    flex-direction: column;
+    transition: left 0.3s ease-in-out;
+}
+
+/* Nút đóng sidebar (Chỉ hiện trên mobile) */
+.close-sidebar-btn {
+    display: none;
+    background: none;
+    border: none;
+    font-size: 20px;
+    color: var(--text-muted);
+    cursor: pointer;
+    padding: 8px 16px;
+    text-align: right;
+    width: 100%;
+}
+
+/* Phần Menu chính co giãn và có thể cuộn */
+.sidebar-menu {
+    flex: 1;
+    overflow-y: auto;
+    padding: 12px;
+    margin: 0;
+}
+
+.menu-item {
+    margin-bottom: 6px;
+}
+
+.menu-link, .dropdown-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 16px;
+    color: var(--text-main);
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 600;
+    border-radius: 8px;
+    transition: all 0.2s;
+    background: none;
+    border: none;
+    width: 100%;
+    text-align: left;
+    cursor: pointer;
+}
+
+.menu-link:hover, .dropdown-toggle:hover {
+    background-color: var(--primary-30-light); /* 30% tint vàng nhạt khi hover */
+    color: var(--primary-30-hover);
+}
+
+.submenu {
+    padding-left: 20px;
+    margin: 4px 0 0 0;
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease-out;
+}
+
+.menu-item.active .submenu {
+    max-height: 200px;
+}
+
+.submenu li a {
+    display: block;
+    padding: 10px 12px;
+    color: var(--text-muted);
+    text-decoration: none;
+    font-size: 13px;
+    border-radius: 6px;
+    transition: color 0.2s, background-color 0.2s;
+}
+
+.submenu li a:hover {
+    color: var(--primary-30-hover);
+    background-color: var(--primary-30-light);
+}
+
+.arrow-icon {
+    transition: transform 0.3s ease;
+    font-size: 11px;
+    color: var(--text-muted);
+}
+
+.menu-item.active .arrow-icon {
+    transform: rotate(90deg);
+    color: var(--primary-30);
+}
+
+/* --- PHẦN FOOTER CỦA SIDEBAR (ĐỔI MẬT KHẨU & ĐĂNG XUẤT) --- */
+.sidebar-footer {
+    padding: 12px 16px;
+    border-top: 1px solid #fef3c7;
+    background-color: var(--bg-60-surface);
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.sidebar-btn {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 14px;
+    font-size: 13px;
+    font-weight: 600;
+    border-radius: 8px;
+    text-decoration: none;
+    transition: all 0.2s;
+}
+
+.sidebar-overlay {
+    display: none;
+}
+
+/* --- MAIN CONTAINER --- */
+.main-container {
+    margin-top: 60px;
+    margin-left: var(--sidebar-width);
+    padding: 24px;
+    min-height: calc(100vh - 60px);
+    box-sizing: border-box;
+    transition: margin-left 0.3s ease-in-out;
+}
+
+/* --- RESPONSIVE CHO DI ĐỘNG, TABLET, IPAD (<= 1024px) --- */
+@media screen and (max-width: 1024px) {
+    .menu-toggle-btn {
+        display: block;
+    }
+
+    .close-sidebar-btn {
+        display: block;
+    }
+
+    .tk-sidebar {
+        left: calc(-1 * var(--sidebar-width));
+        top: 60px;
+        height: calc(100vh - 60px);
+        box-shadow: 4px 0 15px rgba(217, 119, 6, 0.15);
+    }
+
+    .tk-sidebar.open {
+        left: 0;
+    }
+
+    .sidebar-overlay.show {
+        display: block;
+        position: fixed;
+        top: 60px;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: rgba(120, 53, 15, 0.3); /* Phủ mờ tông ấm */
+        z-index: 1050;
+    }
+
+    .main-container {
+        margin-left: 0;
+        padding: 16px;
+    }
+}
+
+/* --- TỐI ƯU THÊM CHO ĐIỆN THOẠI MÀN HÌNH NHỎ (<= 576px) --- */
+@media screen and (max-width: 576px) {
+    .tk-header {
+        padding: 0 12px;
+    }
+
+    .church-info h2 {
+        font-size: 13px;
+    }
+
+    .church-info p {
+        font-size: 10px;
+    }
+
+    .switch-btn {
+        padding: 5px 10px;
+        font-size: 11px;
+    }
+}
+/* --- 1. Ẩn thông tin nhà thờ trên Mobile & Tablet (<= 1024px) --- */
+@media screen and (max-width: 1024px) {
+    .church-info {
+        display: none !important;
+    }
+}
+
+/* --- 2. Định nghĩa hiển thị theo kích thước màn hình --- */
+@media screen and (min-width: 1025px) {
+    /* Màn hình máy tính: Hiện thanh nút ngang, ẩn nút tròn mobile */
+    .mobile-switch-container {
+        display: none !important;
+    }
+    .desktop-switch-buttons {
+        display: flex !important;
+        align-items: center;
+        gap: 12px;
+    }
+}
+
+@media screen and (max-width: 1024px) {
+    /* Màn hình di động/tablet: Ẩn thanh ngang, hiện nút tròn */
+    .desktop-switch-buttons {
+        display: none !important;
+    }
+    .mobile-switch-container {
+        display: block !important;
+    }
+}
+
+/* --- 3. Kiểu dáng cho Nút Tròn và Menu Dropdown trên Mobile --- */
+.mobile-switch-container {
+    position: relative;
+}
+
+.mobile-switch-icon-btn {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-color: var(--bg-60-surface, #ffffff);
+    border: 1px solid var(--primary-30-light, #fef3c7);
+    color: var(--primary-30, #d97706);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    cursor: pointer;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    transition: all 0.2s ease;
+}
+
+.mobile-switch-icon-btn:hover {
+    background-color: var(--primary-30, #d97706);
+    color: #ffffff;
+    border-color: var(--primary-30, #d97706);
+}
+
+/* Menu xổ xuống khi bấm vào nút tròn */
+.mobile-switch-dropdown-menu {
+    display: none;
+    position: absolute;
+    right: 0;
+    top: 50px;
+    background-color: var(--bg-60-surface, #ffffff);
+    border-radius: 12px;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+    padding: 8px;
+    min-width: 200px;
+    z-index: 1300;
+    border: 1px solid var(--primary-30-light, #fef3c7);
+}
+
+.mobile-switch-dropdown-menu.show {
+    display: block;
+}
+
+.mobile-switch-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 14px;
+    color: var(--primary-30, #d97706);
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 600;
+    border-radius: 8px;
+    transition: background-color 0.2s;
+}
+
+.mobile-switch-item:hover {
+    background-color: var(--primary-30-light, #fef3c7);
+    color: var(--primary-30-hover, #b45309);
+}

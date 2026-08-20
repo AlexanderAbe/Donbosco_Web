@@ -1,0 +1,18 @@
+<link rel="stylesheet" href="/css/admin-logs.css">
+<link rel="stylesheet" href="/css/reset.css">
+
+<div class="container-fluid py-4">
+    <div class="section-card">
+        <!-- Phần tiêu đề và nút quay lại -->
+        <div class="card-header-flex">
+            <div>
+                <h2>Toàn bộ Nhật ký hoạt động hệ thống</h2>
+                <p style="color: #718096; font-size: 13px; margin-top: 4px;">Hiển thị 100 bản ghi lịch sử thao tác gần nhất trên hệ thống</p>
+            </div>
+            <a href="/admin" class="view-all-link">
+                <i class="fa-solid fa-arrow-left"></i> Quay lại Dashboard
+            </a>
+        </div>
+        <%- include('../partials/audit-logs-table', { logs: logs }) %>
+    </div>
+</div>

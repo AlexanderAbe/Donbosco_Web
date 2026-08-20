@@ -15,3 +15,5 @@ CREATE TYPE enum_bi_tich AS ENUM ('Rửa tội', 'Giải tội', 'Thánh thể',
 
 -- Tạo kiểu dữ liệu Enum cho tên khung xếp loại
 CREATE TYPE enum_ten_xep_loai AS ENUM ('Xuất sắc','Giỏi', 'Khá', 'Trung Bình', 'Yếu');
+
+CREATE TYPE trang_thai_enum AS ENUM ('Đang hoạt động', 'Đã khóa');

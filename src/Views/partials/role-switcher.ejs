@@ -1,0 +1,93 @@
+<% 
+   // Kiểm tra xem tài khoản có quyền cao hơn không
+   const hasElevatedRole = session.user.is_admin || session.user.is_bdh || session.user.is_truong_khoi;
+   
+   // Biến 'isGlv' được truyền từ layout (mặc định là false)
+   const currentIsGlv = typeof isGlv !== 'undefined' ? isGlv : false;
+   
+   // Xác định xem có cần hiển thị phần chuyển đổi vai trò hay không
+   // - Nếu KHÔNG ở trang GLV -> luôn hiển thị (vì ít nhất có nút về GLV).
+   // - Nếu đang ở trang GLV -> chỉ hiển thị khi có ít nhất 1 quyền cao hơn.
+   const showSwitcher = !currentIsGlv || hasElevatedRole;
+%>
+
+<% if (showSwitcher) { %>
+    <div class="header-right">
+        
+        <!-- 1. GIAO DIỆN MÁY TÍNH (Các nút ngang truyền thống) -->
+        <div class="desktop-switch-buttons">
+            <% if (!currentIsGlv) { %>
+                <a href="/auth/switch-role/glv" class="switch-btn" title="Về giao diện GLV">
+                    <i class="fa-solid fa-house"></i> GLV
+                </a>
+            <% } %>
+            <% if (session.user.is_admin) { %>
+                <a href="/auth/switch-role/admin" class="switch-btn" title="Chuyển sang Quản trị">
+                    <i class="fa-solid fa-shield-halved"></i> Admin
+                </a>
+            <% } %>
+            <% if (session.user.is_bdh) { %>
+                <a href="/auth/switch-role/bdh" class="switch-btn" title="Chuyển sang Ban Điều Hành">
+                    <i class="fa-solid fa-users-gear"></i> BDH
+                </a>
+            <% } %>
+            <% if (session.user.is_truong_khoi) { %>
+                <a href="/auth/switch-role/truong-khoi" class="switch-btn" title="Chuyển sang Trưởng Khối">
+                    <i class="fa-solid fa-user-tie"></i> Trưởng Khối
+                </a>
+            <% } %>
+        </div>
+
+        <!-- 2. GIAO DIỆN ĐIỆN THOẠI / TABLET (Nút tròn icon xổ xuống) -->
+        <div class="mobile-switch-container">
+            <button type="button" class="mobile-switch-icon-btn" id="mobileSwitchBtn" title="Chuyển đổi vai trò">
+                <i class="fa-solid fa-rotate"></i>
+            </button>
+            <div class="mobile-switch-dropdown-menu" id="mobileSwitchDropdown">
+                <% if (!currentIsGlv) { %>
+                    <a href="/auth/switch-role/glv" class="mobile-switch-item">
+                        <i class="fa-solid fa-house"></i> Về giao diện GLV
+                    </a>
+                <% } %>
+                <% if (session.user.is_admin) { %>
+                    <a href="/auth/switch-role/admin" class="mobile-switch-item">
+                        <i class="fa-solid fa-shield-halved"></i> Chuyển sang Admin
+                    </a>
+                <% } %>
+                <% if (session.user.is_bdh) { %>
+                    <a href="/auth/switch-role/bdh" class="mobile-switch-item">
+                        <i class="fa-solid fa-users-gear"></i> Chuyển sang BDH
+                    </a>
+                <% } %>
+                <% if (session.user.is_truong_khoi) { %>
+                    <a href="/auth/switch-role/truong-khoi" class="mobile-switch-item">
+                        <i class="fa-solid fa-user-tie"></i> Chuyển sang Trưởng Khối
+                    </a>
+                <% } %>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Script nhỏ để xử lý bấm mở/đóng menu trên mobile -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const iconBtn = document.getElementById('mobileSwitchBtn');
+            const dropdown = document.getElementById('mobileSwitchDropdown');
+
+            if (iconBtn && dropdown) {
+                iconBtn.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    dropdown.classList.toggle('show');
+                });
+
+                // Bấm ra chỗ khác trên màn hình thì tự động đóng menu lại
+                document.addEventListener('click', function(e) {
+                    if (!dropdown.contains(e.target) && !iconBtn.contains(e.target)) {
+                        dropdown.classList.remove('show');
+                    }
+                });
+            }
+        });
+    </script>
+<% } %>

@@ -1,0 +1,390 @@
+:root {
+    /* --- BẢNG MÀU ĐỎ SÁNG THEO QUY TẮC 60-30-10 --- */
+    --bg-60-main: #fff5f5;      /* 60%: Nền tổng thể (hồng đỏ cực nhạt, sáng) */
+    --bg-60-surface: #ffffff;   /* 60%: Nền các card, sidebar, nội dung */
+    
+    --primary-30: #ef4444;      /* 30%: Màu Đỏ sáng chủ đạo (Bright Red) */
+    --primary-30-hover: #d01818;/* 30%: Đỏ đậm hơn khi hover */
+    --primary-30-light: #fee2e2;/* 30%: Nền nhấn hồng đỏ nhạt dạng tint */
+    
+    --accent-10: #991b1b;       /* 10%: Màu nhấn điểm đặc biệt (Đỏ sậm cao cấp) */
+    
+    --text-main: #334155;       /* Chữ chính (xám đậm dễ đọc) */
+    --text-muted: #64748b;      /* Chữ phụ, mô tả */
+    
+    --sidebar-width: 280px;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: var(--bg-60-main);
+    color: var(--text-main);
+}
+
+/* --- HEADER: Chạy ngang trọn vẹn ở trên cùng (Màu Đỏ Sáng) --- */
+.bdh-header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 60px;
+    background-color: #c92323;
+    color: #ffffff;
+    box-shadow: 0 1px 3px rgba(239, 68, 68, 0.2);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 24px;
+    z-index: 1200;
+}
+
+.header-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.menu-toggle-btn {
+    display: none;
+    background: none;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    color: #ffffff;
+    padding: 4px 8px;
+}
+
+.logo-circle img {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #ffffff;
+}
+
+.church-info h2 {
+    font-size: 15px;
+    margin: 0;
+    font-weight: 700;
+    color: #ffffff;
+}
+
+.church-info p {
+    font-size: 11px;
+    margin: 0;
+    color: #fee2e2;
+}
+
+/* --- Nút Switch trên Header --- */
+.header-right {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.switch-btn {
+    background-color: #ffffff;
+    border: 1px solid #fca5a5;
+    color: #991b1b;
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+}
+
+.switch-btn:hover {
+    background-color: #7f1d1d;
+    color: #ffffff;
+    border-color: #7f1d1d;
+}
+
+/* --- SIDEBAR CHO MÁY TÍNH --- */
+.bdh-sidebar {
+    position: fixed;
+    top: 60px;
+    left: 0;
+    width: var(--sidebar-width);
+    height: calc(100vh - 60px);
+    background-color: var(--bg-60-surface);
+    box-shadow: 2px 0 8px rgba(239, 68, 68, 0.04);
+    z-index: 1100;
+    display: flex;
+    flex-direction: column;
+    transition: left 0.3s ease-in-out;
+}
+
+/* Nút đóng sidebar (Chỉ hiện trên mobile) */
+.close-sidebar-btn {
+    display: none;
+    background: none;
+    border: none;
+    font-size: 20px;
+    color: var(--text-muted);
+    cursor: pointer;
+    padding: 8px 16px;
+    text-align: right;
+    width: 100%;
+}
+
+/* Phần Menu chính cuộn linh hoạt */
+.sidebar-menu {
+    flex: 1;
+    overflow-y: auto;
+    padding: 12px;
+    margin: 0;
+}
+
+.menu-item {
+    margin-bottom: 6px;
+}
+
+.menu-link, .dropdown-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 16px;
+    color: var(--text-main);
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 600;
+    border-radius: 8px;
+    transition: all 0.2s;
+    background: none;
+    border: none;
+    width: 100%;
+    text-align: left;
+    cursor: pointer;
+}
+
+.menu-link:hover, .dropdown-toggle:hover {
+    background-color: var(--primary-30-light);
+    color: var(--primary-30-hover);
+}
+
+.submenu {
+    padding-left: 20px;
+    margin: 4px 0 0 0;
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease-out;
+}
+
+.menu-item.active .submenu {
+    max-height: 200px;
+}
+
+.submenu li a {
+    display: block;
+    padding: 10px 12px;
+    color: var(--text-muted);
+    text-decoration: none;
+    font-size: 13px;
+    border-radius: 6px;
+    transition: color 0.2s, background-color 0.2s;
+}
+
+.submenu li a:hover {
+    color: var(--primary-30-hover);
+    background-color: var(--primary-30-light);
+}
+
+.arrow-icon {
+    transition: transform 0.3s ease;
+    font-size: 11px;
+    color: var(--text-muted);
+}
+
+.menu-item.active .arrow-icon {
+    transform: rotate(90deg);
+    color: var(--primary-30);
+}
+
+/* --- PHẦN FOOTER CỦA SIDEBAR --- */
+.sidebar-footer {
+    padding: 12px 16px;
+    border-top: 1px solid #fee2e2;
+    background-color: var(--bg-60-surface);
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.sidebar-btn {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 14px;
+    font-size: 13px;
+    font-weight: 600;
+    border-radius: 8px;
+    text-decoration: none;
+    transition: all 0.2s;
+}
+
+.sidebar-overlay {
+    display: none;
+}
+
+/* --- MAIN CONTAINER --- */
+.main-container {
+    margin-top: 60px;
+    margin-left: var(--sidebar-width);
+    padding: 24px;
+    min-height: calc(100vh - 60px);
+    box-sizing: border-box;
+    transition: margin-left 0.3s ease-in-out;
+}
+
+/* --- RESPONSIVE CHO DI ĐỘNG, TABLET (<= 1024px) --- */
+@media screen and (max-width: 1024px) {
+    .menu-toggle-btn {
+        display: block;
+    }
+
+    .close-sidebar-btn {
+        display: block;
+    }
+
+    .bdh-sidebar {
+        left: calc(-1 * var(--sidebar-width));
+        top: 60px;
+        height: calc(100vh - 60px);
+        box-shadow: 4px 0 15px rgba(239, 68, 68, 0.15);
+    }
+
+    .bdh-sidebar.open {
+        left: 0;
+    }
+
+    .sidebar-overlay.show {
+        display: block;
+        position: fixed;
+        top: 60px;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: rgba(127, 29, 29, 0.3);
+        z-index: 1050;
+    }
+
+    .main-container {
+        margin-left: 0;
+        padding: 16px;
+    }
+}
+
+/* --- TỐI ƯU THÊM CHO ĐIỆN THOẠI MÀN HÌNH NHỎ (<= 576px) --- */
+@media screen and (max-width: 576px) {
+    .bdh-header {
+        padding: 0 12px;
+    }
+
+    .church-info h2 {
+        font-size: 13px;
+    }
+
+    .church-info p {
+        font-size: 10px;
+    }
+
+    .switch-btn {
+        padding: 5px 10px;
+        font-size: 11px;
+    }
+}
+/* --- 1. Ẩn thông tin nhà thờ trên Mobile & Tablet (<= 1024px) --- */
+@media screen and (max-width: 1024px) {
+    .church-info {
+        display: none !important;
+    }
+}
+
+/* --- 2. Định nghĩa hiển thị theo kích thước màn hình --- */
+@media screen and (min-width: 1025px) {
+    /* Màn hình máy tính: Hiện thanh nút ngang, ẩn nút tròn mobile */
+    .mobile-switch-container {
+        display: none !important;
+    }
+    .desktop-switch-buttons {
+        display: flex !important;
+        align-items: center;
+        gap: 12px;
+    }
+}
+
+@media screen and (max-width: 1024px) {
+    /* Màn hình di động/tablet: Ẩn thanh ngang, hiện nút tròn */
+    .desktop-switch-buttons {
+        display: none !important;
+    }
+    .mobile-switch-container {
+        display: block !important;
+    }
+}
+
+/* --- 3. Kiểu dáng cho Nút Tròn và Menu Dropdown trên Mobile --- */
+.mobile-switch-container {
+    position: relative;
+}
+
+.mobile-switch-icon-btn {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-color: var(--bg-60-surface, #ffffff);
+    border: 1px solid var(--primary-30-light, #fef3c7);
+    color: var(--primary-30, #d97706);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    cursor: pointer;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    transition: all 0.2s ease;
+}
+
+.mobile-switch-icon-btn:hover {
+    background-color: #7f1d1d;
+    color: #ffffff;
+    border-color: #7f1d1d;
+}
+
+/* Menu xổ xuống khi bấm vào nút tròn */
+.mobile-switch-dropdown-menu {
+    display: none;
+    position: absolute;
+    right: 0;
+    top: 50px;
+    background-color: var(--bg-60-surface, #ffffff);
+    border-radius: 12px;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+    padding: 8px;
+    min-width: 200px;
+    z-index: 1300;
+    border: 1px solid var(--primary-30-light, #fef3c7);
+}
+
+.mobile-switch-dropdown-menu.show {
+    display: block;
+}
+
+.mobile-switch-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 14px;
+    color: var(--primary-30, #d97706);
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 600;
+    border-radius: 8px;
+    transition: background-color 0.2s;
+}
+
+.mobile-switch-item:hover {
+    background-color: var(--primary-30-light, #fef3c7);
+    color: var(--primary-30-hover, #b45309);
+}

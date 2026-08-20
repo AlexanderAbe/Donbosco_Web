@@ -1,0 +1,116 @@
+/* Container tổng */
+.dashboard-container {
+    padding: 24px;
+    background-color: #f8fafc;
+    min-height: 100vh;
+}
+
+/* Tiêu đề trang */
+.page-header h1 {
+    font-size: 24px;
+    font-weight: 700;
+    color: #0f172a;
+    margin-bottom: 4px;
+}
+
+.page-header p {
+    color: #64748b;
+    font-size: 14px;
+    margin: 0;
+}
+
+/* Khung chứa bảng (Card) */
+.section-card {
+    background: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05), 0 1px 2px rgba(0, 0, 0, 0.1);
+    border: 1px solid #e2e8f0;
+    padding: 20px;
+    margin-top: 20px;
+}
+
+/* Responsive table container */
+.table-responsive {
+    overflow-x: auto;
+}
+
+/* Định dạng bảng dữ liệu */
+.data-table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: left;
+    font-size: 14px;
+}
+
+.data-table th {
+    background-color: #f1f5f9;
+    color: #334155;
+    font-weight: 600;
+    padding: 12px 16px;
+    border-bottom: 2px solid #e2e8f0;
+    white-space: nowrap;
+}
+
+.data-table td {
+    padding: 14px 16px;
+    border-bottom: 1px solid #f1f5f9;
+    color: #334155;
+    vertical-align: middle;
+}
+
+.data-table tbody tr:hover {
+    background-color: #f8fafc;
+}
+
+/* Tùy chỉnh checkbox phân quyền cho bắt mắt */
+.data-table input[type="checkbox"] {
+    appearance: none;
+    -webkit-appearance: none;
+    width: 20px;
+    height: 20px;
+    border: 2px solid #cbd5e1;
+    border-radius: 6px;
+    outline: none;
+    cursor: pointer;
+    background-color: #fff;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+}
+
+.data-table input[type="checkbox"]:checked {
+    background-color: #10b981;
+    border-color: #10b981;
+}
+
+.data-table input[type="checkbox"]:checked::after {
+    content: "✔";
+    font-size: 12px;
+    color: white;
+    font-weight: bold;
+}
+
+.data-table input[type="checkbox"]:hover {
+    border-color: #94a3b8;
+}
+
+/* Nút lưu thay đổi */
+.data-table button[type="submit"] {
+    background-color: #10b981;
+    color: white;
+    border: none;
+    padding: 6px 14px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 500;
+    font-size: 13px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: background-color 0.2s;
+}
+
+.data-table button[type="submit"]:hover {
+    background-color: #059669;
+}

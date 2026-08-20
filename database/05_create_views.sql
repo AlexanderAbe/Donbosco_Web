@@ -74,3 +74,20 @@ FROM TONG_KET_NAM_HOC tk
 JOIN THIEU_NHI tn ON tk.id_tn = tn.id_tn
 JOIN LOP_HOC l ON tk.id_lop = l.id_lop
 JOIN KHOI k ON l.id_khoi = k.id_khoi;
+
+CREATE OR REPLACE VIEW vw_tai_khoan_glv AS
+SELECT 
+    t.id_tk,
+    t.username,
+    t.password_hash,
+    t.is_admin,
+    t.id_glv,
+    t.trang_thai,
+    g.ten_thanh,
+    g.ho_va_ten_lot,
+    g.ten,
+    g.sdt,
+    -- Tiện ích: Ghép sẵn họ tên đầy đủ để dùng luôn ở mọi nơi
+    TRIM(CONCAT(g.ten_thanh, ' ', g.ho_va_ten_lot, ' ', g.ten)) AS ho_ten
+FROM TAI_KHOAN t
+LEFT JOIN GLV g ON t.id_glv = g.id_glv;

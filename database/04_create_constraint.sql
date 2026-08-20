@@ -30,6 +30,7 @@ ALTER TABLE PHAN_CONG_TRUONG_KHOI ADD CONSTRAINT check_nk_pc_truong_khoi CHECK (
 ALTER TABLE THIEU_NHI ADD CONSTRAINT check_ngay_sinh_hop_le CHECK (ngay_sinh <= CURRENT_DATE);
 ALTER TABLE BI_TICH ADD CONSTRAINT check_ngay_lanh_nhan_hop_le CHECK (ngay_lanh_nhan <= CURRENT_DATE);
 ALTER TABLE PHU_HUYNH ADD CONSTRAINT check_sdt_phu_huynh CHECK (LENGTH(sdt) >= 9);
+ALTER TABLE tai_khoan ADD CONSTRAINT unique_username UNIQUE (username);
 
 -- Ràng buộc độc nhất (Unique Constraints)
 ALTER TABLE PHAN_LOP ADD CONSTRAINT uk_thieu_nhi_nien_khoa UNIQUE (id_tn, nien_khoa);
