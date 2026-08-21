@@ -1,11 +1,11 @@
-/* Container tổng */
+/* ==========================================
+   1. GIAO DIỆN CHUNG TRANG PHÂN QUYỀN
+   ========================================== */
 .dashboard-container {
     padding: 24px;
-    background-color: #f8fafc;
     min-height: 100vh;
 }
 
-/* Tiêu đề trang */
 .page-header h1 {
     font-size: 24px;
     font-weight: 700;
@@ -19,7 +19,6 @@
     margin: 0;
 }
 
-/* Khung chứa bảng (Card) */
 .section-card {
     background: #ffffff;
     border-radius: 12px;
@@ -29,12 +28,10 @@
     margin-top: 20px;
 }
 
-/* Responsive table container */
 .table-responsive {
     overflow-x: auto;
 }
 
-/* Định dạng bảng dữ liệu */
 .data-table {
     width: 100%;
     border-collapse: collapse;
@@ -62,7 +59,6 @@
     background-color: #f8fafc;
 }
 
-/* Tùy chỉnh checkbox phân quyền cho bắt mắt */
 .data-table input[type="checkbox"] {
     appearance: none;
     -webkit-appearance: none;
@@ -95,7 +91,6 @@
     border-color: #94a3b8;
 }
 
-/* Nút lưu thay đổi */
 .data-table button[type="submit"] {
     background-color: #10b981;
     color: white;
@@ -113,4 +108,77 @@
 
 .data-table button[type="submit"]:hover {
     background-color: #059669;
+}
+
+/* ==========================================
+   2. RESPONSIVE MOBILE
+   ========================================== */
+@media screen and (max-width: 768px) {
+    .dashboard-container {
+        padding: 12px;
+    }
+
+    .section-card {
+        padding: 12px;
+        margin-top: 12px;
+    }
+
+    .data-table thead {
+        display: none;
+    }
+
+    .data-table,
+    .data-table tbody,
+    .data-table tr,
+    .data-table td {
+        display: block;
+        width: 100%;
+    }
+
+    .data-table tr {
+        background: #ffffff;
+        border: 1px solid #e2e8f0;
+        border-radius: 10px;
+        margin-bottom: 12px;
+        padding: 12px;
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02);
+    }
+
+    .data-table tr:hover {
+        background-color: #ffffff;
+    }
+
+    .data-table td {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 8px 0;
+        border-bottom: 1px solid #f1f5f9;
+        text-align: right;
+    }
+
+    .data-table td:last-child {
+        border-bottom: none;
+        padding-top: 12px;
+        justify-content: center;
+    }
+
+    .data-table td::before {
+        content: attr(data-label);
+        font-weight: 600;
+        color: #64748b;
+        text-align: left;
+        font-size: 13px;
+    }
+
+    .data-table td:last-child::before {
+        display: none;
+    }
+
+    .data-table button[type="submit"] {
+        width: 100%;
+        justify-content: center;
+        padding: 10px;
+        font-size: 14px;
+    }
 }

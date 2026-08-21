@@ -1,5 +1,3 @@
-// src/middlewares/role.js
-
 /**
  * Middleware kiểm tra active_role hiện tại của người dùng có khớp với quyền yêu cầu hay không
  * @param {String} requiredRole - Vai trò bắt buộc ('admin', 'bdh', 'truong-khoi', 'glv')

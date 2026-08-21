@@ -2,16 +2,13 @@
    GIAO DIỆN TRANG QUẢN LÝ NGƯỜI DÙNG (ADMIN USERS)
    ========================================================== */
 
-/* 1. Layout tổng thể trang */
 .dashboard-container {
     padding: 24px;
     max-width: 1400px;
     margin: 0 auto;
-    background-color: #f8fafc;
     min-height: calc(100vh - 60px);
 }
 
-/* Phần Tiêu đề trang */
 .page-header {
     margin-bottom: 24px;
 }
@@ -29,7 +26,6 @@
     margin: 0;
 }
 
-/* 2. Khung chứa nội dung dạng Thẻ (Card) */
 .section-card {
     background: #ffffff;
     border-radius: 12px;
@@ -39,7 +35,6 @@
     margin-bottom: 24px;
 }
 
-/* 3. Ô tìm kiếm hiện đại */
 .search-box-container {
     position: relative;
 }
@@ -71,7 +66,6 @@
     font-size: 14px;
 }
 
-/* 4. Tùy chỉnh bảng dữ liệu (Data Table) */
 .table-responsive {
     width: 100%;
     overflow-x: auto;
@@ -106,7 +100,6 @@
     vertical-align: middle;
 }
 
-/* Hiệu ứng rê chuột vào hàng trong bảng */
 .data-table tbody tr {
     transition: background-color 0.15s ease;
 }
@@ -119,7 +112,6 @@
     border-bottom: none;
 }
 
-/* 5. Thẻ Badge trạng thái & vai trò */
 .badge {
     padding: 5px 12px;
     border-radius: 20px;
@@ -135,12 +127,12 @@
     color: #166534;
 }
 
-.badge.locked, .badge.error {
+.badge.locked,
+.badge.error {
     background-color: #fee2e2;
     color: #991b1b;
 }
 
-/* 6. Nút hành động (Thêm tài khoản mới) */
 .action-btn {
     background-color: #10b981;
     color: #ffffff;
@@ -162,7 +154,6 @@
     box-shadow: 0 4px 6px rgba(16, 185, 129, 0.3);
 }
 
-/* 7. Các nút thao tác trong bảng (Sửa / Khóa) */
 .data-table td a[title] {
     display: inline-flex;
     align-items: center;
@@ -178,7 +169,33 @@
     transform: scale(1.1);
 }
 
-/* 8. Responsive cho thiết bị di động */
+.role-checkbox {
+    width: 20px;
+    height: 20px;
+    cursor: pointer;
+    accent-color: #10b981;
+}
+
+.btn-save-role {
+    background: #10b981;
+    color: white;
+    border: none;
+    padding: 6px 14px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 500;
+    font-size: 13px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.2s ease;
+}
+
+.btn-save-role:hover {
+    background: #059669;
+    box-shadow: 0 2px 4px rgba(16, 185, 129, 0.2);
+}
+
 @media screen and (max-width: 768px) {
     .dashboard-container {
         padding: 12px;
@@ -201,5 +218,95 @@
 
     .search-box-container input {
         width: 100%;
+    }
+
+    .search-form-mobile {
+        width: 100% !important;
+        flex-direction: column;
+    }
+
+    .search-form-mobile input {
+        width: 100% !important;
+    }
+
+    .search-form-mobile button, 
+    .search-form-mobile a {
+        width: 100% !important;
+        justify-content: center;
+    }
+
+    /* Biến bảng thành danh sách card */
+    .data-table, 
+    .data-table thead, 
+    .data-table tbody, 
+    .data-table th, 
+    .data-table tr, 
+    .data-table td {
+        display: block;
+        width: 100%;
+    }
+
+    .data-table thead {
+        display: none; /* Ẩn tiêu đề bảng cũ */
+    }
+
+    /* Mỗi dòng user là một Card riêng biệt */
+    .data-table tr {
+        background: #ffffff;
+        border: 1px solid #e2e8f0;
+        border-radius: 12px;
+        margin-bottom: 14px;
+        padding: 14px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.03);
+    }
+
+    .data-table td {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        padding: 10px 0 !important;
+        border-bottom: 1px solid #f1f5f9;
+        font-size: 14px;
+    }
+
+    .data-table td .roles-wrapper {
+        display: flex !important;
+        flex-wrap: nowrap !important;
+        overflow-x: auto !important;
+        max-width: 65% !important; /* Giới hạn khung chứa để nhường chỗ cho chữ "Vai trò" bên trái */
+        gap: 6px;
+        align-items: center;
+        white-space: nowrap;
+        -webkit-overflow-scrolling: touch;
+        padding-bottom: 2px;
+    }
+
+    /* Ẩn thanh cuộn mặc định cho giao diện gọn gàng */
+    .data-table td .roles-wrapper::-webkit-scrollbar {
+        display: none;
+    }
+    /* 2. Cho phép các thẻ role được phép xuống hàng tự nhiên */
+    .data-table td .roles-wrapper {
+        display: flex !important;
+        flex-wrap: wrap !important; /* Cho phép các role xuống dòng thoải mái */
+        justify-content: flex-end !important;
+        gap: 4px;
+        max-width: 65%; /* Giới hạn độ rộng khung chứa role để không bị tràn màn hình */
+    }
+
+    .data-table td:last-child {
+        border-bottom: none;
+        padding-top: 12px !important;
+        justify-content: space-between !important; /* Không dùng flex-end để tránh lệch chữ Thao tác */
+    }
+
+    .data-table td::before {
+        content: attr(data-label);
+        font-weight: 600;
+        color: #64748b;
+        font-size: 13px;
+        white-space: nowrap !important; /* Ngăn không cho chữ nhãn bị xuống dòng */
+        flex-shrink: 0; /* Không cho phép co lại gây bẻ chữ */
+        margin-right: 12px; /* Tạo khoảng cách an toàn với phần nội dung bên phải */
     }
 }

@@ -1,5 +1,6 @@
 const bcrypt = require('bcrypt');
 const AuthModel = require('../models/auth-model');
+const { logAction } = require('../utils/logger');
 
 // Hiển thị trang đăng nhập
 exports.getLogin = (req, res) => {
@@ -13,16 +14,23 @@ exports.postLogin = async (req, res) => {
     try {
         const user = await AuthModel.findByUsername(phone);
 
+        // 1. Không tìm thấy số điện thoại -> Ghi log thất bại (id_tk là NULL / Vãng lai)
         if (!user) {
+            await logAction(req, `Đăng nhập thất bại (Không tồn tại SĐT: ${phone})`, 'Thất bại', null);
             return res.render('login', { layout: false, error: 'Sai số điện thoại' });
         }
 
         const match = await bcrypt.compare(password, user.password_hash);
+        
+        // 2. Sai mật khẩu -> Ghi log thất bại kèm id_tk của người dùng
         if (!match) {
+            await logAction(req, 'Đăng nhập thất bại (Sai mật khẩu)', 'Thất bại', user.id_tk);
             return res.render('login', { layout: false, error: 'Sai mật khẩu' });
         }
 
+        // 3. Tài khoản bị khóa -> Ghi log thất bại kèm id_tk của người dùng
         if (user.trang_thai === 'Đã khóa') {
+            await logAction(req, 'Đăng nhập thất bại (Tài khoản đã bị khóa)', 'Thất bại', user.id_tk);
             return res.render('login', { 
                 layout: false, 
                 error: 'Tài khoản của bạn đã bị khóa bởi quản trị viên!' 
@@ -51,9 +59,13 @@ exports.postLogin = async (req, res) => {
             active_role: 'glv'
         };
 
+        // 4. Đăng nhập thành công -> Ghi log thành công
+        await logAction(req, 'Đăng nhập vào hệ thống', 'Thành công', user.id_tk);
+
         return res.redirect('/glv');
 
     } catch (error) {
+        console.error('Lỗi đăng nhập:', error);
         res.status(500).send("Lỗi máy chủ nội bộ");
     }
 };
@@ -80,7 +92,15 @@ exports.switchRole = (req, res) => {
 };
 
 // Xử lý đăng xuất
-exports.logout = (req, res) => {
+exports.logout = async (req, res) => {
+    try {
+        if (req.session && req.session.user) {
+            await logAction(req, 'Đăng xuất khỏi hệ thống', 'Thành công');
+        }
+    } catch (err) {
+        console.error('Lỗi ghi log đăng xuất:', err);
+    }
+
     req.session.destroy((err) => {
         if (err) {
             return res.status(500).send('Không thể đăng xuất, vui lòng thử lại.');
@@ -105,16 +125,25 @@ exports.postChangePassword = async (req, res) => {
 
     try {
         if (newPassword !== confirmPassword) {
+            // --- BỔ SUNG LOG THẤT BẠI: Mật khẩu không khớp ---
+            await logAction(req, 'Thay đổi mật khẩu thất bại (Mật khẩu mới không khớp)', 'Thất bại', id_tk);
+            
             return res.render('change-password', { 
                 layout: false, error: 'Mật khẩu mới và xác nhận mật khẩu không khớp', success: null 
             });
         }
 
         const user = await AuthModel.findById(id_tk);
-        if (!user) return res.status(404).send('Không tìm thấy tài khoản');
+        if (!user) {
+            await logAction(req, 'Thay đổi mật khẩu thất bại (Không tìm thấy tài khoản)', 'Thất bại', id_tk);
+            return res.status(404).send('Không tìm thấy tài khoản');
+        }
 
         const isMatch = await bcrypt.compare(currentPassword, user.password_hash);
         if (!isMatch) {
+            // --- BỔ SUNG LOG THẤT BẠI: Sai mật khẩu hiện tại ---
+            await logAction(req, 'Thay đổi mật khẩu thất bại (Sai mật khẩu hiện tại)', 'Thất bại', id_tk);
+
             return res.render('change-password', { 
                 layout: false, error: 'Mật khẩu hiện tại không chính xác', success: null 
             });
@@ -122,6 +151,9 @@ exports.postChangePassword = async (req, res) => {
 
         const newPasswordHash = await bcrypt.hash(newPassword, 10);
         await AuthModel.updatePassword(id_tk, newPasswordHash);
+
+        // Ghi log đổi mật khẩu thành công
+        await logAction(req, 'Thay đổi mật khẩu tài khoản', 'Thành công', id_tk);
 
         req.session.successMessage = 'Đổi mật khẩu thành công!';
 
@@ -133,6 +165,11 @@ exports.postChangePassword = async (req, res) => {
         });
 
     } catch (error) {
+        console.error('Lỗi đổi mật khẩu:', error);
+        
+        // --- BỔ SUNG LOG THẤT BẠI: Lỗi hệ thống bất ngờ ---
+        await logAction(req, 'Thay đổi mật khẩu thất bại (Lỗi hệ thống nội bộ)', 'Thất bại', id_tk);
+
         res.render('change-password', { 
             layout: false, error: 'Lỗi máy chủ nội bộ, vui lòng thử lại sau', success: null 
         });
@@ -155,7 +192,7 @@ exports.getForgotPassword = async (req, res) => {
             layout: false, 
             adminList: [],
             error: null,
-            success: null
+            success: null 
         });
     }
 };

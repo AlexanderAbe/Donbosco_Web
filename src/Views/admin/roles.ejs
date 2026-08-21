@@ -23,35 +23,35 @@
                 <tbody>
                     <% if (users && users.length > 0) { %>
                         <% users.forEach(user => { %>
-                            <tr>
-                                <form action="/admin/roles/update/<%= user.id_glv %>" method="POST">
-                                    <td>#<%= user.id_glv %></td>
-                                    <td><b><%= user.ho_ten || (user.ho_va_ten_lot + ' ' + user.ten) %></b></td>
-                                    <td><%= user.username || 'Chưa có tài khoản' %></td>
+                            <form action="/admin/roles/update/<%= user.id_glv %>" method="POST">
+                                <tr>
+                                    <td data-label="ID GLV">#<%= user.id_glv %></td>
+                                    <td data-label="Họ và tên"><b><%= user.ho_ten || (user.ho_va_ten_lot + ' ' + user.ten) %></b></td>
+                                    <td data-label="Tên đăng nhập / SĐT"><%= user.username || 'Chưa có tài khoản' %></td>
                                     
                                     <!-- Checkbox Quản trị viên -->
-                                    <td style="text-align: center;">
+                                    <td data-label="Quản trị viên (Admin)" style="text-align: center;">
                                         <input type="checkbox" name="is_admin" value="true" <%= user.is_admin ? 'checked' : '' %> style="width: 18px; height: 18px; cursor: pointer;">
                                     </td>
 
                                     <!-- Checkbox Ban Điều Hành -->
-                                    <td style="text-align: center;">
+                                    <td data-label="Ban Điều Hành (BDH)" style="text-align: center;">
                                         <input type="checkbox" name="is_bdh" value="true" <%= user.is_bdh ? 'checked' : '' %> style="width: 18px; height: 18px; cursor: pointer;">
                                     </td>
 
                                     <!-- Checkbox Trưởng Khối -->
-                                    <td style="text-align: center;">
+                                    <td data-label="Trưởng Khối" style="text-align: center;">
                                         <input type="checkbox" name="is_truong_khoi" value="true" <%= user.is_truong_khoi ? 'checked' : '' %> style="width: 18px; height: 18px; cursor: pointer;">
                                     </td>
 
                                     <!-- Nút Lưu -->
-                                    <td style="text-align: center;">
+                                    <td data-label="Hành động" style="text-align: center;">
                                         <button type="submit" style="background: #10b981; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-weight: 500;">
                                             <i class="fa-solid fa-floppy-disk"></i> Lưu
                                         </button>
                                     </td>
-                                </form>
-                            </tr>
+                                </tr>
+                            </form>
                         <% }) %>
                     <% } else { %>
                         <tr>

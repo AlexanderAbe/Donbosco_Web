@@ -89,7 +89,6 @@
     margin: 0 0 16px 0;
 }
 
-/* Phần bảng dữ liệu nhật ký */
 .card-header-flex {
     display: flex;
     justify-content: space-between;
@@ -146,18 +145,23 @@
 
 .badge {
     display: inline-block;
-    padding: 4px 8px;
-    border-radius: 4px;
-    font-size: 11px;
+    padding: 4px 10px;
+    border-radius: 50px;
+    font-size: 12px;
     font-weight: 600;
 }
 
 .badge.success {
     background-color: #dcfce7;
-    color: #16a34a;
+    color: #166534;
 }
 
-/* --- TỐI ƯU RESPONSIVE CHO DI ĐỘNG & TABLET --- */
+.badge.error {
+    background-color: #fee2e2;
+    color: #991b1b;
+}
+
+/* --- RESPONSIVE --- */
 @media screen and (max-width: 768px) {
     .dashboard-container {
         gap: 16px;

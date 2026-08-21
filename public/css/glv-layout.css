@@ -1,27 +1,22 @@
 :root {
-    /* --- BẢNG MÀU CHUẨN XÁC THEO PALETTE TRONG ẢNH (60-30-10) --- */
-    --bg-60-main: #f4f8fb;      /* 60%: Nền tổng thể (xanh dương khói siêu nhạt, sạch sẽ) */
-    --bg-60-surface: #ffffff;   /* 60%: Nền các card, sidebar, nội dung trắng tinh */
-    
-    --primary-30: #2563eb;      /* 30%: Màu Xanh dương đậm chủ đạo (Khớp ô đầu tiên) */
-    --primary-30-hover: #1d4ed8;/* 30%: Xanh đậm hơn khi hover */
-    --primary-30-light: #e0f2fe;/* 30%: Nền nhấn xanh dương nhạt dạng tint */
-    
-    --accent-10: #1e40af;       /* 10%: Màu nhấn điểm đặc biệt (Xanh hoàng gia đậm) */
-    
-    --text-main: #334155;       /* Chữ chính (xám đậm dễ đọc) */
-    --text-muted: #64748b;      /* Chữ phụ, mô tả */
-    
+    --bg-60-main: #f4f8fb;
+    --bg-60-surface: #ffffff;
+    --primary-30: #2563eb;
+    --primary-30-hover: #1d4ed8;
+    --primary-30-light: #e0f2fe;
+    --accent-10: #1e40af;
+    --text-main: #334155;
+    --text-muted: #64748b;
     --sidebar-width: 280px;
 }
 
 body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif !important;
     background-color: var(--bg-60-main);
     color: var(--text-main);
 }
 
-/* --- HEADER: Chạy ngang trọn vẹn ở trên cùng --- */
+/* --- HEADER --- */
 .glv-header {
     position: fixed;
     top: 0;
@@ -36,9 +31,16 @@ body {
     justify-content: space-between;
     padding: 0 24px;
     z-index: 1200;
+    transition: height 0.3s ease;
 }
 
 .header-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.header-right {
     display: flex;
     align-items: center;
     gap: 12px;
@@ -60,6 +62,7 @@ body {
     border-radius: 50%;
     object-fit: cover;
     border: 2px solid #ffffff;
+    transition: all 0.3s ease;
 }
 
 .church-info h2 {
@@ -73,13 +76,6 @@ body {
     font-size: 11px;
     margin: 0;
     color: #dbeafe;
-}
-
-/* --- Nút Switch trên Header --- */
-.header-right {
-    display: flex;
-    align-items: center;
-    gap: 12px;
 }
 
 .switch-btn {
@@ -101,7 +97,7 @@ body {
     border-color: #1e40af;
 }
 
-/* --- SIDEBAR CHO MÁY TÍNH --- */
+/* --- SIDEBAR --- */
 .glv-sidebar {
     position: fixed;
     top: 60px;
@@ -113,10 +109,9 @@ body {
     z-index: 1100;
     display: flex;
     flex-direction: column;
-    transition: left 0.3s ease-in-out;
+    transition: left 0.3s ease-in-out, top 0.3s ease, height 0.3s ease;
 }
 
-/* Nút đóng sidebar (Chỉ hiện trên mobile) */
 .close-sidebar-btn {
     display: none;
     background: none;
@@ -129,7 +124,6 @@ body {
     width: 100%;
 }
 
-/* Phần Menu chính cuộn linh hoạt */
 .sidebar-menu {
     flex: 1;
     overflow-y: auto;
@@ -202,7 +196,6 @@ body {
     color: var(--primary-30);
 }
 
-/* --- PHẦN FOOTER CỦA SIDEBAR --- */
 .sidebar-footer {
     padding: 12px 16px;
     border-top: 1px solid #e0f2fe;
@@ -228,7 +221,6 @@ body {
     display: none;
 }
 
-/* --- MAIN CONTAINER --- */
 .main-container {
     margin-top: 60px;
     margin-left: var(--sidebar-width);
@@ -238,7 +230,77 @@ body {
     transition: margin-left 0.3s ease-in-out;
 }
 
-/* --- RESPONSIVE CHO DI ĐỘNG, TABLET (<= 1024px) --- */
+/* --- SWITCH MOBILE / DESKTOP --- */
+.desktop-switch-buttons {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.mobile-switch-container {
+    position: relative;
+    display: none;
+}
+
+.mobile-switch-icon-btn {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-color: var(--bg-60-surface, #ffffff);
+    border: 1px solid var(--primary-30-light, #e0f2fe);
+    color: var(--primary-30, #2563eb);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    cursor: pointer;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    transition: all 0.2s ease;
+}
+
+.mobile-switch-icon-btn:hover {
+    background-color: #1e40af;
+    color: #ffffff;
+    border-color: #1e40af;
+}
+
+.mobile-switch-dropdown-menu {
+    display: none;
+    position: absolute;
+    right: 0;
+    top: 50px;
+    background-color: var(--bg-60-surface, #ffffff);
+    border-radius: 12px;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+    padding: 8px;
+    min-width: 200px;
+    z-index: 1300;
+    border: 1px solid var(--primary-30-light, #e0f2fe);
+}
+
+.mobile-switch-dropdown-menu.show {
+    display: block;
+}
+
+.mobile-switch-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 14px;
+    color: var(--primary-30, #2563eb);
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 600;
+    border-radius: 8px;
+    transition: background-color 0.2s;
+}
+
+.mobile-switch-item:hover {
+    background-color: var(--primary-30-light, #e0f2fe);
+    color: var(--primary-30-hover, #1d4ed8);
+}
+
+/* --- RESPONSIVE --- */
 @media screen and (max-width: 1024px) {
     .menu-toggle-btn {
         display: block;
@@ -246,6 +308,18 @@ body {
 
     .close-sidebar-btn {
         display: block;
+    }
+
+    .church-info {
+        display: none !important;
+    }
+
+    .desktop-switch-buttons {
+        display: none !important;
+    }
+
+    .mobile-switch-container {
+        display: block !important;
     }
 
     .glv-sidebar {
@@ -276,7 +350,6 @@ body {
     }
 }
 
-/* --- TỐI ƯU THÊM CHO ĐIỆN THOẠI MÀN HÌNH NHỎ (<= 576px) --- */
 @media screen and (max-width: 576px) {
     .glv-header {
         padding: 0 12px;
@@ -293,6 +366,58 @@ body {
     .switch-btn {
         padding: 5px 10px;
         font-size: 11px;
+    }
+}
+
+@media screen and (min-width: 1025px) {
+    .mobile-switch-container {
+        display: none !important;
+    }
+
+    .desktop-switch-buttons {
+        display: flex !important;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .glv-header {
+        height: 90px;
+        padding: 0 32px;
+    }
+
+    .logo-circle img {
+        width: 64px;
+        height: 64px;
+    }
+
+    .church-info {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+    }
+
+    .church-info h2 {
+        font-size: 20px;
+    }
+
+    .church-info p {
+        font-size: 13px;
+    }
+
+    .desktop-switch-buttons .switch-btn {
+        padding: 10px 20px;
+        font-size: 14px;
+        border-radius: 24px;
+    }
+
+    .glv-sidebar {
+        top: 100px;
+        height: calc(100vh - 100px);
+    }
+
+    .main-container {
+        margin-top: 100px;
+        min-height: calc(100vh - 100px);
     }
 }
 /* --- 1. Ẩn thông tin nhà thờ trên Mobile & Tablet (<= 1024px) --- */
@@ -387,4 +512,51 @@ body {
 .mobile-switch-item:hover {
     background-color: var(--primary-30-light, #fef3c7);
     color: var(--primary-30-hover, #b45309);
+}
+
+@media screen and (min-width: 1025px) {
+    /* 1. Tăng chiều cao header lên 100px */
+    .glv-header {
+        height: 90px;
+        padding: 0 32px;
+    }
+
+    /* 2. Phóng to Logo */
+    .logo-circle img {
+        width: 64px;
+        height: 64px;
+    }
+
+    /* 3. Phóng to cỡ chữ và khoảng cách thông tin nhà thờ */
+    .church-info {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+    }
+
+    .church-info h2 {
+        font-size: 20px; /* Tăng kích thước tiêu đề */
+    }
+
+    .church-info p {
+        font-size: 13px; /* Tăng kích thước mô tả */
+    }
+
+    /* 4. Phóng to nút Switch trên Desktop */
+    .desktop-switch-buttons .switch-btn {
+        padding: 10px 20px;
+        font-size: 14px;
+        border-radius: 24px;
+    }
+
+    /* 5. Cập nhật lại vị trí hiển thị của Sidebar và Main Container cho khớp với header 100px */
+    .glv-sidebar {
+        top: 100px;
+        height: calc(100vh - 100px);
+    }
+
+    .main-container {
+        margin-top: 100px;
+        min-height: calc(100vh - 100px);
+    }
 }

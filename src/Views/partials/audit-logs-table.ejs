@@ -17,8 +17,8 @@
             <% if (logList && logList.length > 0) { %>
                 <% logList.forEach(log => { %>
                     <tr>
-                        <td><%= new Date(log.created_at).toLocaleString('vi-VN') %></td>
-                        <td>
+                        <td data-label="Thời gian"><%= new Date(log.created_at).toLocaleString('vi-VN') %></td>
+                        <td data-label="Người thực hiện">
                             <b>
                                 <!-- Tận dụng cột ho_ten gộp sẵn từ view vw_tai_khoan_glv -->
                                 <%= log.ho_ten || 'Hệ thống / Vãng lai' %>
@@ -27,8 +27,8 @@
                                 <br><small style="color: var(--text-muted, #718096);">(@<%= log.username %>)</small>
                             <% } %>
                         </td>
-                        <td><%= log.action %></td>
-                        <td>
+                        <td data-label="Hành động chi tiết"><%= log.action %></td>
+                        <td data-label="Trạng thái">
                             <span class="badge <%= log.status === 'Thành công' ? 'success' : 'error' %>">
                                 <%= log.status %>
                             </span>
