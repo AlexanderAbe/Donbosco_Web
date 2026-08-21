@@ -5,7 +5,7 @@ const SettingModel = {
     async getAllRankings() {
         try {
             const query = `
-                SELECT k.*, c.nien_khoa 
+                SELECT k.*, c.nien_khoa, c.ngay_tao
                 FROM KHUNG_XEP_LOAI k
                 JOIN CAU_HINH_NAM_HOC c ON k.id_cau_hinh_nam_hoc = c.id_cau_hinh_nam_hoc
                 ORDER BY c.nien_khoa DESC, k.min DESC
