@@ -4,9 +4,8 @@
             <i class="<%= iconClass %>"></i> <%= title %> (<%= users ? users.length : 0 %>)
         </h2>
         
-        <!-- Chỉ hiện thanh tìm kiếm ở bảng đầu tiên (nếu có truyền vào) -->
         <% if (showSearch) { %>
-            <form action="/admin/users" method="GET" style="display: flex; gap: 10px; margin-bottom: 0;">
+            <form action="/admin/users" method="GET" class="search-form-mobile" style="display: flex; gap: 10px; margin-bottom: 0;">
                 <input type="text" name="search" value="<%= typeof searchQuery !== 'undefined' ? searchQuery : '' %>" 
                     placeholder="Tìm theo username hoặc họ tên..." 
                     style="padding: 8px 12px; border: 1px solid #cbd5e1; border-radius: 6px; width: 300px; outline: none;">
@@ -14,7 +13,7 @@
                 <button type="submit" class="action-btn">Tìm kiếm</button>
                 
                 <% if (typeof searchQuery !== 'undefined' && searchQuery) { %>
-                    <a href="/admin/users" style="padding: 8px 16px; background-color: #e2e8f0; color: #334155; text-decoration: none; border-radius: 6px; display: flex; align-items: center;">
+                    <a href="/admin/users" style="padding: 8px 16px; background-color: #e2e8f0; color: #334155; text-decoration: none; border-radius: 6px; display: flex; align-items: center; justify-content: center;">
                         Xóa lọc
                     </a>
                 <% } %>
@@ -37,39 +36,41 @@
                 <% if (users && users.length > 0) { %>
                     <% users.forEach(userItem => { %>
                         <tr <%= type === 'locked' ? 'style="background-color: #fffafaf0;"' : '' %>>
-                            <td>#<%= userItem.id_tk %></td>
-                            <td><b><%= userItem.username %></b></td>
-                            <td><%= userItem.ho_ten || 'Chưa cập nhật' %></td>
-                            <td>
+                            <td data-label="ID">#<%= userItem.id_tk %></td>
+                            <td data-label="Tên đăng nhập"><b><%= userItem.username %></b></td>
+                            <td data-label="Họ và tên"><%= userItem.ho_ten || 'Chưa cập nhật' %></td>
+                            <td data-label="Vai trò">
                                 <% if (userItem.roles && userItem.roles.length > 0) { %>
-                                    <% userItem.roles.forEach(role => { %>
-                                        <span class="badge" style="background-color: #e2e8f0; color: #1e293b; font-weight: 500; display: inline-block; margin: 2px 4px 2px 0; padding: 3px 8px; border-radius: 4px; font-size: 12px;">
-                                            <%= role %>
-                                        </span>
-                                    <% }) %>
+                                    <div class="roles-wrapper" style="display: flex; gap: 4px; flex-wrap: nowrap; justify-content: flex-end;">
+                                        <% userItem.roles.forEach(role => { %>
+                                            <span class="badge" style="background-color: #e2e8f0; color: #1e293b; font-weight: 500; padding: 3px 8px; border-radius: 4px; font-size: 12px; white-space: nowrap;">
+                                                <%= role %>
+                                            </span>
+                                        <% }) %>
+                                    </div>
                                 <% } else { %>
-                                    <span class="badge" style="background-color: #e2e8f0; color: #1e293b; font-weight: 500;">
+                                    <span class="badge" style="background-color: #e2e8f0; color: #1e293b; font-weight: 500; white-space: nowrap;">
                                         Giáo lý viên
                                     </span>
                                 <% } %>
                             </td>
-                            <td style="text-align: center;">
+                            <td data-label="Thao tác" style="text-align: center;">
                                 <div style="display: inline-flex; gap: 12px; align-items: center;">
                                     <!-- Nút Đổi mật khẩu -->
-                                    <a href="/admin/users/reset-password/<%= userItem.id_tk %>" style="color: var(--primary-30); text-decoration: none;" title="Đổi mật khẩu">
+                                    <a href="/admin/users/reset-password/<%= userItem.id_tk %>" style="color: var(--primary-30, #059669); text-decoration: none; font-size: 16px;" title="Đổi mật khẩu">
                                         <i class="fa-solid fa-key"></i>
                                     </a>
 
-                                    <!-- Nút Khóa / Mở khóa linh động theo type -->
+                                    <!-- Nút Khóa / Mở khóa -->
                                     <% if (type === 'active') { %>
                                         <form action="/admin/users/lock/<%= userItem.id_tk %>" method="POST" style="margin:0;">
-                                            <button type="submit" style="background:none; border:none; color: #e53e3e; cursor:pointer; font-size: 15px;" title="Khóa tài khoản này">
+                                            <button type="submit" style="background:none; border:none; color: #e53e3e; cursor:pointer; font-size: 16px;" title="Khóa tài khoản này">
                                                 <i class="fa-solid fa-lock"></i>
                                             </button>
                                         </form>
                                     <% } else { %>
                                         <form action="/admin/users/unlock/<%= userItem.id_tk %>" method="POST" style="margin:0;">
-                                            <button type="submit" style="background:none; border:none; color: #10b981; cursor:pointer; font-size: 15px;" title="Mở khóa tài khoản này">
+                                            <button type="submit" style="background:none; border:none; color: #10b981; cursor:pointer; font-size: 16px;" title="Mở khóa tài khoản này">
                                                 <i class="fa-solid fa-lock-open"></i>
                                             </button>
                                         </form>
@@ -92,11 +93,11 @@
 
 <style>
     .table-section-title {
-    margin: 0;
-    font-size: 18px;
-    color: var(--title-color, #1e293b);
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
+        margin: 0;
+        font-size: 18px;
+        color: var(--title-color, #1e293b);
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
 </style>

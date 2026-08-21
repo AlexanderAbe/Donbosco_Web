@@ -1,5 +1,6 @@
 const pool = require('../../../config/database');
 const bcrypt = require('bcrypt');
+const AuthModel = require('../auth-model');
 
 const UserModel = {
     // Lấy toàn bộ danh sách tài khoản kèm thông tin GLV từ View
@@ -102,6 +103,82 @@ const UserModel = {
             throw error;
         } finally {
             client.release();
+        }
+    },
+
+    // --- BỔ SUNG: Lấy danh sách, gộp quyền và phân nhóm theo Role ---
+    async getGroupedUsersWithRoles() {
+        try {
+            let allUsers = await this.getAllUsers();
+
+            const usersWithRoles = await Promise.all(allUsers.map(async (user) => {
+                let isBdh = false;
+                let isTruongKhoi = false;
+
+                if (user.id_glv) {
+                    isBdh = await AuthModel.checkBdh(user.id_glv);
+                    isTruongKhoi = await AuthModel.checkTruongKhoi(user.id_glv);
+                }
+
+                return {
+                    ...user,
+                    is_admin: user.is_admin || false,
+                    is_bdh: isBdh,
+                    is_truong_khoi: isTruongKhoi
+                };
+            }));
+
+            // Phân loại nhóm
+            const admins = usersWithRoles.filter(u => u.is_admin);
+            const bdhs = usersWithRoles.filter(u => u.is_bdh && !u.is_admin);
+            const truongKhois = usersWithRoles.filter(u => u.is_truong_khoi && !u.is_admin && !u.is_bdh);
+            const members = usersWithRoles.filter(u => !u.is_admin && !u.is_bdh && !u.is_truong_khoi);
+
+            return { admins, bdhs, truongKhois, members };
+        } catch (error) {
+            console.error('❌ Lỗi gom nhóm user theo quyền:', error);
+            throw error;
+        }
+    },
+    
+    // Lấy danh sách, gộp quyền và sắp xếp các role giống nhau đứng gần nhau
+    async getUsersWithRolesSorted() {
+        try {
+            let allUsers = await this.getAllUsers();
+
+            const usersWithRoles = await Promise.all(allUsers.map(async (user) => {
+                let isBdh = false;
+                let isTruongKhoi = false;
+
+                if (user.id_glv) {
+                    isBdh = await AuthModel.checkBdh(user.id_glv);
+                    isTruongKhoi = await AuthModel.checkTruongKhoi(user.id_glv);
+                }
+
+                return {
+                    ...user,
+                    is_admin: user.is_admin || false,
+                    is_bdh: isBdh,
+                    is_truong_khoi: isTruongKhoi
+                };
+            }));
+
+            // Sắp xếp theo trọng số vai trò (Ai có quyền cao hơn sẽ được đẩy lên trên)
+            usersWithRoles.sort((a, b) => {
+                const getWeight = (u) => {
+                    if (u.is_admin) return 1;          // Admin đứng đầu tiên
+                    if (u.is_bdh) return 2;            // Tiếp theo là Ban Điều Hành
+                    if (u.is_truong_khoi) return 3;    // Tiếp theo là Trưởng Khối
+                    return 4;                          // Cuối cùng là giáo lý viên thường
+                };
+
+                return getWeight(a) - getWeight(b);
+            });
+
+            return usersWithRoles;
+        } catch (error) {
+            console.error('❌ Lỗi sắp xếp user theo quyền:', error);
+            throw error;
         }
     }
 };

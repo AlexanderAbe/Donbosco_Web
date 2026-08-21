@@ -1,28 +1,23 @@
 :root {
-    /* --- BẢNG MÀU VÀNG THEO QUY TẮC 60-30-10 --- */
-    --bg-60-main: #fffbe8;      /* 60%: Nền tổng thể (vàng kem cực nhạt, sáng) */
-    --bg-60-surface: #ffffff;   /* 60%: Nền các card, sidebar, header */
-    
-    --primary-30: #d97706;      /* 30%: Màu thương hiệu chủ đạo (Vàng hổ phách / Amber) */
-    --primary-30-hover: #b45309;/* 30%: Màu khi hover đậm hơn một chút */
-    --primary-30-light: #fef3c7;/* 30%: Nền nhấn nhẹ dạng tint */
-    
-    --accent-10: #ea580c;       /* 10%: Màu điểm nhấn (Cam/Vàng đậm cho hành động nổi bật) */
-    
-    --text-main: #334155;       /* Chữ chính (xám đậm dễ đọc) */
-    --text-muted: #64748b;      /* Chữ phụ, mô tả */
-    --border-color: #fef08a40;  /* Viền nhẹ nhàng */
-    
+    --bg-60-main: #fffbe8;
+    --bg-60-surface: #ffffff;
+    --primary-30: #d97706;
+    --primary-30-hover: #b45309;
+    --primary-30-light: #fef3c7;
+    --accent-10: #ea580c;
+    --text-main: #334155;
+    --text-muted: #64748b;
+    --border-color: #fef08a40;
     --sidebar-width: 280px;
 }
 
 body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background-color: var(--bg-60-main); /* 60% nền chính */
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif !important;
+    background-color: var(--bg-60-main);
     color: var(--text-main);
 }
 
-/* --- HEADER (Nằm ngang trên cùng) --- */
+/* --- HEADER --- */
 .tk-header {
     position: fixed;
     top: 0;
@@ -30,16 +25,23 @@ body {
     right: 0;
     height: 60px;
     background-color: #ffcc00;
-    border-bottom: 1px solid #fde68a; /* Đường viền đồng điệu tông vàng */
+    border-bottom: 1px solid #fde68a;
     box-shadow: 0 1px 3px rgba(217, 119, 6, 0.08);
     display: flex;
     align-items: center;
     justify-content: space-between;
     padding: 0 24px;
     z-index: 1200;
+    transition: height 0.3s ease;
 }
 
 .header-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.header-right {
     display: flex;
     align-items: center;
     gap: 12px;
@@ -60,7 +62,8 @@ body {
     height: 40px;
     border-radius: 50%;
     object-fit: cover;
-    border: 2px solid var(--primary-30); /* 30% điểm nhấn thương hiệu */
+    border: 2px solid var(--primary-30);
+    transition: all 0.3s ease;
 }
 
 .church-info h2 {
@@ -76,13 +79,6 @@ body {
     color: var(--text-muted);
 }
 
-/* Nút Switch trên Header */
-.header-right {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-}
-
 .switch-btn {
     background-color: var(--primary-30-light);
     border: 1px solid #fde68a;
@@ -96,27 +92,26 @@ body {
 }
 
 .switch-btn:hover {
-    background-color: #78350f; /* Chuyển sang màu vàng đậm/hổ phách khi rê chuột */
-    color: #ffffff;            /* Đổi chữ sang trắng để nổi bật trên nền đậm */
+    background-color: #78350f;
+    color: #ffffff;
     border-color: #78350f;
 }
 
-/* --- SIDEBAR CHO MÁY TÍNH --- */
+/* --- SIDEBAR --- */
 .tk-sidebar {
     position: fixed;
     top: 60px;
     left: 0;
     width: var(--sidebar-width);
     height: calc(100vh - 60px);
-    background-color: var(--bg-60-surface); /* 60% */
+    background-color: var(--bg-60-surface);
     box-shadow: 2px 0 8px rgba(217, 119, 6, 0.04);
     z-index: 1100;
     display: flex;
     flex-direction: column;
-    transition: left 0.3s ease-in-out;
+    transition: left 0.3s ease-in-out, top 0.3s ease, height 0.3s ease;
 }
 
-/* Nút đóng sidebar (Chỉ hiện trên mobile) */
 .close-sidebar-btn {
     display: none;
     background: none;
@@ -129,7 +124,6 @@ body {
     width: 100%;
 }
 
-/* Phần Menu chính co giãn và có thể cuộn */
 .sidebar-menu {
     flex: 1;
     overflow-y: auto;
@@ -160,7 +154,7 @@ body {
 }
 
 .menu-link:hover, .dropdown-toggle:hover {
-    background-color: var(--primary-30-light); /* 30% tint vàng nhạt khi hover */
+    background-color: var(--primary-30-light);
     color: var(--primary-30-hover);
 }
 
@@ -202,7 +196,6 @@ body {
     color: var(--primary-30);
 }
 
-/* --- PHẦN FOOTER CỦA SIDEBAR (ĐỔI MẬT KHẨU & ĐĂNG XUẤT) --- */
 .sidebar-footer {
     padding: 12px 16px;
     border-top: 1px solid #fef3c7;
@@ -228,7 +221,6 @@ body {
     display: none;
 }
 
-/* --- MAIN CONTAINER --- */
 .main-container {
     margin-top: 60px;
     margin-left: var(--sidebar-width);
@@ -238,7 +230,77 @@ body {
     transition: margin-left 0.3s ease-in-out;
 }
 
-/* --- RESPONSIVE CHO DI ĐỘNG, TABLET, IPAD (<= 1024px) --- */
+/* --- SWITCH MOBILE / DESKTOP --- */
+.desktop-switch-buttons {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.mobile-switch-container {
+    position: relative;
+    display: none;
+}
+
+.mobile-switch-icon-btn {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-color: var(--bg-60-surface, #ffffff);
+    border: 1px solid var(--primary-30-light, #fef3c7);
+    color: var(--primary-30, #d97706);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    cursor: pointer;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    transition: all 0.2s ease;
+}
+
+.mobile-switch-icon-btn:hover {
+    background-color: var(--primary-30, #d97706);
+    color: #ffffff;
+    border-color: var(--primary-30, #d97706);
+}
+
+.mobile-switch-dropdown-menu {
+    display: none;
+    position: absolute;
+    right: 0;
+    top: 50px;
+    background-color: var(--bg-60-surface, #ffffff);
+    border-radius: 12px;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+    padding: 8px;
+    min-width: 200px;
+    z-index: 1300;
+    border: 1px solid var(--primary-30-light, #fef3c7);
+}
+
+.mobile-switch-dropdown-menu.show {
+    display: block;
+}
+
+.mobile-switch-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 14px;
+    color: var(--primary-30, #d97706);
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 600;
+    border-radius: 8px;
+    transition: background-color 0.2s;
+}
+
+.mobile-switch-item:hover {
+    background-color: var(--primary-30-light, #fef3c7);
+    color: var(--primary-30-hover, #b45309);
+}
+
+/* --- RESPONSIVE --- */
 @media screen and (max-width: 1024px) {
     .menu-toggle-btn {
         display: block;
@@ -246,6 +308,18 @@ body {
 
     .close-sidebar-btn {
         display: block;
+    }
+
+    .church-info {
+        display: none !important;
+    }
+
+    .desktop-switch-buttons {
+        display: none !important;
+    }
+
+    .mobile-switch-container {
+        display: block !important;
     }
 
     .tk-sidebar {
@@ -266,7 +340,7 @@ body {
         left: 0;
         right: 0;
         bottom: 0;
-        background-color: rgba(120, 53, 15, 0.3); /* Phủ mờ tông ấm */
+        background-color: rgba(120, 53, 15, 0.3);
         z-index: 1050;
     }
 
@@ -276,7 +350,6 @@ body {
     }
 }
 
-/* --- TỐI ƯU THÊM CHO ĐIỆN THOẠI MÀN HÌNH NHỎ (<= 576px) --- */
 @media screen and (max-width: 576px) {
     .tk-header {
         padding: 0 12px;
@@ -293,6 +366,58 @@ body {
     .switch-btn {
         padding: 5px 10px;
         font-size: 11px;
+    }
+}
+
+@media screen and (min-width: 1025px) {
+    .mobile-switch-container {
+        display: none !important;
+    }
+
+    .desktop-switch-buttons {
+        display: flex !important;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .tk-header {
+        height: 90px;
+        padding: 0 32px;
+    }
+
+    .logo-circle img {
+        width: 64px;
+        height: 64px;
+    }
+
+    .church-info {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+    }
+
+    .church-info h2 {
+        font-size: 20px;
+    }
+
+    .church-info p {
+        font-size: 13px;
+    }
+
+    .desktop-switch-buttons .switch-btn {
+        padding: 10px 20px;
+        font-size: 14px;
+        border-radius: 24px;
+    }
+
+    .tk-sidebar {
+        top: 100px;
+        height: calc(100vh - 100px);
+    }
+
+    .main-container {
+        margin-top: 100px;
+        min-height: calc(100vh - 100px);
     }
 }
 /* --- 1. Ẩn thông tin nhà thờ trên Mobile & Tablet (<= 1024px) --- */
@@ -387,4 +512,51 @@ body {
 .mobile-switch-item:hover {
     background-color: var(--primary-30-light, #fef3c7);
     color: var(--primary-30-hover, #b45309);
+}
+
+@media screen and (min-width: 1025px) {
+    /* 1. Tăng chiều cao header lên 100px */
+    .tk-header {
+        height: 90px;
+        padding: 0 32px;
+    }
+
+    /* 2. Phóng to Logo */
+    .logo-circle img {
+        width: 64px;
+        height: 64px;
+    }
+
+    /* 3. Phóng to cỡ chữ và khoảng cách thông tin nhà thờ */
+    .church-info {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+    }
+
+    .church-info h2 {
+        font-size: 20px; /* Tăng kích thước tiêu đề */
+    }
+
+    .church-info p {
+        font-size: 13px; /* Tăng kích thước mô tả */
+    }
+
+    /* 4. Phóng to nút Switch trên Desktop */
+    .desktop-switch-buttons .switch-btn {
+        padding: 10px 20px;
+        font-size: 14px;
+        border-radius: 24px;
+    }
+
+    /* 5. Cập nhật lại vị trí hiển thị của Sidebar và Main Container cho khớp với header 100px */
+    .tk-sidebar {
+        top: 100px;
+        height: calc(100vh - 100px);
+    }
+
+    .main-container {
+        margin-top: 100px;
+        min-height: calc(100vh - 100px);
+    }
 }

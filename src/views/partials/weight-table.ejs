@@ -1,0 +1,35 @@
+    <div class="table-responsive">
+        <table class="custom-table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Niên Khóa</th>
+                    <th>Học Tập</th>
+                    <th>Kỷ Luật</th>
+                    <th>Chuyên Cần</th>
+                    <th>Số Bài KT</th>
+                    <th>Ngày Tạo</th>
+                </tr>
+            </thead>
+            <tbody>
+                <% if (typeof configs !== 'undefined' && configs && configs.length > 0) { %>
+                    <% configs.forEach(item => { %>
+                        <tr>
+                            <td data-label="ID"><%= item.id_cau_hinh_nam_hoc %></td>
+                            <td data-label="Niên Khóa"><strong><%= item.nien_khoa %></strong></td>
+                            <td data-label="Học Tập"><%= item.trong_so_hoc_tap %></td>
+                            <td data-label="Kỷ Luật"><%= item.trong_so_ky_luat %></td>
+                            <td data-label="Chuyên Cần"><%= item.trong_so_diem_chuyen_can %></td>
+                            <td data-label="Số Bài KT"><%= item.so_luong_bai_ktra %></td>
+                            <td data-label="Ngày Tạo"><%= item.ngay_tao ? new Date(item.ngay_tao).toLocaleDateString('vi-VN') : '' %></td>
+                        </tr>
+                    <% }) %>
+                <% } else { %>
+                    <tr>
+                        <td colspan="7" class="text-center">Chưa có lịch sử cấu hình niên khóa nào.</td>
+                    </tr>
+                <% } %>
+            </tbody>
+        </table>
+    </div>
+</div>

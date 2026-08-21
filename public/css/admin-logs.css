@@ -1,81 +1,295 @@
+/* ==========================================================
+   1. GIAO DIỆN CHUNG (DESKTOP & TABLET)
+   ========================================================== */
 .container-fluid {
-        padding: 24px;
-        background-color: #f8fafc;
-        min-height: calc(100vh - 60px);
+    padding: 24px;
+    min-height: calc(100vh - 60px);
+}
+
+.section-card {
+    background: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    padding: 24px;
+    margin-bottom: 24px;
+    border: 1px solid #e2e8f0;
+}
+
+.card-header-flex {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.card-header-flex h2 {
+    font-size: 18px;
+    font-weight: 700;
+    color: #1e293b;
+    margin: 0;
+}
+
+.view-all-link {
+    color: #16a34a;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 14px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: color 0.2s;
+}
+
+.view-all-link:hover {
+    color: #15803d;
+    text-decoration: underline;
+}
+
+.table-responsive {
+    overflow-x: auto;
+}
+
+.data-table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: left;
+    font-size: 14px;
+}
+
+.data-table th {
+    background-color: #f1f5f9;
+    color: #475569;
+    font-weight: 600;
+    padding: 12px 16px;
+    border-bottom: 2px solid #e2e8f0;
+}
+
+.data-table td {
+    padding: 14px 16px;
+    border-bottom: 1px solid #e2e8f0;
+    color: #334155;
+    vertical-align: middle;
+}
+
+.data-table tbody tr:hover {
+    background-color: #f8fafc;
+}
+
+.badge {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 50px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.badge.success {
+    background-color: #dcfce7;
+    color: #166534;
+}
+
+.badge.error {
+    background-color: #fee2e2;
+    color: #991b1b;
+}
+
+.filter-form {
+    display: flex;
+    gap: 16px;
+    align-items: flex-end;
+    background: #ffffff;
+    padding: 20px;
+    border-radius: 12px;
+    margin-bottom: 24px;
+    border: 1px solid #e2e8f0;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+    flex-wrap: wrap;
+}
+
+.filter-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    color: #475569;
+    flex: 1;
+    min-width: 180px;
+}
+
+.filter-group label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: #334155;
+}
+
+.filter-group label i {
+    color: #3b82f6;
+}
+
+.form-control {
+    padding: 10px 14px;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    font-size: 14px;
+    background: #f8fafc;
+    color: #1e293b;
+    outline: none;
+    transition: all 0.2s ease;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.form-control:focus {
+    border-color: #3b82f6;
+    background: #ffffff;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+}
+
+.filter-actions {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.btn-filter {
+    background-color: #16a34a;
+    color: white;
+    border: none;
+    padding: 10px 18px;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    font-size: 14px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: background-color 0.2s, box-shadow 0.2s;
+    box-shadow: 0 1px 2px rgba(59, 130, 246, 0.2);
+}
+
+.btn-filter:hover {
+    background-color: #15803d;
+    box-shadow: 0 2px 4px rgba(59, 130, 246, 0.3);
+}
+
+.btn-reset {
+    background-color: #f1f5f9;
+    color: #475569;
+    text-decoration: none;
+    padding: 10px 16px;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 14px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    border: 1px solid #e2e8f0;
+    transition: all 0.2s;
+}
+
+.btn-reset:hover {
+    background-color: #e2e8f0;
+    color: #1e293b;
+}
+
+/* ==========================================================
+   2. TỐI ƯU CHO ĐIỆN THOẠI (Màn hình từ 768px trở xuống)
+   ========================================================== */
+@media screen and (max-width: 768px) {
+    .container-fluid {
+        padding: 12px;
     }
+
     .section-card {
-        background: #ffffff;
-        border-radius: 12px;
-        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-        padding: 24px;
-        margin-bottom: 24px;
-        border: 1px solid #e2e8f0;
+        padding: 16px;
+        margin-bottom: 16px;
+        border-radius: 8px;
     }
+
     .card-header-flex {
+        margin-bottom: 14px;
+    }
+
+    .card-header-flex h2 {
+        font-size: 16px;
+    }
+
+    .data-table,
+    .data-table thead,
+    .data-table tbody,
+    .data-table th,
+    .data-table tr,
+    .data-table td {
+        display: block;
+        width: 100%;
+    }
+
+    .data-table thead {
+        display: none;
+    }
+
+    .data-table tr {
+        background: #ffffff;
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        margin-bottom: 12px;
+        padding: 12px;
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02);
+    }
+
+    .data-table tr:hover {
+        background-color: #ffffff;
+    }
+
+    .data-table td {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        margin-bottom: 20px;
-        flex-wrap: wrap;
-        gap: 10px;
+        padding: 8px 0 !important;
+        border-bottom: 1px solid #f1f5f9;
+        text-align: right;
+        font-size: 13px;
     }
-    .card-header-flex h2 {
-        font-size: 18px;
-        font-weight: 700;
-        color: #1e293b;
-        margin: 0;
+
+    .data-table td:last-child {
+        border-bottom: none;
+        padding-bottom: 0 !important;
     }
-    .view-all-link {
-        color: #3b82f6;
-        text-decoration: none;
+
+    .data-table td::before {
+        content: attr(data-label);
         font-weight: 600;
-        font-size: 14px;
-        display: inline-flex;
-        align-items: center;
-        gap: 6px;
-        transition: color 0.2s;
-    }
-    .view-all-link:hover {
-        color: #1d4ed8;
-        text-decoration: underline;
-    }
-    .table-responsive {
-        overflow-x: auto;
-    }
-    .data-table {
-        width: 100%;
-        border-collapse: collapse;
+        color: #64748b;
         text-align: left;
-        font-size: 14px;
+        margin-right: 12px;
+        white-space: nowrap;
+        flex-shrink: 0;
     }
-    .data-table th {
-        background-color: #f1f5f9;
-        color: #475569;
-        font-weight: 600;
-        padding: 12px 16px;
-        border-bottom: 2px solid #e2e8f0;
+
+    .filter-form {
+        padding: 14px;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 12px;
     }
-    .data-table td {
-        padding: 14px 16px;
-        border-bottom: 1px solid #e2e8f0;
-        color: #334155;
-        vertical-align: middle;
+
+    .filter-group {
+        width: 100%;
     }
-    .data-table tbody tr:hover {
-        background-color: #f8fafc;
+
+    .filter-actions {
+        justify-content: space-between;
+        margin-top: 4px;
     }
-    .badge {
-        display: inline-block;
-        padding: 4px 10px;
-        border-radius: 50px;
-        font-size: 12px;
-        font-weight: 600;
+
+    .btn-filter,
+    .btn-reset {
+        flex: 1;
+        justify-content: center;
+        padding: 10px 12px;
     }
-    .badge.success {
-        background-color: #dcfce7;
-        color: #166534;
-    }
-    .badge.error {
-        background-color: #fee2e2;
-        color: #991b1b;
-    }
+}
