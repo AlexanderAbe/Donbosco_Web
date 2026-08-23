@@ -41,7 +41,7 @@ app.set('layout', 'layouts/glv-layout');
 app.use('/auth', require('./src/routes/auth-route'));
 app.use('/admin', require('./src/routes/admin-route'));
 app.use('/bdh', require('./src/routes/bdh-route'));
-app.use('/truong-khoi', require('./src/routes/truong-khoi-route'));
+//app.use('/truong-khoi', require('./src/routes/truong-khoi-route'));
 app.use('/glv', require('./src/routes/glv-route'));
 
 // Trang chủ chuyển hướng về đăng nhập

@@ -14,6 +14,26 @@ const UserModel = {
         }
     },
 
+    // Lấy toàn bộ GLV để trang phân quyền khớp với danh sách nhân sự ở BDH
+    async getAllGlvForRoles() {
+        const result = await pool.query(`
+            SELECT
+                g.id_glv,
+                g.ten_thanh,
+                g.ho_va_ten_lot,
+                g.ten,
+                CONCAT_WS(' ', g.ten_thanh, g.ho_va_ten_lot, g.ten) AS ho_ten,
+                g.trang_thai,
+                tk.id_tk,
+                tk.username,
+                tk.is_admin
+            FROM GLV g
+            LEFT JOIN TAI_KHOAN tk ON tk.id_glv = g.id_glv
+            ORDER BY g.ten ASC, g.ho_va_ten_lot ASC, g.ten_thanh ASC
+        `);
+        return result.rows;
+    },
+
     // Cập nhật trạng thái tài khoản (Khóa / Mở khóa) vào bảng gốc TAI_KHOAN
     async updateUserStatus(userId, newStatus) {
         try {
@@ -89,14 +109,6 @@ const UserModel = {
                 await client.query(`DELETE FROM PHAN_CONG_BDH WHERE id_glv = $1`, [id_glv]);
             }
 
-            // 3. Xử lý bảng Trưởng Khối (PHAN_CONG_TRUONG_KHOI)
-            const checkTk = await client.query(`SELECT * FROM PHAN_CONG_TRUONG_KHOI WHERE id_glv = $1`, [id_glv]);
-            if (roles.isTruongKhoi && checkTk.rows.length === 0) {
-                await client.query(`INSERT INTO PHAN_CONG_TRUONG_KHOI (id_glv) VALUES ($1)`, [id_glv]);
-            } else if (!roles.isTruongKhoi && checkTk.rows.length > 0) {
-                await client.query(`DELETE FROM PHAN_CONG_TRUONG_KHOI WHERE id_glv = $1`, [id_glv]);
-            }
-
             await client.query('COMMIT');
         } catch (error) {
             await client.query('ROLLBACK');
@@ -109,32 +121,29 @@ const UserModel = {
     // --- BỔ SUNG: Lấy danh sách, gộp quyền và phân nhóm theo Role ---
     async getGroupedUsersWithRoles() {
         try {
-            let allUsers = await this.getAllUsers();
+            let allUsers = await this.getAllGlvForRoles();
 
             const usersWithRoles = await Promise.all(allUsers.map(async (user) => {
                 let isBdh = false;
-                let isTruongKhoi = false;
 
                 if (user.id_glv) {
                     isBdh = await AuthModel.checkBdh(user.id_glv);
-                    isTruongKhoi = await AuthModel.checkTruongKhoi(user.id_glv);
                 }
 
                 return {
                     ...user,
                     is_admin: user.is_admin || false,
                     is_bdh: isBdh,
-                    is_truong_khoi: isTruongKhoi
+                    is_truong_khoi: false
                 };
             }));
 
             // Phân loại nhóm
             const admins = usersWithRoles.filter(u => u.is_admin);
             const bdhs = usersWithRoles.filter(u => u.is_bdh && !u.is_admin);
-            const truongKhois = usersWithRoles.filter(u => u.is_truong_khoi && !u.is_admin && !u.is_bdh);
-            const members = usersWithRoles.filter(u => !u.is_admin && !u.is_bdh && !u.is_truong_khoi);
+            const members = usersWithRoles.filter(u => !u.is_admin && !u.is_bdh);
 
-            return { admins, bdhs, truongKhois, members };
+            return { admins, bdhs, members };
         } catch (error) {
             console.error('❌ Lỗi gom nhóm user theo quyền:', error);
             throw error;
@@ -144,22 +153,20 @@ const UserModel = {
     // Lấy danh sách, gộp quyền và sắp xếp các role giống nhau đứng gần nhau
     async getUsersWithRolesSorted() {
         try {
-            let allUsers = await this.getAllUsers();
+            let allUsers = await this.getAllGlvForRoles();
 
             const usersWithRoles = await Promise.all(allUsers.map(async (user) => {
                 let isBdh = false;
-                let isTruongKhoi = false;
 
                 if (user.id_glv) {
                     isBdh = await AuthModel.checkBdh(user.id_glv);
-                    isTruongKhoi = await AuthModel.checkTruongKhoi(user.id_glv);
                 }
 
                 return {
                     ...user,
                     is_admin: user.is_admin || false,
                     is_bdh: isBdh,
-                    is_truong_khoi: isTruongKhoi
+                    is_truong_khoi: false
                 };
             }));
 
@@ -168,8 +175,7 @@ const UserModel = {
                 const getWeight = (u) => {
                     if (u.is_admin) return 1;          // Admin đứng đầu tiên
                     if (u.is_bdh) return 2;            // Tiếp theo là Ban Điều Hành
-                    if (u.is_truong_khoi) return 3;    // Tiếp theo là Trưởng Khối
-                    return 4;                          // Cuối cùng là giáo lý viên thường
+                    return 3;                          // Cuối cùng là giáo lý viên thường
                 };
 
                 return getWeight(a) - getWeight(b);

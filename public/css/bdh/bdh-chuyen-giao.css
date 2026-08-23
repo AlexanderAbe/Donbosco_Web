@@ -1,0 +1,35 @@
+:root { --transfer-red: #b42318; --transfer-ink: #202124; --transfer-muted: #667085; --transfer-line: #e4e7ec; }
+.transfer-page { max-width: 1050px; margin: 0 auto; }
+.transfer-header { margin-bottom: 24px; }
+.transfer-header h1 { margin: 0; color: var(--transfer-ink); font-size: 1.65rem; }
+.transfer-header h1 i, .eyebrow { color: var(--transfer-red); }
+.eyebrow { margin: 0 0 6px; font-size: .78rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
+.transfer-header p:last-child { margin: 8px 0 0; color: var(--transfer-muted); }
+.transfer-card { margin-bottom: 20px; padding: 22px; border: 1px solid var(--transfer-line); border-radius: 8px; background: #fff; }
+.card-heading { display: flex; gap: 12px; align-items: flex-start; margin-bottom: 18px; }
+.card-heading h2 { margin: 0; color: var(--transfer-ink); font-size: 1.05rem; }
+.card-heading p { margin: 4px 0 0; color: var(--transfer-muted); font-size: .88rem; }
+.step-number { display: grid; place-items: center; width: 28px; height: 28px; flex: 0 0 28px; border-radius: 50%; color: #fff; background: var(--transfer-red); font-weight: 700; }
+.year-form select, .transfer-form select { width: 100%; max-width: 360px; padding: 10px 12px; border: 1px solid #d0d5dd; border-radius: 6px; background: #fff; font-size: .95rem; }
+.year-config-hint { display: block; margin-top: 7px; color: var(--transfer-muted); font-size: .82rem; }
+.action-grid { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; margin-top: 18px; }
+.action-button { display: inline-flex; align-items: center; gap: 8px; padding: 10px 14px; border: 0; border-radius: 6px; color: #fff; font-size: .9rem; font-weight: 700; text-decoration: none; cursor: pointer; }
+.action-button.danger, .action-button.primary { background: var(--transfer-red); }
+.action-button.secondary { background: #475467; }
+.action-button:disabled { opacity: .5; cursor: not-allowed; }
+.notice { margin-top: 16px; padding: 12px 14px; border-radius: 6px; font-size: .9rem; }
+.notice-warning { color: #93370d; background: #fffaeb; }
+.notice-success, .transfer-message { color: #027a48; background: #ecfdf3; }
+.transfer-message { margin-bottom: 18px; padding: 12px 14px; border-radius: 6px; }
+.transfer-form { display: flex; flex-wrap: wrap; align-items: end; gap: 12px; }
+.transfer-form label { width: 100%; color: var(--transfer-muted); font-size: .85rem; font-weight: 600; }
+.transfer-hint { color: #b54708; font-size: .82rem; }
+.confirmation-modal { width: min(460px, calc(100% - 32px)); padding: 0; border: 0; border-radius: 10px; box-shadow: 0 20px 60px rgba(16, 24, 40, .25); }
+.confirmation-modal::backdrop { background: rgba(16, 24, 40, .55); }
+.modal-content { position: relative; padding: 28px; text-align: center; background: #fff; }
+.modal-close { position: absolute; top: 10px; right: 14px; border: 0; background: transparent; color: #667085; font-size: 1.6rem; cursor: pointer; }
+.modal-icon { display: grid; place-items: center; width: 48px; height: 48px; margin: 0 auto 14px; border-radius: 50%; color: #b54708; background: #fffaeb; font-size: 1.25rem; }
+.modal-content h2 { margin: 0 0 10px; color: var(--transfer-ink); font-size: 1.15rem; }
+.modal-content p { margin: 0; color: var(--transfer-muted); line-height: 1.55; }
+.modal-actions { display: flex; justify-content: center; gap: 10px; margin-top: 22px; }
+@media (max-width: 600px) { .transfer-card { padding: 16px; } .transfer-form select, .action-button { width: 100%; } }

@@ -1,4 +1,5 @@
-<link rel="stylesheet" href="/css/admin-weight.css">
+<link rel="stylesheet" href="/css/reset.css">
+<link rel="stylesheet" href="/css/bdh/bdh-weight.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
 <div class="dashboard-container">
@@ -9,7 +10,7 @@
     <%- include('../partials/toast') %>
     <!-- ================= PHẦN 1: FORM NHẬP VÀ LƯU VÀO DB ================= -->
     <div class="section-card weight-card">
-        <form action="/admin/weight/save" method="POST">
+        <form action="/bdh/weight/save" method="POST">
             <div class="form-row">
                 <div class="form-group">
                     <label>Niên khóa (VD: 2025-2026)</label>
@@ -18,6 +19,10 @@
                 <div class="form-group">
                     <label>Số lượng bài kiểm tra</label>
                     <input type="number" name="so_luong_bai_ktra" required min="1" placeholder="Ví dụ: 4">
+                </div>
+                <div class="form-group">
+                    <label>STT khối kết thúc</label>
+                    <input type="number" name="stt_khoi_ket_thuc" required min="1" placeholder="Ví dụ: 11">
                 </div>
             </div>
 

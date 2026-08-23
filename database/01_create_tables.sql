@@ -1,5 +1,5 @@
 -- ==========================================================
--- 1. BẢNG CAU_HINH_NAM_HOC (Đặt lên đầu vì các bảng khác tham chiếu tới)
+-- 1. BẢNG CAU_HINH_NAM_HOC
 -- ==========================================================
 CREATE TABLE CAU_HINH_NAM_HOC (
     id_cau_hinh_nam_hoc INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
@@ -8,19 +8,20 @@ CREATE TABLE CAU_HINH_NAM_HOC (
     trong_so_ky_luat DECIMAL(3,2),
     trong_so_diem_chuyen_can DECIMAL(3,2),
     so_luong_bai_ktra INT,
-    ngay_tao DATE
+    ngay_tao DATE,
+    stt_khoi_ket_thuc INT,
+    is_locked BOOLEAN DEFAULT FALSE
 );
 
-
 -- ==========================================================
--- 2. BẢNG KHOI
+-- 2. BẢNG KHOi
 -- ==========================================================
 CREATE TABLE KHOI (
     id_khoi INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     stt INT,
-    ten_khoi VARCHAR(50)
+    ten_khoi VARCHAR(255),
+    is_active BOOLEAN DEFAULT TRUE
 );
-
 
 -- ==========================================================
 -- 3. BẢNG THIEU_NHI
@@ -36,7 +37,6 @@ CREATE TABLE THIEU_NHI (
     mstn VARCHAR(20) UNIQUE
 );
 
-
 -- ==========================================================
 -- 4. BẢNG GLV
 -- ==========================================================
@@ -47,12 +47,12 @@ CREATE TABLE GLV (
     ten VARCHAR(50),
     ngay_sinh DATE,
     gioi_tinh VARCHAR(10),
-    sdt VARCHAR(15)
+    sdt VARCHAR(15),
+    trang_thai enum_trang_thai_glv DEFAULT 'Đang hoạt động'
 );
 
-
 -- ==========================================================
--- 5. BẢNG KHUNG_XEP_LOAI (Đã loại bỏ nien_khoa)
+-- 5. BẢNG KHUNG_XEP_LOAI
 -- ==========================================================
 CREATE TABLE KHUNG_XEP_LOAI (
     id_khung_xep_loai INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
@@ -62,9 +62,8 @@ CREATE TABLE KHUNG_XEP_LOAI (
     id_cau_hinh_nam_hoc INT REFERENCES CAU_HINH_NAM_HOC(id_cau_hinh_nam_hoc)
 );
 
-
 -- ==========================================================
--- 6. BẢNG LOP_HOC (Đã thay nien_khoa bằng id_cau_hinh_nam_hoc)
+-- 6. BẢNG LOP_HOC
 -- ==========================================================
 CREATE TABLE LOP_HOC (
     id_lop INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
@@ -72,7 +71,6 @@ CREATE TABLE LOP_HOC (
     id_khoi INT REFERENCES KHOI(id_khoi),
     id_cau_hinh_nam_hoc INT REFERENCES CAU_HINH_NAM_HOC(id_cau_hinh_nam_hoc)
 );
-
 
 -- ==========================================================
 -- 7. BẢNG PHU_HUYNH
@@ -86,7 +84,6 @@ CREATE TABLE PHU_HUYNH (
     moi_quan_he VARCHAR(50)
 );
 
-
 -- ==========================================================
 -- 8. BẢNG BI_TICH
 -- ==========================================================
@@ -97,9 +94,8 @@ CREATE TABLE BI_TICH (
     id_tn INT REFERENCES THIEU_NHI(id_tn)
 );
 
-
 -- ==========================================================
--- 9. BẢNG DIEM_KY_LUAT (Đã thay nien_khoa bằng id_cau_hinh_nam_hoc)
+-- 9. BẢNG DIEM_KY_LUAT
 -- ==========================================================
 CREATE TABLE DIEM_KY_LUAT (
     id_ky_luat INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
@@ -109,9 +105,8 @@ CREATE TABLE DIEM_KY_LUAT (
     id_cau_hinh_nam_hoc INT REFERENCES CAU_HINH_NAM_HOC(id_cau_hinh_nam_hoc)
 );
 
-
 -- ==========================================================
--- 10. BẢNG DIEM_HOC_TAP (Đã thay nien_khoa bằng id_cau_hinh_nam_hoc)
+-- 10. BẢNG DIEM_HOC_TAP
 -- ==========================================================
 CREATE TABLE DIEM_HOC_TAP (
     id_hoc_tap INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
@@ -121,9 +116,8 @@ CREATE TABLE DIEM_HOC_TAP (
     id_cau_hinh_nam_hoc INT REFERENCES CAU_HINH_NAM_HOC(id_cau_hinh_nam_hoc)
 );
 
-
 -- ==========================================================
--- 11. BẢNG DIEM_CHUYEN_CAN (Đã thay nien_khoa bằng id_cau_hinh_nam_hoc)
+-- 11. BẢNG DIEM_CHUYEN_CAN
 -- ==========================================================
 CREATE TABLE DIEM_CHUYEN_CAN (
     id_chuyen_can INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
@@ -134,7 +128,6 @@ CREATE TABLE DIEM_CHUYEN_CAN (
     id_tn INT REFERENCES THIEU_NHI(id_tn),
     id_cau_hinh_nam_hoc INT REFERENCES CAU_HINH_NAM_HOC(id_cau_hinh_nam_hoc)
 );
-
 
 -- ==========================================================
 -- 12. BẢNG DIEM_DANH
@@ -147,9 +140,8 @@ CREATE TABLE DIEM_DANH (
     id_lop INT REFERENCES LOP_HOC(id_lop)
 );
 
-
 -- ==========================================================
--- 13. BẢNG TONG_KET_NAM_HOC (Đã thay nien_khoa bằng id_cau_hinh_nam_hoc)
+-- 13. BẢNG TONG_KET_NAM_HOC (Đã loại bỏ các cột thừa)
 -- ==========================================================
 CREATE TABLE TONG_KET_NAM_HOC (
     id_tong_ket_nam_hoc INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
@@ -164,9 +156,8 @@ CREATE TABLE TONG_KET_NAM_HOC (
     id_cau_hinh_nam_hoc INT REFERENCES CAU_HINH_NAM_HOC(id_cau_hinh_nam_hoc)
 );
 
-
 -- ==========================================================
--- 14. BẢNG PHAN_LOP (Đã thay nien_khoa bằng id_cau_hinh_nam_hoc)
+-- 14. BẢNG PHAN_LOP
 -- ==========================================================
 CREATE TABLE PHAN_LOP (
     id_phan_lop INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
@@ -175,9 +166,8 @@ CREATE TABLE PHAN_LOP (
     id_cau_hinh_nam_hoc INT REFERENCES CAU_HINH_NAM_HOC(id_cau_hinh_nam_hoc)
 );
 
-
 -- ==========================================================
--- 15. BẢNG TAI_KHOAN (Tích hợp sẵn OTP và trạng thái)
+-- 15. BẢNG TAI_KHOAN
 -- ==========================================================
 CREATE TABLE TAI_KHOAN (
     id_tk INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
@@ -185,11 +175,8 @@ CREATE TABLE TAI_KHOAN (
     password_hash VARCHAR(255),
     is_admin BOOLEAN,
     id_glv INT REFERENCES GLV(id_glv),
-    reset_otp VARCHAR(6),
-    otp_expires TIMESTAMP,
     trang_thai trang_thai_enum DEFAULT 'Đang hoạt động'
 );
-
 
 -- ==========================================================
 -- 16. BẢNG PHAN_CONG_GLV
@@ -197,12 +184,12 @@ CREATE TABLE TAI_KHOAN (
 CREATE TABLE PHAN_CONG_GLV (
     id_phan_cong_glv INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     id_glv INT REFERENCES GLV(id_glv),
-    id_lop INT REFERENCES LOP_HOC(id_lop)
+    id_lop INT REFERENCES LOP_HOC(id_lop),
+    id_cau_hinh_nam_hoc INT REFERENCES CAU_HINH_NAM_HOC(id_cau_hinh_nam_hoc)
 );
 
-
 -- ==========================================================
--- 17. BẢNG PHAN_CONG_BDH (Đã thay nien_khoa bằng id_cau_hinh_nam_hoc)
+-- 17. BẢNG PHAN_CONG_BDH
 -- ==========================================================
 CREATE TABLE PHAN_CONG_BDH (
     id_phan_cong_bdh INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
@@ -210,9 +197,8 @@ CREATE TABLE PHAN_CONG_BDH (
     id_cau_hinh_nam_hoc INT REFERENCES CAU_HINH_NAM_HOC(id_cau_hinh_nam_hoc)
 );
 
-
 -- ==========================================================
--- 18. BẢNG PHAN_CONG_TRUONG_KHOI (Đã thay nien_khoa bằng id_cau_hinh_nam_hoc)
+-- 18. BẢNG PHAN_CONG_TRUONG_KHOI
 -- ==========================================================
 CREATE TABLE PHAN_CONG_TRUONG_KHOI (
     id_phan_cong_truong INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
@@ -220,7 +206,6 @@ CREATE TABLE PHAN_CONG_TRUONG_KHOI (
     id_khoi INT REFERENCES KHOI(id_khoi),
     id_cau_hinh_nam_hoc INT REFERENCES CAU_HINH_NAM_HOC(id_cau_hinh_nam_hoc)
 );
-
 
 -- ==========================================================
 -- 19. BẢNG AUDIT_LOGS

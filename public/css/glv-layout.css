@@ -411,13 +411,13 @@ body {
     }
 
     .glv-sidebar {
-        top: 100px;
-        height: calc(100vh - 100px);
+        top: 90px;
+        height: calc(100vh - 90px);
     }
 
     .main-container {
-        margin-top: 100px;
-        min-height: calc(100vh - 100px);
+        margin-top: 90px;
+        min-height: calc(100vh - 90px);
     }
 }
 /* --- 1. Ẩn thông tin nhà thờ trên Mobile & Tablet (<= 1024px) --- */
@@ -551,12 +551,12 @@ body {
 
     /* 5. Cập nhật lại vị trí hiển thị của Sidebar và Main Container cho khớp với header 100px */
     .glv-sidebar {
-        top: 100px;
-        height: calc(100vh - 100px);
+        top: 90px;
+        height: calc(100vh - 90px);
     }
 
     .main-container {
-        margin-top: 100px;
-        min-height: calc(100vh - 100px);
+        margin-top: 90px;
+        min-height: calc(100vh - 90px);
     }
 }

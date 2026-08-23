@@ -60,8 +60,10 @@ JOIN KHOI k ON l.id_khoi = k.id_khoi;
 CREATE OR REPLACE VIEW vw_tong_ket_chi_tiet AS
 SELECT 
     tk.id_tong_ket_nam_hoc,
+    tk.id_cau_hinh_nam_hoc,
     c.nien_khoa,
     tn.id_tn,
+    tn.mstn,
     tn.ten_thanh,
     tn.ho_va_ten_lot,
     tn.ten,
@@ -71,12 +73,16 @@ SELECT
     tk.diem_chuyen_can,
     tk.diem_ky_luat,
     tk.diem_tong,
-    tk.tinh_trang
+    tk.tinh_trang,
+    tk.id_khung_xep_loai,
+    kxl.ten_xep_loai,
+    l.id_lop
 FROM TONG_KET_NAM_HOC tk
 JOIN CAU_HINH_NAM_HOC c ON tk.id_cau_hinh_nam_hoc = c.id_cau_hinh_nam_hoc
 JOIN THIEU_NHI tn ON tk.id_tn = tn.id_tn
 JOIN LOP_HOC l ON tk.id_lop = l.id_lop
-JOIN KHOI k ON l.id_khoi = k.id_khoi;
+JOIN KHOI k ON l.id_khoi = k.id_khoi
+LEFT JOIN KHUNG_XEP_LOAI kxl ON tk.id_khung_xep_loai = kxl.id_khung_xep_loai;
 
 
 -- 5. View thông tin tài khoản giáo lý viên

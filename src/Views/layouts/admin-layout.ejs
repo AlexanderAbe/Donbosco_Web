@@ -6,7 +6,7 @@
     <title><%= typeof title != 'undefined' ? title : 'Quản Trị Hệ Thống - Xứ Đoàn Don Bosco' %></title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="/css/reset.css">
-    <link rel="stylesheet" href="/css/admin-layout.css">
+    <link rel="stylesheet" href="/css/admin/admin-layout.css">
 </head>
 <body>
 
@@ -51,18 +51,6 @@
             <ul class="submenu">
                 <li><a href="/admin/users">Quản lý người dùng</a></li>
                 <li><a href="/admin/roles">Phân quyền</a></li>
-            </ul>
-        </li>
-
-        <!-- Mục lớn có Sub-menu 2: Dữ liệu & Cấu hình -->
-        <li class="menu-item">
-            <button class="dropdown-toggle" type="button">
-                <span><i class="fa-solid fa-gear"></i> Cấu hình năm học </span>
-                <span class="arrow-icon"><i class="fa-solid fa-chevron-right"></i></span>
-            </button>
-            <ul class="submenu">
-                <li><a href="/admin/weight">Hệ điểm và bài kiểm tra</a></li>
-                <li><a href="/admin/settings">Khung xếp loại</a></li>
             </ul>
         </li>
     </ul>

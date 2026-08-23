@@ -1,0 +1,170 @@
+<link rel="stylesheet" href="/css/reset.css">
+<link rel="stylesheet" href="/css/bdh/bdh-lop.css">
+
+<div class="lop-page">
+	<div class="page-toolbar">
+		<div class="page-heading">
+			<h1>Quản lý lớp học</h1>
+			<p>Tạo và cập nhật danh sách lớp theo từng niên khóa.</p>
+		</div>
+		<form method="GET" action="/bdh/lop" class="field-group">
+			<label for="year-filter">Niên khóa</label>
+			<select id="year-filter" name="nien_khoa" onchange="this.form.submit()" <%= years.length ? '' : 'disabled' %>>
+				<% if (years.length) { %>
+					<% years.forEach(year => { %>
+						<option value="<%= year.id_cau_hinh_nam_hoc %>" <%= year.id_cau_hinh_nam_hoc === selectedYearId ? 'selected' : '' %>>
+							<%= year.nien_khoa %>
+						</option>
+					<% }) %>
+				<% } else { %>
+					<option>Chưa có niên khóa</option>
+				<% } %>
+			</select>
+		</form>
+		<button type="button" class="btn btn-primary" id="open-create-modal" <%= selectedYearId ? '' : 'disabled' %>>
+			+ Thêm lớp
+		</button>
+	</div>
+
+	<% if (error) { %>
+		<div class="alert"><%= error %></div>
+	<% } %>
+
+	<section class="section-card">
+		<div class="section-header">
+			<h2>Danh sách lớp<% if (selectedYearId) { %> - <%= years.find(year => year.id_cau_hinh_nam_hoc === selectedYearId)?.nien_khoa %><% } %></h2>
+			<span><%= lopList.length %> lớp</span>
+		</div>
+
+		<% if (!selectedYearId) { %>
+			<div class="empty-state">Chưa có niên khóa để quản lý lớp.</div>
+		<% } else if (!lopList.length) { %>
+			<div class="empty-state">Niên khóa này chưa có lớp nào.</div>
+		<% } else { %>
+			<div class="table-wrap">
+				<table>
+					<thead>
+						<tr>
+							<th>Tên lớp</th>
+							<th>Khối</th>
+							<th>Số học sinh</th>
+							<th>Thao tác</th>
+						</tr>
+					</thead>
+					<tbody>
+						<% lopList.forEach(lop => { %>
+							<tr>
+								<td><strong><%= lop.ten_lop %></strong></td>
+								<td><%= lop.ten_khoi || 'Chưa phân khối' %></td>
+								<td><%= lop.student_count || 0 %></td>
+								<td>
+									<button
+										type="button"
+										class="btn btn-edit edit-class-btn"
+										data-id="<%= lop.id_lop %>"
+										data-name="<%= lop.ten_lop %>"
+										data-khoi="<%= lop.id_khoi || '' %>"
+										data-year="<%= lop.id_cau_hinh_nam_hoc %>">
+										Sửa
+									</button>
+								</td>
+							</tr>
+						<% }) %>
+					</tbody>
+				</table>
+			</div>
+		<% } %>
+	</section>
+</div>
+
+<div class="lop-page">
+	<div class="modal" id="class-modal" aria-hidden="true">
+		<div class="modal-dialog" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+			<div class="modal-header">
+				<h2 id="modal-title">Thêm lớp mới</h2>
+			</div>
+			<form id="class-form" method="POST" action="/bdh/lop/create">
+				<div class="modal-body">
+					<input type="hidden" name="id_lop" id="class-id">
+					<div class="field-group">
+						<label for="class-name">Tên lớp</label>
+						<input type="text" id="class-name" name="ten_lop" maxlength="50" required placeholder="Ví dụ: Ấu 1">
+					</div>
+					<div class="field-group">
+						<label for="class-khoi">Khối</label>
+						<select id="class-khoi" name="id_khoi" required>
+							<% khoiList.forEach(khoi => { %>
+								<option value="<%= khoi.id_khoi %>"><%= khoi.stt %>. <%= khoi.ten_khoi %></option>
+							<% }) %>
+						</select>
+					</div>
+					<div class="field-group">
+						<label for="class-year">Niên khóa</label>
+						<select id="class-year" name="id_cau_hinh_nam_hoc" required>
+							<% years.forEach(year => { %>
+								<option value="<%= year.id_cau_hinh_nam_hoc %>" <%= year.id_cau_hinh_nam_hoc === selectedYearId ? 'selected' : '' %>>
+									<%= year.nien_khoa %>
+								</option>
+							<% }) %>
+						</select>
+					</div>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-secondary" id="close-modal">Hủy</button>
+					<button type="submit" class="btn btn-primary" id="save-class">Lưu lớp</button>
+				</div>
+			</form>
+		</div>
+	</div>
+</div>
+
+<script>
+	(() => {
+		const modal = document.getElementById('class-modal');
+		const form = document.getElementById('class-form');
+		const modalTitle = document.getElementById('modal-title');
+		const classId = document.getElementById('class-id');
+		const className = document.getElementById('class-name');
+		const classKhoi = document.getElementById('class-khoi');
+		const classYear = document.getElementById('class-year');
+
+		const closeModal = () => {
+			modal.classList.remove('is-open');
+			modal.setAttribute('aria-hidden', 'true');
+		};
+
+		document.getElementById('open-create-modal')?.addEventListener('click', () => {
+			form.action = '/bdh/lop/create';
+			modalTitle.textContent = 'Thêm lớp mới';
+			classId.value = '';
+			className.value = '';
+			classKhoi.selectedIndex = 0;
+			classYear.value = '<%= selectedYearId || '' %>';
+			modal.classList.add('is-open');
+			modal.setAttribute('aria-hidden', 'false');
+			className.focus();
+		});
+
+		document.querySelectorAll('.edit-class-btn').forEach(button => {
+			button.addEventListener('click', () => {
+				form.action = '/bdh/lop/update';
+				modalTitle.textContent = 'Cập nhật thông tin lớp';
+				classId.value = button.dataset.id;
+				className.value = button.dataset.name;
+				classKhoi.value = button.dataset.khoi;
+				classYear.value = button.dataset.year;
+				modal.classList.add('is-open');
+				modal.setAttribute('aria-hidden', 'false');
+				className.focus();
+			});
+		});
+
+		document.getElementById('close-modal').addEventListener('click', closeModal);
+		modal.addEventListener('click', event => {
+			if (event.target === modal) closeModal();
+		});
+		document.addEventListener('keydown', event => {
+			if (event.key === 'Escape') closeModal();
+		});
+	})();
+</script>

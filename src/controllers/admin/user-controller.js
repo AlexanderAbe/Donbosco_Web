@@ -1,6 +1,6 @@
 const UserModel = require('../../models/admin/user-model');
 const AuthModel = require('../../models/auth-model');
-const { getBaseData } = require('../../utils/admin-helper');
+const { getAdminBaseData } = require('../../utils/base-data-helper');
 const { logAction } = require('../../utils/logger'); // Import helper ghi log
 
 exports.getUsers = async (req, res) => {
@@ -29,11 +29,6 @@ exports.getUsers = async (req, res) => {
                     roles.push('Ban Điều Hành');
                 }
 
-                // 3. Kiểm tra xem có phải Trưởng Khối không
-                const isTruongKhoi = await AuthModel.checkTruongKhoi(user.id_glv);
-                if (isTruongKhoi) {
-                    roles.push('Trưởng Khối');
-                }
             }
 
             // 4. Kiểm tra quyền Admin
@@ -57,7 +52,7 @@ exports.getUsers = async (req, res) => {
         const lockedUsers = allUsers.filter(user => user.trang_thai === 'Đã khóa');
 
         res.render('admin/users', { 
-            ...getBaseData(req, 'Quản Lý Người Dùng'),
+            ...getAdminBaseData(req, 'Quản Lý Người Dùng'),
             activeUsers, 
             lockedUsers, 
             searchQuery: searchQuery || ''
@@ -74,7 +69,7 @@ exports.resetPasswordView = async (req, res) => {
         const userId = req.params.id;
         const user = await UserModel.getUserById(userId); 
         res.render('admin/reset-password', { 
-            ...getBaseData(req, 'Đổi mật khẩu người dùng'), 
+            ...getAdminBaseData(req, 'Đổi mật khẩu người dùng'), 
             targetUser: user
         });
     } catch (error) {
@@ -100,7 +95,7 @@ exports.postResetPassword = async (req, res) => {
         const user = await UserModel.getUserById(userId); 
         
         return res.render('admin/reset-password', { 
-            ...getBaseData(req, 'Đổi mật khẩu người dùng'), 
+            ...getAdminBaseData(req, 'Đổi mật khẩu người dùng'), 
             targetUser: user,
             success: 'Đổi mật khẩu thành công cho người dùng!'
         });
@@ -115,7 +110,7 @@ exports.postResetPassword = async (req, res) => {
         const user = await UserModel.getUserById(userId).catch(() => null);
 
         return res.render('admin/reset-password', { 
-            ...getBaseData(req, 'Đổi mật khẩu người dùng'), 
+            ...getAdminBaseData(req, 'Đổi mật khẩu người dùng'), 
             targetUser: user,
             error: 'Đã xảy ra lỗi máy chủ khi đổi mật khẩu!'
         });

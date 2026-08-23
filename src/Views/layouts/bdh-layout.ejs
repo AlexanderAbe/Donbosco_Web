@@ -6,7 +6,7 @@
     <title><%= typeof title != 'undefined' ? title : 'Ban Điều Hành - Xứ Đoàn Don Bosco' %></title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="/css/reset.css">
-    <link rel="stylesheet" href="/css/bdh-layout.css">
+    <link rel="stylesheet" href="/css/bdh/bdh-layout.css">
 </head>
 <body>
 
@@ -66,16 +66,25 @@
                 <li><a href="/bdh/lop">Quản lý lớp</a></li>
             </ul>
         </li>
-
-        <!-- Mục lớn có Sub-menu 3: Hệ thống & Báo cáo -->
+        <li class="menu-item">
+                <button class="dropdown-toggle" type="button">
+                    <span><i class="fa-solid fa-gear"></i> Cấu hình năm học </span>
+                    <span class="arrow-icon"><i class="fa-solid fa-chevron-right"></i></span>
+                </button>
+                <ul class="submenu">
+                    <li><a href="/bdh/weight">Hệ điểm và bài kiểm tra</a></li>
+                    <li><a href="/bdh/settings">Khung xếp loại</a></li>
+                </ul>
+             </li>
+        <!-- Mục lớn có Sub-menu 3: Tổng kết -->
         <li class="menu-item">
             <button class="dropdown-toggle" type="button">
-                <span><i class="fa-solid fa-file-lines"></i> Báo cáo </span>
+                <span><i class="fa-solid fa-file-lines"></i> Tổng kết </span>
                 <span class="arrow-icon"><i class="fa-solid fa-chevron-right"></i></span>
             </button>
             <ul class="submenu">
                 <li><a href="/bdh/bang-diem">Bảng điểm</a></li>
-                <li><a href="/bdh/bang-khen">Bằng khen</a></li>
+                <li><a href="/bdh/chuyen-giao">Chuyển giao</a></li>
             </ul>
         </li>
     </ul>

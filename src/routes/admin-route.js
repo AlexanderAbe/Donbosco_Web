@@ -5,8 +5,6 @@ const router = express.Router();
 const dashboardController = require('../controllers/admin/dashboard-controller');
 const userController = require('../controllers/admin/user-controller');
 const roleController = require('../controllers/admin/role-controller');
-const weightController = require('../controllers/admin/weight-controller');
-const settingsController = require('../controllers/admin/settings-controller');
 
 // Middleware bảo vệ
 const { isAuthenticated } = require('../middlewares/auth-middleware');
@@ -28,14 +26,5 @@ router.post('/users/reset-password/:id', userController.postResetPassword);
 // Route Role
 router.get('/roles', roleController.getRolesPage);
 router.post('/roles/update/:id_glv', roleController.updateUserRoles);
-
-// Route Weight
-router.get('/weight', weightController.getWeightPage);
-router.post('/weight/save', weightController.saveWeightConfig);
-
-// 1. Route hiển thị trang settings
-router.get('/settings', settingsController.getSettingsPage);
-router.post('/settings/save', settingsController.saveSettingsConfig);
-router.post('/settings/update-year', settingsController.updateYearConfig);
 
 module.exports = router;

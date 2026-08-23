@@ -1,13 +1,13 @@
-const WeightModel = require('../../models/admin/weight-model');
-const { getBaseData } = require('../../utils/admin-helper');
+const WeightModel = require('../../models/bdh/weight-model');
+const { getBdhBaseData } = require('../../utils/base-data-helper');
 const { logAction } = require('../../utils/logger'); // Import helper ghi log
 
 // Hiển thị trang cấu hình hệ điểm & danh sách lịch sử
 exports.getWeightPage = async (req, res) => {
     try {
         const configs = await WeightModel.getAllConfigs();
-        res.render('admin/weight', {
-            ...getBaseData(req, 'Hệ điểm & Bài kiểm tra'),
+        res.render('bdh/weight', {
+            ...getBdhBaseData(req, 'Hệ điểm & Bài kiểm tra'),
             configs
         });
     } catch (error) {
@@ -18,7 +18,7 @@ exports.getWeightPage = async (req, res) => {
 
 // Xử lý lưu cấu hình mới khi submit form
 exports.saveWeightConfig = async (req, res) => {
-    const { nien_khoa, trong_so_hoc_tap, trong_so_ky_luat, trong_so_diem_chuyen_can, so_luong_bai_ktra } = req.body;
+    const { nien_khoa, trong_so_hoc_tap, trong_so_ky_luat, trong_so_diem_chuyen_can, so_luong_bai_ktra, stt_khoi_ket_thuc } = req.body;
 
     try {
         await WeightModel.createConfig(
@@ -26,7 +26,8 @@ exports.saveWeightConfig = async (req, res) => {
             parseFloat(trong_so_hoc_tap),
             parseFloat(trong_so_ky_luat),
             parseFloat(trong_so_diem_chuyen_can),
-            parseInt(so_luong_bai_ktra)
+            parseInt(so_luong_bai_ktra),
+            parseInt(stt_khoi_ket_thuc) || 11
         );
 
         // --- GHI AUDIT LOG: Thành công ---
@@ -34,8 +35,8 @@ exports.saveWeightConfig = async (req, res) => {
 
         // Lấy lại danh sách cấu hình để render trang kèm thông báo thành công
         const configs = await WeightModel.getAllConfigs();
-        return res.render('admin/weight', {
-            ...getBaseData(req, 'Hệ điểm & Bài kiểm tra'),
+        return res.render('bdh/weight', {
+            ...getBdhBaseData(req, 'Hệ điểm & Bài kiểm tra'),
             configs,
             success: `Đã lưu thành công niên khóa ${nien_khoa}!`
         });
@@ -56,8 +57,8 @@ exports.saveWeightConfig = async (req, res) => {
         }
 
         // Render lại trang kèm thông báo lỗi (Toast đỏ)
-        return res.render('admin/weight', {
-            ...getBaseData(req, 'Hệ điểm & Bài kiểm tra'),
+        return res.render('bdh/weight', {
+            ...getBdhBaseData(req, 'Hệ điểm & Bài kiểm tra'),
             configs,
             error: errorMsg
         });

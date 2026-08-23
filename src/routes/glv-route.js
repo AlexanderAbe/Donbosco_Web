@@ -9,13 +9,12 @@ const { checkRole } = require('../middlewares/role-middleware');
 router.use(isAuthenticated, checkRole('glv'));
 
 // Định nghĩa các đường dẫn gọi qua Controller tương ứng
-router.get('/', glvController.getDashboard);
-router.get('/dashboard', glvController.getDashboard);
-router.get('/danh-sach-lop', glvController.getDanhSachLop);
-router.get('/bang-diem', glvController.getBangDiem);
-router.get('/kiem-tra', glvController.getKiemTra);
-router.get('/diem-danh', glvController.getDiemDanh);
-router.get('/ky-luat', glvController.getKyLuat);
-router.get('/change-password', glvController.getChangePassword);
+router.get(['/', '/dashboard'], glvController.getDashboard);
+// router.get('/danh-sach-lop', glvController.getDanhSachLop);
+// router.get('/bang-diem', glvController.getBangDiem);
+// router.get('/kiem-tra', glvController.getKiemTra);
+// router.get('/diem-danh', glvController.getDiemDanh);
+// router.get('/ky-luat', glvController.getKyLuat);
+// router.get('/change-password', glvController.getChangePassword);
 
 module.exports = router;

@@ -2,13 +2,19 @@
    1. GIAO DIỆN TỔNG THỂ
    ========================================== */
 :root {
-    --bg-60-main: #f0fdf4;
+    --bg-60-main: #fff5f5;
     --bg-60-surface: #ffffff;
-    --primary-30: #16a34a;
-    --primary-30-hover: #15803d;
-    --primary-30-light: #dcfce7;
+    --primary-30: #ef4444;
+    --primary-30-hover: #d01818;
+    --primary-30-light: #fee2e2;
+    --accent-10: #991b1b;
     --text-main: #334155;
     --text-muted: #64748b;
+    --sidebar-width: 280px;
+    --header-height: 70px;
+    --success-accent: #22c55e;
+    --warning-accent: #f59e0b;
+    --border-color: #e2e8f0;
 }
 
 .dashboard-container {
@@ -277,7 +283,7 @@ table tr:hover {
         text-align: left;
         font-size: 13px;
     }
-}
+
     /* Ẩn tiêu đề ngang (thead) của bảng */
     .custom-table thead {
         display: none;
