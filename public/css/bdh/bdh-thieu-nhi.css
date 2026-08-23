@@ -1,0 +1,340 @@
+.tn-page {
+  max-width: 1280px;
+  margin: 0 auto;
+}
+.tn-page .page-toolbar,
+.tn-page .section-card {
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.05);
+}
+.tn-page .page-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: end;
+  gap: 16px;
+  padding: 18px 20px;
+  margin-bottom: 18px;
+}
+.tn-page .page-heading {
+  flex: 1 1 100%;
+  min-width: 0;
+}
+.tn-page h1 {
+  color: #1e293b;
+  font-size: 22px;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+.tn-page .page-heading p,
+.tn-page .section-header span {
+  color: #64748b;
+  font-size: 13px;
+}
+.tn-page .filter-form {
+  display: flex;
+  flex: 1 1 700px;
+  flex-wrap: wrap;
+  align-items: end;
+  gap: 10px;
+  min-width: 0;
+}
+.tn-page .field-group {
+  display: flex;
+  flex: 1 1 150px;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 150px;
+}
+.tn-page .search-field {
+  flex-grow: 2;
+}
+.tn-page label {
+  color: #475569;
+  font-size: 13px;
+  font-weight: 600;
+}
+.tn-page input,
+.tn-page select {
+  width: 100%;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  background: #fff;
+  color: #1e293b;
+  padding: 9px 11px;
+}
+.tn-page input:focus,
+.tn-page select:focus {
+  border-color: #ef4444;
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.12);
+}
+.tn-page .btn {
+  border: 0;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 9px 12px;
+  white-space: nowrap;
+}
+.tn-page .btn-primary {
+  background: #c92323;
+  color: #fff;
+}
+.tn-page .btn-primary:hover {
+  background: #a91d1d;
+}
+.tn-page .btn-view {
+  background: #e0f2fe;
+  color: #075985;
+}
+.tn-page .section-card {
+  overflow: hidden;
+}
+.tn-page .section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  border-bottom: 1px solid #e2e8f0;
+}
+.tn-page .section-header h2 {
+  color: #1e293b;
+  font-size: 16px;
+  font-weight: 700;
+}
+.tn-page .table-wrap {
+  overflow-x: auto;
+}
+.tn-page table {
+  width: 100%;
+  border-collapse: collapse;
+}
+.tn-page th,
+.tn-page td {
+  border-bottom: 1px solid #f1f5f9;
+  padding: 12px 16px;
+  text-align: left;
+  vertical-align: middle;
+}
+.tn-page th {
+  background: #f8fafc;
+  color: #64748b;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+.tn-page td {
+  color: #334155;
+  font-size: 13px;
+  white-space: nowrap;
+}
+.tn-page .empty-state {
+  margin: 16px 20px;
+  padding: 12px;
+  background: #f8fafc;
+  color: #64748b;
+  text-align: center;
+  border-radius: 6px;
+  font-size: 13px;
+}
+.tn-page .pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 14px;
+  padding: 16px;
+  color: #64748b;
+  font-size: 13px;
+}
+.tn-page .pagination a {
+  color: #be123c;
+  font-weight: 600;
+}
+.tn-modal {
+  display: none;
+  position: fixed;
+  inset: 0;
+  align-items: center;
+  justify-content: center;
+  background: rgba(15, 23, 42, 0.58);
+  backdrop-filter: blur(3px);
+  padding: 20px;
+  z-index: 1400;
+}
+.tn-modal.is-open {
+  display: flex;
+}
+.tn-modal .modal-dialog {
+  width: min(100%, 760px);
+  max-height: calc(100vh - 40px);
+  overflow-y: auto;
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  box-shadow: 0 24px 70px rgba(15, 23, 42, 0.28);
+}
+.tn-modal .modal-header,
+.tn-modal .modal-body,
+.tn-modal .modal-footer {
+  padding: 16px 20px;
+}
+
+.modal-footer {
+    display: flex;
+    justify-content: flex-end; /* Hoặc center tùy ý bạn */
+    align-items: center;
+    padding: 12px 20px;
+    gap: 10px;
+}
+
+.modal-footer .btn {
+    padding: 8px 16px;
+    min-width: 80px;
+    box-sizing: border-box; /* Cực kỳ quan trọng để không bị cộng dồn padding vào width */
+}
+
+btn, .btn-secondary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 8px 16px; /* Tăng padding ngang lên để có khoảng thở cho chữ */
+    min-width: 80px;   /* Đảm bảo chiều rộng tối thiểu cho nút */
+    box-sizing: border-box; /* Quan trọng: tránh việc padding làm phình to nút bất thường */
+    white-space: nowrap;    /* Ngăn không cho chữ bị xuống dòng */
+}
+
+.tn-modal .modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  background: linear-gradient(135deg, #fff7f7, #fff 70%);
+  border-bottom: 1px solid #fee2e2;
+}
+.tn-modal .modal-header span {
+  color: #be123c;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.tn-modal h2 {
+  color: #1e293b;
+  font-size: 20px;
+  font-weight: 700;
+  margin-top: 3px;
+}
+.tn-modal .modal-close {
+  border: 0;
+  border-radius: 50%;
+  background: #fff1f2;
+  color: #9f1239;
+  cursor: pointer;
+  font-size: 22px;
+  height: 32px;
+  width: 32px;
+  line-height: 1;
+}
+.tn-modal .modal-body {
+  display: grid;
+  gap: 16px;
+}
+.tn-modal .detail-section {
+  border: 1px solid #e2e8f0;
+  border-radius: 9px;
+  padding: 14px;
+}
+.tn-modal .detail-section h3 {
+  color: #1e293b;
+  font-size: 14px;
+  font-weight: 700;
+  margin-bottom: 11px;
+}
+.tn-modal .detail-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 9px;
+}
+.tn-modal .detail-grid div {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  background: #f8fafc;
+  border-radius: 7px;
+  padding: 9px 10px;
+}
+.tn-modal .detail-grid span {
+  color: #64748b;
+  font-size: 11px;
+}
+.tn-modal .detail-grid strong {
+  color: #1e293b;
+  font-size: 13px;
+}
+.tn-modal .history-list {
+  display: grid;
+  gap: 7px;
+}
+.tn-modal .history-list div {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 8px 10px;
+  background: #f8fafc;
+  border-radius: 6px;
+  color: #334155;
+  font-size: 12px;
+}
+.tn-modal .history-list strong {
+  color: #be123c;
+}
+.tn-modal .score-table {
+  overflow-x: auto;
+}
+.tn-modal .score-table th,
+.tn-modal .score-table td {
+  padding: 8px 9px;
+  font-size: 11px;
+}
+.tn-modal .muted,
+.tn-modal .loading,
+.tn-modal .error-message {
+  color: #64748b;
+  font-size: 13px;
+}
+.tn-modal .error-message {
+  color: #be123c;
+}
+.tn-modal .modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  border-top: 1px solid #e2e8f0;
+}
+.tn-modal .btn-secondary {
+  border: 0;
+  border-radius: 6px;
+  background: #e2e8f0;
+  color: #334155;
+  cursor: pointer;
+  padding: 9px 12px;
+}
+@media screen and (max-width: 700px) {
+  .tn-page .filter-form {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .tn-page .field-group {
+    min-width: 0;
+  }
+  .tn-page .filter-form .btn {
+    width: 100%;
+  }
+  .tn-modal .detail-grid {
+    grid-template-columns: 1fr;
+  }
+  .tn-modal .history-list div {
+    flex-direction: column;
+    gap: 3px;
+  }
+}

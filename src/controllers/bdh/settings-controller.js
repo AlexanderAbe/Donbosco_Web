@@ -1,5 +1,5 @@
-const SettingModel = require('../../models/admin/settings-model');
-const { getBaseData } = require('../../utils/admin-helper');
+const SettingModel = require('../../models/bdh/settings-model');
+const { getBdhBaseData } = require('../../utils/base-data-helper');
 const { logAction } = require('../../utils/logger'); // Import helper ghi log
 
 /**
@@ -34,8 +34,8 @@ exports.getSettingsPage = async (req, res) => {
         const rankings = groupRankings(rawRankings); // Gom nhóm dữ liệu
         const academicYears = await SettingModel.getAvailableAcademicYears();
 
-        res.render('admin/settings', {
-            ...getBaseData(req, 'Khung xếp loại'),
+        res.render('bdh/settings', {
+            ...getBdhBaseData(req, 'Khung xếp loại'),
             rankings,
             academicYears
         });
@@ -64,8 +64,8 @@ exports.saveSettingsConfig = async (req, res) => {
         const rankings = groupRankings(rawRankings); // Gom nhóm dữ liệu
         const academicYears = await SettingModel.getAvailableAcademicYears();
 
-        return res.render('admin/settings', {
-            ...getBaseData(req, 'Khung xếp loại'),
+        return res.render('bdh/settings', {
+            ...getBdhBaseData(req, 'Khung xếp loại'),
             rankings,
             academicYears,
             success: `Đã lưu thành công khung xếp loại "${ten_xep_loai}"!`
@@ -88,8 +88,8 @@ exports.saveSettingsConfig = async (req, res) => {
             errorMsg = "Giá trị xếp loại không hợp lệ!";
         }
 
-        return res.render('admin/settings', {
-            ...getBaseData(req, 'Khung xếp loại'),
+        return res.render('bdh/settings', {
+            ...getBdhBaseData(req, 'Khung xếp loại'),
             rankings,
             academicYears,
             error: errorMsg
@@ -122,8 +122,8 @@ exports.updateYearConfig = async (req, res) => {
         const updatedRankings = groupRankings(rawRankings);
         const academicYears = await SettingModel.getAvailableAcademicYears();
 
-        return res.render('admin/settings', {
-            ...getBaseData(req, 'Khung xếp loại'),
+        return res.render('bdh/settings', {
+            ...getBdhBaseData(req, 'Khung xếp loại'),
             rankings: updatedRankings,
             academicYears,
             success: "Cập nhật khung xếp loại thành công!"
@@ -139,8 +139,8 @@ exports.updateYearConfig = async (req, res) => {
         const rankings = groupRankings(rawRankings);
         const academicYears = await SettingModel.getAvailableAcademicYears();
 
-        return res.render('admin/settings', {
-            ...getBaseData(req, 'Khung xếp loại'),
+        return res.render('bdh/settings', {
+            ...getBdhBaseData(req, 'Khung xếp loại'),
             rankings,
             academicYears,
             error: "Đã xảy ra lỗi khi cập nhật khung xếp loại!"

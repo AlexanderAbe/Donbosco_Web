@@ -11,9 +11,12 @@ CREATE TYPE enum_ket_qua AS ENUM ('Đạt', 'Chưa đạt', 'Chuyển xứ', 'Ng
 CREATE TYPE enum_moi_quan_he AS ENUM ('Cha', 'Mẹ', 'Ông', 'Bà', 'Cô', 'Chú', 'Bác', 'Người giám hộ');
 
 -- 5. Các loại Bí tích
-CREATE TYPE enum_bi_tich AS ENUM ('Rửa tội', 'Giải tội', 'Thánh thể', 'Thêm sức');
+CREATE TYPE enum_bi_tich AS ENUM ('Rửa tội', 'Xưng tội & Rước lễ', 'Thêm sức');
 
 -- Tạo kiểu dữ liệu Enum cho tên khung xếp loại
 CREATE TYPE enum_ten_xep_loai AS ENUM ('Xuất sắc','Giỏi', 'Khá', 'Trung Bình', 'Yếu');
 
 CREATE TYPE trang_thai_enum AS ENUM ('Đang hoạt động', 'Đã khóa');
+
+-- 7. Trạng thái hoạt động của giáo lý viên
+CREATE TYPE enum_trang_thai_glv AS ENUM ('Đang hoạt động', 'Tạm nghỉ', 'Đã ngưng');

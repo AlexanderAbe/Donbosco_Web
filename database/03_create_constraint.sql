@@ -11,6 +11,7 @@ ALTER TABLE LOP_HOC ADD CONSTRAINT unique_ten_lop_trong_nam UNIQUE (ten_lop, id_
 -- 3. Bảng PHAN_LOP
 ALTER TABLE PHAN_LOP DROP CONSTRAINT IF EXISTS uk_thieu_nhi_nam_hoc;
 ALTER TABLE PHAN_LOP ADD CONSTRAINT uk_thieu_nhi_nam_hoc UNIQUE (id_tn, id_cau_hinh_nam_hoc);
+ALTER TABLE PHAN_LOP ALTER COLUMN id_lop DROP NOT NULL;
 
 -- 4. Bảng KHUNG_XEP_LOAI
 ALTER TABLE KHUNG_XEP_LOAI DROP CONSTRAINT IF EXISTS uk_khung_xep_loai_nam;
@@ -69,8 +70,35 @@ ALTER TABLE PHAN_CONG_BDH ADD CONSTRAINT uk_phan_cong_bdh_nam UNIQUE (id_glv, id
 -- 10. Bảng PHAN_CONG_TRUONG_KHOI
 ALTER TABLE PHAN_CONG_TRUONG_KHOI DROP CONSTRAINT IF EXISTS uk_truong_khoi_nam;
 ALTER TABLE PHAN_CONG_TRUONG_KHOI ADD CONSTRAINT uk_truong_khoi_nam UNIQUE (id_khoi, id_cau_hinh_nam_hoc);
+ALTER TABLE PHAN_CONG_TRUONG_KHOI DROP CONSTRAINT IF EXISTS uk_glv_mot_khoi_moi_nien_khoa;
+ALTER TABLE PHAN_CONG_TRUONG_KHOI ADD CONSTRAINT uk_glv_mot_khoi_moi_nien_khoa UNIQUE (id_glv, id_cau_hinh_nam_hoc);
 
--- 11. Bảng BI_TICH & PHU_HUYNH & TAI_KHOAN & THIEU_NHI
+-- 11. Bảng PHAN_CONG_GLV
+ALTER TABLE PHAN_CONG_GLV DROP CONSTRAINT IF EXISTS uk_glv_mot_lop_moi_nien_khoa;
+ALTER TABLE PHAN_CONG_GLV ADD CONSTRAINT uk_glv_mot_lop_moi_nien_khoa UNIQUE (id_glv, id_cau_hinh_nam_hoc);
+ALTER TABLE PHAN_CONG_GLV ADD CONSTRAINT uk_phan_cong_glv_nam UNIQUE (id_glv, id_lop, id_cau_hinh_nam_hoc);
+
+-- 12. Trạng thái GLV
+DO $$
+BEGIN
+	IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'enum_trang_thai_glv') THEN
+		CREATE TYPE enum_trang_thai_glv AS ENUM ('Đang hoạt động', 'Tạm nghỉ', 'Đã ngưng');
+	END IF;
+END
+$$;
+
+ALTER TABLE GLV
+ADD COLUMN IF NOT EXISTS trang_thai enum_trang_thai_glv DEFAULT 'Đang hoạt động';
+
+UPDATE GLV
+SET trang_thai = 'Đang hoạt động'
+WHERE trang_thai IS NULL;
+
+ALTER TABLE GLV
+ALTER COLUMN trang_thai SET DEFAULT 'Đang hoạt động',
+ALTER COLUMN trang_thai SET NOT NULL;
+
+-- 13. Bảng BI_TICH & PHU_HUYNH & TAI_KHOAN & THIEU_NHI
 ALTER TABLE BI_TICH DROP CONSTRAINT IF EXISTS uk_thieu_nhi_loai_bi_tich;
 ALTER TABLE BI_TICH ADD CONSTRAINT uk_thieu_nhi_loai_bi_tich UNIQUE (id_tn, loai_bi_tich);
 

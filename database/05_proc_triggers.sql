@@ -44,6 +44,61 @@ EXECUTE FUNCTION fn_tu_dong_tao_mstn_after();
 
 CREATE EXTENSION IF NOT EXISTS pgcrypto;
 
+-- F. Một GLV chỉ được thuộc một khối trong cùng một niên khóa
+CREATE OR REPLACE FUNCTION fn_check_glv_one_khoi_per_year()
+RETURNS TRIGGER AS $$
+DECLARE
+    v_id_khoi INT;
+BEGIN
+    IF TG_TABLE_NAME = 'phan_cong_glv' THEN
+        SELECT id_khoi INTO v_id_khoi
+        FROM LOP_HOC
+        WHERE id_lop = NEW.id_lop;
+    ELSE
+        v_id_khoi := NEW.id_khoi;
+    END IF;
+
+    IF v_id_khoi IS NULL THEN
+        RETURN NEW;
+    END IF;
+
+    IF EXISTS (
+        SELECT 1
+        FROM PHAN_CONG_TRUONG_KHOI pk
+        WHERE pk.id_glv = NEW.id_glv
+          AND pk.id_cau_hinh_nam_hoc = NEW.id_cau_hinh_nam_hoc
+          AND pk.id_khoi IS DISTINCT FROM v_id_khoi
+          AND (TG_TABLE_NAME <> 'phan_cong_truong_khoi'
+               OR pk.id_phan_cong_truong <> NEW.id_phan_cong_truong)
+    ) OR EXISTS (
+        SELECT 1
+        FROM PHAN_CONG_GLV pc
+        JOIN LOP_HOC l ON l.id_lop = pc.id_lop
+        WHERE pc.id_glv = NEW.id_glv
+          AND pc.id_cau_hinh_nam_hoc = NEW.id_cau_hinh_nam_hoc
+          AND l.id_khoi IS DISTINCT FROM v_id_khoi
+          AND (TG_TABLE_NAME <> 'phan_cong_glv'
+               OR pc.id_phan_cong_glv <> NEW.id_phan_cong_glv)
+    ) THEN
+        RAISE EXCEPTION 'GLV chỉ được phân công trong một khối của một niên khóa';
+    END IF;
+
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+DROP TRIGGER IF EXISTS trg_glv_one_khoi_per_year ON PHAN_CONG_GLV;
+CREATE TRIGGER trg_glv_one_khoi_per_year
+BEFORE INSERT OR UPDATE ON PHAN_CONG_GLV
+FOR EACH ROW
+EXECUTE FUNCTION fn_check_glv_one_khoi_per_year();
+
+DROP TRIGGER IF EXISTS trg_truong_khoi_one_khoi_per_year ON PHAN_CONG_TRUONG_KHOI;
+CREATE TRIGGER trg_truong_khoi_one_khoi_per_year
+BEFORE INSERT OR UPDATE ON PHAN_CONG_TRUONG_KHOI
+FOR EACH ROW
+EXECUTE FUNCTION fn_check_glv_one_khoi_per_year();
+
 -- B. Trigger tự động tạo tài khoản khi thêm Giáo lý viên mới
 CREATE OR REPLACE FUNCTION fn_tu_dong_tao_tai_khoan_glv()
 RETURNS TRIGGER AS $$
@@ -231,53 +286,138 @@ CREATE OR REPLACE PROCEDURE sp_cap_nhat_ket_qua_he(
 )
 LANGUAGE plpgsql
 AS $$
+DECLARE
+    r_tk RECORD;
+    v_hs_chuyen_can DECIMAL(3,2);
+    v_hs_hoc_tap DECIMAL(3,2);
+    v_hs_ky_luat DECIMAL(3,2);
+    v_tong_he_so DECIMAL(3,2);
+    
+    v_dtb_hoc_tap DECIMAL(4,2);
+    v_dtb_chuyen_can DECIMAL(4,2);
+    v_dtb_ky_luat DECIMAL(4,2);
+    v_diem_tong DECIMAL(4,2);
+    v_id_khung INT;
 BEGIN
+    -- 1. Lấy thông tin tổng kết hiện tại của học sinh dựa trên ID
+    SELECT * INTO r_tk
+    FROM TONG_KET_NAM_HOC
+    WHERE id_tong_ket_nam_hoc = p_id_tong_ket;
+
+    IF NOT FOUND THEN
+        RETURN; -- Không tìm thấy bản ghi thì thoát
+    END IF;
+
+    -- Gán giá trị điểm hiện tại vào biến để xử lý
+    v_dtb_hoc_tap := r_tk.diem_hoc_tap;
+    v_dtb_chuyen_can := r_tk.diem_chuyen_can;
+    v_dtb_ky_luat := r_tk.diem_ky_luat;
+
+    -- 2. Nếu kết quả mới là 'Đạt', kiểm tra và kéo các cột điểm dưới 5.0 lên thành 5.0
+    IF p_ket_qua_moi = 'Đạt' THEN
+        IF v_dtb_hoc_tap < 5.0 THEN v_dtb_hoc_tap := 5.0; END IF;
+        IF v_dtb_chuyen_can < 5.0 THEN v_dtb_chuyen_can := 5.0; END IF;
+        IF v_dtb_ky_luat < 5.0 THEN v_dtb_ky_luat := 5.0; END IF;
+
+        -- Lấy hệ số trọng số từ bảng cấu hình năm học
+        SELECT trong_so_diem_chuyen_can, trong_so_hoc_tap, trong_so_ky_luat
+        INTO v_hs_chuyen_can, v_hs_hoc_tap, v_hs_ky_luat
+        FROM CAU_HINH_NAM_HOC
+        WHERE id_cau_hinh_nam_hoc = r_tk.id_cau_hinh_nam_hoc;
+
+        -- Xử lý trường hợp hệ số bị NULL
+        IF v_hs_chuyen_can IS NULL THEN
+            v_hs_chuyen_can := 1;
+            v_hs_hoc_tap := 2;
+            v_hs_ky_luat := 1;
+            v_tong_he_so := 4;
+        ELSE
+            v_tong_he_so := v_hs_chuyen_can + v_hs_hoc_tap + v_hs_ky_luat;
+        END IF;
+
+        -- Tính lại điểm tổng mới dựa trên điểm đã được chuẩn hóa
+        IF v_tong_he_so > 0 THEN
+            v_diem_tong := ROUND(
+                ((v_dtb_chuyen_can * v_hs_chuyen_can) + (v_dtb_hoc_tap * v_hs_hoc_tap) + (v_dtb_ky_luat * v_hs_ky_luat)) / v_tong_he_so, 
+                2
+            );
+        ELSE
+            v_diem_tong := ROUND((v_dtb_chuyen_can + v_dtb_hoc_tap + v_dtb_ky_luat) / 3, 2);
+        END IF;
+
+        -- Tìm lại khung xếp loại phù hợp với điểm tổng mới
+        SELECT id_khung_xep_loai INTO v_id_khung
+        FROM KHUNG_XEP_LOAI
+        WHERE id_cau_hinh_nam_hoc = r_tk.id_cau_hinh_nam_hoc AND v_diem_tong BETWEEN min AND max
+        LIMIT 1;
+    ELSE
+        -- Nếu không phải là 'Đạt' (ví dụ vẫn là 'Chưa đạt' hoặc trạng thái khác), giữ nguyên điểm cũ
+        v_diem_tong := r_tk.diem_tong;
+        v_id_khung := r_tk.id_khung_xep_loai;
+    END IF;
+
+    -- 3. Cập nhật lại toàn bộ thông tin vào bảng TONG_KET_NAM_HOC
     UPDATE TONG_KET_NAM_HOC
-    SET tinh_trang = p_ket_qua_moi
+    SET diem_hoc_tap = v_dtb_hoc_tap,
+        diem_chuyen_can = v_dtb_chuyen_can,
+        diem_ky_luat = v_dtb_ky_luat,
+        diem_tong = v_diem_tong,
+        tinh_trang = p_ket_qua_moi,
+        id_khung_xep_loai = v_id_khung
     WHERE id_tong_ket_nam_hoc = p_id_tong_ket;
 END;
 $$;
 
 
--- D. Thủ tục chuyển giao sang niên khóa mới (Dùng ID cấu hình thay vì chuỗi)
 CREATE OR REPLACE PROCEDURE sp_chuyen_giao_nien_khoa(
     p_id_cau_hinh_cu INT,
     p_id_cau_hinh_moi INT
 )
 LANGUAGE plpgsql
 AS $$
+DECLARE
+    v_stt_ket_thuc INT;
 BEGIN
-    -- 1. ĐẨY LÊN LỚP (Dành cho các em đạt và STT khối < 11)
+    -- Lấy số thứ tự khối kết thúc từ cấu hình năm học cũ
+    SELECT stt_khoi_ket_thuc INTO v_stt_ket_thuc
+    FROM CAU_HINH_NAM_HOC
+    WHERE id_cau_hinh_nam_hoc = p_id_cau_hinh_cu;
+
+    IF v_stt_ket_thuc IS NULL THEN
+        v_stt_ket_thuc := 11;
+    END IF;
+
+    -- 1. ĐẨY LÊN KHỐI MỚI (Dành cho các em ĐẠT và STT khối < khối kết thúc)
+    -- id_lop được để NULL để Trưởng khối tự phân lớp sau
     INSERT INTO PHAN_LOP (id_cau_hinh_nam_hoc, id_tn, id_lop)
-    SELECT 
+    SELECT DISTINCT
         p_id_cau_hinh_moi, 
         pl.id_tn, 
-        l_moi.id_lop
+        NULL AS id_lop
     FROM PHAN_LOP pl
     JOIN LOP_HOC l_cu ON pl.id_lop = l_cu.id_lop
     JOIN KHOI k_cu ON l_cu.id_khoi = k_cu.id_khoi
     JOIN TONG_KET_NAM_HOC tk ON pl.id_tn = tk.id_tn AND pl.id_cau_hinh_nam_hoc = tk.id_cau_hinh_nam_hoc AND pl.id_lop = tk.id_lop
     JOIN KHOI k_moi ON k_moi.stt = k_cu.stt + 1
-    JOIN LOP_HOC l_moi ON l_moi.id_khoi = k_moi.id_khoi AND l_moi.id_cau_hinh_nam_hoc = p_id_cau_hinh_moi
     WHERE pl.id_cau_hinh_nam_hoc = p_id_cau_hinh_cu
       AND tk.tinh_trang = 'Đạt'
-      AND k_cu.stt < 11
+      AND k_cu.stt < v_stt_ket_thuc
       AND NOT EXISTS (
           SELECT 1 FROM PHAN_LOP p_check 
           WHERE p_check.id_tn = pl.id_tn AND p_check.id_cau_hinh_nam_hoc = p_id_cau_hinh_moi
       );
 
-    -- 2. Ở LẠI LỚP (Dành cho các em chưa đạt)
+    -- 2. Ở LẠI KHỐI CŨ (Dành cho các em CHƯA ĐẠT)
+    -- id_lop cũng để NULL để Trưởng khối xếp lại lớp học lại
     INSERT INTO PHAN_LOP (id_cau_hinh_nam_hoc, id_tn, id_lop)
-    SELECT 
+    SELECT DISTINCT
         p_id_cau_hinh_moi, 
         pl.id_tn, 
-        l_moi.id_lop
+        NULL AS id_lop
     FROM PHAN_LOP pl
     JOIN LOP_HOC l_cu ON pl.id_lop = l_cu.id_lop
     JOIN KHOI k_cu ON l_cu.id_khoi = k_cu.id_khoi
     JOIN TONG_KET_NAM_HOC tk ON pl.id_tn = tk.id_tn AND pl.id_cau_hinh_nam_hoc = tk.id_cau_hinh_nam_hoc AND pl.id_lop = tk.id_lop
-    JOIN LOP_HOC l_moi ON l_moi.id_khoi = k_cu.id_khoi AND l_moi.id_cau_hinh_nam_hoc = p_id_cau_hinh_moi
     WHERE pl.id_cau_hinh_nam_hoc = p_id_cau_hinh_cu
       AND tk.tinh_trang = 'Chưa đạt'
       AND NOT EXISTS (

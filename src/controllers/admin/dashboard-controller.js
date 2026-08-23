@@ -1,6 +1,6 @@
 const DashboardModel = require('../../models/admin/dashboard-model');
 const LogModel = require('../../models/admin/logs-model');
-const { getBaseData } = require('../../utils/admin-helper');
+const { getAdminBaseData } = require('../../utils/base-data-helper');
 
 exports.getDashboard = async (req, res) => {
     try {
@@ -10,7 +10,7 @@ exports.getDashboard = async (req, res) => {
         ]);
 
         res.render('admin/dashboard', { 
-            ...getBaseData(req, 'Quản Trị Hệ Thống'),
+            ...getAdminBaseData(req, 'Quản Trị Hệ Thống'),
             stats, 
             recentLogs 
         });
@@ -39,7 +39,7 @@ exports.getAllLogs = async (req, res) => {
         const result = await LogModel.getLogsWithPagination(page, limit, fromDate, toDate, search);
 
         res.render('admin/logs', { 
-            ...getBaseData(req, 'Nhật ký hệ thống'),
+            ...getAdminBaseData(req, 'Nhật ký hệ thống'),
             logs: result.logs,
             currentPage: page,
             totalPages: result.totalPages,

@@ -25,38 +25,29 @@ const LogModel = {
     async getLogsWithPagination(page = 1, limit = 20, fromDate = null, toDate = null, search = null) {
         try {
             const offset = (page - 1) * limit;
-            const MAX_FETCH_LIMIT = 500; // Tham số giới hạn tổng bản ghi quét
 
-            // Quy đổi múi giờ ngay trong subquery để việc lọc ngày tháng chuẩn xác theo giờ VN
+            // Xây dựng phần FROM và JOIN chung (Không cắt cụt bằng LIMIT 500 nữa)
             let baseFrom = `
-                FROM (
-                    SELECT id_log, id_tk, action, status, 
-                           (created_at AT TIME ZONE 'UTC' AT TIME ZONE 'Asia/Ho_Chi_Minh') AS created_at 
-                    FROM audit_logs 
-                    ORDER BY created_at DESC 
-                    LIMIT ${MAX_FETCH_LIMIT}
-                ) l
-                LEFT JOIN vw_tai_khoan_glv v ON l.id_tk = v.id_tk
-                WHERE 1=1
-            `;
+                FROM audit_logs l
+                LEFT JOIN vw_tai_khoan_glv v ON l.id_tk = v.id_tk WHERE 1=1`;
 
-            let query = `SELECT l.id_log, l.action, l.status, l.created_at, v.ho_ten, v.username ${baseFrom}`;
+            let query = `SELECT l.id_log, l.action, l.status, (l.created_at AT TIME ZONE 'UTC' AT TIME ZONE 'Asia/Ho_Chi_Minh') AS created_at, v.ho_ten, v.username ${baseFrom}`;
             let countQuery = `SELECT COUNT(*) ${baseFrom}`;
             let params = [];
             let paramIndex = 1;
 
             // Thêm điều kiện lọc theo ngày bắt đầu (From)
             if (fromDate) {
-                query += ` AND l.created_at::date >= $${paramIndex}`;
-                countQuery += ` AND l.created_at::date >= $${paramIndex}`;
+                query += ` AND (l.created_at AT TIME ZONE 'UTC' AT TIME ZONE 'Asia/Ho_Chi_Minh')::date >= $${paramIndex}`;
+                countQuery += ` AND (l.created_at AT TIME ZONE 'UTC' AT TIME ZONE 'Asia/Ho_Chi_Minh')::date >= $${paramIndex}`;
                 params.push(fromDate);
                 paramIndex++;
             }
 
             // Thêm điều kiện lọc theo ngày kết thúc (To)
             if (toDate) {
-                query += ` AND l.created_at::date <= $${paramIndex}`;
-                countQuery += ` AND l.created_at::date <= $${paramIndex}`;
+                query += ` AND (l.created_at AT TIME ZONE 'UTC' AT TIME ZONE 'Asia/Ho_Chi_Minh')::date <= $${paramIndex}`;
+                countQuery += ` AND (l.created_at AT TIME ZONE 'UTC' AT TIME ZONE 'Asia/Ho_Chi_Minh')::date <= $${paramIndex}`;
                 params.push(toDate);
                 paramIndex++;
             }
@@ -72,7 +63,7 @@ const LogModel = {
             // Sắp xếp mới nhất lên đầu, áp dụng LIMIT và OFFSET cho trang hiện tại
             query += ` ORDER BY l.created_at DESC LIMIT $${paramIndex} OFFSET $${paramIndex + 1}`;
 
-            // Thực thi song song truy vấn lấy dữ liệu và đếm tổng số bản ghi trong phạm vi 500 dòng
+            // Thực thi song song truy vấn lấy dữ liệu và đếm tổng số bản ghi
             const [logsResult, countResult] = await Promise.all([
                 pool.query(query, [...params, limit, offset]),
                 pool.query(countQuery, params)

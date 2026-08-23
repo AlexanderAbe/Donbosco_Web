@@ -1,5 +1,5 @@
 const UserModel = require('../../models/admin/user-model');
-const { getBaseData } = require('../../utils/admin-helper');
+const { getAdminBaseData } = require('../../utils/base-data-helper');
 const { logAction } = require('../../utils/logger');
 
 // 1. Hiển thị trang phân quyền
@@ -9,7 +9,7 @@ exports.getRolesPage = async (req, res) => {
         const users = await UserModel.getUsersWithRolesSorted();
 
         res.render('admin/roles', {
-            ...getBaseData(req, 'Quản Lý Phân Quyền'),
+            ...getAdminBaseData(req, 'Quản Lý Phân Quyền'),
             users, // Trả về mảng users duy nhất
             success: req.query.success
         });
@@ -25,12 +25,11 @@ exports.updateUserRoles = async (req, res) => {
     const { id_glv } = req.params;
 
     try {
-        const { is_admin, is_bdh, is_truong_khoi } = req.body;
+        const { is_admin, is_bdh } = req.body;
 
         await UserModel.updateGlvRoles(id_glv, {
             isAdmin: !!is_admin,
-            isBdh: !!is_bdh,
-            isTruongKhoi: !!is_truong_khoi
+            isBdh: !!is_bdh
         });
 
         // --- GHI AUDIT LOG: Cập nhật quyền THÀNH CÔNG ---

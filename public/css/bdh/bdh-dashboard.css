@@ -1,0 +1,391 @@
+:root {
+    --bg-60-main: #fff5f5;
+    --bg-60-surface: #ffffff;
+    --primary-30: #ef4444;
+    --primary-30-hover: #d01818;
+    --primary-30-light: #fee2e2;
+    --accent-10: #991b1b;
+    --text-main: #334155;
+    --text-muted: #64748b;
+    --sidebar-width: 280px;
+    --header-height: 70px;
+    --success-accent: #22c55e;
+    --warning-accent: #f59e0b;
+    --border-color: #e2e8f0;
+}
+
+/* --- RESET & GLOBAL --- */
+* {
+    box-sizing: border-box;
+}
+
+body {
+    background-color: var(--bg-60-main);
+    color: var(--text-main);
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin: 0;
+    padding: 0;
+    overflow-x: hidden;
+}
+
+/* --- MAIN CONTAINER (Tự động né Header & Sidebar trên Desktop) --- */
+.main-container {
+    padding: 2rem;
+    margin-left: var(--sidebar-width);
+    margin-top: var(--header-height);
+    transition: margin-left 0.3s ease;
+    width: calc(100% - var(--sidebar-width));
+}
+
+/* --- TIÊU ĐỀ & BỘ LỌC (FILTER) --- */
+.main-container h2, 
+.dashboard-header-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--text-main);
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.input-group {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding-bottom: 1.25rem;
+    max-width: 400px;
+}
+
+/* --- HỆ THỐNG THẺ THỐNG KÊ (KPI STATS GRID) --- */
+.stat-grid, 
+.row.stats-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin-bottom: 1.5rem;
+}
+
+.row:has(.card):not(.stat-grid):not(.stats-row) {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0; /* Giữ nguyên hệ thống lưới col-md-6 của Bootstrap */
+}
+
+.stat-info h6{
+    display: flex;
+    font-size: 0.78rem;
+    flex-direction: column;
+    justify-content: center;
+}
+.stat-info h4{
+    display: flex;
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: var(--text-main);
+    flex-direction: column;
+    justify-content: center;
+}
+/* --- CARD THÔNG THƯỜNG (Giữ nguyên mặc định, không bị ảnh hưởng) --- */
+.card {
+    background: var(--bg-60-surface);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    margin-bottom: 0 !important;
+    padding: 16px 20px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+}
+
+.card:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+
+/* ==========================================================
+   CHỈNH SÁCH RIÊNG CHO CÁC THẺ TRONG STAT GRID
+   ========================================================== */
+
+/* Biến thẻ card trong stat grid thành flex column */
+.stat-grid .card,
+.row.stats-row .card {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+/* 1. Chữ chú thích nằm ở trên, nhỏ lại và mờ hơn */
+.stat-grid .card .card-title,
+.row.stats-row .card .card-title,
+.stat-grid .card h6,
+.stat-grid .card .title {
+    font-size: 0.78rem !important;
+    font-weight: 600;
+    color: var(--text-muted) !important;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 10px !important;
+}
+
+/* 2. Khung chứa Icon và Số nằm ngang ở bên dưới */
+.stat-grid .card .d-flex.align-items-center,
+.row.stats-row .card .d-flex.align-items-center,
+.stat-grid .card .card-body-content {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+/* 3. Kích thước Icon & Con số to đậm (chỉ áp dụng trong stat grid) */
+.stat-grid .card i,
+.row.stats-row .card i,
+.stat-grid .card .icon {
+    font-size: 1.75rem !important;
+    line-height: 1;
+}
+
+.stat-grid .card .card-value,
+.row.stats-row .card .number,
+.stat-grid .card .value,
+.stat-grid .card h3,
+.stat-grid .card h4,
+.stat-grid .card span {
+    font-size: 1.75rem !important;
+    font-weight: 700 !important;
+    color: var(--text-main) !important;
+    margin: 0 !important;
+    line-height: 1;
+}
+
+
+/* --- TABLE STYLING --- */
+.table-responsive {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    background: var(--bg-60-surface);
+    border-radius: 12px;
+    border: 1px solid var(--border-color);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.02);
+    margin-top: 1rem;
+}
+
+.table {
+    width: 100%;
+    margin-bottom: 0;
+    border-collapse: collapse;
+    white-space: nowrap;
+}
+
+.table thead {
+    background-color: var(--primary-30-light);
+    color: var(--accent-10);
+}
+
+.table th {
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.82rem;
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border-color);
+    letter-spacing: 0.5px;
+}
+
+.table td {
+    padding: 12px 16px;
+    vertical-align: middle;
+    font-size: 0.92rem;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.table tbody tr:hover {
+    background-color: #fafafa;
+}
+
+/* --- FORM & FILTER --- */
+.form-control, .form-select {
+    width: 100%;
+    padding: 0.55rem 0.75rem;
+    font-size: 0.95rem;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    background-color: var(--bg-60-surface);
+}
+
+.form-control:focus, .form-select:focus {
+    border-color: var(--primary-30);
+    box-shadow: 0 0 0 0.2rem var(--primary-30-light);
+    outline: none;
+}
+
+/* --- BADGE CUSTOMIZATION --- */
+.badge.bg-danger { background-color: var(--primary-30) !important; }
+.badge.bg-success { background-color: var(--success-accent) !important; }
+.badge.bg-warning { background-color: var(--warning-accent) !important; color: #fff; }
+
+
+/* ==========================================================
+   RESPONSIVE DESIGN (TỐI ƯU HÓA CHO ĐIỆN THOẠI & TABLET)
+   ========================================================== */
+
+@media (max-width: 1024px) {
+    .stat-grid, 
+    .row.stats-row,
+    .row:has(.card) {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .main-container {
+        margin-left: 0 !important;
+        width: 100% !important;
+        padding: 1rem;
+        margin-top: 60px;
+    }
+}
+
+@media (max-width: 576px) {
+    .stat-grid, 
+    .row.stats-row,
+    .row:has(.card) {
+        grid-template-columns: 1fr;
+    }
+
+    .main-container {
+        padding: 0.75rem;
+    }
+
+    .input-group {
+        max-width: 100%;
+    }
+
+    h2, .h2 {
+        font-size: 1.35rem;
+    }
+    
+    h3, .h3 {
+        font-size: 1.15rem;
+    }
+}
+
+/* --- TỐI ƯU HEADER & BỘ LỌC NIÊN KHÓA --- */
+.form-inline {
+    width: auto;
+}
+
+.input-group-nien-khoa {
+    display: flex;
+    align-items: center;
+    background: var(--bg-60-surface);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02);
+    margin-bottom: 1rem;
+}
+
+.input-group-nien-khoa .input-group-text {
+    background-color: var(--primary-30-light);
+    color: var(--accent-10);
+    border: none;
+    padding: 0.55rem 0.85rem;
+    font-size: 0.95rem;
+}
+
+.input-group-nien-khoa select.form-control {
+    border: none;
+    box-shadow: none;
+    background: transparent;
+    padding-right: 2rem;
+    cursor: pointer;
+}
+
+/* --- TỐI ƯU RIÊNG CHO ĐIỆN THOẠI (< 576px) --- */
+@media (max-width: 576px) {
+    /* Đưa thanh tiêu đề và bộ lọc niên khóa thành dạng dọc để không bị bóp méo */
+    .d-flex.justify-content-between.align-items-center.mb-4 {
+        flex-direction: column !important;
+        align-items: flex-start !important;
+        gap: 12px !important;
+    }
+
+    /* Form chọn niên khóa tự động tràn hết chiều ngang điện thoại cho dễ bấm */
+    .form-inline, 
+    .input-group-nien-khoa {
+        width: 100% !important;
+    }
+
+    .input-group-nien-khoa select.form-control {
+        width: 100% !important;
+    }
+
+    /* Thu nhỏ kích thước chữ tiêu đề và bảng cho vừa màn hình nhỏ */
+    h2, .h2 {
+        font-size: 1.2rem !important;
+    }
+
+    .card {
+        padding: 12px 14px !important;
+    }
+
+    .table th, .table td {
+        padding: 10px 12px !important;
+        font-size: 0.85rem !important;
+    }
+}
+
+/* --- TÙY CHỈNH CHIA ĐÔI 2 CỘT BẢNG --- */
+.custom-row-split {
+    display: flex;
+    gap: 20px;
+    width: 100%;
+    margin-bottom: 1.5rem;
+}
+
+.custom-col {
+    flex: 1;
+    min-width: 0; /* Giúp bảng không bị tràn flex item */
+}
+
+/* Tối ưu cho điện thoại và máy tính bảng nhỏ: Tự động xếp dọc 100% */
+@media (max-width: 992px) {
+    .custom-row-split {
+        flex-direction: column;
+        gap: 16px;
+    }
+}
+
+/* --- SỬA TRIỆT ĐỂ KIỂU DÁNG BADGE PILL --- */
+.table td .badge {
+    color: #ffffff !important;
+    background-color: var(--primary-30) !important;
+    border-radius: 50rem !important;
+    padding: 0.4em 0.85em !important;
+    font-size: 0.8rem !important;
+    font-weight: 600 !important;
+    display: inline-flex !important;
+    align-items: center;
+    gap: 4px;
+}
+
+.table td .badge.bg-success {
+    background-color: var(--success-accent) !important;
+}
+
+/* --- CĂN CHỈNH THẲNG HÀNG TIÊU ĐỀ VÀ NỘI DUNG BẢNG --- */
+/* Cột 1 (Lớp): Canh trái */
+.table th:nth-child(1),
+.table td:nth-child(1) {
+    text-align: left;
+}
+
+/* Cột 2 (Khối): Canh trái */
+.table th:nth-child(2),
+.table td:nth-child(2) {
+    text-align: left;
+}
+
+/* Cột 3 (Số GLV): Canh giữa hoặc canh phải tùy ý, ở đây chọn canh giữa cho đẹp badge */
+.table th:nth-child(3),
+.table td:nth-child(3) {
+    text-align: center;
+}

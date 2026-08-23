@@ -82,3 +82,20 @@ a {
 button, input, select, textarea {
     outline: none;
 }
+
+/* Ẩn thanh cuộn cho trình duyệt Chrome, Safari, Edge và Opera */
+::-webkit-scrollbar {
+    display: none;
+    width: 0px;
+    background: transparent;
+}
+
+/* Ẩn thanh cuộn cho trình duyệt Firefox */
+* {
+    scrollbar-width: none;
+}
+
+/* Ẩn thanh cuộn cho IE và Edge cũ */
+* {
+    -ms-overflow-style: none;
+}

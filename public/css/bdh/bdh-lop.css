@@ -1,0 +1,227 @@
+.lop-page {
+    max-width: 1180px;
+    margin: 0 auto;
+}
+
+.lop-page .page-toolbar,
+.lop-page .section-card {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(15, 23, 42, 0.05);
+}
+
+.lop-page .page-toolbar {
+    display: flex;
+    align-items: end;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 18px 20px;
+    margin-bottom: 18px;
+}
+
+.lop-page .page-heading h1 {
+    color: #1e293b;
+    font-size: 22px;
+    font-weight: 700;
+    margin-bottom: 4px;
+}
+
+.lop-page .page-heading p {
+    color: #64748b;
+    font-size: 13px;
+}
+
+.lop-page .field-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    min-width: 220px;
+}
+
+.lop-page label {
+    color: #475569;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.lop-page select,
+.lop-page input {
+    width: 100%;
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+    background: #ffffff;
+    color: #1e293b;
+    padding: 9px 11px;
+}
+
+.lop-page select:focus,
+.lop-page input:focus {
+    border-color: #ef4444;
+    box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.12);
+}
+
+.lop-page .btn {
+    border: 0;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 10px 14px;
+}
+
+.lop-page .btn-primary {
+    background: #c92323;
+    color: #ffffff;
+}
+
+.lop-page .btn-primary:hover {
+    background: #a91d1d;
+}
+
+.lop-page .btn-edit {
+    background: #fff1f2;
+    color: #be123c;
+}
+
+.lop-page .section-card {
+    overflow: hidden;
+}
+
+.lop-page .section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 20px;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.lop-page .section-header h2 {
+    color: #1e293b;
+    font-size: 16px;
+    font-weight: 700;
+}
+
+.lop-page .table-wrap {
+    overflow-x: auto;
+}
+
+.lop-page table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.lop-page th,
+.lop-page td {
+    border-bottom: 1px solid #f1f5f9;
+    padding: 13px 20px;
+    text-align: left;
+    white-space: nowrap;
+}
+
+.lop-page th {
+    background: #f8fafc;
+    color: #64748b;
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+}
+
+.lop-page td {
+    color: #334155;
+    font-size: 14px;
+}
+
+.lop-page tbody tr:last-child td {
+    border-bottom: 0;
+}
+
+.lop-page .empty-state,
+.lop-page .alert {
+    margin: 16px 20px;
+    border-radius: 6px;
+    padding: 12px 14px;
+    font-size: 13px;
+}
+
+.lop-page .empty-state {
+    background: #f8fafc;
+    color: #64748b;
+    text-align: center;
+}
+
+.lop-page .alert {
+    background: #fff1f2;
+    color: #be123c;
+    border: 1px solid #fecdd3;
+}
+
+.lop-page .modal {
+    display: none;
+    position: fixed;
+    inset: 0;
+    align-items: center;
+    justify-content: center;
+    background: rgba(15, 23, 42, 0.45);
+    padding: 20px;
+    z-index: 1400;
+}
+
+.lop-page .modal.is-open {
+    display: flex;
+}
+
+.lop-page .modal-dialog {
+    width: min(100%, 460px);
+    background: #ffffff;
+    border-radius: 10px;
+    box-shadow: 0 16px 40px rgba(15, 23, 42, 0.2);
+}
+
+.lop-page .modal-header,
+.lop-page .modal-body,
+.lop-page .modal-footer {
+    padding: 16px 20px;
+}
+
+.lop-page .modal-header {
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.lop-page .modal-header h2 {
+    color: #1e293b;
+    font-size: 18px;
+    font-weight: 700;
+}
+
+.lop-page .modal-body {
+    display: grid;
+    gap: 14px;
+}
+
+.lop-page .modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    border-top: 1px solid #e2e8f0;
+}
+
+.lop-page .btn-secondary {
+    background: #e2e8f0;
+    color: #334155;
+}
+
+@media screen and (max-width: 700px) {
+    .lop-page .page-toolbar {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .lop-page .field-group {
+        min-width: 0;
+    }
+
+    .lop-page .page-toolbar .btn {
+        width: 100%;
+    }
+}

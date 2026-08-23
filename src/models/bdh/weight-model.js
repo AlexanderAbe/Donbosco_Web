@@ -15,15 +15,15 @@ const WeightModel = {
     },
 
     // Thêm cấu hình niên khóa mới vào DB
-    async createConfig(nienKhoa, trongSoHocTap, trongSoKyLuat, trongSoChuyenCan, soLuongBaiKtra) {
+    async createConfig(nienKhoa, trongSoHocTap, trongSoKyLuat, trongSoChuyenCan, soLuongBaiKtra, sttKhoiKetThuc) {
         try {
             const query = `
                 INSERT INTO CAU_HINH_NAM_HOC 
-                (nien_khoa, trong_so_hoc_tap, trong_so_ky_luat, trong_so_diem_chuyen_can, so_luong_bai_ktra, ngay_tao)
-                VALUES ($1, $2, $3, $4, $5, CURRENT_DATE)
+                (nien_khoa, trong_so_hoc_tap, trong_so_ky_luat, trong_so_diem_chuyen_can, so_luong_bai_ktra, stt_khoi_ket_thuc, ngay_tao)
+                VALUES ($1, $2, $3, $4, $5, $6, CURRENT_DATE)
                 RETURNING *;
             `;
-            const values = [nienKhoa, trongSoHocTap, trongSoKyLuat, trongSoChuyenCan, soLuongBaiKtra];
+            const values = [nienKhoa, trongSoHocTap, trongSoKyLuat, trongSoChuyenCan, soLuongBaiKtra, sttKhoiKetThuc || 11];
             const { rows } = await pool.query(query, values);
             return rows[0];
         } catch (error) {

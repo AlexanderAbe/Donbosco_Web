@@ -1,7 +1,97 @@
-<div style="background: white; padding: 24px; border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
-    <h1 style="font-size: 20px; font-weight: bold; color: #7f1d1d; margin-bottom: 12px;">📊 Trang Tổng Quan Ban Điều Hành</h1>
-    <p style="color: #64748b; line-height: 1.6;">
-        Chào mừng bạn đến với hệ thống quản lý Xứ đoàn Don Bosco. Đây là khu vực quản lý cấp cao dành riêng cho <strong>Ban Điều Hành (BDH)</strong>. 
-        Bạn có thể sử dụng menu bên trái để quản lý danh sách thiếu nhi toàn xứ đoàn, cơ cấu khối và phê duyệt các báo cáo.
-    </p>
-</div>
+<link rel="stylesheet" href="/css/reset.css">
+<link rel="stylesheet" href="/css/bdh/bdh-dashboard.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+<!-- Header & Bộ lọc niên khóa -->
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
+        <h2><i class="fa-solid fa-chart-line me-2"></i> Tổng quan Ban Điều Hành</h2>
+        
+        <form method="GET" action="/bdh/dashboard" class="form-inline m-0">
+            <div class="input-group-nien-khoa">
+                <span class="input-group-text"><i class="fa-solid fa-calendar-days"></i></span>
+                <select name="nien_khoa" class="form-control" onchange="this.form.submit()">
+                    <% nienKhoaList.forEach(nk => { %>
+                        <option value="<%= nk.id_cau_hinh_nam_hoc %>" <%= nk.id_cau_hinh_nam_hoc == stats.currentId ? 'selected' : '' %>>
+                            Niên khóa: <%= nk.nien_khoa %>
+                        </option>
+                    <% }) %>
+                </select>
+            </div>
+        </form>
+    </div>
+    <!-- 1. Thẻ KPI Tổng quát -->
+    <%- include('../partials/stat-grid-bdh') %>
+
+    <!-- 2. Nội dung chi tiết quản lý -->
+    <div class="custom-row-split">
+        <!-- Cột trái: Phân công Trưởng khối -->
+        <div class="custom-col">
+            <div class="card p-3 mb-4 shadow-sm h-100">
+                <h4><i class="fa-solid fa-user-tie me-2 text-primary"></i> Phân công Trưởng Khối</h4>
+                <div class="table-responsive">
+                    <table class="table table-striped mt-2">
+                        <thead>
+                            <tr>
+                                <th><i class="fa-solid fa-layer-group me-1"></i> Khối</th>
+                                <th><i class="fa-solid fa-user me-1"></i> Trưởng Khối</th>
+                                <th><i class="fa-solid fa-phone me-1"></i> SĐT</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <% stats.truongKhoiList.forEach(tk => { %>
+                                <tr>
+                                    <td><%= tk.ten_khoi %></td>
+                                    <td>
+                                        <% if (tk.ten) { %>
+                                            <i class="fa-solid fa-user-check text-success me-1"></i>
+                                            <%= `${tk.ten_thanh || ''} ${tk.ho_va_ten_lot || ''} ${tk.ten}` %>
+                                        <% } else { %>
+                                            <span class="text-muted"><i class="fa-solid fa-triangle-exclamation text-warning me-1"></i> Chưa phân công</span>
+                                        <% } %>
+                                    </td>
+                                    <td><%= tk.sdt || '-' %></td>
+                                </tr>
+                            <% }) %>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Cột phải: Thống kê số lượng GLV theo lớp -->
+        <div class="custom-col">
+            <div class="card p-3 mb-4 shadow-sm h-100">
+                <h4><i class="fa-solid fa-chalkboard me-2 text-success"></i> Nhân sự Giáo Lý Viên theo Lớp</h4>
+                <div class="table-responsive">
+                    <table class="table table-striped mt-2">
+                        <thead>
+                            <tr>
+                                <th><i class="fa-solid fa-school me-1"></i> Lớp</th>
+                                <th><i class="fa-solid fa-layer-group me-1"></i> Khối</th>
+                                <th><i class="fa-solid fa-users me-1"></i> Số GLV</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <% stats.thongKeLopList.forEach(lop => { %>
+                                <tr>
+                                    <td><%= lop.ten_lop %></td>
+                                    <td><%= lop.ten_khoi %></td>
+                                    <td>
+                                        <% if (lop.so_luong_glv < 2) { %>
+                                            <span class="badge bg-danger text-white rounded-pill px-3 py-2">
+                                                <i class="fa-solid fa-circle-exclamation me-1"></i> <%= lop.so_luong_glv %> (Ít)
+                                            </span>
+                                        <% } else { %>
+                                            <span class="badge bg-success text-white rounded-pill px-3 py-2">
+                                                <i class="fa-solid fa-check me-1"></i> <%= lop.so_luong_glv %>
+                                            </span>
+                                        <% } %>
+                                    </td>
+                                </tr>
+                            <% }) %>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
