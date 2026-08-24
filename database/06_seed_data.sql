@@ -67,7 +67,11 @@ INSERT INTO THIEU_NHI (ten_thanh, ho_va_ten_lot, ten, gioi_tinh, ngay_sinh, dia_
 
 
 -- 7. Phân lớp thử nghiệm cho các thiếu nhi vừa thêm vào niên khóa 2025-2026
-INSERT INTO PHAN_LOP (nien_khoa, id_tn, id_lop) VALUES
-('2025-2026', 1, 1),
-('2025-2026', 2, 1),
-('2025-2026', 3, 2);
+INSERT INTO PHAN_LOP (id_cau_hinh_nam_hoc, id_tn, id_lop, trang_thai)
+SELECT c.id_cau_hinh_nam_hoc, seed.id_tn, seed.id_lop, 'Đang học'
+FROM (VALUES
+	(1, 1),
+	(2, 1),
+	(3, 2)
+) AS seed(id_tn, id_lop)
+JOIN CAU_HINH_NAM_HOC c ON c.nien_khoa = '2025-2026';

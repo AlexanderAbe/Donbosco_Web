@@ -1,6 +1,7 @@
 const XLSX = require('xlsx');
 const GlvModel = require('../../models/bdh/glv-model');
 const { getBdhBaseData } = require('../../utils/base-data-helper');
+const { logAction } = require('../../utils/logger');
 
 const statuses = ['Đang hoạt động', 'Tạm nghỉ', 'Đã ngưng'];
 
@@ -107,13 +108,18 @@ const GlvController = {
             const data = getProfileInput(req.body);
             const validationError = validateGlvInput({ ...data, trangThai: statuses[0] });
             if (!Number.isInteger(idGlv) || validationError) {
+                await logAction(req, `Cập nhật thông tin giáo lý viên (ID: ${req.params.id}) thất bại: ${validationError || 'ID không hợp lệ'}`, 'Thất bại');
                 return redirect(res, params, validationError || 'Thông tin GLV không hợp lệ.', true);
             }
             await GlvModel.updateProfile(idGlv, data);
+
+            await logAction(req, `Cập nhật thông tin giáo lý viên thành công (ID: ${idGlv})`, 'Thành công');
             redirect(res, params, 'Đã cập nhật thông tin GLV.');
         } catch (error) {
             console.error('Lỗi cập nhật GLV:', error);
-            redirect(res, params, error.code === '23505' ? 'Số điện thoại đã tồn tại.' : 'Không thể cập nhật thông tin GLV.', true);
+            const errorMessage = error.code === '23505' ? 'Số điện thoại đã tồn tại.' : 'Không thể cập nhật thông tin GLV.';
+            await logAction(req, `Cập nhật thông tin giáo lý viên (ID: ${idGlv}) thất bại: ${errorMessage}`, 'Thất bại');
+            redirect(res, params, errorMessage, true);
         }
     },
 
@@ -128,12 +134,16 @@ const GlvController = {
 
         try {
             if (!Number.isInteger(idGlv) || !statuses.includes(status)) {
+                await logAction(req, `Cập nhật trạng thái giáo lý viên (ID: ${req.params.id}) thất bại: Trạng thái không hợp lệ`, 'Thất bại');
                 return redirect(res, params, 'Trạng thái GLV không hợp lệ.', true);
             }
             await GlvModel.updateStatus(idGlv, status);
+
+            await logAction(req, `Cập nhật trạng thái giáo lý viên thành công (ID: ${idGlv} -> ${status})`, 'Thành công');
             redirect(res, params, 'Đã cập nhật tình trạng GLV.');
         } catch (error) {
             console.error('Lỗi cập nhật tình trạng GLV:', error);
+            await logAction(req, `Cập nhật trạng thái giáo lý viên (ID: ${idGlv}) thất bại do lỗi hệ thống`, 'Thất bại');
             redirect(res, params, 'Không thể cập nhật tình trạng GLV.', true);
         }
     },
@@ -148,12 +158,19 @@ const GlvController = {
         try {
             const data = { ...getProfileInput(req.body), trangThai: req.body.trang_thai || statuses[0] };
             const validationError = validateGlvInput(data);
-            if (validationError) return redirect(res, params, validationError, true);
+            if (validationError) {
+                await logAction(req, `Thêm giáo lý viên mới thất bại: ${validationError}`, 'Thất bại');
+                return redirect(res, params, validationError, true);
+            }
             await GlvModel.create(data);
+
+            await logAction(req, `Thêm giáo lý viên mới thành công (${data.hoLot} ${data.ten})`, 'Thành công');
             redirect(res, params, 'Đã thêm giáo lý viên mới.');
         } catch (error) {
             console.error('Lỗi thêm GLV:', error);
-            redirect(res, params, error.code === '23505' ? 'Số điện thoại đã tồn tại.' : 'Không thể thêm giáo lý viên.', true);
+            const errorMessage = error.code === '23505' ? 'Số điện thoại đã tồn tại.' : 'Không thể thêm giáo lý viên.';
+            await logAction(req, `Thêm giáo lý viên mới thất bại: ${errorMessage}`, 'Thất bại');
+            redirect(res, params, errorMessage, true);
         }
     },
 
@@ -165,24 +182,36 @@ const GlvController = {
         };
 
         try {
-            if (!req.file) return redirect(res, params, 'Vui lòng chọn file Excel.', true);
+            if (!req.file) {
+                await logAction(req, `Import Excel giáo lý viên thất bại: Không chọn file`, 'Thất bại');
+                return redirect(res, params, 'Vui lòng chọn file Excel.', true);
+            }
             const workbook = XLSX.read(req.file.buffer, { type: 'buffer', cellDates: true });
             const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
             const rows = XLSX.utils.sheet_to_json(firstSheet, { defval: '', raw: false });
-            if (!rows.length) return redirect(res, params, 'File Excel không có dữ liệu.', true);
+            if (!rows.length) {
+                await logAction(req, `Import Excel giáo lý viên thất bại: File không có dữ liệu`, 'Thất bại');
+                return redirect(res, params, 'File Excel không có dữ liệu.', true);
+            }
 
             const dataList = rows.map(getImportInput);
             const invalidRow = dataList.findIndex(data => validateGlvInput(data));
             if (invalidRow !== -1) {
-                return redirect(res, params, `Dòng Excel ${invalidRow + 2}: ${validateGlvInput(dataList[invalidRow])}`, true);
+                const errDetail = `Dòng Excel ${invalidRow + 2}: ${validateGlvInput(dataList[invalidRow])}`;
+                await logAction(req, `Import Excel giáo lý viên thất bại: ${errDetail}`, 'Thất bại');
+                return redirect(res, params, errDetail, true);
             }
             await GlvModel.createBulk(dataList);
+
+            await logAction(req, `Import Excel thành công ${dataList.length} giáo lý viên`, 'Thành công');
             redirect(res, params, `Đã import ${dataList.length} giáo lý viên.`);
         } catch (error) {
             console.error('Lỗi import GLV:', error);
-            redirect(res, params, error.code === '23505'
+            const errorMessage = error.code === '23505'
                 ? 'File có số điện thoại trùng với dữ liệu hiện tại.'
-                : 'Không thể import file Excel. Hãy kiểm tra đúng mẫu dữ liệu.');
+                : 'Không thể import file Excel. Hãy kiểm tra đúng mẫu dữ liệu.';
+            await logAction(req, `Import Excel giáo lý viên thất bại do lỗi hệ thống`, 'Thất bại');
+            redirect(res, params, errorMessage, true);
         }
     }
 };

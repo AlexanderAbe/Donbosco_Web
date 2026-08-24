@@ -1,8 +1,51 @@
 <link rel="stylesheet" href="/css/reset.css">
-<div style="background: white; padding: 24px; border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
-    <h1 style="font-size: 20px; font-weight: bold; color: #0f172a; margin-bottom: 12px;">Trang Tổng Quan Trưởng Khối</h1>
-    <p style="color: #64748b; line-height: 1.6;">
-        Chào mừng bạn đến với hệ thống quản lý Xứ đoàn Don Bosco. Đây là trang quản lý dành riêng cho cấp bậc <strong>Trưởng Khối</strong>. 
-        Bạn có thể sử dụng menu bên trái để quản lý danh sách lớp học, phân công giáo lý viên hoặc điều phối học sinh.
-    </p>
-</div>
+<link rel="stylesheet" href="/css/truong-khoi/truong-khoi-dashboard.css">
+
+<main class="tk-dashboard-page">
+    <header class="tk-dashboard-header">
+        <div>
+            <p class="dashboard-eyebrow"><i class="fa-solid fa-chart-line"></i> Tổng quan khối</p>
+            <h1>Dashboard Trưởng Khối</h1>
+            <p>Theo dõi nhanh quy mô thiếu nhi và đội ngũ giáo lý viên trong khối.</p>
+        </div>
+        <div class="current-year-label"><span>Niên khóa hiện tại</span><strong><%= selectedYear?.nien_khoa || 'Chưa có niên khóa' %></strong></div>
+    </header>
+
+    <%- include('../partials/stat-grid-truong-khoi', { stats }) %>
+
+    <section class="dashboard-note">
+        <i class="fa-solid fa-circle-info"></i>
+        <div><strong>Phạm vi thống kê</strong><p>Số liệu được tính từ các lớp thuộc khối và niên khóa đang chọn.</p></div>
+    </section>
+
+    <div class="dashboard-panels">
+        <section class="dashboard-panel">
+            <div class="panel-heading"><h2>Số lượng theo lớp</h2><span><%= classStats.length %> lớp</span></div>
+            <% if (!classStats.length) { %><p class="panel-empty">Chưa có dữ liệu lớp.</p><% } else { %>
+                <div class="dashboard-table-wrap"><table><thead><tr><th>Lớp</th><th>Khối</th><th>Thiếu nhi</th></tr></thead><tbody><% classStats.forEach(item => { %><tr><td><strong><%= item.ten_lop %></strong></td><td><%= item.ten_khoi %></td><td><%= item.student_count %></td></tr><% }) %></tbody></table></div>
+            <% } %>
+        </section>
+        <section class="dashboard-panel">
+            <div class="panel-heading"><h2>Trạng thái học tập</h2><span>Thiếu nhi</span></div>
+            <% if (!statusStats.length) { %><p class="panel-empty">Chưa có dữ liệu trạng thái.</p><% } else { %>
+                <div class="status-list"><% statusStats.forEach(item => { %><div class="status-row"><span><%= item.trang_thai %></span><strong><%= item.student_count %></strong></div><% }) %></div>
+            <% } %>
+        </section>
+        <section class="dashboard-panel">
+            <div class="panel-heading"><h2>Lớp chưa có GLV</h2><span><%= classesWithoutGlv.length %> lớp</span></div>
+            <% if (!classesWithoutGlv.length) { %><p class="panel-empty success-text"><i class="fa-solid fa-circle-check"></i> Tất cả lớp đã có GLV.</p><% } else { %><ul class="dashboard-list"><% classesWithoutGlv.forEach(item => { %><li><span><%= item.ten_khoi %> - <%= item.ten_lop %></span><i class="fa-solid fa-triangle-exclamation"></i></li><% }) %></ul><% } %>
+        </section>
+        <section class="dashboard-panel">
+            <div class="panel-heading"><h2>Điểm kiểm tra thấp</h2><span>Dưới 5 điểm</span></div>
+            <% if (!lowExamScores.length) { %><p class="panel-empty success-text"><i class="fa-solid fa-circle-check"></i> Chưa có điểm thấp.</p><% } else { %><div class="dashboard-table-wrap"><table><thead><tr><th>Thiếu nhi</th><th>Lớp</th><th>Bài</th><th>Điểm</th></tr></thead><tbody><% lowExamScores.forEach(item => { %><tr><td><%= item.ho_ten %></td><td><%= item.ten_lop %></td><td><%= item.stt_bai_ktra %></td><td class="warning-value"><%= item.diem_so %></td></tr><% }) %></tbody></table></div><% } %>
+        </section>
+        <section class="dashboard-panel">
+            <div class="panel-heading"><h2>Điểm kỷ luật thấp</h2><span>Dưới 5 điểm</span></div>
+            <% if (!lowDisciplineScores.length) { %><p class="panel-empty success-text"><i class="fa-solid fa-circle-check"></i> Chưa có điểm thấp.</p><% } else { %><div class="dashboard-table-wrap"><table><thead><tr><th>Thiếu nhi</th><th>Lớp</th><th>Tháng</th><th>Điểm</th></tr></thead><tbody><% lowDisciplineScores.forEach(item => { %><tr><td><%= item.ho_ten %></td><td><%= item.ten_lop %></td><td><%= item.thang %></td><td class="warning-value"><%= item.diem %></td></tr><% }) %></tbody></table></div><% } %>
+        </section>
+        <section class="dashboard-panel">
+            <div class="panel-heading"><h2>Điểm danh gần đây</h2><span><%= recentAttendance.length %> buổi</span></div>
+            <% if (!recentAttendance.length) { %><p class="panel-empty">Chưa có dữ liệu điểm danh.</p><% } else { %><div class="dashboard-table-wrap"><table><thead><tr><th>Ngày</th><th>Buổi</th><th>Lớp</th><th>Có mặt</th><th>Tổng</th></tr></thead><tbody><% recentAttendance.forEach(item => { %><tr><td><%= new Date(item.ngay_diem_danh).toLocaleDateString('vi-VN') %></td><td><%= item.loai_buoi %></td><td><%= item.ten_lop %></td><td><%= item.present_count %></td><td><%= item.student_count %></td></tr><% }) %></tbody></table></div><% } %>
+        </section>
+    </div>
+</main>

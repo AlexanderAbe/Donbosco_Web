@@ -3,6 +3,8 @@ const { getBdhBaseData } = require('../../utils/base-data-helper');
 const pool = require('../../../config/database');
 const PDFDocument = require('pdfkit');
 const path = require('path');
+const { logAction } = require('../../utils/logger'); 
+
 const PDF_LEFT = 30;
 const PDF_TABLE_WIDTH = 535;
 const PDF_RIGHT = PDF_LEFT + PDF_TABLE_WIDTH;
@@ -97,6 +99,8 @@ const BangDiemController = {
     async tongKetDiem(req, res) {
         const yearId = Number(req.body.nien_khoa);
         if (!Number.isInteger(yearId)) {
+            // Ghi audit thất bại do dữ liệu không hợp lệ
+            await logAction(req, `Tổng kết điểm năm học (ID: ${req.body.nien_khoa}) thất bại: Niên khóa không hợp lệ`, 'Thất bại');
             return res.status(400).send('Niên khóa không hợp lệ.');
         }
 
@@ -108,11 +112,13 @@ const BangDiemController = {
                 [yearId]
             );
             if (yearResult.rows.length === 0) {
+                await logAction(req, `Tổng kết điểm năm học (ID: ${yearId}) thất bại: Không tìm thấy niên khóa`, 'Thất bại');
                 return res.status(404).send('Không tìm thấy niên khóa.');
             }
 
             const classes = await BangDiemModel.getClassesByYear(yearId);
             if (classes.length === 0) {
+                await logAction(req, `Tổng kết điểm năm học ${yearResult.rows[0].nien_khoa} thất bại: Niên khóa chưa có lớp`, 'Thất bại');
                 return res.status(400).send('Niên khóa chưa có lớp để tổng kết.');
             }
 
@@ -123,12 +129,19 @@ const BangDiemController = {
             }
             await client.query('COMMIT');
 
+            // Ghi audit thành công
+            await logAction(req, `Tổng kết điểm thành công cho năm học: ${yearResult.rows[0].nien_khoa}`, 'Thành công');
+
             return res.redirect(`/bdh/bang-diem?nien_khoa=${yearId}`);
         } catch (error) {
             if (transactionStarted) {
                 await client.query('ROLLBACK');
             }
             console.error('❌ Lỗi tổng kết điểm:', error);
+            
+            // Ghi audit thất bại khi xảy ra lỗi hệ thống / database
+            await logAction(req, `Tổng kết điểm năm học (ID: ${yearId}) thất bại do lỗi hệ thống`, 'Thất bại');
+
             return res.status(500).send('Đã xảy ra lỗi khi tổng kết điểm.');
         } finally {
             client.release();
@@ -145,11 +158,13 @@ const BangDiemController = {
             );
 
             if (!selectedYear) {
+                await logAction(req, `Xuất PDF bảng điểm thất bại: Không tìm thấy niên khóa`, 'Thất bại');
                 return res.status(404).send('Không tìm thấy niên khóa.');
             }
 
             const summary = await BangDiemModel.getSummaryByYear(selectedYearId);
             if (summary.length === 0) {
+                await logAction(req, `Xuất PDF bảng điểm thất bại: Niên khóa ${selectedYear.nien_khoa} chưa có dữ liệu`, 'Thất bại');
                 return res.status(404).send('Niên khóa chưa có dữ liệu bảng điểm.');
             }
 
@@ -170,14 +185,21 @@ const BangDiemController = {
                 { title: 'STT', width: 24, align: 'center', value: (_, number) => String(number) },
                 { title: 'MSTN', width: 43, align: 'center', value: student => student.mstn || '' },
                 { title: 'TÊN THÁNH', width: 59, align: 'left', value: student => student.ten_thanh || '' },
-                { title: 'HỌ VÀ TÊN LÓT', width: 100, align: 'left', value: student => student.ho_va_ten_lot || '' },
-                { title: 'TÊN', width: 40, align: 'left', value: student => student.ten || '' },
-                { title: 'HT', width: 35, align: 'center', value: student => String(student.diem_hoc_tap ?? '') },
-                { title: 'CC', width: 35, align: 'center', value: student => String(student.diem_chuyen_can ?? '') },
-                { title: 'KL', width: 35, align: 'center', value: student => String(student.diem_ky_luat ?? '') },
-                { title: 'TỔNG', width: 35, align: 'center', value: student => String(student.diem_tong ?? '') },
-                { title: 'XẾP LOẠI', width: 61, align: 'center', value: student => student.ten_xep_loai || '' },
-                { title: 'TÌNH TRẠNG', width: 63, align: 'center', value: student => student.tinh_trang || '' }
+                { title: 'HỌ VÀ TÊN LÓT', width: 85, align: 'left', value: student => student.ho_va_ten_lot || '' },
+                { title: 'TÊN', width: 43, align: 'left', value: student => student.ten || '' },
+                { title: 'Học tập', width: 40, align: 'center', value: student => String(student.diem_hoc_tap ?? '') },
+                { title: 'Chuyên cần', width: 55, align: 'center', value: student => String(student.diem_chuyen_can ?? '') },
+                { title: 'Kỷ luật', width: 40, align: 'center', value: student => String(student.diem_ky_luat ?? '') },
+                { title: 'TỔNG', width: 34, align: 'center', value: student => String(student.diem_tong ?? '') },
+                { title: 'XẾP LOẠI', width: 51, align: 'center', value: student => student.ten_xep_loai || '' },
+                {
+                    title: 'TÌNH TRẠNG',
+                    width: 63,
+                    align: 'center',
+                    value: student => student.trang_thai_tn === 'Đang học'
+                        ? (student.tinh_trang || '')
+                        : (student.trang_thai_tn || '')
+                }
             ];
 
             const classes = [];
@@ -212,35 +234,43 @@ const BangDiemController = {
                 tableY += PDF_HEADER_HEIGHT;
 
                 group.students.forEach(student => {
-                const estimatedRowHeight = 38;
+                    const estimatedRowHeight = 38;
 
-                if (tableY + estimatedRowHeight > 760) {
-                    doc.addPage({ size: 'A4', layout: 'portrait', margin: 0 });
-                    tableY = 35;
-                    drawScoreTableHeader(doc, columns, tableY);
-                    tableY += PDF_HEADER_HEIGHT;
-                }
+                    if (tableY + estimatedRowHeight > 750) {
+                        doc.addPage({ size: 'A4', layout: 'portrait', margin: 0 });
+                        tableY = 35;
+                        drawScoreTableHeader(doc, columns, tableY);
+                        tableY += PDF_HEADER_HEIGHT;
+                    }
 
-                studentNumber += 1;
+                    studentNumber += 1;
 
-                const rowHeight = drawScoreRow(
-                    doc,
-                    columns,
-                    student,
-                    studentNumber,
-                    tableY
-                );
+                    const rowHeight = drawScoreRow(
+                        doc,
+                        columns,
+                        student,
+                        studentNumber,
+                        tableY
+                    );
 
-                tableY += rowHeight;
-            });
+                    tableY += rowHeight;
+                });
 
                 doc.font('Roboto').fontSize(8).fillColor('#667085')
                     .text(`Tổng số: ${group.students.length} học sinh`, PDF_LEFT, 800);
             });
 
             doc.end();
+
+            // Ghi audit thành công sau khi xuất PDF thành công
+            await logAction(req, `Xuất file PDF bảng điểm tổng kết niên khóa: ${selectedYear.nien_khoa}`, 'Thành công');
+
         } catch (error) {
             console.error('❌ Lỗi xuất bảng điểm PDF:', error);
+            
+            // Ghi audit thất bại nếu lỗi xuất file
+            await logAction(req, `Xuất PDF bảng điểm tổng kết thất bại do lỗi hệ thống`, 'Thất bại');
+
             if (!res.headersSent) {
                 return res.status(500).send('Đã xảy ra lỗi khi xuất bảng điểm.');
             }

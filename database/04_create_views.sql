@@ -1,6 +1,6 @@
 -- 1. View xem thông tin chi tiết thiếu nhi kèm theo lớp học và khối theo từng niên khóa
 CREATE OR REPLACE VIEW vw_chi_tiet_thieu_nhi_lop AS
-SELECT 
+SELECT
     tn.id_tn,
     tn.ten_thanh,
     tn.ho_va_ten_lot,
@@ -11,6 +11,7 @@ SELECT
     c.nien_khoa,
     l.id_lop,
     l.ten_lop,
+    pl.trang_thai,
     k.id_khoi,
     k.ten_khoi
 FROM THIEU_NHI tn
@@ -74,6 +75,7 @@ SELECT
     tk.diem_ky_luat,
     tk.diem_tong,
     tk.tinh_trang,
+    pl.trang_thai AS trang_thai_tn,
     tk.id_khung_xep_loai,
     kxl.ten_xep_loai,
     l.id_lop
@@ -81,6 +83,9 @@ FROM TONG_KET_NAM_HOC tk
 JOIN CAU_HINH_NAM_HOC c ON tk.id_cau_hinh_nam_hoc = c.id_cau_hinh_nam_hoc
 JOIN THIEU_NHI tn ON tk.id_tn = tn.id_tn
 JOIN LOP_HOC l ON tk.id_lop = l.id_lop
+JOIN PHAN_LOP pl ON pl.id_tn = tk.id_tn
+    AND pl.id_lop = tk.id_lop
+    AND pl.id_cau_hinh_nam_hoc = tk.id_cau_hinh_nam_hoc
 JOIN KHOI k ON l.id_khoi = k.id_khoi
 LEFT JOIN KHUNG_XEP_LOAI kxl ON tk.id_khung_xep_loai = kxl.id_khung_xep_loai;
 
@@ -141,3 +146,57 @@ JOIN KHOI k ON l.id_khoi = k.id_khoi
 LEFT JOIN monthly_ky_luat ky ON l.id_lop = ky.id_lop AND l.id_cau_hinh_nam_hoc = ky.id_cau_hinh_nam_hoc
 LEFT JOIN monthly_chuyen_can am ON l.id_lop = am.id_lop AND l.id_cau_hinh_nam_hoc = am.id_cau_hinh_nam_hoc
 ORDER BY c.nien_khoa DESC, thang_trong_nam DESC;
+
+CREATE OR REPLACE VIEW vw_bang_diem_realtime AS
+SELECT
+    pl.id_cau_hinh_nam_hoc,
+    pl.id_lop,
+    tn.id_tn,
+    tn.mstn,
+    tn.ten_thanh,
+    tn.ho_va_ten_lot,
+    tn.ten,
+
+    -- Học sinh đang học lấy kết quả tổng kết; trạng thái khác lấy trạng thái phân lớp.
+    CASE
+        WHEN pl.trang_thai = 'Đang học'::enum_trang_thai_tn
+            THEN COALESCE(tk.tinh_trang::TEXT, pl.trang_thai::TEXT)
+        ELSE pl.trang_thai::TEXT
+    END AS tinh_trang,
+    pl.trang_thai AS trang_thai_phan_lop,
+
+    -- 1. Điểm học tập (Trung bình cộng các bài kiểm tra hoặc lấy từ bảng tổng kết)
+    COALESCE(tk.diem_hoc_tap, (
+        SELECT ROUND(AVG(diem_so), 2)
+        FROM DIEM_HOC_TAP dht
+        WHERE dht.id_tn = tn.id_tn AND dht.id_cau_hinh_nam_hoc = pl.id_cau_hinh_nam_hoc
+    ), 0) AS diem_hoc_tap,
+
+    -- 2. Điểm chuyên cần
+    COALESCE(tk.diem_chuyen_can, (
+        SELECT ROUND(AVG(diem_chuyen_can), 2)
+        FROM DIEM_CHUYEN_CAN dhc
+        WHERE dhc.id_tn = tn.id_tn AND dhc.id_cau_hinh_nam_hoc = pl.id_cau_hinh_nam_hoc
+    ), 0) AS diem_chuyen_can,
+
+    -- 3. Điểm kỷ luật
+    COALESCE(tk.diem_ky_luat, (
+        SELECT ROUND(AVG(diem), 2)
+        FROM DIEM_KY_LUAT dkl
+        WHERE dkl.id_tn = tn.id_tn AND dkl.id_cau_hinh_nam_hoc = pl.id_cau_hinh_nam_hoc
+    ), 0) AS diem_ky_luat,
+
+    -- 4. Điểm tổng kết (Tính theo trọng số cấu hình năm học hoặc lấy từ bảng tổng kết)
+    COALESCE(tk.diem_tong, (
+        COALESCE((SELECT AVG(diem_so) FROM DIEM_HOC_TAP dht WHERE dht.id_tn = tn.id_tn AND dht.id_cau_hinh_nam_hoc = pl.id_cau_hinh_nam_hoc), 0) * cnh.trong_so_hoc_tap
+        + COALESCE((SELECT AVG(diem_chuyen_can) FROM DIEM_CHUYEN_CAN dhc WHERE dhc.id_tn = tn.id_tn AND dhc.id_cau_hinh_nam_hoc = pl.id_cau_hinh_nam_hoc), 0) * cnh.trong_so_diem_chuyen_can
+        + COALESCE((SELECT AVG(diem) FROM DIEM_KY_LUAT dkl WHERE dkl.id_tn = tn.id_tn AND dkl.id_cau_hinh_nam_hoc = pl.id_cau_hinh_nam_hoc), 0) * cnh.trong_so_ky_luat
+    ), 0) AS diem_tong
+
+FROM PHAN_LOP pl
+JOIN THIEU_NHI tn ON pl.id_tn = tn.id_tn
+JOIN CAU_HINH_NAM_HOC cnh ON pl.id_cau_hinh_nam_hoc = cnh.id_cau_hinh_nam_hoc
+LEFT JOIN TONG_KET_NAM_HOC tk
+    ON pl.id_tn = tk.id_tn
+    AND pl.id_lop = tk.id_lop
+    AND pl.id_cau_hinh_nam_hoc = tk.id_cau_hinh_nam_hoc;

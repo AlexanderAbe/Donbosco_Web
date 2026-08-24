@@ -38,7 +38,7 @@ const BangDiemModel = {
 				vw.mstn, vw.ten_thanh, vw.ho_va_ten_lot, vw.ten,
 				vw.id_lop, vw.ten_lop, l.id_khoi, vw.ten_khoi,
 				vw.diem_hoc_tap, vw.diem_chuyen_can, vw.diem_ky_luat, vw.diem_tong,
-				vw.ten_xep_loai, vw.tinh_trang
+				vw.ten_xep_loai, vw.tinh_trang, vw.trang_thai_tn
 			FROM vw_tong_ket_chi_tiet vw
 			JOIN LOP_HOC l ON l.id_lop = vw.id_lop
 			JOIN KHOI k ON k.id_khoi = l.id_khoi

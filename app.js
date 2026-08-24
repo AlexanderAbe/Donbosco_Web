@@ -1,9 +1,12 @@
 const express = require('express');
 const expressLayouts = require('express-ejs-layouts');
 const path = require('path');
-const session = require('express-session');
 require('dotenv').config();
 require('./config/database');
+
+// Import Session và Middleware từ thư mục riêng
+const sessionMiddleware = require('./config/session');
+const flashMiddleware = require('./src/middlewares/flash-middleware');
 
 const app = express();
 const PORT = 3000;
@@ -13,23 +16,9 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Session
-app.use(session({
-    secret: process.env.SESSION_SECRET,
-    resave: false,
-    saveUninitialized: false,
-    cookie: { 
-        maxAge: 30 * 60 * 1000 // Tăng lên 30 phút cho thoải mái sử dụng
-    } 
-}));
-
-// Truyền session và flash message vào view
-app.use((req, res, next) => {
-    res.locals.session = req.session; 
-    res.locals.success = req.session.successMessage;
-    delete req.session.successMessage;
-    next();
-});
+// Sử dụng Session và Flash Middleware
+app.use(sessionMiddleware);
+app.use(flashMiddleware);
 
 // View Engine & Layouts
 app.set('view engine', 'ejs');
@@ -41,7 +30,7 @@ app.set('layout', 'layouts/glv-layout');
 app.use('/auth', require('./src/routes/auth-route'));
 app.use('/admin', require('./src/routes/admin-route'));
 app.use('/bdh', require('./src/routes/bdh-route'));
-//app.use('/truong-khoi', require('./src/routes/truong-khoi-route'));
+app.use('/truong-khoi', require('./src/routes/truong-khoi-route'));
 app.use('/glv', require('./src/routes/glv-route'));
 
 // Trang chủ chuyển hướng về đăng nhập

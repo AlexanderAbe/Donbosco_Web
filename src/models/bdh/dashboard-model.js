@@ -46,7 +46,8 @@ const DashboardModel = {
                 pool.query(`
                     SELECT COUNT(DISTINCT id_tn) AS count 
                     FROM PHAN_LOP 
-                    WHERE id_cau_hinh_nam_hoc = $1;
+                                        WHERE id_cau_hinh_nam_hoc = $1
+                                            AND trang_thai = 'Đang học';
                 `, [currentId]),
 
                 // Danh sách Trưởng khối theo năm học

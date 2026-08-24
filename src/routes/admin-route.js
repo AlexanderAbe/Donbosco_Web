@@ -15,6 +15,7 @@ router.use(isAuthenticated, checkRole('admin'));
 // Route Dashboard & Logs
 router.get(['/', '/dashboard'], dashboardController.getDashboard);
 router.get('/logs', dashboardController.getAllLogs);
+router.post('/logs/clear', dashboardController.clearAllLogs);
 
 // Route User
 router.get('/users', userController.getUsers);

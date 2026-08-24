@@ -1,1 +1,158 @@
 <link rel="stylesheet" href="/css/reset.css">
+<link rel="stylesheet" href="/css/truong-khoi/truong-khoi-lop.css">
+
+<main class="tk-class-page">
+	<header class="tk-class-header">
+		<div>
+			<p class="eyebrow"><i class="fa-solid fa-school"></i> Quản lý lớp học</p>
+			<h1>Danh sách thiếu nhi theo lớp</h1>
+			<p>Mỗi bảng là một lớp trong khối bạn đang phụ trách.</p>
+		</div>
+		<button type="button" class="primary-button add-student-button" id="open-create-student" <%= selectedYearId && classes.length ? '' : 'disabled' %>><i class="fa-solid fa-user-plus"></i> Thêm thiếu nhi</button>
+	</header>
+
+	<% if (error) { %><div class="tk-alert"><i class="fa-solid fa-circle-exclamation"></i> <%= error %></div><% } %>
+	<% if (!classes.length) { %>
+		<div class="tk-empty"><i class="fa-solid fa-people-roof"></i><h2>Chưa có lớp trong khối</h2><p>Niên khóa này chưa có lớp hoặc bạn chưa được phân công khối.</p></div>
+	<% } else { %>
+		<div class="class-grid">
+			<% classes.forEach(classItem => { %>
+				<section class="class-panel">
+					<div class="class-panel-header">
+						<div><p class="class-label"><%= classItem.ten_khoi %></p><h2><i class="fa-solid fa-chalkboard"></i> <%= classItem.ten_lop %></h2></div>
+						<span class="student-count"><%= classItem.student_count %> thiếu nhi</span>
+					</div>
+					<% if (!classItem.students.length) { %>
+						<div class="table-empty">Lớp chưa có danh sách thiếu nhi.</div>
+					<% } else { %>
+						<div class="table-scroll">
+							<table>
+								<thead><tr><th>STT</th><th>Mã số</th><th>Họ và tên</th><th>Ngày sinh</th><th>Giới tính</th><th>Trạng thái</th><th>Thao tác</th></tr></thead>
+								<tbody>
+									<% classItem.students.forEach((student, index) => { %>
+										<tr>
+											<td><%= index + 1 %></td>
+											<td><%= student.mstn || '-' %></td>
+											<td><strong><%= [student.ten_thanh, student.ho_va_ten_lot, student.ten].filter(Boolean).join(' ') %></strong></td>
+											<td><%= student.ngay_sinh ? new Date(student.ngay_sinh).toLocaleDateString('vi-VN') : '-' %></td>
+											<td><%= student.gioi_tinh || '-' %></td>
+											<td><span class="status <%= student.trang_thai === 'Đang học' ? 'is-active' : 'is-inactive' %>"><%= student.trang_thai %></span></td>
+											<td class="actions">
+												<button type="button" class="action-button detail-button" data-id="<%= student.id_tn %>"><i class="fa-solid fa-eye"></i> Chi tiết</button>
+												<button type="button" class="action-button status-button" data-id="<%= student.id_tn %>" data-status="<%= student.trang_thai %>"><i class="fa-solid fa-rotate"></i> Đổi trạng thái</button>
+												<button type="button" class="action-button transfer-button" data-id="<%= student.id_tn %>" data-class="<%= classItem.id_lop %>"><i class="fa-solid fa-arrow-right-arrow-left"></i> Chuyển lớp</button>
+											</td>
+										</tr>
+									<% }) %>
+								</tbody>
+							</table>
+						</div>
+					<% } %>
+				</section>
+			<% }) %>
+		</div>
+	<% } %>
+</main>
+
+<dialog class="tk-modal" id="detail-modal">
+	<div class="modal-heading"><h2 id="detail-title">Chi tiết thiếu nhi</h2><button type="button" class="close-button" data-close="detail-modal">&times;</button></div>
+	<div id="detail-content" class="modal-content">Đang tải dữ liệu...</div>
+</dialog>
+
+<dialog class="tk-modal create-student-modal" id="create-student-modal">
+	<form id="create-student-form">
+		<div class="modal-heading"><h2>Thêm thiếu nhi mới</h2><button type="button" class="close-button" data-close="create-student-modal">&times;</button></div>
+		<div class="modal-content create-form-content">
+			<input type="hidden" name="yearId" value="<%= selectedYearId || '' %>">
+			<section class="form-section"><h3>Thông tin thiếu nhi</h3><div class="form-grid">
+				<label>Tên thánh<input name="ten_thanh" maxlength="50"></label><label>Họ và tên lót<input name="ho_va_ten_lot" maxlength="100" required></label><label>Tên<input name="ten" maxlength="50" required></label><label>Giới tính<select name="gioi_tinh" required><option value="">Chọn giới tính</option><option>Nam</option><option>Nữ</option></select></label><label>Ngày sinh<input name="ngay_sinh" type="date" required></label><label>Mã số thiếu nhi<input name="mstn" maxlength="20" placeholder="Để trống để tự tạo"></label><label class="wide-field">Địa chỉ<input name="dia_chi" maxlength="255" required></label><label class="wide-field">Lớp<select name="id_lop" required><option value="">Chọn lớp</option><% classes.forEach(item => { %><option value="<%= item.id_lop %>"><%= item.ten_khoi %> - <%= item.ten_lop %></option><% }) %></select></label>
+			</div></section>
+			<section class="form-section"><h3>Thông tin phụ huynh <small>(ít nhất 1 người)</small></h3><div class="repeat-form-grid">
+				<% [1, 2].forEach(index => { %><div class="repeat-form-row"><strong>Phụ huynh <%= index %></strong><input data-parent="<%= index %>" data-field="ten_thanh_ph" placeholder="Tên thánh"><input data-parent="<%= index %>" data-field="ten_ph" placeholder="Họ tên" <%= index === 1 ? 'required' : '' %>><select data-parent="<%= index %>" data-field="moi_quan_he"><option>Cha</option><option>Mẹ</option><option>Ông</option><option>Bà</option><option>Cô</option><option>Chú</option><option>Bác</option><option>Người giám hộ</option></select><input data-parent="<%= index %>" data-field="sdt" placeholder="Số điện thoại" pattern="[0-9]{9,15}" <%= index === 1 ? 'required' : '' %>></div><% }) %>
+			</div></section>
+			<section class="form-section"><h3>Bí tích <small>(nếu đã lãnh nhận)</small></h3><div class="repeat-form-grid">
+				<% [1, 2, 3].forEach(index => { %><div class="repeat-form-row"><strong>Bí tích <%= index %></strong><select data-sacrament="<%= index %>" data-field="loai_bi_tich"><option value="">Chưa nhập</option><option>Rửa tội</option><option>Xưng tội & Rước lễ</option><option>Thêm sức</option></select><input data-sacrament="<%= index %>" data-field="ngay_lanh_nhan" type="date"></div><% }) %>
+			</div></section><p class="modal-error" id="create-student-error"></p>
+		</div><div class="modal-actions"><button type="button" class="secondary-button" data-close="create-student-modal">Hủy</button><button type="submit" class="primary-button"><i class="fa-solid fa-floppy-disk"></i> Lưu thiếu nhi</button></div>
+	</form>
+</dialog>
+
+<dialog class="tk-modal" id="status-modal">
+	<div class="modal-heading"><h2>Đổi trạng thái học</h2><button type="button" class="close-button" data-close="status-modal">&times;</button></div>
+	<div class="modal-content"><label for="status-value">Trạng thái mới</label><select id="status-value"><option>Đang học</option><option>Chuyển xứ</option><option>Nghỉ học</option></select><p class="modal-error" id="status-error"></p></div>
+	<div class="modal-actions"><button type="button" class="secondary-button" data-close="status-modal">Hủy</button><button type="button" class="primary-button" id="save-status">Lưu trạng thái</button></div>
+</dialog>
+
+<dialog class="tk-modal" id="transfer-modal">
+	<div class="modal-heading"><h2>Chuyển thiếu nhi sang lớp</h2><button type="button" class="close-button" data-close="transfer-modal">&times;</button></div>
+	<div class="modal-content"><label for="target-class">Lớp mới</label><select id="target-class"></select><p class="modal-error" id="transfer-error"></p></div>
+	<div class="modal-actions"><button type="button" class="secondary-button" data-close="transfer-modal">Hủy</button><button type="button" class="primary-button" id="save-transfer">Chuyển lớp</button></div>
+</dialog>
+
+<script>
+(() => {
+	const yearId = '<%= selectedYearId || '' %>';
+	const classes = <%- JSON.stringify(classes.map(item => ({ id_lop: item.id_lop, ten_lop: item.ten_lop }))) %>;
+	let currentStudentId;
+	const open = id => document.getElementById(id).showModal();
+	const close = id => document.getElementById(id).close();
+	const esc = value => String(value ?? '').replace(/[&<>'"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[c]));
+	const fullName = student => [student.ten_thanh, student.ho_va_ten_lot, student.ten].filter(Boolean).join(' ');
+	const createModal = document.getElementById('create-student-modal');
+	const createForm = document.getElementById('create-student-form');
+
+	document.querySelectorAll('[data-close]').forEach(button => button.addEventListener('click', () => close(button.dataset.close)));
+	document.getElementById('open-create-student')?.addEventListener('click', () => createModal.showModal());
+	createForm?.addEventListener('submit', async event => {
+		event.preventDefault();
+		const formData = new FormData(createForm);
+		const parents = [1, 2].map(index => Object.fromEntries([...createForm.querySelectorAll(`[data-parent="${index}"]`)].map(input => [input.dataset.field, input.value.trim()]))).filter(parent => parent.ten_ph || parent.sdt || parent.ten_thanh_ph);
+		const sacraments = [1, 2, 3].map(index => Object.fromEntries([...createForm.querySelectorAll(`[data-sacrament="${index}"]`)].map(input => [input.dataset.field, input.value]))).filter(item => item.loai_bi_tich && item.ngay_lanh_nhan);
+		const payload = Object.fromEntries(formData.entries()); payload.parents = parents; payload.sacraments = sacraments;
+		const error = document.getElementById('create-student-error'); error.textContent = '';
+		const response = await fetch('/truong-khoi/lop/create', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+		if (!response.ok) { error.textContent = (await response.json()).error || 'Không thể thêm thiếu nhi.'; return; }
+		window.location.reload();
+	});
+	document.querySelectorAll('.detail-button').forEach(button => button.addEventListener('click', async () => {
+		open('detail-modal');
+		const content = document.getElementById('detail-content');
+		content.textContent = 'Đang tải dữ liệu...';
+		try {
+			const response = await fetch(`/truong-khoi/lop/${button.dataset.id}/detail?nien_khoa=${yearId}`);
+			const data = await response.json();
+			if (!response.ok) throw new Error(data.error);
+			const s = data.student;
+			document.getElementById('detail-title').textContent = fullName(s);
+			content.innerHTML = `<div class="detail-grid"><div><span>Mã số</span><strong>${esc(s.mstn || '-')}</strong></div><div><span>Ngày sinh</span><strong>${esc(s.ngay_sinh ? String(s.ngay_sinh).slice(0, 10) : '-')}</strong></div><div><span>Giới tính</span><strong>${esc(s.gioi_tinh || '-')}</strong></div><div><span>Lớp</span><strong>${esc(`${s.ten_khoi} - ${s.ten_lop}`)}</strong></div><div><span>Địa chỉ</span><strong>${esc(s.dia_chi || '-')}</strong></div><div><span>Trạng thái</span><strong>${esc(s.trang_thai || '-')}</strong></div></div><h3>Phụ huynh</h3>${data.parents.length ? data.parents.map(p => `<p>${esc(p.ten_thanh_ph || '')} ${esc(p.ten_ph || '')} · ${esc(p.moi_quan_he || '-')} · ${esc(p.sdt || '-')}</p>`).join('') : '<p>Chưa có thông tin.</p>'}`;
+		} catch (error) { content.textContent = error.message || 'Không thể tải thông tin.'; }
+	}));
+
+	document.querySelectorAll('.status-button').forEach(button => button.addEventListener('click', () => {
+		currentStudentId = button.dataset.id;
+		document.getElementById('status-value').value = button.dataset.status;
+		document.getElementById('status-error').textContent = '';
+		open('status-modal');
+	}));
+	document.getElementById('save-status').addEventListener('click', async () => {
+		const response = await fetch(`/truong-khoi/lop/${currentStudentId}/status`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ yearId, trang_thai: document.getElementById('status-value').value }) });
+		if (!response.ok) { document.getElementById('status-error').textContent = (await response.json()).error; return; }
+		window.location.reload();
+	});
+
+	document.querySelectorAll('.transfer-button').forEach(button => button.addEventListener('click', () => {
+		currentStudentId = button.dataset.id;
+		const target = document.getElementById('target-class');
+		target.innerHTML = classes.filter(item => String(item.id_lop) !== button.dataset.class).map(item => `<option value="${item.id_lop}">${esc(item.ten_lop)}</option>`).join('');
+		document.getElementById('transfer-error').textContent = target.options.length ? '' : 'Không có lớp khác trong khối để chuyển.';
+		open('transfer-modal');
+	}));
+	document.getElementById('save-transfer').addEventListener('click', async () => {
+		const target = document.getElementById('target-class');
+		if (!target.value) return;
+		const response = await fetch(`/truong-khoi/lop/${currentStudentId}/transfer`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ yearId, targetClassId: target.value }) });
+		if (!response.ok) { document.getElementById('transfer-error').textContent = (await response.json()).error; return; }
+		window.location.reload();
+	});
+})();
+</script>

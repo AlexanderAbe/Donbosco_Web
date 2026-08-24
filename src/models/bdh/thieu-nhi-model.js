@@ -54,7 +54,7 @@ const ThieuNhiModel = {
             conditions.push(`(
                 CONCAT_WS(' ', tn.ten_thanh, tn.ho_va_ten_lot, tn.ten) ILIKE $${values.length}
                 OR tn.mstn ILIKE $${values.length}
-                OR tn.gioi_tinh ILIKE $${values.length}
+                OR tn.gioi_tinh::TEXT ILIKE $${values.length}
                 OR COALESCE(l.ten_lop, '') ILIKE $${values.length}
                 OR COALESCE(k.ten_khoi, '') ILIKE $${values.length}
                 OR EXISTS (
@@ -93,6 +93,7 @@ const ThieuNhiModel = {
                 l.ten_lop,
                 k.id_khoi,
                 k.ten_khoi,
+                pl.trang_thai,
                 COUNT(*) OVER()::int AS filtered_total
             FROM THIEU_NHI tn
             JOIN PHAN_LOP pl ON pl.id_tn = tn.id_tn
@@ -119,7 +120,7 @@ const ThieuNhiModel = {
 
         const [classHistory, scores] = await Promise.all([
             pool.query(`
-                SELECT c.nien_khoa, l.ten_lop, k.ten_khoi
+                SELECT c.nien_khoa, l.ten_lop, k.ten_khoi, pl.trang_thai
                 FROM PHAN_LOP pl
                 JOIN CAU_HINH_NAM_HOC c ON c.id_cau_hinh_nam_hoc = pl.id_cau_hinh_nam_hoc
                 JOIN LOP_HOC l ON l.id_lop = pl.id_lop
@@ -130,11 +131,14 @@ const ThieuNhiModel = {
             pool.query(`
                 SELECT c.nien_khoa, l.ten_lop, k.ten_khoi,
                        tk.diem_hoc_tap, tk.diem_chuyen_can, tk.diem_ky_luat,
-                       tk.diem_tong, tk.tinh_trang
+                       tk.diem_tong, tk.tinh_trang, pl.trang_thai
                 FROM TONG_KET_NAM_HOC tk
                 LEFT JOIN CAU_HINH_NAM_HOC c ON c.id_cau_hinh_nam_hoc = tk.id_cau_hinh_nam_hoc
                 LEFT JOIN LOP_HOC l ON l.id_lop = tk.id_lop
                 LEFT JOIN KHOI k ON k.id_khoi = l.id_khoi
+                LEFT JOIN PHAN_LOP pl ON pl.id_tn = tk.id_tn
+                    AND pl.id_lop = tk.id_lop
+                    AND pl.id_cau_hinh_nam_hoc = tk.id_cau_hinh_nam_hoc
                 WHERE tk.id_tn = $1
                 ORDER BY c.nien_khoa DESC NULLS LAST
             `, [idTn])

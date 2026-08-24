@@ -11,8 +11,10 @@ const checkRole = (requiredRole) => {
 
         const user = req.session.user;
 
-        // 2. Kiểm tra xem active_role hiện tại có khớp với trang yêu cầu không
-        if (user.active_role === requiredRole) {
+        // 2. Kiểm tra role sau khi chuẩn hóa để tránh lỗi hoa/thường hoặc khoảng trắng trong session
+        const activeRole = String(user.active_role || '').trim().toLowerCase();
+        const normalizedRequiredRole = String(requiredRole).trim().toLowerCase();
+        if (activeRole === normalizedRequiredRole) {
             return next(); // Đúng vai trò -> Cho phép truy cập
         }
 

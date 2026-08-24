@@ -41,18 +41,25 @@ WHERE username = '0988889999';
 -- BƯỚC 1: Đảm bảo thiếu nhi id_tn = 1 đã được phân vào Lớp 1 trong niên khóa '2025-2026'
 -- (Nếu ở file seed data bạn đã có rồi thì câu lệnh này có thể bỏ qua hoặc báo trùng khóa chính nếu insert lại,
 -- nên ta dùng INSERT ... ON CONFLICT hoặc kiểm tra trước)
-INSERT INTO PHAN_LOP (nien_khoa, id_tn, id_lop)
-VALUES ('2025-2026', 1, 1)
+INSERT INTO PHAN_LOP (id_cau_hinh_nam_hoc, id_tn, id_lop, trang_thai)
+SELECT id_cau_hinh_nam_hoc, 1, 1, 'Đang học'
+FROM CAU_HINH_NAM_HOC
+WHERE nien_khoa = '2025-2026'
 ON CONFLICT DO NOTHING;
 
 -- BƯỚC 2: Thử ép xếp em id_tn = 1 này vào MỘT LỚP KHÁC (ví dụ Lớp ID = 2) trong cùng niên khóa '2025-2026'
 -- Lúc này Trigger 'trg_check_phan_lop' sẽ lập tức quét và chặn lại!
-INSERT INTO PHAN_LOP (nien_khoa, id_tn, id_lop)
-VALUES ('2025-2026', 1, 2);
+INSERT INTO PHAN_LOP (id_cau_hinh_nam_hoc, id_tn, id_lop, trang_thai)
+SELECT id_cau_hinh_nam_hoc, 1, 2, 'Đang học'
+FROM CAU_HINH_NAM_HOC
+WHERE nien_khoa = '2025-2026';
 
 DO $$
 BEGIN
-    INSERT INTO PHAN_LOP (nien_khoa, id_tn, id_lop) VALUES ('2025-2026', 1, 2);
+    INSERT INTO PHAN_LOP (id_cau_hinh_nam_hoc, id_tn, id_lop, trang_thai)
+    SELECT id_cau_hinh_nam_hoc, 1, 2, 'Đang học'
+    FROM CAU_HINH_NAM_HOC
+    WHERE nien_khoa = '2025-2026';
     RAISE NOTICE 'Test thất bại: Hệ thống cho phép xếp trùng lớp!';
 EXCEPTION WHEN others THEN
     RAISE NOTICE 'Test thành công: Hệ thống đã chặn thành công lỗi trùng lớp. Chi tiết lỗi: %', SQLERRM;
@@ -85,7 +92,7 @@ CALL sp_tinh_tong_ket_nam_hoc('2025-2026', 1);
 
 -- C. Kiểm tra kết quả trong bảng TONG_KET_NAM_HOC
 -- Mong đợi: Mặc dù điểm tổng có thể cao, nhưng vì điểm học tập = 4.0 (< 5.0)
--- nên cột 'tinh_trang' BẮT BUỘC phải là 'Chưa đạt'.
+-- nên cột 'tinh_trang' BẮT BUỘC phải là 'Ở lại lớp'.
 SELECT tk.id_tn, tn.ten, tk.diem_hoc_tap, tk.diem_chuyen_can, tk.diem_ky_luat, tk.diem_tong, tk.tinh_trang
 FROM TONG_KET_NAM_HOC tk
 JOIN THIEU_NHI tn ON tk.id_tn = tn.id_tn
