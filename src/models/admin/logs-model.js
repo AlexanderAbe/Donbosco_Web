@@ -90,6 +90,11 @@ const LogModel = {
         } catch (error) {
             console.error('Lỗi ghi log:', error);
         }
+    },
+
+    // Xóa toàn bộ nhật ký hoạt động và đặt lại bộ đếm ID.
+    async clearAllLogs() {
+        await pool.query('TRUNCATE TABLE audit_logs RESTART IDENTITY');
     }
 };
 

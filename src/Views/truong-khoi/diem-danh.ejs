@@ -1,1 +1,10 @@
 <link rel="stylesheet" href="/css/reset.css">
+<link rel="stylesheet" href="/css/truong-khoi/truong-khoi-lop.css">
+
+<main class="tk-class-page">
+	<header class="tk-class-header"><div><p class="eyebrow"><i class="fa-solid fa-calendar-check"></i> Theo dõi chuyên cần</p><h1>Chi tiết điểm danh</h1><p>Xem từng buổi học của thiếu nhi trong khối.</p></div></header>
+	<% if (!attendance.length) { %><div class="tk-empty"><i class="fa-solid fa-calendar-xmark"></i><h2>Chưa có dữ liệu điểm danh</h2><p>Niên khóa này chưa có buổi điểm danh trong khối.</p></div><% } else { %>
+		<% const sessions = []; attendance.forEach(item => { const key = `${item.ngay_diem_danh}|${item.loai_buoi}|${item.id_lop}`; let session = sessions.find(value => value.key === key); if (!session) { session = { key, date: item.ngay_diem_danh, type: item.loai_buoi, className: item.ten_lop, blockName: item.ten_khoi, rows: [] }; sessions.push(session); } session.rows.push(item); }); %>
+		<div class="class-grid"><% sessions.forEach(session => { %><section class="class-panel"><div class="class-panel-header"><div><p class="class-label"><%= session.blockName %></p><h2><i class="fa-solid fa-school"></i> <%= session.className %></h2></div><span class="student-count"><%= session.type %> · <%= new Date(session.date).toLocaleDateString('vi-VN') %></span></div><div class="table-scroll"><table><thead><tr><th>STT</th><th>Mã số</th><th>Họ và tên</th><th>Trạng thái điểm danh</th></tr></thead><tbody><% session.rows.forEach((item, index) => { %><tr><td><%= index + 1 %></td><td><%= item.mstn || '-' %></td><td><strong><%= [item.ten_thanh, item.ho_va_ten_lot, item.ten].filter(Boolean).join(' ') %></strong></td><td><span class="status <%= ['Có mặt', 'Đi sớm'].includes(item.trang_thai) ? 'is-active' : 'is-inactive' %>"><%= item.trang_thai %></span></td></tr><% }) %></tbody></table></div></section><% }) %></div>
+	<% } %>
+</main>

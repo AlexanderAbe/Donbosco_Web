@@ -71,9 +71,15 @@ exports.postLogin = async (req, res) => {
 };
 
 // Chuyển đổi qua lại giữa các giao diện
-exports.switchRole = (req, res) => {
+exports.switchRole = async (req, res) => {
     const targetRole = req.params.role;
     const user = req.session.user;
+
+    // Quyền có thể được thay đổi trong lúc session vẫn còn hiệu lực.
+    if (user.id_glv) {
+        user.is_bdh = await AuthModel.checkBdh(user.id_glv);
+        user.is_truong_khoi = await AuthModel.checkTruongKhoi(user.id_glv);
+    }
 
     let canSwitch = false;
     if (targetRole === 'glv') canSwitch = true;

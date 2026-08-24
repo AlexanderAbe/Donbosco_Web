@@ -22,10 +22,11 @@ const NamHocMoiModel = {
     async getAwardStudents(id_cau_hinh) {
         const result = await pool.query(`
             SELECT ten_thanh, ho_va_ten_lot, ten, ten_khoi,
-                   nien_khoa, ten_xep_loai
+                   nien_khoa, ten_xep_loai, trang_thai_tn
             FROM vw_tong_ket_chi_tiet
             WHERE id_cau_hinh_nam_hoc = $1
-              AND tinh_trang = 'Đạt'
+              AND tinh_trang = 'Lên lớp'
+              AND trang_thai_tn = 'Đang học'
               AND ten_xep_loai IS NOT NULL
             ORDER BY ten_khoi, ho_va_ten_lot, ten, ten_thanh
         `, [id_cau_hinh]);

@@ -46,10 +46,22 @@ exports.getAllLogs = async (req, res) => {
             limit: limit,
             fromDate: fromDate,
             toDate: toDate,
-            search: search
+            search: search,
+            success: req.query.success || null,
+            error: req.query.error || null
         });
     } catch (error) {
         console.error('Lỗi trang Logs:', error);
         res.status(500).send('Lỗi máy chủ');
+    }
+};
+
+exports.clearAllLogs = async (req, res) => {
+    try {
+        await LogModel.clearAllLogs();
+        return res.redirect('/admin/logs?success=' + encodeURIComponent('Đã xóa toàn bộ nhật ký hoạt động.'));
+    } catch (error) {
+        console.error('Lỗi xóa toàn bộ logs:', error);
+        return res.redirect('/admin/logs?error=' + encodeURIComponent('Không thể xóa nhật ký hoạt động.'));
     }
 };

@@ -207,7 +207,7 @@ DECLARE
     v_dtb_chuyen_can DECIMAL(4,2);
     v_dtb_ky_luat DECIMAL(4,2);
     v_diem_tong DECIMAL(4,2);
-    v_tinh_trang VARCHAR(50);
+    v_tinh_trang enum_ket_qua;
     v_id_khung INT;
 BEGIN
     -- Lấy hệ số từ bảng cấu hình năm học
@@ -227,7 +227,10 @@ BEGIN
 
     -- Duyệt qua từng thiếu nhi trong lớp
     FOR r_tn IN 
-        SELECT id_tn FROM PHAN_LOP WHERE id_lop = p_id_lop AND id_cau_hinh_nam_hoc = p_id_cau_hinh_nam_hoc
+                SELECT id_tn FROM PHAN_LOP
+                WHERE id_lop = p_id_lop
+                    AND id_cau_hinh_nam_hoc = p_id_cau_hinh_nam_hoc
+                    AND trang_thai = 'Đang học'
     LOOP
         SELECT COALESCE(AVG(diem_so), 0) INTO v_dtb_hoc_tap
         FROM DIEM_HOC_TAP WHERE id_tn = r_tn.id_tn AND id_cau_hinh_nam_hoc = p_id_cau_hinh_nam_hoc;
@@ -251,9 +254,9 @@ BEGIN
            AND v_dtb_hoc_tap >= 5.0 
            AND v_dtb_chuyen_can >= 5.0 
            AND v_dtb_ky_luat >= 5.0 THEN
-            v_tinh_trang := 'Đạt';
+            v_tinh_trang := 'Lên lớp';
         ELSE
-            v_tinh_trang := 'Chưa đạt';
+            v_tinh_trang := 'Ở lại lớp';
         END IF;
 
         SELECT id_khung_xep_loai INTO v_id_khung
@@ -313,8 +316,8 @@ BEGIN
     v_dtb_chuyen_can := r_tk.diem_chuyen_can;
     v_dtb_ky_luat := r_tk.diem_ky_luat;
 
-    -- 2. Nếu kết quả mới là 'Đạt', kiểm tra và kéo các cột điểm dưới 5.0 lên thành 5.0
-    IF p_ket_qua_moi = 'Đạt' THEN
+    -- 2. Nếu kết quả mới là 'Lên lớp', kiểm tra và kéo các cột điểm dưới 5.0 lên thành 5.0
+    IF p_ket_qua_moi = 'Lên lớp' THEN
         IF v_dtb_hoc_tap < 5.0 THEN v_dtb_hoc_tap := 5.0; END IF;
         IF v_dtb_chuyen_can < 5.0 THEN v_dtb_chuyen_can := 5.0; END IF;
         IF v_dtb_ky_luat < 5.0 THEN v_dtb_ky_luat := 5.0; END IF;
@@ -351,7 +354,7 @@ BEGIN
         WHERE id_cau_hinh_nam_hoc = r_tk.id_cau_hinh_nam_hoc AND v_diem_tong BETWEEN min AND max
         LIMIT 1;
     ELSE
-        -- Nếu không phải là 'Đạt' (ví dụ vẫn là 'Chưa đạt' hoặc trạng thái khác), giữ nguyên điểm cũ
+        -- Nếu không phải là 'Lên lớp' (ví dụ vẫn là 'Ở lại lớp' hoặc trạng thái khác), giữ nguyên điểm cũ
         v_diem_tong := r_tk.diem_tong;
         v_id_khung := r_tk.id_khung_xep_loai;
     END IF;
@@ -362,7 +365,7 @@ BEGIN
         diem_chuyen_can = v_dtb_chuyen_can,
         diem_ky_luat = v_dtb_ky_luat,
         diem_tong = v_diem_tong,
-        tinh_trang = p_ket_qua_moi,
+        tinh_trang = p_ket_qua_moi::enum_ket_qua,
         id_khung_xep_loai = v_id_khung
     WHERE id_tong_ket_nam_hoc = p_id_tong_ket;
 END;
@@ -387,39 +390,58 @@ BEGIN
         v_stt_ket_thuc := 11;
     END IF;
 
-    -- 1. ĐẨY LÊN KHỐI MỚI (Dành cho các em ĐẠT và STT khối < khối kết thúc)
-    -- id_lop được để NULL để Trưởng khối tự phân lớp sau
-    INSERT INTO PHAN_LOP (id_cau_hinh_nam_hoc, id_tn, id_lop)
+    -- 1. ĐẨY LÊN KHỐI MỚI VÀ VÀO LỚP ĐẦU TIÊN CỦA KHỐI ĐÓ
+    INSERT INTO PHAN_LOP (id_cau_hinh_nam_hoc, id_tn, id_lop, trang_thai)
     SELECT DISTINCT
         p_id_cau_hinh_moi, 
         pl.id_tn, 
-        NULL AS id_lop
+        -- Lấy id_lop đầu tiên (có stt hoặc id nhỏ nhất) của khối mới trong năm học mới
+        (
+            SELECT l_moi.id_lop 
+            FROM LOP_HOC l_moi 
+            WHERE l_moi.id_khoi = k_moi.id_khoi 
+              AND l_moi.id_cau_hinh_nam_hoc = p_id_cau_hinh_moi
+            ORDER BY l_moi.id_lop ASC -- Có thể thay bằng tên lớp hoặc thứ tự lớp nếu có
+            LIMIT 1
+        ) AS id_lop,
+        'Đang học'::enum_trang_thai_tn AS trang_thai
     FROM PHAN_LOP pl
     JOIN LOP_HOC l_cu ON pl.id_lop = l_cu.id_lop
     JOIN KHOI k_cu ON l_cu.id_khoi = k_cu.id_khoi
     JOIN TONG_KET_NAM_HOC tk ON pl.id_tn = tk.id_tn AND pl.id_cau_hinh_nam_hoc = tk.id_cau_hinh_nam_hoc AND pl.id_lop = tk.id_lop
     JOIN KHOI k_moi ON k_moi.stt = k_cu.stt + 1
     WHERE pl.id_cau_hinh_nam_hoc = p_id_cau_hinh_cu
-      AND tk.tinh_trang = 'Đạt'
+      AND pl.trang_thai = 'Đang học'
+      AND tk.tinh_trang = 'Lên lớp'
       AND k_cu.stt < v_stt_ket_thuc
       AND NOT EXISTS (
           SELECT 1 FROM PHAN_LOP p_check 
           WHERE p_check.id_tn = pl.id_tn AND p_check.id_cau_hinh_nam_hoc = p_id_cau_hinh_moi
       );
 
-    -- 2. Ở LẠI KHỐI CŨ (Dành cho các em CHƯA ĐẠT)
-    -- id_lop cũng để NULL để Trưởng khối xếp lại lớp học lại
-    INSERT INTO PHAN_LOP (id_cau_hinh_nam_hoc, id_tn, id_lop)
+    -- 2. Ở LẠI KHỐI CŨ (Có thể giữ lại lớp cũ hoặc đưa vào lớp đầu tiên của khối cũ tùy logic, 
+    -- ở đây tôi giữ nguyên logic đưa vào lớp đầu tiên của khối cũ tương ứng hoặc bạn có thể giữ lớp cũ nếu muốn)
+    -- Dưới đây mẫu tự động tìm lớp đầu tiên của khối cũ trong năm mới:
+    INSERT INTO PHAN_LOP (id_cau_hinh_nam_hoc, id_tn, id_lop, trang_thai)
     SELECT DISTINCT
         p_id_cau_hinh_moi, 
         pl.id_tn, 
-        NULL AS id_lop
+        (
+            SELECT l_moi.id_lop 
+            FROM LOP_HOC l_moi 
+            WHERE l_moi.id_khoi = k_cu.id_khoi 
+              AND l_moi.id_cau_hinh_nam_hoc = p_id_cau_hinh_moi
+            ORDER BY l_moi.id_lop ASC
+            LIMIT 1
+        ) AS id_lop,
+        'Đang học'::enum_trang_thai_tn AS trang_thai
     FROM PHAN_LOP pl
     JOIN LOP_HOC l_cu ON pl.id_lop = l_cu.id_lop
     JOIN KHOI k_cu ON l_cu.id_khoi = k_cu.id_khoi
     JOIN TONG_KET_NAM_HOC tk ON pl.id_tn = tk.id_tn AND pl.id_cau_hinh_nam_hoc = tk.id_cau_hinh_nam_hoc AND pl.id_lop = tk.id_lop
     WHERE pl.id_cau_hinh_nam_hoc = p_id_cau_hinh_cu
-      AND tk.tinh_trang = 'Chưa đạt'
+      AND pl.trang_thai = 'Đang học'
+      AND tk.tinh_trang = 'Ở lại lớp'
       AND NOT EXISTS (
           SELECT 1 FROM PHAN_LOP p_check 
           WHERE p_check.id_tn = pl.id_tn AND p_check.id_cau_hinh_nam_hoc = p_id_cau_hinh_moi

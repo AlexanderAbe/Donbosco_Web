@@ -191,8 +191,8 @@ WHERE NOT EXISTS (
     SELECT 1 FROM THIEU_NHI existing WHERE existing.mstn = seed.mstn
 );
 
-INSERT INTO PHAN_LOP (id_tn, id_lop, id_cau_hinh_nam_hoc)
-SELECT child.id_tn, class.id_lop, year_config.id_cau_hinh_nam_hoc
+INSERT INTO PHAN_LOP (id_tn, id_lop, id_cau_hinh_nam_hoc, trang_thai)
+SELECT child.id_tn, class.id_lop, year_config.id_cau_hinh_nam_hoc, 'Đang học'
 FROM (
     VALUES
         ('SD001', 'Khai Tâm 1'), ('SD002', 'Khai Tâm 1'),
@@ -302,16 +302,16 @@ WHERE NOT EXISTS (
       AND existing.thang = seed.thang
 );
 
-INSERT INTO DIEM_DANH (ngay_diem_danh, trang_thai, id_tn, id_lop)
-SELECT seed.ngay_diem_danh::DATE, seed.trang_thai, child.id_tn, class.id_lop
+INSERT INTO DIEM_DANH (ngay_diem_danh, loai_buoi, trang_thai, id_tn, id_lop)
+SELECT seed.ngay_diem_danh::DATE, seed.loai_buoi::enum_loai_buoi, seed.trang_thai::enum_diem_danh, child.id_tn, class.id_lop
 FROM (VALUES
-    ('2025-09-07', 'Có mặt', 'SD001', 'Khai Tâm 1'),
-    ('2025-09-14', 'Đi sớm', 'SD001', 'Khai Tâm 1'),
-    ('2025-09-07', 'Vắng phép', 'SD002', 'Khai Tâm 1'),
-    ('2025-09-14', 'Có mặt', 'SD002', 'Khai Tâm 1'),
-    ('2025-09-07', 'Có mặt', 'SD005', 'Rước Lễ 1'),
-    ('2025-09-14', 'Vắng không phép', 'SD005', 'Rước Lễ 1')
-) AS seed(ngay_diem_danh, trang_thai, mstn, ten_lop)
+    ('2025-09-07', 'Học Giáo Lý', 'Có mặt', 'SD001', 'Khai Tâm 1'),
+    ('2025-09-14', 'Học Giáo Lý', 'Đi sớm', 'SD001', 'Khai Tâm 1'),
+    ('2025-09-07', 'Học Giáo Lý', 'Vắng phép', 'SD002', 'Khai Tâm 1'),
+    ('2025-09-14', 'Học Giáo Lý', 'Có mặt', 'SD002', 'Khai Tâm 1'),
+    ('2025-09-07', 'Học Giáo Lý', 'Có mặt', 'SD005', 'Rước Lễ 1'),
+    ('2025-09-14', 'Học Giáo Lý', 'Vắng không phép', 'SD005', 'Rước Lễ 1')
+) AS seed(ngay_diem_danh, loai_buoi, trang_thai, mstn, ten_lop)
 JOIN THIEU_NHI child ON child.mstn = seed.mstn
 JOIN LOP_HOC class ON class.ten_lop = seed.ten_lop
 JOIN CAU_HINH_NAM_HOC year_config ON year_config.nien_khoa = '2025-2026'
@@ -320,7 +320,8 @@ WHERE NOT EXISTS (
     SELECT 1 FROM DIEM_DANH existing
     WHERE existing.ngay_diem_danh = seed.ngay_diem_danh::DATE
       AND existing.id_tn = child.id_tn
-      AND existing.id_lop = class.id_lop
+    AND existing.id_lop = class.id_lop
+    AND existing.loai_buoi = seed.loai_buoi::enum_loai_buoi
 );
 
 INSERT INTO TONG_KET_NAM_HOC
@@ -328,11 +329,11 @@ INSERT INTO TONG_KET_NAM_HOC
 SELECT seed.diem_hoc_tap, seed.diem_chuyen_can, seed.diem_ky_luat, seed.diem_tong, seed.tinh_trang,
        child.id_tn, class.id_lop, ranking.id_khung_xep_loai, year_config.id_cau_hinh_nam_hoc
 FROM (VALUES
-    (8.75::DECIMAL, 9.50::DECIMAL, 9.25::DECIMAL, 9.06::DECIMAL, 'Đạt', 'SD001', 'Khai Tâm 1', 'Giỏi'),
-    (7.50::DECIMAL, 8.50::DECIMAL, 8.25::DECIMAL, 7.94::DECIMAL, 'Đạt', 'SD002', 'Khai Tâm 1', 'Khá'),
-    (7.00::DECIMAL, 8.00::DECIMAL, 7.75::DECIMAL, 7.31::DECIMAL, 'Đạt', 'SD003', 'Khai Tâm 2', 'Khá'),
-    (9.25::DECIMAL, 9.00::DECIMAL, 9.25::DECIMAL, 9.19::DECIMAL, 'Đạt', 'SD005', 'Rước Lễ 1', 'Giỏi'),
-    (5.75::DECIMAL, 7.50::DECIMAL, 6.50::DECIMAL, 6.50::DECIMAL, 'Đạt', 'SD007', 'Thêm Sức 1', 'Trung Bình')
+    (8.75::DECIMAL, 9.50::DECIMAL, 9.25::DECIMAL, 9.06::DECIMAL, 'Lên lớp', 'SD001', 'Khai Tâm 1', 'Giỏi'),
+    (7.50::DECIMAL, 8.50::DECIMAL, 8.25::DECIMAL, 7.94::DECIMAL, 'Lên lớp', 'SD002', 'Khai Tâm 1', 'Khá'),
+    (7.00::DECIMAL, 8.00::DECIMAL, 7.75::DECIMAL, 7.31::DECIMAL, 'Lên lớp', 'SD003', 'Khai Tâm 2', 'Khá'),
+    (9.25::DECIMAL, 9.00::DECIMAL, 9.25::DECIMAL, 9.19::DECIMAL, 'Lên lớp', 'SD005', 'Rước Lễ 1', 'Giỏi'),
+    (5.75::DECIMAL, 7.50::DECIMAL, 6.50::DECIMAL, 6.50::DECIMAL, 'Lên lớp', 'SD007', 'Thêm Sức 1', 'Trung Bình')
 ) AS seed(diem_hoc_tap, diem_chuyen_can, diem_ky_luat, diem_tong, tinh_trang, mstn, ten_lop, ten_xep_loai)
 JOIN THIEU_NHI child ON child.mstn = seed.mstn
 JOIN CAU_HINH_NAM_HOC year_config ON year_config.nien_khoa = '2025-2026'

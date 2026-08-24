@@ -13,6 +13,49 @@ ALTER TABLE PHAN_LOP DROP CONSTRAINT IF EXISTS uk_thieu_nhi_nam_hoc;
 ALTER TABLE PHAN_LOP ADD CONSTRAINT uk_thieu_nhi_nam_hoc UNIQUE (id_tn, id_cau_hinh_nam_hoc);
 ALTER TABLE PHAN_LOP ALTER COLUMN id_lop DROP NOT NULL;
 
+DO $$
+BEGIN
+	IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'enum_ket_qua') THEN
+		CREATE TYPE enum_ket_qua AS ENUM ('Lên lớp', 'Ở lại lớp');
+	END IF;
+END
+$$;
+
+UPDATE TONG_KET_NAM_HOC
+SET tinh_trang = 'Lên lớp'
+WHERE tinh_trang = 'Đạt';
+
+UPDATE TONG_KET_NAM_HOC
+SET tinh_trang = 'Ở lại lớp'
+WHERE tinh_trang = 'Chưa đạt';
+
+ALTER TABLE TONG_KET_NAM_HOC
+ALTER COLUMN tinh_trang TYPE enum_ket_qua
+USING NULLIF(tinh_trang, '')::text::enum_ket_qua;
+
+-- Trạng thái học tập của thiếu nhi theo niên khóa
+DO $$
+BEGIN
+	IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'enum_trang_thai_tn') THEN
+		CREATE TYPE enum_trang_thai_tn AS ENUM ('Đang học', 'Chuyển xứ', 'Nghỉ học');
+	END IF;
+END
+$$;
+
+ALTER TABLE DIEM_DANH
+ADD CONSTRAINT uq_diem_danh_ngay_buoi UNIQUE (ngay_diem_danh, loai_buoi, id_tn);
+
+ALTER TABLE PHAN_LOP
+ADD COLUMN IF NOT EXISTS trang_thai enum_trang_thai_tn;
+
+UPDATE PHAN_LOP
+SET trang_thai = 'Đang học'
+WHERE trang_thai IS NULL;
+
+ALTER TABLE PHAN_LOP
+ALTER COLUMN trang_thai SET DEFAULT 'Đang học',
+ALTER COLUMN trang_thai SET NOT NULL;
+
 -- 4. Bảng KHUNG_XEP_LOAI
 ALTER TABLE KHUNG_XEP_LOAI DROP CONSTRAINT IF EXISTS uk_khung_xep_loai_nam;
 ALTER TABLE KHUNG_XEP_LOAI ADD CONSTRAINT uk_khung_xep_loai_nam UNIQUE (id_cau_hinh_nam_hoc, ten_xep_loai);

@@ -1,6 +1,7 @@
 const xlsx = require('xlsx');
 const ThieuNhiModel = require('../../models/bdh/thieu-nhi-model');
 const { getBdhBaseData } = require('../../utils/base-data-helper');
+const { logAction } = require('../../utils/logger');
 
 const validGenders = ['Nam', 'Nữ'];
 const sacramentColumns = [
@@ -118,12 +119,13 @@ const ThieuNhiController = {
             console.error('Lỗi lấy chi tiết thiếu nhi:', error);
             res.status(500).json({ error: error.message }); 
         }
-    }, // <-- Đã thêm dấu phẩy phân cách ở đây
+    },
 
     async importExcel(req, res) {
         try {
             // 1. Kiểm tra file upload từ Multer
             if (!req.file) {
+                await logAction(req, `Import Excel thiếu nhi thất bại: Không chọn file`, 'Thất bại');
                 return res.status(400).json({ success: false, message: 'Vui lòng chọn file Excel cần import!' });
             }
 
@@ -132,12 +134,14 @@ const ThieuNhiController = {
             const yearId = getYearId(req.body.nien_khoa, years);
             
             if (!yearId) {
+                await logAction(req, `Import Excel thiếu nhi thất bại: Niên khóa không hợp lệ`, 'Thất bại');
                 return res.status(400).json({ success: false, message: 'Vui lòng chọn niên khóa hợp lệ để import!' });
             }
 
             const idLop = getPositiveInt(req.body.id_lop);
             const lopList = await ThieuNhiModel.getLopList(yearId);
             if (!idLop || !lopList.some(lop => lop.id_lop === idLop)) {
+                await logAction(req, `Import Excel thiếu nhi thất bại: Lớp học không hợp lệ`, 'Thất bại');
                 return res.status(400).json({ success: false, message: 'Vui lòng chọn lớp hợp lệ để import!' });
             }
 
@@ -147,6 +151,7 @@ const ThieuNhiController = {
             const sheetData = xlsx.utils.sheet_to_json(workbook.Sheets[sheetName], { defval: '' });
 
             if (!sheetData || sheetData.length === 0) {
+                await logAction(req, `Import Excel thiếu nhi thất bại: File Excel không có dữ liệu`, 'Thất bại');
                 return res.status(400).json({ success: false, message: 'File Excel không có dữ liệu hoặc định dạng không đúng!' });
             }
 
@@ -189,20 +194,25 @@ const ThieuNhiController = {
                         : !validGenders.includes(item.gioiTinh)
                             ? 'Giới tính phải là Nam hoặc Nữ.'
                             : item.phuHuynh.length < 1
-                                    ? 'Phải có ít nhất 1 phụ huynh.'
-                                    : item.phuHuynh.some(parent => !parent.tenPhuHuynh || !/^\d{9,15}$/.test(parent.sdt))
-                                        ? 'Mỗi phụ huynh phải có tên và số điện thoại từ 9 đến 15 chữ số.'
-                                        : item.biTich.some(sacrament => !isValidDate(sacrament.ngayLanhNhan))
-                                            ? 'Ngày bí tích không hợp lệ hoặc lớn hơn ngày hiện tại.'
-                                            : null;
+                                ? 'Phải có ít nhất 1 phụ huynh.'
+                                : item.phuHuynh.some(parent => !parent.tenPhuHuynh || !/^\d{9,15}$/.test(parent.sdt))
+                                    ? 'Mỗi phụ huynh phải có tên và số điện thoại từ 9 đến 15 chữ số.'
+                                    : item.biTich.some(sacrament => !isValidDate(sacrament.ngayLanhNhan))
+                                        ? 'Ngày bí tích không hợp lệ hoặc lớn hơn ngày hiện tại.'
+                                        : null;
 
-                if (validationError) throw new Error(`Dòng Excel ${rowNumber}: ${validationError}`);
+                if (validationError) {
+                    const errMessage = `Dòng Excel ${rowNumber}: ${validationError}`;
+                    await logAction(req, `Import Excel thiếu nhi thất bại: ${errMessage}`, 'Thất bại');
+                    throw new Error(errMessage);
+                }
                 danhSach.push(item);
             }
 
             // 5. Gọi hàm import trong Model
             const result = await ThieuNhiModel.importExcelData(danhSach, yearId);
 
+            await logAction(req, `Import Excel thành công ${result.count} thiếu nhi vào lớp (ID: ${idLop})`, 'Thành công');
             return res.status(200).json({
                 success: true,
                 message: `Import thành công ${result.count} thiếu nhi!`
@@ -210,6 +220,7 @@ const ThieuNhiController = {
 
         } catch (error) {
             console.error('Lỗi import Excel thiếu nhi:', error);
+            await logAction(req, `Import Excel thiếu nhi thất bại: ${error.message || 'Lỗi hệ thống'}`, 'Thất bại');
             return res.status(500).json({
                 success: false,
                 message: error.message || 'Lỗi server khi xử lý file Excel.'

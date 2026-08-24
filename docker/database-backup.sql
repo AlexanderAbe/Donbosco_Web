@@ -63,15 +63,25 @@ ALTER TYPE public.enum_gioi_tinh OWNER TO postgres;
 --
 
 CREATE TYPE public.enum_ket_qua AS ENUM (
-    'Đạt',
-    'Chưa đạt',
-    'Chuyển xứ',
-    'Nghỉ học',
-    'Bảo lưu'
+    'Lên lớp',
+    'Ở lại lớp'
 );
 
 
 ALTER TYPE public.enum_ket_qua OWNER TO postgres;
+
+--
+-- Name: enum_trang_thai_tn; Type: TYPE; Schema: public; Owner: postgres
+--
+
+CREATE TYPE public.enum_trang_thai_tn AS ENUM (
+    'Đang học',
+    'Chuyển xứ',
+    'Nghỉ học'
+);
+
+
+ALTER TYPE public.enum_trang_thai_tn OWNER TO postgres;
 
 --
 -- Name: enum_moi_quan_he; Type: TYPE; Schema: public; Owner: postgres
@@ -247,7 +257,7 @@ BEGIN
 
     UPDATE TONG_KET_NAM_HOC
 
-    SET tinh_trang = p_ket_qua_moi
+    SET tinh_trang = p_ket_qua_moi::public.enum_ket_qua
 
     WHERE id_tong_ket_nam_hoc = p_id_tong_ket;
 
@@ -268,7 +278,7 @@ CREATE PROCEDURE public.sp_chuyen_giao_nien_khoa(IN p_nien_khoa_cu character var
 
 BEGIN
 
-    -- 1. ĐẨY LÊN LỚP (Dành cho các em đạt và STT khối < 11)
+    -- 1. ĐẨY LÊN LỚP (Dành cho các em lên lớp và STT khối < 11)
 
     INSERT INTO PHAN_LOP (nien_khoa, id_tn, id_lop)
 
@@ -294,7 +304,7 @@ BEGIN
 
     WHERE pl.nien_khoa = p_nien_khoa_cu
 
-      AND tk.tinh_trang = 'Đạt'
+    AND tk.tinh_trang = 'Lên lớp'
 
       AND k_cu.stt < 11
 
@@ -308,7 +318,7 @@ BEGIN
 
 
 
-    -- 2. Ở LẠI LỚP (Dành cho các em chưa đạt, học lại khối cũ)
+    -- 2. Ở LẠI LỚP (Dành cho các em ở lại lớp, học lại khối cũ)
 
     INSERT INTO PHAN_LOP (nien_khoa, id_tn, id_lop)
 
@@ -332,7 +342,7 @@ BEGIN
 
     WHERE pl.nien_khoa = p_nien_khoa_cu
 
-      AND tk.tinh_trang = 'Chưa đạt'
+    AND tk.tinh_trang = 'Ở lại lớp'
 
       AND NOT EXISTS (
 
@@ -538,7 +548,7 @@ BEGIN
 
 
 
-        -- KIỂM TRA ĐIỀU KIỆN ĐẠT: Điểm tổng >= 5.0 VÀ KHÔNG CÓ CỘT NÀO DƯỚI 5.0
+        -- KIỂM TRA ĐIỀU KIỆN LÊN LỚP: Điểm tổng >= 5.0 VÀ KHÔNG CÓ CỘT NÀO DƯỚI 5.0
 
         IF v_diem_tong >= 5.0
 
@@ -548,11 +558,11 @@ BEGIN
 
            AND v_dtb_ky_luat >= 5.0 THEN
 
-            v_tinh_trang := 'Đạt';
+            v_tinh_trang := 'Lên lớp';
 
         ELSE
 
-            v_tinh_trang := 'Chưa đạt';
+            v_tinh_trang := 'Ở lại lớp';
 
         END IF;
 
@@ -1009,6 +1019,7 @@ CREATE TABLE public.phan_lop (
     nien_khoa character varying(20),
     id_tn integer,
     id_lop integer,
+    trang_thai public.enum_trang_thai_tn DEFAULT 'Đang học'::public.enum_trang_thai_tn,
     CONSTRAINT check_nk_phan_lop CHECK (((nien_khoa)::text ~ '^\d{4}-\d{4}$'::text))
 );
 
@@ -1133,7 +1144,7 @@ CREATE TABLE public.tong_ket_nam_hoc (
     diem_chuyen_can numeric(4,2),
     diem_ky_luat numeric(4,2),
     diem_tong numeric(4,2),
-    tinh_trang character varying(50),
+    tinh_trang public.enum_ket_qua,
     id_tn integer,
     id_lop integer,
     id_khung_xep_loai integer,
@@ -1363,9 +1374,9 @@ INSERT INTO public.lop_hoc (id_lop, ten_lop, nien_khoa, id_khoi) OVERRIDING SYST
 -- Data for Name: phan_lop; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
-INSERT INTO public.phan_lop (id_phan_lop, nien_khoa, id_tn, id_lop) OVERRIDING SYSTEM VALUE VALUES (1, '2025-2026', 1, 1);
-INSERT INTO public.phan_lop (id_phan_lop, nien_khoa, id_tn, id_lop) OVERRIDING SYSTEM VALUE VALUES (2, '2025-2026', 2, 1);
-INSERT INTO public.phan_lop (id_phan_lop, nien_khoa, id_tn, id_lop) OVERRIDING SYSTEM VALUE VALUES (3, '2025-2026', 3, 2);
+INSERT INTO public.phan_lop (id_phan_lop, nien_khoa, id_tn, id_lop, trang_thai) OVERRIDING SYSTEM VALUE VALUES (1, '2025-2026', 1, 1, 'Đang học');
+INSERT INTO public.phan_lop (id_phan_lop, nien_khoa, id_tn, id_lop, trang_thai) OVERRIDING SYSTEM VALUE VALUES (2, '2025-2026', 2, 1, 'Đang học');
+INSERT INTO public.phan_lop (id_phan_lop, nien_khoa, id_tn, id_lop, trang_thai) OVERRIDING SYSTEM VALUE VALUES (3, '2025-2026', 3, 2, 'Đang học');
 
 
 --
@@ -1400,9 +1411,9 @@ INSERT INTO public.thieu_nhi (id_tn, ten_thanh, ho_va_ten_lot, ten, gioi_tinh, n
 --
 
 INSERT INTO public.tong_ket_nam_hoc (id_tong_ket_nam_hoc, nien_khoa, diem_hoc_tap, diem_chuyen_can, diem_ky_luat, diem_tong, tinh_trang, id_tn, id_lop, id_khung_xep_loai) OVERRIDING SYSTEM VALUE VALUES (3, NULL, 4.00, 9.00, 9.00, NULL, NULL, 2, NULL, NULL);
-INSERT INTO public.tong_ket_nam_hoc (id_tong_ket_nam_hoc, nien_khoa, diem_hoc_tap, diem_chuyen_can, diem_ky_luat, diem_tong, tinh_trang, id_tn, id_lop, id_khung_xep_loai) OVERRIDING SYSTEM VALUE VALUES (4, '2025-2026', 0.00, 0.00, 0.00, 0.00, 'Chưa đạt', 3, 2, 4);
-INSERT INTO public.tong_ket_nam_hoc (id_tong_ket_nam_hoc, nien_khoa, diem_hoc_tap, diem_chuyen_can, diem_ky_luat, diem_tong, tinh_trang, id_tn, id_lop, id_khung_xep_loai) OVERRIDING SYSTEM VALUE VALUES (1, '2025-2026', 4.00, 9.00, 8.00, 6.17, 'Chưa đạt', 1, 1, 3);
-INSERT INTO public.tong_ket_nam_hoc (id_tong_ket_nam_hoc, nien_khoa, diem_hoc_tap, diem_chuyen_can, diem_ky_luat, diem_tong, tinh_trang, id_tn, id_lop, id_khung_xep_loai) OVERRIDING SYSTEM VALUE VALUES (2, '2025-2026', 0.00, 0.00, 0.00, 0.00, 'Chưa đạt', 2, 1, 4);
+INSERT INTO public.tong_ket_nam_hoc (id_tong_ket_nam_hoc, nien_khoa, diem_hoc_tap, diem_chuyen_can, diem_ky_luat, diem_tong, tinh_trang, id_tn, id_lop, id_khung_xep_loai) OVERRIDING SYSTEM VALUE VALUES (4, '2025-2026', 0.00, 0.00, 0.00, 0.00, 'Ở lại lớp', 3, 2, 4);
+INSERT INTO public.tong_ket_nam_hoc (id_tong_ket_nam_hoc, nien_khoa, diem_hoc_tap, diem_chuyen_can, diem_ky_luat, diem_tong, tinh_trang, id_tn, id_lop, id_khung_xep_loai) OVERRIDING SYSTEM VALUE VALUES (1, '2025-2026', 4.00, 9.00, 8.00, 6.17, 'Ở lại lớp', 1, 1, 3);
+INSERT INTO public.tong_ket_nam_hoc (id_tong_ket_nam_hoc, nien_khoa, diem_hoc_tap, diem_chuyen_can, diem_ky_luat, diem_tong, tinh_trang, id_tn, id_lop, id_khung_xep_loai) OVERRIDING SYSTEM VALUE VALUES (2, '2025-2026', 0.00, 0.00, 0.00, 0.00, 'Ở lại lớp', 2, 1, 4);
 
 
 --

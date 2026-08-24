@@ -1,1 +1,87 @@
+<!-- Font Awesome CDN -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
 <link rel="stylesheet" href="/css/reset.css">
+<link rel="stylesheet" href="/css/glv/glv-danh-sach-lop.css">
+
+<main class="class-page" id="score-page">
+    <header class="class-header">
+        <span class="class-eyebrow">Quản lý lớp học</span>
+        <h1>Bảng điểm thiếu nhi</h1>
+        <p>Điểm số được cập nhật tính tới thời điểm hiện tại.</p>
+    </header>
+
+    <% if (!scores.length) { %>
+        <div class="empty-state"><i class="fa-solid fa-circle-exclamation"></i> Chưa có dữ liệu điểm trong các lớp được phân công.</div>
+    <% } else { %>
+        <div class="class-list">
+            <% let currentClass = null; %>
+            <% scores.forEach((student, index) => { %>
+                <% const classKey = `${student.id_lop}-${student.ten_lop}`; %>
+                <% if (currentClass !== classKey) { %>
+                    <% if (currentClass !== null) { %></tbody></table></div></section><% } %>
+                    <% currentClass = classKey; %>
+                    <section class="class-card">
+                        <div class="class-card-header">
+                            <h2><i class="fa-solid fa-school"></i> <%= student.ten_khoi %> - <%= student.ten_lop %></h2>
+                        </div>
+                        <div class="table-wrap">
+                            <table class="student-table score-table">
+                                <thead><tr><th>STT</th><th>Mã số</th><th>Họ và tên</th><th>Học tập</th><th>Chuyên cần</th><th>Kỷ luật</th><th>Tổng</th><th>Tình trạng</th><th></th></tr></thead>
+                                <tbody>
+                <% } %>
+                <tr>
+                    <td><%= scores.filter(item => item.id_lop === student.id_lop).indexOf(student) + 1 %></td>
+                    <td><%= student.mstn || '-' %></td>
+                    <td><strong><%= [student.ten_thanh, student.ho_va_ten_lot, student.ten].filter(Boolean).join(' ') %></strong></td>
+                    <td><%= student.diem_hoc_tap ?? '-' %></td>
+                    <td><%= student.diem_chuyen_can ?? '-' %></td>
+                    <td><%= student.diem_ky_luat ?? '-' %></td>
+                    <td><strong><%= student.diem_tong ?? '-' %></strong></td>
+                    <td class="student-status <%= student.tinh_trang === 'Đang học' || student.tinh_trang === 'Lên lớp' ? '' : 'is-inactive' %>" data-result-cell><%= student.tinh_trang || '-' %></td>
+                    <td>
+                        <% if (student.has_summary && student.trang_thai_phan_lop === 'Đang học') { %>
+                            <select class="result-select" data-result-select data-student-id="<%= student.id_tn %>" aria-label="Kết quả của <%= student.ten %>">
+                                <option value="Lên lớp" <%= student.tinh_trang === 'Lên lớp' ? 'selected' : '' %>>Lên lớp</option>
+                                <option value="Ở lại lớp" <%= student.tinh_trang === 'Ở lại lớp' ? 'selected' : '' %>>Ở lại lớp</option>
+                            </select>
+                            <button type="button" class="status-save-button" data-result-save data-student-id="<%= student.id_tn %>"><i class="fa-solid fa-floppy-disk"></i> Lưu</button>
+                        <% } else { %>
+                            <span class="result-locked"><%= student.has_summary ? 'Không áp dụng' : 'Chưa tổng kết' %></span>
+                        <% } %>
+                    </td>
+                </tr>
+                <% if (index === scores.length - 1) { %></tbody></table></div></section><% } %>
+            <% }) %>
+        </div>
+    <% } %>
+</main>
+
+<script>
+(() => {
+    const yearId = '<%= selectedYearId %>';
+    document.querySelectorAll('[data-result-save]').forEach(button => {
+        button.addEventListener('click', async () => {
+            const studentId = button.dataset.studentId;
+            const select = document.querySelector(`[data-result-select][data-student-id="${studentId}"]`);
+            button.disabled = true;
+            try {
+                const response = await fetch(`/glv/bang-diem/${studentId}/update-result`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ yearId, ket_qua: select.value })
+                });
+                const data = await response.json();
+                if (!response.ok) throw new Error(data.error || 'Không thể cập nhật kết quả.');
+                const cell = button.closest('tr').querySelector('[data-result-cell]');
+                cell.textContent = select.value;
+                cell.classList.remove('is-inactive');
+            } catch (error) {
+                window.alert(error.message);
+            } finally {
+                button.disabled = false;
+            }
+        });
+    });
+})();
+</script>

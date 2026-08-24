@@ -1,1 +1,102 @@
+<!-- Font Awesome CDN -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
 <link rel="stylesheet" href="/css/reset.css">
+<link rel="stylesheet" href="/css/glv/glv-ky-luat.css">
+
+<main class="discipline-page">
+    <header class="class-header">
+        <span class="class-eyebrow"><i class="fa-solid fa-layer-group"></i> Nhập điểm</span>
+        <h1>Điểm kỷ luật theo tháng</h1>
+        <p>Chọn niên khóa, lớp và tháng để nhập điểm cho từng thiếu nhi.</p>
+    </header>
+
+    <% if (message) { %><div class="discipline-notice success"><i class="fa-solid fa-circle-check"></i> <%= message %></div><% } %>
+    <% if (error) { %><div class="discipline-notice error"><i class="fa-solid fa-circle-exclamation"></i> <%= error %></div><% } %>
+
+    <% if (!classes.length) { %>
+        <div class="discipline-empty"><i class="fa-solid fa-triangle-exclamation"></i> Bạn chưa được phân công lớp trong niên khóa này.</div>
+    <% } else { %>
+        <form class="discipline-toolbar" method="GET" action="/glv/ky-luat">
+            <div class="discipline-field">
+                <label for="discipline-search"><i class="fa-solid fa-magnifying-glass"></i> Tìm kiếm thiếu nhi</label>
+                <input id="discipline-search" type="search" placeholder="Tên hoặc mã số..." autocomplete="off">
+            </div>
+            <div class="discipline-field">
+                <label for="discipline-class"><i class="fa-solid fa-school"></i> Lớp</label>
+                <select id="discipline-class" name="id_lop" onchange="this.form.submit()">
+                    <% classes.forEach(item => { %>
+                        <option value="<%= item.id_lop %>" <%= item.id_lop === selectedClassId ? 'selected' : '' %>><%= item.ten_khoi %> - <%= item.ten_lop %></option>
+                    <% }) %>
+                </select>
+            </div>
+            <div class="discipline-field">
+                <label for="discipline-month"><i class="fa-solid fa-calendar-days"></i> Tháng</label>
+                <select id="discipline-month" name="thang" onchange="this.form.submit()">
+                    <% for (let month = 1; month <= 12; month += 1) { %>
+                        <option value="<%= month %>" <%= month === selectedMonth ? 'selected' : '' %>>Tháng <%= month %></option>
+                    <% } %>
+                </select>
+            </div>
+        </form>
+
+        <form method="POST" action="/glv/ky-luat/save">
+            <input type="hidden" name="nien_khoa" value="<%= selectedYearId %>">
+            <input type="hidden" name="id_lop" value="<%= selectedClassId %>">
+            <input type="hidden" name="thang" value="<%= selectedMonth %>">
+            
+            <div class="discipline-summary">
+                <span><i class="fa-solid fa-circle-info"></i> <strong><%= classes.find(item => item.id_lop === selectedClassId)?.ten_lop %></strong> · Tháng <strong><%= selectedMonth %></strong></span>
+                <span class="discipline-save-status <%= students.length && students.every(student => student.da_luu) ? 'saved' : 'unsaved' %>">
+                    <i class="fa-solid <%= students.length && students.every(student => student.da_luu) ? 'fa-circle-check' : 'fa-clock' %>"></i>
+                    <%= students.length && students.every(student => student.da_luu) ? 'Đã lưu' : 'Chưa lưu' %>
+                </span>
+                <button class="discipline-save-button" type="submit"><i class="fa-solid fa-floppy-disk"></i> Lưu điểm</button>
+            </div>
+
+            <% if (!students.length) { %>
+                <div class="discipline-empty"><i class="fa-solid fa-user-slash"></i> Lớp chưa có thiếu nhi.</div>
+            <% } else { %>
+                <div class="discipline-table-wrap">
+                    <table class="discipline-table">
+                        <thead>
+                            <tr>
+                                <th>STT</th>
+                                <th>Mã số</th>
+                                <th>Họ và tên</th>
+                                <th>Trạng thái</th>
+                                <th>Điểm kỷ luật</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <% students.forEach((student, index) => { %>
+                                <tr data-discipline-row data-search="<%= `${student.mstn || ''} ${student.ten_thanh || ''} ${student.ho_va_ten_lot || ''} ${student.ten || ''}`.toLowerCase() %>">
+                                    <td><%= index + 1 %></td>
+                                    <td><%= student.mstn || '-' %></td>
+                                    <td><strong><%= [student.ten_thanh, student.ho_va_ten_lot, student.ten].filter(Boolean).join(' ') %></strong></td>
+                                    <td class="discipline-status <%= student.trang_thai === 'Đang học' ? '' : 'inactive' %>"><%= student.trang_thai %></td>
+                                    <td>
+                                        <input class="discipline-input" type="number" name="scores[<%= index %>][diem]" min="0" max="10" step="0.01" value="<%= student.diem ?? '' %>" placeholder="0">
+                                        <input type="hidden" name="scores[<%= index %>][id_tn]" value="<%= student.id_tn %>">
+                                    </td>
+                                </tr>
+                            <% }) %>
+                        </tbody>
+                    </table>
+                </div>
+            <% } %>
+        </form>
+    <% } %>
+</main>
+
+<script>
+(() => {
+    const search = document.getElementById('discipline-search');
+    search?.addEventListener('input', () => {
+        const keyword = search.value.trim().toLowerCase();
+        document.querySelectorAll('[data-discipline-row]').forEach(row => {
+            row.hidden = keyword && !row.dataset.search.includes(keyword);
+        });
+    });
+})();
+</script>
