@@ -1,6 +1,64 @@
 const pool = require('../../../config/database');
 
 const DashboardModel = {
+    async getSacramentBlocks(idGlv, yearId) {
+        const { rows } = await pool.query(`
+            SELECT k.id_khoi, k.ten_khoi, k.is_bi_tich,
+                   COUNT(DISTINCT pl.id_tn)::int AS student_count
+            FROM PHAN_CONG_TRUONG_KHOI tk
+            JOIN KHOI k ON k.id_khoi = tk.id_khoi
+            LEFT JOIN LOP_HOC l ON l.id_khoi = k.id_khoi
+                AND l.id_cau_hinh_nam_hoc = tk.id_cau_hinh_nam_hoc
+            LEFT JOIN PHAN_LOP pl ON pl.id_lop = l.id_lop
+                AND pl.id_cau_hinh_nam_hoc = tk.id_cau_hinh_nam_hoc
+            WHERE tk.id_glv = $1
+              AND tk.id_cau_hinh_nam_hoc = $2
+            GROUP BY k.id_khoi, k.ten_khoi, k.is_bi_tich, k.stt
+            ORDER BY k.stt, k.ten_khoi
+        `, [idGlv, yearId]);
+        return rows;
+    },
+
+    async createSacramentBulk(idGlv, yearId, blockId, sacramentType, receivedDate, studentIds) {
+        const validTypes = ['Rửa tội', 'Xưng tội & Rước lễ', 'Thêm sức'];
+        if (!validTypes.includes(sacramentType) || !/^\d{4}-\d{2}-\d{2}$/.test(receivedDate || '')) {
+            throw new Error('Thông tin bí tích không hợp lệ.');
+        }
+        const { rows } = await pool.query(`
+            INSERT INTO BI_TICH (loai_bi_tich, ngay_lanh_nhan, id_tn)
+            SELECT $4::enum_bi_tich, $5::date, pl.id_tn
+            FROM PHAN_LOP pl
+            JOIN LOP_HOC l ON l.id_lop = pl.id_lop
+                AND l.id_cau_hinh_nam_hoc = pl.id_cau_hinh_nam_hoc
+            JOIN PHAN_CONG_TRUONG_KHOI tk ON tk.id_khoi = l.id_khoi
+                AND tk.id_cau_hinh_nam_hoc = pl.id_cau_hinh_nam_hoc
+            JOIN KHOI k ON k.id_khoi = tk.id_khoi
+            WHERE tk.id_glv = $1
+              AND pl.id_cau_hinh_nam_hoc = $2
+              AND k.id_khoi = $3
+              AND k.is_bi_tich = TRUE
+              AND ($6::int[] IS NULL OR pl.id_tn = ANY($6::int[]))
+            ON CONFLICT (id_tn, loai_bi_tich) DO NOTHING
+            RETURNING id_bi_tich
+        `, [idGlv, yearId, blockId, sacramentType, receivedDate, studentIds === undefined ? null : studentIds]);
+        return rows.length;
+    },
+
+    async getSacramentStudents(idGlv, yearId, blockId) {
+        const { rows } = await pool.query(`
+            SELECT DISTINCT tn.id_tn, tn.mstn,
+                   CONCAT_WS(' ', tn.ten_thanh, tn.ho_va_ten_lot, tn.ten) AS ho_ten
+            FROM PHAN_CONG_TRUONG_KHOI tk
+            JOIN KHOI k ON k.id_khoi = tk.id_khoi AND k.is_bi_tich = TRUE
+            JOIN LOP_HOC l ON l.id_khoi = k.id_khoi AND l.id_cau_hinh_nam_hoc = tk.id_cau_hinh_nam_hoc
+            JOIN PHAN_LOP pl ON pl.id_lop = l.id_lop AND pl.id_cau_hinh_nam_hoc = tk.id_cau_hinh_nam_hoc
+            JOIN THIEU_NHI tn ON tn.id_tn = pl.id_tn
+            WHERE tk.id_glv = $1 AND tk.id_cau_hinh_nam_hoc = $2 AND k.id_khoi = $3
+            ORDER BY ho_ten, tn.id_tn
+        `, [idGlv, yearId, blockId]);
+        return rows;
+    },
+
     async getStats(idGlv, yearId) {
         const { rows } = await pool.query(`
             WITH assigned_block AS (

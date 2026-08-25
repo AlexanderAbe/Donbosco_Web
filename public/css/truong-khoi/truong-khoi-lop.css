@@ -43,3 +43,20 @@ td strong { color: #172554; }
 .tk-modal { width: min(620px, calc(100% - 32px)); border: 0; padding: 0; box-shadow: 0 20px 60px rgba(15, 23, 42, .25); }.tk-modal::backdrop { background: rgba(15, 23, 42, .45); }
 .modal-heading, .modal-actions { display: flex; align-items: center; justify-content: space-between; padding: 18px 22px; border-bottom: 1px solid #e2e8f0; }.modal-heading h2 { margin: 0; color: #172554; }.close-button { border: 0; background: none; font-size: 26px; cursor: pointer; color: #64748b; }.modal-content { padding: 22px; }.modal-content select { width: 100%; margin-top: 8px; }.modal-actions { justify-content: flex-end; gap: 10px; border-top: 1px solid #e2e8f0; border-bottom: 0; }.secondary-button { color: #475569; background: #e2e8f0; }.modal-error { color: #b91c1c; }.detail-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; margin-bottom: 22px; }.detail-grid div { padding: 12px; background: #f8fafc; }.detail-grid span { display: block; color: #64748b; font-size: 12px; margin-bottom: 4px; }.detail-grid strong { color: #172554; }
 @media (max-width: 760px) { .tk-class-page { padding: 82px 14px 28px; }.tk-class-header { display: block; }.year-filter { margin-top: 18px; }.add-student-button { margin: 18px 0 0; width: 100%; }.tk-class-header h1 { font-size: 25px; }.class-panel-header { padding: 15px; }.actions { flex-wrap: wrap; white-space: normal; }.detail-grid, .form-grid { grid-template-columns: 1fr; }.repeat-form-row { grid-template-columns: 1fr; }.wide-field { grid-column: auto; } }
+@media (max-width: 600px) {
+	.table-scroll { overflow: visible; }
+	.class-panel table { min-width: 0; display: block; }
+	.class-panel table thead { display: none; }
+	.class-panel table tbody, .class-panel table tr, .class-panel table td { display: block; width: 100%; box-sizing: border-box; }
+	.class-panel table tr { margin-bottom: 10px; padding: 10px 12px; border: 1px solid #e2e8f0; border-radius: 7px; background: #fff; }
+	.class-panel table td { padding: 3px 0; border: 0; white-space: normal; }
+	.class-panel table td:first-child { display: none; }
+	.class-panel table td:nth-child(2)::before { content: 'Mã số: '; color: #64748b; font-size: .76rem; }
+	.class-panel table td:nth-child(3)::before { content: 'Họ tên: '; color: #64748b; font-size: .76rem; }
+	.class-panel table td:nth-child(4)::before { content: 'Thông tin: '; color: #64748b; font-size: .76rem; }
+	.class-panel table td:nth-child(5)::before { content: 'Điểm: '; color: #64748b; font-size: .76rem; }
+	.class-panel table td:nth-child(6)::before { content: 'Tình trạng: '; color: #64748b; font-size: .76rem; }
+	.class-panel table td:nth-child(7)::before { content: 'Thao tác: '; color: #64748b; font-size: .76rem; }
+	.class-panel .actions, .class-panel .assign-form { flex-wrap: wrap; }
+	.class-panel .actions > *, .class-panel .assign-form > * { width: 100%; }
+}

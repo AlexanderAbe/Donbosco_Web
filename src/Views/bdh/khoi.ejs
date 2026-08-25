@@ -45,6 +45,14 @@
                                                 <i class="fas fa-lock"></i>
                                             </button>
                                         </form>
+                                        <form action="/bdh/khoi/toggle-sacrament" method="POST" class="d-inline-block m-0">
+                                            <input type="hidden" name="id" value="<%= item.id_khoi %>">
+                                            <input type="hidden" name="is_bi_tich" value="<%= item.is_bi_tich ? 'false' : 'true' %>">
+                                            <button type="submit" class="btn btn-sm <%= item.is_bi_tich ? 'btn-warning' : 'btn-outline-info' %>"
+                                                    title="<%= item.is_bi_tich ? 'Tắt khối bí tích' : 'Đánh dấu là khối bí tích' %>">
+                                                <i class="fas fa-cross"></i> <%= item.is_bi_tich ? 'Khối bí tích' : 'Bí tích' %>
+                                            </button>
+                                        </form>
                                     </td>
                                 </tr>
                             <% }) %>
@@ -87,6 +95,13 @@
                                             <button type="submit" class="btn btn-sm btn-outline-success"
                                                     title="Mở khóa (Kích hoạt lại) khối này">
                                                 <i class="fas fa-lock-open"></i>
+                                            </button>
+                                        </form>
+                                        <form action="/bdh/khoi/toggle-sacrament" method="POST" class="d-inline-block m-0">
+                                            <input type="hidden" name="id" value="<%= item.id_khoi %>">
+                                            <input type="hidden" name="is_bi_tich" value="<%= item.is_bi_tich ? 'false' : 'true' %>">
+                                            <button type="submit" class="btn btn-sm <%= item.is_bi_tich ? 'btn-warning' : 'btn-outline-info' %>" title="Bật/tắt khối bí tích">
+                                                <i class="fas fa-cross"></i> <%= item.is_bi_tich ? 'Khối bí tích' : 'Bí tích' %>
                                             </button>
                                         </form>
                                     </td>

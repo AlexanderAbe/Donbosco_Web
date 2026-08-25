@@ -272,6 +272,19 @@ body {
     width: auto;
 }
 
+/* ==========================================================
+   TỐI ƯU HÓA BỘ LỌC NIÊN KHÓA & NÚT ÁP DỤNG MỚI
+   ========================================================== */
+
+/* 1. Đồng bộ form lọc niên khóa và nút bấm thành một hàng mượt mà */
+#formNienKhoa {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: nowrap;
+}
+
+/* 2. Gom nhóm input-group niên khóa để bo góc đẹp mắt */
 .input-group-nien-khoa {
     display: flex;
     align-items: center;
@@ -280,7 +293,7 @@ body {
     border-radius: 8px;
     overflow: hidden;
     box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02);
-    margin-bottom: 1rem;
+    margin-bottom: 0 !important; /* Loại bỏ margin thừa để thẳng hàng với nút */
 }
 
 .input-group-nien-khoa .input-group-text {
@@ -292,11 +305,278 @@ body {
 }
 
 .input-group-nien-khoa select.form-control {
-    border: none;
-    box-shadow: none;
+    border: none !important;
+    box-shadow: none !important;
     background: transparent;
     padding-right: 2rem;
     cursor: pointer;
+    font-weight: 500;
+    color: var(--text-main);
+}
+
+/* 3. Tùy chỉnh nút "Áp dụng" cho đồng bộ chiều cao với ô select */
+#formNienKhoa .btn-primary {
+    background-color: var(--primary-30);
+    border-color: var(--primary-30);
+    padding: 0.55rem 1rem;
+    font-weight: 600;
+    border-radius: 8px;
+    white-space: nowrap;
+    transition: background-color 0.2s ease, transform 0.1s ease;
+}
+
+#formNienKhoa .btn-primary:hover {
+    background-color: var(--primary-30-hover);
+    border-color: var(--primary-30-hover);
+}
+
+#formNienKhoa .btn-primary:active {
+    transform: scale(0.97);
+}
+
+/* 4. Responsive riêng cho bộ lọc niên khóa trên điện thoại (< 576px) */
+@media (max-width: 576px) {
+    /* Đưa thanh tiêu đề và cụm bộ lọc xuống dòng, căn full chiều ngang cho dễ thao tác */
+    .d-flex.justify-content-between.align-items-center.mb-4 {
+        flex-direction: column !important;
+        align-items: flex-start !important;
+        gap: 12px !important;
+    }
+
+    #formNienKhoa {
+        width: 100% !important;
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+    }
+
+    .input-group-nien-khoa {
+        flex: 1; /* Ô select tự co giãn chiếm phần lớn không gian */
+        min-width: 0;
+    }
+
+    #btnOpenModal {
+        flex-shrink: 0; /* Nút áp dụng giữ nguyên kích thước vừa đủ chữ */
+        padding: 0.55rem 1rem;
+    }
+
+    #formNienKhoa .input-group-nien-khoa {
+        width: 100%;
+    }
+
+    #formNienKhoa #btnOpenModal {
+        width: 100%;
+        margin: 0;
+    }
+}
+
+/* --- ÉP MODAL RA CHÍNH GIỮA MÀN HÌNH TUYỆT ĐỐI --- */
+
+/* 1. Lớp nền mờ phủ toàn màn hình */
+.modal-backdrop {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    background-color: rgba(0, 0, 0, 0.5) !important;
+    z-index: 1050 !important;
+}
+
+/* 2. Khung chứa modal phủ kín màn hình để định tâm */
+.modal.fade {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    z-index: 1055 !important;
+    display: none; /* Mặc định ẩn */
+    overflow-x: hidden;
+    overflow-y: auto;
+}
+
+/* Khi modal mở, Bootstrap thêm class .show, ta dùng nó để bật flex canh giữa */
+.modal.fade.show {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+}
+
+/* 3. Khung hộp thoại chính (Modal Dialog) */
+.modal-dialog {
+    position: relative !important;
+    width: 100% !important;
+    max-width: 500px !important; /* Độ rộng của bảng thông báo */
+    margin: auto !important;
+    transform: none !important; /* Xóa bỏ hiệu ứng dịch chuyển mặc định của Bootstrap */
+}
+
+/* 4. Giao diện bên trong modal */
+.modal-content {
+    background-color: var(--bg-60-surface, #ffffff);
+    border: 1px solid var(--border-color, #e2e8f0);
+    border-radius: 12px !important;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15) !important;
+    overflow: hidden;
+}
+
+.modal-header, .modal-footer {
+    padding: 1rem 1.25rem !important;
+}
+
+.modal-body {
+    padding: 1.5rem 1.25rem !important;
+    font-size: 1rem;
+    color: var(--text-main, #334155);
+}
+
+/* ==========================================================
+   CSS TÙY CHỈNH RIÊNG CHO MODAL XÁC NHẬN (ĐỒNG BỘ GIAO DIỆN)
+   ========================================================== */
+
+/* 1. Lớp nền mờ phủ toàn màn hình */
+.modal-backdrop {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    background-color: rgba(0, 0, 0, 0.5) !important;
+    z-index: 1050 !important;
+}
+
+/* 2. Khung chứa modal phủ kín màn hình để định tâm chính xác */
+.modal.fade {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    z-index: 1055 !important;
+    display: none;
+    overflow-x: hidden;
+    overflow-y: auto;
+}
+
+.modal.fade.show {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+}
+
+/* 3. Khung hộp thoại chính */
+.modal-dialog {
+    position: relative !important;
+    width: 100% !important;
+    max-width: 480px !important;
+    margin: auto !important;
+    transform: none !important;
+}
+
+/* 4. Thẻ chứa nội dung Modal (Bo góc, bóng đổ) */
+.modal-content {
+    background-color: var(--bg-60-surface, #ffffff) !important;
+    border: 1px solid var(--border-color, #e2e8f0) !important;
+    border-radius: 14px !important;
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15) !important;
+    overflow: hidden;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif !important;
+}
+
+/* 5. Header của Modal */
+.modal-header {
+    background-color: #f8fafc !important;
+    border-bottom: 1px solid var(--border-color, #e2e8f0) !important;
+    padding: 1.15rem 1.25rem !important;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.modal-title {
+    font-size: 1.05rem !important;
+    font-weight: 700 !important;
+    color: var(--text-main, #334155) !important;
+    margin: 0 !important;
+    display: flex;
+    align-items: center;
+}
+
+/* Nút tắt (X) ở góc trên */
+.modal-header .btn-close {
+    background: transparent url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%23334155'%3e%3cpath d='M.293.293a1 1 0 0 1 1.414 0L8 6.586 14.293.293a1 1 0 1 1 1.414 1.414L9.414 8l6.293 6.293a1 1 0 0 1-1.414 1.414L8 9.414l-6.293 6.293a1 1 0 0 1-1.414-1.414L6.586 8 .293 1.707a1 1 0 0 1 0-1.414z'/%3e%3c/svg%3e") center/1em auto no-repeat !important;
+    border: none !important;
+    opacity: 0.7;
+    width: 1.5em;
+    height: 1.5em;
+    cursor: pointer;
+}
+.modal-header .btn-close:hover {
+    opacity: 1;
+}
+
+/* 6. Phần thân Modal (Nội dung chữ) */
+.modal-body {
+    padding: 1.75rem 1.25rem !important;
+    font-size: 0.98rem !important;
+    color: var(--text-main, #334155) !important;
+    text-align: center !important;
+    line-height: 1.5;
+}
+
+.modal-body strong#selectedNienKhoaText {
+    color: var(--primary-30, #ef4444) !important;
+    font-size: 1.15rem !important;
+    font-weight: 700 !important;
+    display: inline-block;
+    margin-top: 6px;
+}
+
+/* 7. Footer của Modal (Chứa nút Hủy & Xác nhận) */
+.modal-footer {
+    background-color: #f8fafc !important;
+    border-top: 1px solid var(--border-color, #e2e8f0) !important;
+    padding: 1rem 1.25rem !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 10px !important;
+}
+
+/* Nút bấm trong Modal Footer */
+.modal-footer .btn {
+    padding: 0.5rem 1.25rem !important;
+    font-size: 0.9rem !important;
+    font-weight: 600 !important;
+    border-radius: 8px !important;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    transition: all 0.2s ease;
+}
+
+/* Nút Hủy (Secondary) */
+.modal-footer .btn-secondary {
+    background-color: #e2e8f0 !important;
+    border: 1px solid #cbd5e1 !important;
+    color: #475569 !important;
+}
+.modal-footer .btn-secondary:hover {
+    background-color: #cbd5e1 !important;
+}
+
+/* Nút Xác nhận (Primary - dùng tông màu chủ đạo của bạn) */
+.modal-footer .btn-primary {
+    background-color: var(--primary-30, #ef4444) !important;
+    border: 1px solid var(--primary-30, #ef4444) !important;
+    color: #ffffff !important;
+}
+.modal-footer .btn-primary:hover {
+    background-color: var(--primary-30-hover, #d01818) !important;
+    border-color: var(--primary-30-hover, #d01818) !important;
 }
 
 /* --- TỐI ƯU RIÊNG CHO ĐIỆN THOẠI (< 576px) --- */

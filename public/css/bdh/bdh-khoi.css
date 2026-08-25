@@ -315,6 +315,22 @@ body {
     .table td.text-center {
         white-space: nowrap;
     }
+
+    .action-buttons {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 6px;
+        white-space: normal;
+    }
+
+    .action-buttons form {
+        margin-left: 0;
+    }
+
+    .action-buttons .btn {
+        margin: 0;
+    }
 }
 
 /* Gom các nút thao tác nằm ngang sát nhau, có khoảng cách nhỏ */

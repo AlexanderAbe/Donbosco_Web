@@ -1,15 +1,16 @@
 <link rel="stylesheet" href="/css/reset.css">
 <link rel="stylesheet" href="/css/bdh/bdh-dashboard.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
 <!-- Header & Bộ lọc niên khóa -->
     <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
         <h2><i class="fa-solid fa-chart-line me-2"></i> Tổng quan Ban Điều Hành</h2>
         
-        <form method="GET" action="/bdh/dashboard" class="form-inline m-0">
+        <form id="formNienKhoa" method="GET" action="/bdh/dashboard" class="form-inline m-0 d-flex align-items-center gap-2">
             <div class="input-group-nien-khoa">
                 <span class="input-group-text"><i class="fa-solid fa-calendar-days"></i></span>
-                <select name="nien_khoa" class="form-control" onchange="this.form.submit()">
+                <select name="nien_khoa" id="selectNienKhoa" class="form-control">
                     <% nienKhoaList.forEach(nk => { %>
                         <option value="<%= nk.id_cau_hinh_nam_hoc %>" <%= nk.id_cau_hinh_nam_hoc == stats.currentId ? 'selected' : '' %>>
                             Niên khóa: <%= nk.nien_khoa %>
@@ -17,8 +18,18 @@
                     <% }) %>
                 </select>
             </div>
+            <!-- Nút bấm mở Modal xác nhận -->
+            <button type="button" id="btnOpenModal" class="btn btn-primary btn-sm">
+                <i class="fa-solid fa-check me-1"></i> Áp dụng
+            </button>
         </form>
     </div>
+    <% if (stats.currentId != stats.activeYearId) { %>
+        <div class="alert alert-warning py-2 mb-3 d-flex align-items-center" role="alert">
+            <i class="fa-solid fa-triangle-exclamation me-2 fs-5"></i>
+            <span>Khi đổi niên khóa sẽ thay đổi toàn bộ dữ liệu hiển thị của toàn đoàn </span>
+        </div>
+    <% } %>
     <!-- 1. Thẻ KPI Tổng quát -->
     <%- include('../partials/stat-grid-bdh') %>
 
@@ -95,3 +106,55 @@
             </div>
         </div>
     </div>
+<div class="modal fade" id="confirmNienKhoaModal" tabindex="-1" aria-labelledby="confirmModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-light">
+                <h5 class="modal-title" id="confirmModalLabel">
+                    <i class="fa-solid fa-circle-question text-primary me-2"></i> Xác nhận thay đổi niên khóa
+                </h5>
+            </div>
+            <div class="modal-body text-center">
+                Bạn có muốn đặt niên khóa hoạt động hiện tại là:<br>
+                <strong id="selectedNienKhoaText" class="text-primary fs-5 mt-2 d-inline-block"></strong> không?
+            </div>
+            <div class="modal-footer bg-light justify-content-center">
+                <button type="button" class="btn btn-secondary px-4" data-bs-dismiss="modal">
+                    <i class="fa-solid fa-xmark me-1"></i> Hủy
+                </button>
+                <button type="button" id="btnConfirmSubmit" class="btn btn-primary px-4">
+                    <i class="fa-solid fa-check me-1"></i> Xác nhận
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+    const btnOpenModal = document.getElementById('btnOpenModal');
+    const selectEl = document.getElementById('selectNienKhoa');
+    const textTarget = document.getElementById('selectedNienKhoaText');
+    const btnConfirmSubmit = document.getElementById('btnConfirmSubmit');
+    const formNienKhoa = document.getElementById('formNienKhoa');
+
+    // Khởi tạo Bootstrap Modal (yêu cầu trang có nhúng Bootstrap JS)
+    const myModal = new bootstrap.Modal(document.getElementById('confirmNienKhoaModal'));
+
+    // Khi người dùng bấm nút "Áp dụng"
+    btnOpenModal.addEventListener('click', function () {
+        const selectedOption = selectEl.options[selectEl.selectedIndex];
+        
+        // Đưa tên niên khóa vào trong text của Modal
+        textTarget.textContent = selectedOption.text.trim();
+
+        // Hiển thị Modal lên
+        myModal.show();
+    });
+
+    // Khi người dùng bấm nút "Xác nhận" bên trong Modal
+    btnConfirmSubmit.addEventListener('click', function () {
+        formNienKhoa.submit(); // Tiến hành gửi form đi
+    });
+});
+</script>

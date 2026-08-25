@@ -5,7 +5,7 @@ const Khoi = {
     // 1. Lấy danh sách khối theo trạng thái is_active (true hoặc false)
     async getByStatus(isActive) {
         const query = `
-            SELECT id_khoi, stt, ten_khoi, is_active 
+            SELECT id_khoi, stt, ten_khoi, is_active, is_bi_tich
             FROM KHOI 
             WHERE is_active = $1 
             ORDER BY stt ASC
@@ -46,6 +46,16 @@ const Khoi = {
             RETURNING *
         `;
         const { rows } = await pool.query(query, [isActive, id]);
+        return rows[0];
+    },
+
+    async toggleSacrament(id, isSacrament) {
+        const { rows } = await pool.query(`
+            UPDATE KHOI
+            SET is_bi_tich = $1
+            WHERE id_khoi = $2
+            RETURNING *
+        `, [isSacrament, id]);
         return rows[0];
     },
 

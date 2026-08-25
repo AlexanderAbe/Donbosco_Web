@@ -76,6 +76,20 @@ const KhoiController = {
             await logAction(req, `Thay đổi trạng thái khối thất bại (ID: ${id})`, 'Thất bại');
             res.status(500).send("Lỗi khi thay đổi trạng thái khối.");
         }
+    },
+
+    async postToggleSacrament(req, res) {
+        const { id, is_bi_tich } = req.body;
+        const isSacrament = String(is_bi_tich) === 'true';
+        try {
+            await Khoi.toggleSacrament(id, isSacrament);
+            await logAction(req, `Thay đổi trạng thái khối bí tích thành công (ID: ${id}, giá trị: ${isSacrament})`, 'Thành công');
+            res.redirect('/bdh/khoi');
+        } catch (error) {
+            console.error(error);
+            await logAction(req, `Thay đổi trạng thái khối bí tích thất bại (ID: ${id})`, 'Thất bại');
+            res.status(500).send('Lỗi khi thay đổi trạng thái khối bí tích.');
+        }
     }
 };
 

@@ -338,3 +338,20 @@ btn, .btn-secondary {
     gap: 3px;
   }
 }
+
+@media screen and (max-width: 600px) {
+  .tn-page .table-wrap { overflow: visible; }
+  .tn-page .table-wrap table { display: block; }
+  .tn-page .table-wrap thead { display: none; }
+  .tn-page .table-wrap tbody, .tn-page .table-wrap tr, .tn-page .table-wrap td { display: block; width: 100%; box-sizing: border-box; }
+  .tn-page .table-wrap tr { margin-bottom: 12px; padding: 12px; border: 1px solid #e2e8f0; border-radius: 8px; background: #fff; }
+  .tn-page .table-wrap td { padding: 4px 0; border: 0; white-space: normal; }
+  .tn-page .table-wrap td:first-child::before { content: 'Họ tên: '; color: #64748b; font-size: .76rem; }
+  .tn-page .table-wrap td:nth-child(2)::before { content: 'Ngày sinh: '; color: #64748b; font-size: .76rem; }
+  .tn-page .table-wrap td:nth-child(3)::before { content: 'Giới tính: '; color: #64748b; font-size: .76rem; }
+  .tn-page .table-wrap td:nth-child(4)::before { content: 'Mã số: '; color: #64748b; font-size: .76rem; }
+  .tn-page .table-wrap td:nth-child(5)::before { content: 'Lớp: '; color: #64748b; font-size: .76rem; }
+  .tn-page .table-wrap td:nth-child(6)::before { content: 'Khối: '; color: #64748b; font-size: .76rem; }
+  .tn-page .table-wrap td:nth-child(7)::before { content: 'Trạng thái: '; color: #64748b; font-size: .76rem; }
+  .tn-page .table-wrap td:nth-child(8) { padding-top: 8px; }
+}

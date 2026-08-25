@@ -36,3 +36,20 @@
 .empty-state i { color: var(--score-red); font-size: 1.8rem; }
 .empty-state strong { color: var(--score-ink); }
 @media (max-width: 700px) { .bang-diem-header { display: block; } .year-filter { margin-top: 18px; } .summary-meta { display: block; } .summary-meta span, .export-score-button { display: inline-block; margin: 0 10px 8px 0; } .lop-section { margin-left: 0; } }
+@media (max-width: 600px) {
+	.table-scroll { overflow: visible; }
+	.score-table { min-width: 0; display: block; }
+	.score-table thead { display: none; }
+	.score-table tbody, .score-table tr, .score-table td { display: block; width: 100%; box-sizing: border-box; }
+	.score-table tr { margin-bottom: 10px; padding: 10px 12px; border: 1px solid var(--score-line); border-radius: 7px; background: #fff; }
+	.score-table td { padding: 3px 0; border: 0; white-space: normal; text-align: left; }
+	.score-table td:first-child { display: none; }
+	.score-table td:nth-child(2)::before { content: 'MSTN: '; color: var(--score-muted); font-size: .76rem; }
+	.score-table td:nth-child(3)::before { content: 'Họ tên: '; color: var(--score-muted); font-size: .76rem; }
+	.score-table td:nth-child(4)::before { content: 'Học tập: '; color: var(--score-muted); font-size: .76rem; }
+	.score-table td:nth-child(5)::before { content: 'Chuyên cần: '; color: var(--score-muted); font-size: .76rem; }
+	.score-table td:nth-child(6)::before { content: 'Kỷ luật: '; color: var(--score-muted); font-size: .76rem; }
+	.score-table td:nth-child(7)::before { content: 'Điểm tổng: '; color: var(--score-muted); font-size: .76rem; }
+	.score-table td:nth-child(8)::before { content: 'Xếp loại: '; color: var(--score-muted); font-size: .76rem; }
+	.score-table td:nth-child(9)::before { content: 'Tình trạng: '; color: var(--score-muted); font-size: .76rem; }
+}

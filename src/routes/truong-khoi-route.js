@@ -16,6 +16,8 @@ router.use(isAuthenticated, checkRole('truong-khoi'));
 // Định nghĩa các đường dẫn gọi qua Controller tương ứng
 router.get('/', dashboardController.getDashboard);
 router.get('/dashboard', dashboardController.getDashboard);
+router.post('/dashboard/sacraments/bulk', dashboardController.createSacramentBulk);
+router.get('/dashboard/sacraments/students', dashboardController.getSacramentStudents);
 router.get('/lop', lopController.getLop);
 router.post('/lop/create', lopController.createStudent);
 router.get('/lop/:id/detail', lopController.getStudentDetail);

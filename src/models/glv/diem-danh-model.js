@@ -42,15 +42,20 @@ const DiemDanhModel = {
                 WHERE id_lop = $1 AND id_cau_hinh_nam_hoc = $2 AND trang_thai = 'Đang học'
             `, [classId, yearId]);
             const allowedIds = new Set(students.rows.map(row => String(row.id_tn)));
-            for (const item of attendance) {
-                if (!allowedIds.has(String(item.id_tn))) continue;
-                const status = statuses.includes(item.trang_thai) ? item.trang_thai : 'Có mặt';
+            const validAttendance = attendance
+                .filter(item => allowedIds.has(String(item.id_tn)))
+                .map(item => ({
+                    id_tn: Number(item.id_tn),
+                    trang_thai: statuses.includes(item.trang_thai) ? item.trang_thai : 'Có mặt'
+                }));
+            if (validAttendance.length) {
                 await client.query(`
-                    INSERT INTO DIEM_DANH (ngay_diem_danh, loai_buoi, trang_thai, id_tn, id_lop)
-                    VALUES ($1, $2::enum_loai_buoi, $3::enum_diem_danh, $4, $5)
+                    INSERT INTO DIEM_DANH (ngay_diem_danh, loai_buoi, trang_thai, id_lop, id_tn)
+                    SELECT $1, $2::enum_loai_buoi, item.trang_thai::enum_diem_danh, $3, item.id_tn
+                    FROM jsonb_to_recordset($4::jsonb) AS item(id_tn integer, trang_thai text)
                     ON CONFLICT (ngay_diem_danh, loai_buoi, id_tn)
                     DO UPDATE SET trang_thai = EXCLUDED.trang_thai, id_lop = EXCLUDED.id_lop
-                `, [attendanceDate, sessionType, status, item.id_tn, classId]);
+                `, [attendanceDate, sessionType, classId, JSON.stringify(validAttendance)]);
             }
             await client.query('COMMIT');
         } catch (error) {

@@ -77,7 +77,14 @@ const GlvController = {
             const yearId = getYearId(req.query.nien_khoa, years);
             const search = String(req.query.search || '').trim();
             const status = statuses.includes(req.query.trang_thai) ? req.query.trang_thai : statuses[0];
-            const glvList = await GlvModel.getAll(search, status, yearId);
+            const limit = Math.min(Math.max(Number.parseInt(req.query.limit, 10) || 20, 10), 100);
+            const requestedPage = Math.max(Number.parseInt(req.query.page, 10) || 1, 1);
+            const result = await GlvModel.getAll(search, status, yearId, requestedPage, limit);
+            const totalPages = Math.max(Math.ceil(result.total / limit), 1);
+            const page = Math.min(requestedPage, totalPages);
+            const queryString = new URLSearchParams({
+                nien_khoa: yearId || '', search, trang_thai: status, limit
+            }).toString();
 
             res.render('bdh/glv', {
                 ...getBdhBaseData(req, 'Quản Lý Giáo Lý Viên'),
@@ -86,7 +93,12 @@ const GlvController = {
                 search,
                 selectedStatus: status,
                 statuses,
-                glvList,
+                glvList: result.rows,
+                page,
+                limit,
+                total: result.total,
+                totalPages,
+                queryString,
                 message: req.query.message || null,
                 error: req.query.error || null
             });

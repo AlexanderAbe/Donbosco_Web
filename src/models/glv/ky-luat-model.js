@@ -39,6 +39,7 @@ const KyLuatModel = {
             `, [classId, yearId]);
             const allowedIds = new Set(studentResult.rows.map(row => String(row.id_tn)));
 
+            const validScores = [];
             for (const item of scores) {
                 if (!allowedIds.has(String(item.id_tn))) continue;
                 const rawScore = String(item.diem ?? '').trim();
@@ -46,12 +47,16 @@ const KyLuatModel = {
                 if (!Number.isFinite(score) || score < 0 || score > 10) {
                     throw new Error('Điểm kỷ luật phải nằm trong khoảng từ 0 đến 10.');
                 }
+                validScores.push({ id_tn: Number(item.id_tn), diem: score });
+            }
+            if (validScores.length) {
                 await client.query(`
                     INSERT INTO DIEM_KY_LUAT (thang, diem, id_tn, id_cau_hinh_nam_hoc)
-                    VALUES ($1, $2, $3, $4)
+                    SELECT $1, item.diem, item.id_tn, $2
+                    FROM jsonb_to_recordset($3::jsonb) AS item(id_tn integer, diem numeric)
                     ON CONFLICT (id_tn, id_cau_hinh_nam_hoc, thang)
                     DO UPDATE SET diem = EXCLUDED.diem
-                `, [month, score, item.id_tn, yearId]);
+                `, [month, yearId, JSON.stringify(validScores)]);
             }
             await client.query('COMMIT');
         } catch (error) {

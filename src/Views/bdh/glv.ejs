@@ -42,7 +42,7 @@
 	<section class="section-card">
 		<div class="section-header">
 			<h2>Danh sách GLV</h2>
-			<span><%= glvList.length %> người</span>
+			<span><%= total %> người</span>
 		</div>
 		<% if (!glvList.length) { %>
 			<div class="empty-state">Không tìm thấy giáo lý viên phù hợp.</div>
@@ -107,6 +107,11 @@
 						<% }) %>
 					</tbody>
 				</table>
+			</div>
+			<div class="pagination">
+				<% if (page > 1) { %><a href="?page=<%= page - 1 %>&<%= queryString %>">Trước</a><% } %>
+				<span>Trang <%= page %> / <%= totalPages %></span>
+				<% if (page < totalPages) { %><a href="?page=<%= page + 1 %>&<%= queryString %>">Sau</a><% } %>
 			</div>
 		<% } %>
 	</section>
