@@ -36,6 +36,7 @@ router.get('/khoi', KhoiController.getTrangQuanLy);
 router.post('/khoi/create', KhoiController.postCreate);
 router.post('/khoi/update', KhoiController.postUpdate);
 router.post('/khoi/toggle', KhoiController.postToggle);
+router.post('/khoi/toggle-sacrament', KhoiController.postToggleSacrament);
 
 // Quản lý lớp học theo niên khóa
 router.get('/lop', LopController.getTrangQuanLy);

@@ -69,7 +69,8 @@
 .repeat-row { display: grid; grid-template-columns: 1fr 1.3fr 1fr 1fr auto; gap: 8px; align-items: end; margin-bottom: 8px; }
 .repeat-row label { display: grid; gap: 4px; font-size: .78rem; color: var(--class-muted); }
 .repeat-row button { border: 0; background: #fee2e2; color: #991b1b; border-radius: 6px; padding: 9px; cursor: pointer; }
-.add-row { border: 1px dashed var(--class-primary); background: #f8fbff; color: var(--class-primary-dark); padding: 8px 11px; border-radius: 6px; cursor: pointer; }
+.add-row { display: inline-flex; align-items: center; gap: 6px; border: 1px dashed var(--class-primary); background: #f8fbff; color: var(--class-primary-dark); padding: 6px 9px; border-radius: 6px; cursor: pointer; font-size: .82rem; font-weight: 700; }
+.add-row:hover { background: #e7efff; }
 .detail-error { color: #b91c1c; }
 
 @media (max-width: 700px) {
@@ -81,4 +82,24 @@
     .repeat-row { grid-template-columns: 1fr 1fr; }
     .repeat-row button { grid-column: 2; }
     .student-actions { flex-direction: column; }
+}
+
+@media (max-width: 600px) {
+    #score-page .table-wrap { overflow: visible; }
+    #score-page .score-table { display: block; }
+    #score-page .score-table thead { display: none; }
+    #score-page .score-table tbody, #score-page .score-table tr, #score-page .score-table td { display: block; width: 100%; box-sizing: border-box; }
+    #score-page .score-table tr { margin-bottom: 10px; padding: 10px 12px; border: 1px solid var(--class-line); border-radius: 7px; background: #fff; }
+    #score-page .score-table td { padding: 3px 0; border: 0; white-space: normal; }
+    #score-page .score-table td:first-child { display: none; }
+    #score-page .score-table td:nth-child(2)::before { content: 'Mã số: '; color: var(--class-muted); font-size: .76rem; }
+    #score-page .score-table td:nth-child(3)::before { content: 'Họ tên: '; color: var(--class-muted); font-size: .76rem; }
+    #score-page .score-table td:nth-child(4)::before { content: 'Học tập: '; color: var(--class-muted); font-size: .76rem; }
+    #score-page .score-table td:nth-child(5)::before { content: 'Chuyên cần: '; color: var(--class-muted); font-size: .76rem; }
+    #score-page .score-table td:nth-child(6)::before { content: 'Kỷ luật: '; color: var(--class-muted); font-size: .76rem; }
+    #score-page .score-table td:nth-child(7)::before { content: 'Tổng: '; color: var(--class-muted); font-size: .76rem; }
+    #score-page .score-table td:nth-child(8)::before { content: 'Tình trạng: '; color: var(--class-muted); font-size: .76rem; }
+    #score-page .score-table td:last-child { padding-top: 8px; }
+    #score-page .result-select { width: 100%; min-height: 40px; }
+    #score-page .status-save-button { width: 100%; margin: 6px 0 0; min-height: 40px; }
 }

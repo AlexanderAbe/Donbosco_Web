@@ -1,6 +1,5 @@
 const pool = require('../../../config/database');
 const bcrypt = require('bcrypt');
-const AuthModel = require('../auth-model');
 
 const UserModel = {
     // Lấy toàn bộ danh sách tài khoản kèm thông tin GLV từ View
@@ -26,7 +25,12 @@ const UserModel = {
                 g.trang_thai,
                 tk.id_tk,
                 tk.username,
-                tk.is_admin
+                tk.is_admin,
+                EXISTS (
+                    SELECT 1
+                    FROM PHAN_CONG_BDH bdh
+                    WHERE bdh.id_glv = g.id_glv
+                ) AS is_bdh
             FROM GLV g
             LEFT JOIN TAI_KHOAN tk ON tk.id_glv = g.id_glv
             ORDER BY g.ten ASC, g.ho_va_ten_lot ASC, g.ten_thanh ASC
@@ -123,19 +127,11 @@ const UserModel = {
         try {
             let allUsers = await this.getAllGlvForRoles();
 
-            const usersWithRoles = await Promise.all(allUsers.map(async (user) => {
-                let isBdh = false;
-
-                if (user.id_glv) {
-                    isBdh = await AuthModel.checkBdh(user.id_glv);
-                }
-
-                return {
-                    ...user,
-                    is_admin: user.is_admin || false,
-                    is_bdh: isBdh,
-                    is_truong_khoi: false
-                };
+            const usersWithRoles = allUsers.map(user => ({
+                ...user,
+                is_admin: user.is_admin || false,
+                is_bdh: user.is_bdh || false,
+                is_truong_khoi: false
             }));
 
             // Phân loại nhóm
@@ -155,19 +151,11 @@ const UserModel = {
         try {
             let allUsers = await this.getAllGlvForRoles();
 
-            const usersWithRoles = await Promise.all(allUsers.map(async (user) => {
-                let isBdh = false;
-
-                if (user.id_glv) {
-                    isBdh = await AuthModel.checkBdh(user.id_glv);
-                }
-
-                return {
-                    ...user,
-                    is_admin: user.is_admin || false,
-                    is_bdh: isBdh,
-                    is_truong_khoi: false
-                };
+            const usersWithRoles = allUsers.map(user => ({
+                ...user,
+                is_admin: user.is_admin || false,
+                is_bdh: user.is_bdh || false,
+                is_truong_khoi: false
             }));
 
             // Sắp xếp theo trọng số vai trò (Ai có quyền cao hơn sẽ được đẩy lên trên)

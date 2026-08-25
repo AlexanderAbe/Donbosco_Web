@@ -9,7 +9,7 @@ const sessionMiddleware = require('./config/session');
 const flashMiddleware = require('./src/middlewares/flash-middleware');
 
 const app = express();
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
 
 // Cấu hình cơ bản
 app.use(express.urlencoded({ extended: true }));
@@ -40,5 +40,5 @@ app.get('/', (req, res) => {
 
 // Khởi động Server
 app.listen(PORT, () => {
-    console.log(`Server running at http://localhost:${PORT}`);
+    console.log(`Server running at http://localhost:${PORT} (PID: ${process.pid})`);
 });

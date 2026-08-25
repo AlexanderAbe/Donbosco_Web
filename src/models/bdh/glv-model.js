@@ -14,12 +14,23 @@ const GlvModel = {
         const client = await pool.connect();
         try {
             await client.query('BEGIN');
-            for (const data of list) {
-                await client.query(`
+            await client.query(`
                     INSERT INTO GLV (ten_thanh, ho_va_ten_lot, ten, ngay_sinh, gioi_tinh, sdt, trang_thai)
-                    VALUES ($1, $2, $3, $4, $5, $6, $7)
-                `, [data.tenThanh, data.hoLot, data.ten, data.ngaySinh || null, data.gioiTinh || null, data.sdt, data.trangThai]);
-            }
+                    SELECT item.ten_thanh, item.ho_lot, item.ten, item.ngay_sinh::date,
+                           item.gioi_tinh, item.sdt, item.trang_thai
+                    FROM jsonb_to_recordset($1::jsonb) AS item(
+                        ten_thanh text, ho_lot text, ten text, ngay_sinh text,
+                        gioi_tinh text, sdt text, trang_thai text
+                    )
+                `, [JSON.stringify(list.map(data => ({
+                    ten_thanh: data.tenThanh,
+                    ho_lot: data.hoLot,
+                    ten: data.ten,
+                    ngay_sinh: data.ngaySinh || null,
+                    gioi_tinh: data.gioiTinh || null,
+                    sdt: data.sdt,
+                    trang_thai: data.trangThai
+                })))]);
             await client.query('COMMIT');
             return list.length;
         } catch (error) {
@@ -39,7 +50,7 @@ const GlvModel = {
         return rows;
     },
 
-    async getAll(search, status, yearId) {
+    async getAll(search, status, yearId, page = 1, limit = 20) {
         const values = [yearId];
         const conditions = [];
 
@@ -71,6 +82,7 @@ const GlvModel = {
                 g.gioi_tinh,
                 g.sdt,
                 g.trang_thai,
+                COUNT(*) OVER()::int AS filtered_total,
                 STRING_AGG(DISTINCT k.ten_khoi, ', ' ORDER BY k.ten_khoi) AS khoi_phu_trach
             FROM GLV g
             LEFT JOIN (
@@ -87,9 +99,10 @@ const GlvModel = {
             GROUP BY g.id_glv, g.ten_thanh, g.ho_va_ten_lot, g.ten,
                      g.ngay_sinh, g.gioi_tinh, g.sdt, g.trang_thai
             ORDER BY g.ten ASC, g.ho_va_ten_lot ASC, g.ten_thanh ASC
+            LIMIT $${values.length + 1} OFFSET $${values.length + 2}
         `;
-        const { rows } = await pool.query(query, values);
-        return rows;
+        const { rows } = await pool.query(query, [...values, limit, (page - 1) * limit]);
+        return { rows, total: rows[0]?.filtered_total || 0 };
     },
 
     async updateProfile(idGlv, data) {

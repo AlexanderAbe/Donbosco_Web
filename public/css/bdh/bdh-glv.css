@@ -457,3 +457,18 @@
         text-align: left;
     }
 }
+
+@media screen and (max-width: 600px) {
+    .glv-page .table-wrap { overflow: visible; }
+    .glv-page .table-wrap table { display: block; }
+    .glv-page .table-wrap thead { display: none; }
+    .glv-page .table-wrap tbody, .glv-page .table-wrap tr, .glv-page .table-wrap td { display: block; width: 100%; box-sizing: border-box; }
+    .glv-page .table-wrap tr { margin-bottom: 12px; padding: 12px; border: 1px solid #e2e8f0; border-radius: 8px; background: #fff; }
+    .glv-page .table-wrap td { padding: 4px 0; border: 0; white-space: normal; }
+    .glv-page .table-wrap td::before { display: inline; color: #64748b; font-size: .76rem; }
+    .glv-page .table-wrap td:nth-child(2)::before { content: 'Số điện thoại: '; }
+    .glv-page .table-wrap td:nth-child(3)::before { content: 'Khối phụ trách: '; }
+    .glv-page .table-wrap td:nth-child(4)::before { content: 'Tình trạng: '; }
+    .glv-page .table-wrap td:nth-child(5) { padding-top: 8px; }
+    .glv-page .table-wrap td:nth-child(5)::before { content: 'Thao tác: '; display: block; margin-bottom: 5px; }
+}

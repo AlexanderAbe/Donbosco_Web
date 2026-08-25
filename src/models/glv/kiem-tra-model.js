@@ -50,6 +50,7 @@ const KiemTraModel = {
             `, [classId, yearId]);
             const allowedIds = new Set(studentIds.rows.map(row => String(row.id_tn)));
 
+            const validScores = [];
             for (const item of scores) {
                 if (!allowedIds.has(String(item.id_tn))) continue;
                 const rawScore = String(item.diem_so ?? '').trim();
@@ -57,12 +58,16 @@ const KiemTraModel = {
                 if (!Number.isFinite(score) || score < 0 || score > 10) {
                     throw new Error('Điểm phải nằm trong khoảng từ 0 đến 10.');
                 }
+                validScores.push({ id_tn: Number(item.id_tn), diem_so: score });
+            }
+            if (validScores.length) {
                 await client.query(`
                     INSERT INTO DIEM_HOC_TAP (stt_bai_ktra, diem_so, id_tn, id_cau_hinh_nam_hoc)
-                    VALUES ($1, $2, $3, $4)
+                    SELECT $1, item.diem_so, item.id_tn, $2
+                    FROM jsonb_to_recordset($3::jsonb) AS item(id_tn integer, diem_so numeric)
                     ON CONFLICT (id_tn, id_cau_hinh_nam_hoc, stt_bai_ktra)
                     DO UPDATE SET diem_so = EXCLUDED.diem_so
-                `, [examNumber, score, item.id_tn, yearId]);
+                `, [examNumber, yearId, JSON.stringify(validScores)]);
             }
             await client.query('COMMIT');
         } catch (error) {

@@ -18,6 +18,26 @@
         <div><strong>Phạm vi thống kê</strong><p>Số liệu được tính từ các lớp thuộc khối và niên khóa đang chọn.</p></div>
     </section>
 
+    <% if (sacramentBlocks && sacramentBlocks.some(block => block.is_bi_tich)) { %>
+        <section class="dashboard-note sacrament-action">
+            <div><strong><i class="fa-solid fa-cross"></i> Cập nhật bí tích theo khối</strong><p>Tạo cùng một bí tích cho các em trong khối đã được đánh dấu.</p></div>
+            <button type="button" class="primary-button" id="open-bulk-sacrament"><i class="fa-solid fa-plus"></i> Thêm bí tích hàng loạt</button>
+        </section>
+        <dialog id="bulk-sacrament-modal" class="tk-dashboard-modal" data-year-id="<%= selectedYearId || '' %>">
+            <form id="bulk-sacrament-form" method="dialog">
+                <div class="modal-heading"><h2>Thêm bí tích cho cả khối</h2><button type="button" class="close-button" id="close-bulk-sacrament">&times;</button></div>
+                <div class="modal-content">
+                    <label>Khối<select id="bulk-sacrament-block" required><% sacramentBlocks.filter(block => block.is_bi_tich).forEach(block => { %><option value="<%= block.id_khoi %>"><%= block.ten_khoi %> (<%= block.student_count %> em)</option><% }) %></select></label>
+                    <label>Loại bí tích<select id="bulk-sacrament-type" required><option>Xưng tội & Rước lễ</option><option>Thêm sức</option></select></label>
+                    <label>Ngày lãnh nhận<input id="bulk-sacrament-date" type="date" required></label>
+                    <div class="student-list-field"><span>Thiếu nhi được lãnh nhận</span><div id="bulk-sacrament-students" class="student-checkbox-list">Đang tải danh sách...</div></div>
+                    <p id="bulk-sacrament-error" class="modal-error"></p>
+                </div>
+                <div class="modal-actions"><button type="button" class="secondary-button" id="cancel-bulk-sacrament">Hủy</button><button type="submit" class="primary-button"><i class="fa-solid fa-floppy-disk"></i> Lưu cho cả khối</button></div>
+            </form>
+        </dialog>
+    <% } %>
+
     <div class="dashboard-panels">
         <section class="dashboard-panel">
             <div class="panel-heading"><h2>Số lượng theo lớp</h2><span><%= classStats.length %> lớp</span></div>
@@ -49,3 +69,82 @@
         </section>
     </div>
 </main>
+
+<script>
+(() => {
+    const modal = document.getElementById('bulk-sacrament-modal');
+    const form = document.getElementById('bulk-sacrament-form');
+    if (!modal || !form) return;
+
+    // Lấy yearId an toàn từ thuộc tính data- of modal
+    const yearId = modal.dataset.yearId || '';
+
+    const close = () => modal.close();
+    
+    const openBtn = document.getElementById('open-bulk-sacrament');
+    if (openBtn) {
+        openBtn.addEventListener('click', () => {
+            modal.showModal();
+            loadStudents();
+        });
+    }
+
+    const closeBtn = document.getElementById('close-bulk-sacrament');
+    if (closeBtn) closeBtn.addEventListener('click', close);
+
+    const cancelBtn = document.getElementById('cancel-bulk-sacrament');
+    if (cancelBtn) cancelBtn.addEventListener('click', close);
+
+    const blockSelect = document.getElementById('bulk-sacrament-block');
+    const studentList = document.getElementById('bulk-sacrament-students');
+
+    const loadStudents = async () => {
+        if (!blockSelect || !blockSelect.value || !studentList) return;
+        studentList.textContent = 'Đang tải danh sách...';
+        try {
+            const response = await fetch(`/truong-khoi/dashboard/sacraments/students?yearId=${yearId}&blockId=${blockSelect.value}`);
+            if (!response.ok) throw new Error('Không thể tải dữ liệu');
+            const students = await response.json();
+            
+            studentList.innerHTML = students.length
+                ? students.map(student => `<label><input type="checkbox" value="${student.id_tn}" checked> ${student.ho_ten || ('#' + student.id_tn)}</label>`).join('')
+                : '<span>Khối chưa có thiếu nhi.</span>';
+        } catch (e) {
+            studentList.textContent = 'Không thể tải danh sách thiếu nhi.';
+        }
+    };
+
+    if (blockSelect) {
+        blockSelect.addEventListener('change', loadStudents);
+    }
+
+    form.addEventListener('submit', async event => {
+        event.preventDefault();
+        const error = document.getElementById('bulk-sacrament-error');
+        if (error) error.textContent = '';
+        
+        try {
+            const response = await fetch('/truong-khoi/dashboard/sacraments/bulk', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    yearId: yearId,
+                    blockId: blockSelect ? blockSelect.value : '',
+                    sacramentType: document.getElementById('bulk-sacrament-type')?.value || '',
+                    receivedDate: document.getElementById('bulk-sacrament-date')?.value || '',
+                    studentIds: studentList ? [...studentList.querySelectorAll('input:checked')].map(input => input.value) : []
+                })
+            });
+            const result = await response.json();
+            if (!response.ok) {
+                if (error) error.textContent = result.error || 'Không thể tạo bí tích.';
+                return;
+            }
+            close();
+            window.location.reload();
+        } catch (err) {
+            if (error) error.textContent = 'Đã xảy ra lỗi kết nối đến máy chủ.';
+        }
+    });
+})();
+</script>

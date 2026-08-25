@@ -21,7 +21,8 @@ CREATE TABLE KHOI (
     id_khoi INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     stt INT,
     ten_khoi VARCHAR(255),
-    is_active BOOLEAN DEFAULT TRUE
+    is_active BOOLEAN DEFAULT TRUE,
+    is_bi_tich BOOLEAN DEFAULT FALSE
 );
 
 

@@ -16,7 +16,22 @@ const AuthModel = {
 
     // Kiểm tra quyền Trưởng Khối
     async checkTruongKhoi(id_glv) {
-        const result = await pool.query('SELECT * FROM PHAN_CONG_TRUONG_KHOI WHERE id_glv = $1', [id_glv]);
+        // Chỉ cho phép dùng role Trưởng khối nếu được phân công trong niên khóa hiện tại.
+        // Không kiểm tra toàn bộ lịch sử phân công để tránh quyền cũ vẫn còn hiệu lực.
+        const result = await pool.query(`
+            SELECT 1
+            FROM PHAN_CONG_TRUONG_KHOI pk
+            JOIN CAU_HINH_NAM_HOC nam_hoc
+                ON nam_hoc.id_cau_hinh_nam_hoc = pk.id_cau_hinh_nam_hoc
+            WHERE pk.id_glv = $1
+              AND pk.id_cau_hinh_nam_hoc = (
+                  SELECT id_cau_hinh_nam_hoc
+                  FROM CAU_HINH_NAM_HOC
+                  ORDER BY nien_khoa DESC, id_cau_hinh_nam_hoc DESC
+                  LIMIT 1
+              )
+            LIMIT 1
+        `, [id_glv]);
         return result.rows.length > 0;
     },
 
