@@ -1,0 +1,102 @@
+<!-- Font Awesome CDN -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+<link rel="stylesheet" href="/css/reset.css">
+<link rel="stylesheet" href="/css/glv/glv-kiem-tra.css">
+
+<main class="test-page">
+    <header class="class-header">
+        <span class="class-eyebrow"><i class="fa-solid fa-layer-group"></i> Quản lý lớp học</span>
+        <h1>Điểm kiểm tra thiếu nhi</h1>
+        <p>Chọn lớp và bài kiểm tra để nhập hoặc cập nhật điểm số.</p>
+    </header>
+
+    <% if (message) { %><div class="notice success"><i class="fa-solid fa-circle-check"></i> <%= message %></div><% } %>
+    <% if (error) { %><div class="notice error"><i class="fa-solid fa-circle-exclamation"></i> <%= error %></div><% } %>
+
+    <% if (!classes.length || !examCount) { %>
+        <div class="empty-state"><i class="fa-solid fa-triangle-exclamation"></i> Chưa có lớp được phân công hoặc chưa cấu hình số bài kiểm tra.</div>
+    <% } else { %>
+        <form class="test-toolbar" method="GET" action="/glv/kiem-tra">
+            <div class="test-field">
+                <label for="student-search"><i class="fa-solid fa-magnifying-glass"></i> Tìm kiếm thiếu nhi</label>
+                <input id="student-search" type="search" placeholder="Tên hoặc mã số..." autocomplete="off">
+            </div>
+            <div class="test-field">
+                <label for="test-class"><i class="fa-solid fa-school"></i> Lớp</label>
+                <select id="test-class" name="id_lop" onchange="this.form.submit()">
+                    <% classes.forEach(item => { %>
+                        <option value="<%= item.id_lop %>" <%= item.id_lop === selectedClassId ? 'selected' : '' %>><%= item.ten_khoi %> - <%= item.ten_lop %></option>
+                    <% }) %>
+                </select>
+            </div>
+            <div class="test-field">
+                <label for="test-number"><i class="fa-solid fa-pen-to-square"></i> Bài kiểm tra</label>
+                <select id="test-number" name="bai_kiem_tra" onchange="this.form.submit()">
+                    <% for (let number = 1; number <= examCount; number += 1) { %>
+                        <option value="<%= number %>" <%= number === selectedExam ? 'selected' : '' %>>Bài kiểm tra <%= number %></option>
+                    <% } %>
+                </select>
+            </div>
+        </form>
+
+        <form method="POST" action="/glv/kiem-tra/save" id="score-form">
+            <input type="hidden" name="nien_khoa" value="<%= selectedYearId %>">
+            <input type="hidden" name="id_lop" value="<%= selectedClassId %>">
+            <input type="hidden" name="bai_kiem_tra" value="<%= selectedExam %>">
+            
+            <div class="test-summary">
+                <span><i class="fa-solid fa-circle-info"></i> <strong><%= classes.find(item => item.id_lop === selectedClassId)?.ten_lop %></strong> · Bài kiểm tra <strong><%= selectedExam %></strong></span>
+                <span class="score-save-status <%= students.length && students.every(student => student.da_luu) ? 'is-saved' : 'is-unsaved' %>">
+                    <i class="fa-solid <%= students.length && students.every(student => student.da_luu) ? 'fa-circle-check' : 'fa-clock' %>"></i> 
+                    <%= students.length && students.every(student => student.da_luu) ? 'Đã lưu' : 'Chưa lưu' %>
+                </span>
+                <button class="save-score-button" type="submit"><i class="fa-solid fa-floppy-disk"></i> Lưu điểm</button>
+            </div>
+
+            <% if (!students.length) { %>
+                <div class="empty-state"><i class="fa-solid fa-user-slash"></i> Lớp chưa có thiếu nhi.</div>
+            <% } else { %>
+                <div class="test-table-wrap">
+                    <table class="test-table">
+                        <thead>
+                            <tr>
+                                <th>STT</th>
+                                <th>Mã số</th>
+                                <th>Họ và tên</th>
+                                <th>Trạng thái</th>
+                                <th>Điểm</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <% students.forEach((student, index) => { %>
+                                <tr data-student-row data-search="<%= `${student.mstn || ''} ${student.ten_thanh || ''} ${student.ho_va_ten_lot || ''} ${student.ten || ''}`.toLowerCase() %>">
+                                    <td><%= index + 1 %></td>
+                                    <td><%= student.mstn || '-' %></td>
+                                    <td><strong><%= [student.ten_thanh, student.ho_va_ten_lot, student.ten].filter(Boolean).join(' ') %></strong></td>
+                                    <td class="test-status <%= student.trang_thai === 'Đang học' ? '' : 'inactive' %>"><%= student.trang_thai %></td>
+                                    <td>
+                                        <input class="score-input" type="number" name="scores[<%= index %>][diem_so]" min="0" max="10" step="0.01" value="<%= student.diem_so ?? '' %>" placeholder="0">
+                                        <input type="hidden" name="scores[<%= index %>][id_tn]" value="<%= student.id_tn %>">
+                                    </td>
+                                </tr>
+                            <% }) %>
+                        </tbody>
+                    </table>
+                </div>
+            <% } %>
+        </form>
+    <% } %>
+</main>
+
+<script>
+(() => {
+    const search = document.getElementById('student-search');
+    search?.addEventListener('input', () => {
+        const keyword = search.value.trim().toLowerCase();
+        document.querySelectorAll('[data-student-row]').forEach(row => {
+            row.hidden = keyword && !row.dataset.search.includes(keyword);
+        });
+    });
+})();
+</script>

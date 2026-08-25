@@ -1,0 +1,311 @@
+<link rel="stylesheet" href="/css/reset.css">
+<link rel="stylesheet" href="/css/bdh/bdh-thieu-nhi.css">
+
+<div class="tn-page">
+    <div class="page-toolbar">
+        <div class="page-heading-wrapper" style="display: flex; justify-content: space-between; align-items: center; width: 100%; margin-bottom: 15px;">
+            <div class="page-heading">
+                <h1>Danh sách Thiếu Nhi</h1>
+                <p>Tra cứu theo niên khóa, khối, lớp và thông tin cơ bản.</p>
+            </div>
+            <!-- Nút bấm mở Modal Import Excel -->
+            <button type="button" class="btn btn-primary" id="btnOpenImport">
+                + Import Thiếu Nhi
+            </button>
+        </div>
+        
+        <form method="GET" action="/bdh/thieu-nhi" class="filter-form">
+            <div class="field-group search-field">
+                <label for="tn-search">Tìm kiếm</label>
+                <input id="tn-search" type="search" name="search" value="<%= search %>" placeholder="Tên, thánh danh, mã số, phụ huynh...">
+            </div>
+            <div class="field-group">
+                <label for="tn-year">Niên khóa</label>
+                <select id="tn-year" name="nien_khoa" onchange="this.form.submit()">
+                    <% years.forEach(year => { %>
+                        <option value="<%= year.id_cau_hinh_nam_hoc %>" <%= year.id_cau_hinh_nam_hoc === selectedYearId ? 'selected' : '' %>><%= year.nien_khoa %></option>
+                    <% }) %>
+                </select>
+            </div>
+            <div class="field-group">
+                <label for="tn-khoi">Khối</label>
+                <select id="tn-khoi" name="id_khoi">
+                    <option value="">Tất cả khối</option>
+                    <% khoiList.forEach(khoi => { %>
+                        <option value="<%= khoi.id_khoi %>" <%= khoi.id_khoi === selectedKhoiId ? 'selected' : '' %>><%= khoi.ten_khoi %></option>
+                    <% }) %>
+                </select>
+            </div>
+            <div class="field-group">
+                <label for="tn-lop">Lớp</label>
+                <select id="tn-lop" name="id_lop">
+                    <option value="">Tất cả lớp</option>
+                    <% lopList.forEach(lop => { %>
+                        <option value="<%= lop.id_lop %>" data-khoi="<%= lop.id_khoi %>" <%= lop.id_lop === selectedLopId ? 'selected' : '' %>><%= lop.ten_khoi %> - <%= lop.ten_lop %></option>
+                    <% }) %>
+                </select>
+            </div>
+            <div class="field-group">
+                <label for="tn-gender">Giới tính</label>
+                <select id="tn-gender" name="gioi_tinh">
+                    <option value="">Tất cả</option>
+                    <option value="Nam" <%= selectedGender === 'Nam' ? 'selected' : '' %>>Nam</option>
+                    <option value="Nữ" <%= selectedGender === 'Nữ' ? 'selected' : '' %>>Nữ</option>
+                </select>
+            </div>
+            <button type="submit" class="btn btn-primary">Lọc</button>
+        </form>
+    </div>
+
+    <section class="section-card">
+        <div class="section-header">
+            <h2>Danh sách thiếu nhi</h2>
+            <span><%= total %> em</span>
+        </div>
+        <% if (!students.length) { %>
+            <div class="empty-state">Không tìm thấy dữ liệu phù hợp.</div>
+        <% } else { %>
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Họ và tên</th>
+                            <th>Ngày sinh</th>
+                            <th>Giới tính</th>
+                            <th>Mã số</th>
+                            <th>Lớp</th>
+                            <th>Khối</th>
+                            <th>Trạng thái</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% students.forEach(student => { %>
+                            <tr>
+                                <td><strong><%= student.ho_ten %></strong></td>
+                                <td><%= student.ngay_sinh ? new Date(student.ngay_sinh).toISOString().slice(8, 10) + new Date(student.ngay_sinh).toISOString().slice(5, 7) + new Date(student.ngay_sinh).toISOString().slice(0, 4) : 'Chưa cập nhật' %></td>
+                                <td><%= student.gioi_tinh || 'Chưa cập nhật' %></td>
+                                <td><%= student.mstn || 'Chưa có' %></td>
+                                <td><%= student.ten_lop %></td>
+                                <td><%= student.ten_khoi %></td>
+                                <td><%= student.trang_thai || 'Đang học' %></td>
+                                <td><button type="button" class="btn btn-view view-student" data-id="<%= student.id_tn %>">Xem chi tiết</button></td>
+                            </tr>
+                        <% }) %>
+                    </tbody>
+                </table>
+            </div>
+            <div class="pagination">
+                <% if (page > 1) { %>
+                    <a href="?page=<%= page - 1 %>&<%= queryString %>">Trước</a>
+                <% } %>
+                <span>Trang <%= page %> / <%= totalPages %></span>
+                <% if (page < totalPages) { %>
+                    <a href="?page=<%= page + 1 %>&<%= queryString %>">Sau</a>
+                <% } %>
+            </div>
+        <% } %>
+    </section>
+</div>
+
+<!-- Modal Chi Tiết Thiếu Nhi -->
+<div class="tn-modal" id="student-modal" aria-hidden="true">
+    <div class="modal-dialog" role="dialog" aria-modal="true">
+        <div class="modal-header">
+            <div>
+                <span>Hồ sơ thiếu nhi</span>
+                <h2>Chi tiết học sinh</h2>
+            </div>
+            <button type="button" class="modal-close">×</button>
+        </div>
+        <div class="modal-body" id="student-detail">
+            <div class="loading">Đang tải dữ liệu...</div>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-secondary modal-close">Đóng</button>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Import Excel -->
+<div class="tn-modal" id="import-modal" aria-hidden="true">
+    <div class="modal-dialog" role="dialog" aria-modal="true">
+        <div class="modal-header">
+            <div>
+                <span>Hệ thống</span>
+                <h2>Import danh sách thiếu nhi</h2>
+            </div>
+            <button type="button" class="modal-close-import">×</button>
+        </div>
+        <form id="formImportExcel" enctype="multipart/form-data">
+            <div class="modal-body">
+                <div class="field-group" style="margin-bottom: 15px; width: 100%;">
+                    <label for="import-year" style="display: block; margin-bottom: 5px; font-weight: 600;">Chọn niên khóa</label>
+                    <select name="nien_khoa" id="import-year" required class="form-control" style="width: 100%;">
+                        <option value="">Chọn niên khóa</option>
+                        <% years.forEach(year => { %>
+                            <option value="<%= year.id_cau_hinh_nam_hoc %>" <%= year.id_cau_hinh_nam_hoc === selectedYearId ? 'selected' : '' %>><%= year.nien_khoa %></option>
+                        <% }) %>
+                    </select>
+                </div>
+                <div class="field-group" style="margin-bottom: 15px; width: 100%;">
+                    <label for="import-lop" style="display: block; margin-bottom: 5px; font-weight: 600;">Chọn lớp</label>
+                    <select name="id_lop" id="import-lop" required class="form-control" style="width: 100%;">
+                        <option value="">Chọn lớp</option>
+                        <% lopList.forEach(lop => { %>
+                            <option value="<%= lop.id_lop %>"><%= lop.ten_khoi %> - <%= lop.ten_lop %></option>
+                        <% }) %>
+                    </select>
+                </div>
+                <div class="field-group" style="margin-bottom: 15px; width: 100%;">
+                    <label style="display: block; margin-bottom: 5px; font-weight: 600;">Chọn file Excel (.xlsx, .xls)</label>
+                    <input type="file" name="file" id="fileExcel" accept=".xlsx, .xls" required class="form-control" style="width: 100%;">
+                </div>
+                <div style="font-size: 0.85rem; color: #666; line-height: 1.5;">
+                    <p><strong>Cấu trúc mỗi dòng:</strong> 1 thiếu nhi, từ 1 đến 2 phụ huynh và từ 0 đến 3 bí tích.</p>
+                    <p><strong>Cột bắt buộc:</strong> MSTN, TÊN, GIỚI TÍNH (Nam/Nữ), NGÀY SINH, TÊN PHỤ HUYNH 1, SĐT PHỤ HUYNH 1.</p>
+                    <p>Niên khóa và lớp được lấy từ lựa chọn phía trên, không cần tạo cột <strong>ID_LOP</strong> trong Excel.</p>
+                    <p><strong>Cột tùy chọn:</strong> TÊN THÁNH, HỌ VÀ TÊN LÓT, ĐỊA CHỈ; phụ huynh 2 dùng hậu tố 2.</p>
+                    <p><strong>Bí tích:</strong> NGÀY RỬA TỘI, NGÀY XƯNG TỘI RƯỚC LỄ, NGÀY THÊM SỨC. Ngày dùng dạng <strong>dd/mm/yyyy</strong> hoặc ô ngày Excel.</p>
+                </div>
+            </div>
+            <div class="modal-footer" style="display: flex; justify-content: flex-end; gap: 10px;">
+                <button type="button" class="btn btn-secondary modal-close-import">Hủy</button>
+                <button type="submit" class="btn btn-primary" id="btnSubmitImport">Tải lên</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+(() => {
+    // --- XỬ LÝ MODAL CHI TIẾT ---
+    const modalDetail = document.getElementById('student-modal');
+    const detail = document.getElementById('student-detail');
+    
+    // --- XỬ LÝ MODAL IMPORT ---
+    const modalImport = document.getElementById('import-modal');
+    const btnOpenImport = document.getElementById('btnOpenImport');
+    
+    const closeAllModals = () => {
+        modalDetail.classList.remove('is-open');
+        modalDetail.setAttribute('aria-hidden', 'true');
+        modalImport.classList.remove('is-open');
+        modalImport.setAttribute('aria-hidden', 'true');
+    };
+
+    // Mở Modal Import
+    btnOpenImport.addEventListener('click', () => {
+        modalImport.classList.add('is-open');
+        modalImport.setAttribute('aria-hidden', 'false');
+    });
+
+    // Đóng Modal khi bấm nút đóng hoặc hủy
+    document.querySelectorAll('.modal-close, .modal-close-import').forEach(button => {
+        button.addEventListener('click', closeAllModals);
+    });
+
+    // Đóng Modal khi click ra ngoài vùng chứa
+    window.addEventListener('click', event => {
+        if (event.target === modalDetail || event.target === modalImport) {
+            closeAllModals();
+        }
+    });
+
+    // Đóng Modal bằng phím Escape
+    document.addEventListener('keydown', event => {
+        if (event.key === 'Escape') closeAllModals();
+    });
+
+    // Xử lý gửi Form Import bằng Fetch API
+    document.getElementById('formImportExcel').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        const btnSubmit = document.getElementById('btnSubmitImport');
+        const originalText = btnSubmit.innerText;
+        
+        btnSubmit.innerText = 'Đang xử lý...';
+        btnSubmit.disabled = true;
+
+        try {
+            const response = await fetch('/bdh/thieu-nhi/import', {
+                method: 'POST',
+                body: new FormData(this)
+            });
+            const result = await response.json();
+            
+            if (result.success) {
+                alert(result.message);
+                location.reload();
+            } else {
+                alert('Lỗi: ' + result.message);
+            }
+        } catch (error) {
+            console.error('Lỗi upload:', error);
+            alert('Đã xảy ra lỗi kết nối đến server.');
+        } finally {
+            btnSubmit.innerText = originalText;
+            btnSubmit.disabled = false;
+        }
+    });
+
+    // --- XỬ LÝ XEM CHI TIẾT HỌC SINH ---
+    const date = value => value ? `${String(value).slice(8, 10)}${String(value).slice(5, 7)}${String(value).slice(0, 4)}` : 'Chưa cập nhật';
+
+    document.querySelectorAll('.view-student').forEach(button => {
+        button.addEventListener('click', async () => {
+            modalDetail.classList.add('is-open');
+            modalDetail.setAttribute('aria-hidden', 'false');
+            detail.innerHTML = '<div class="loading">Đang tải dữ liệu...</div>';
+            try {
+                const response = await fetch(`/bdh/thieu-nhi/${button.dataset.id}/detail?nien_khoa=<%= selectedYearId %>`);
+                if (!response.ok) throw new Error();
+                const data = await response.json();
+                const s = data.student;
+                const historyByYear = new Map();
+                data.classHistory.forEach(item => {
+                    historyByYear.set(item.nien_khoa, { ...item });
+                });
+                data.scores.forEach(item => {
+                    const history = historyByYear.get(item.nien_khoa) || {};
+                    historyByYear.set(item.nien_khoa, { ...history, ...item });
+                });
+                const yearHistory = [...historyByYear.values()];
+                
+                detail.innerHTML = `
+                    <div class="detail-section">
+                        <h3>Thông tin cơ bản</h3>
+                        <div class="detail-grid">
+                            <div><span>Họ và tên</span><strong>${s.ho_ten || '-'}</strong></div>
+                            <div><span>Thánh danh</span><strong>${s.ten_thanh || '-'}</strong></div>
+                            <div><span>Ngày sinh</span><strong>${date(s.ngay_sinh)}</strong></div>
+                            <div><span>Giới tính</span><strong>${s.gioi_tinh || '-'}</strong></div>
+                            <div><span>Mã thiếu nhi</span><strong>${s.mstn || '-'}</strong></div>
+                            <div><span>Địa chỉ</span><strong>${s.dia_chi || '-'}</strong></div>
+                        </div>
+                    </div>
+                    <div class="detail-section">
+                        <h3>Lịch sử lớp học và điểm</h3>
+                        ${yearHistory.length ? `<div class="score-table"><table><thead><tr><th>Niên khóa</th><th>Lớp</th><th>Học tập</th><th>Chuyên cần</th><th>Kỷ luật</th><th>Tổng</th></tr></thead><tbody>${yearHistory.map(item => `<tr><td>${item.nien_khoa || '-'}</td><td>${item.ten_khoi && item.ten_lop ? `${item.ten_khoi} - ${item.ten_lop}` : item.ten_lop || item.ten_khoi || '-'}</td><td>${item.diem_hoc_tap ?? '-'}</td><td>${item.diem_chuyen_can ?? '-'}</td><td>${item.diem_ky_luat ?? '-'}</td><td>${item.diem_tong ?? '-'}</td></tr>`).join('')}</tbody></table></div>` : '<p class="muted">Chưa có dữ liệu.</p>'}
+                    </div>
+                `;
+            } catch (error) {
+                detail.innerHTML = '<p class="error-message">Không thể tải thông tin chi tiết.</p>';
+            }
+        });
+    });
+
+    // --- LỌC KHỐI - LỚP ---
+    const khoi = document.getElementById('tn-khoi');
+    const lop = document.getElementById('tn-lop');
+    
+    if (khoi && lop) {
+        khoi.addEventListener('change', () => {
+            [...lop.options].forEach(option => {
+                option.hidden = option.value && khoi.value && option.dataset.khoi !== khoi.value;
+            });
+            if (lop.selectedOptions[0]?.hidden) lop.value = '';
+        });
+        khoi.dispatchEvent(new Event('change'));
+    }
+})();
+</script>

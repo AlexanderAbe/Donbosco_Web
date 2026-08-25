@@ -1,0 +1,149 @@
+<link rel="stylesheet" href="/css/reset.css">
+<link rel="stylesheet" href="/css/bdh/bdh-chuyen-giao.css">
+
+<div class="transfer-page">
+	<div class="transfer-header">
+		<p class="eyebrow">Tổng kết và chuyển lớp</p>
+		<h1><i class="fa-solid fa-arrow-right-arrow-left"></i> Chuyển giao niên khóa</h1>
+		<p>Khóa niên khóa, in bằng khen và chuyển học sinh lên lớp hoặc ở lại lớp sang niên khóa mới.</p>
+	</div>
+
+	<% if (message) { %><div class="transfer-message"><i class="fa-solid fa-circle-check"></i> <%= message %></div><% } %>
+
+	<section class="transfer-card">
+		<div class="card-heading"><span class="step-number">1</span><div><h2>Niên khóa đã tổng kết</h2><p>Chọn năm học để chuyển dữ liệu sang năm sau.</p></div></div>
+		<form method="GET" action="/bdh/chuyen-giao" class="year-form">
+			<select name="nien_khoa_cu" onchange="this.form.submit()" required>
+				<% academicYears.forEach(year => { %>
+					<option value="<%= year.id_cau_hinh_nam_hoc %>" <%= year.id_cau_hinh_nam_hoc === selectedOldId ? 'selected' : '' %>><%= year.nien_khoa %><%= year.is_locked ? ' - Đã khóa' : '' %></option>
+				<% }) %>
+			</select>
+			<% if (oldYear) { %><small class="year-config-hint">Khối kết thúc: <strong><%= oldYear.stt_khoi_ket_thuc || 11 %></strong></small><% } %>
+		</form>
+
+		<% if (!oldYear) { %>
+			<div class="notice notice-warning">Chưa chọn được niên khóa.</div>
+		<% } else if (!hasSummary) { %>
+			<div class="notice notice-warning"><i class="fa-solid fa-triangle-exclamation"></i> Niên khóa này chưa có dữ liệu tổng kết. Hãy tổng kết điểm trước.</div>
+		<% } else { %>
+			<div class="action-grid">
+				<% if (oldYear.is_locked) { %>
+					<div class="notice notice-success"><i class="fa-solid fa-lock"></i> Niên khóa <strong><%= oldYear.nien_khoa %></strong> đã được khóa.</div>
+				<% } else { %>
+					<form method="POST" action="/bdh/chuyen-giao/lock" id="lock-form" data-year-name="<%= oldYear.nien_khoa %>">
+						<input type="hidden" name="nien_khoa_cu" value="<%= selectedOldId %>">
+						<button class="action-button danger" type="submit"><i class="fa-solid fa-lock"></i> Khóa niên khóa</button>
+					</form>
+				<% } %>
+				<a class="action-button secondary" href="/bdh/chuyen-giao/export-awards?nien_khoa_cu=<%= selectedOldId %>" target="_blank"><i class="fa-solid fa-award"></i> In bằng khen</a>
+			</div>
+		<% } %>
+	</section>
+
+	<section class="transfer-card">
+			<div class="card-heading"><span class="step-number">2</span><div><h2>Chuyển học sinh sang niên khóa mới</h2><p>Học sinh lên lớp sẽ lên khối kế tiếp; học sinh ở lại lớp sẽ học lại khối.</p></div></div>
+		<form method="POST" action="/bdh/chuyen-giao/transfer" class="transfer-form" id="transfer-form" data-can-transfer="<%= hasSummary && Boolean(oldYear?.is_locked) %>" data-old-year="<%= oldYear?.nien_khoa || '' %>">
+			<input type="hidden" name="nien_khoa_cu" value="<%= selectedOldId || '' %>">
+			<label for="nien-khoa-moi">Niên khóa mới</label>
+			<select id="nien-khoa-moi" name="nien_khoa_moi" required>
+				<option value="">-- Chọn niên khóa mới --</option>
+				<% academicYears.forEach(year => { %>
+					<% if (year.id_cau_hinh_nam_hoc !== selectedOldId && !year.is_locked) { %><option value="<%= year.id_cau_hinh_nam_hoc %>" <%= year.id_cau_hinh_nam_hoc === selectedNewId ? 'selected' : '' %>><%= year.nien_khoa %></option><% } %>
+				<% }) %>
+			</select>
+			<button class="action-button primary" id="transfer-button" type="submit" <%= !hasSummary || !oldYear?.is_locked || !selectedNewId ? 'disabled' : '' %>><i class="fa-solid fa-arrow-right"></i> Chuyển giao học sinh</button>
+			<% if (hasSummary && !oldYear?.is_locked) { %><small class="transfer-hint">Hãy khóa niên khóa cũ trước khi chuyển giao.</small><% } %>
+		</form>
+	</section>
+</div>
+
+<dialog class="confirmation-modal" id="confirmation-modal">
+	<div class="modal-content">
+		<button class="modal-close" type="button" id="modal-close" aria-label="Đóng">&times;</button>
+		<div class="modal-icon"><i class="fa-solid fa-triangle-exclamation"></i></div>
+		<h2 id="modal-title">Xác nhận thao tác</h2>
+		<p id="modal-message"></p>
+		<div class="modal-actions">
+			<button class="action-button secondary" type="button" id="modal-cancel">Hủy</button>
+			<button class="action-button danger" type="button" id="modal-confirm">Xác nhận</button>
+		</div>
+	</div>
+</dialog>
+
+<script>
+	const lockForm = document.getElementById('lock-form');
+	const transferForm = document.getElementById('transfer-form');
+	const newYearSelect = document.getElementById('nien-khoa-moi');
+	const transferButton = document.getElementById('transfer-button');
+	const canTransfer = transferForm.dataset.canTransfer === 'true';
+	const confirmationModal = document.getElementById('confirmation-modal');
+	const modalTitle = document.getElementById('modal-title');
+	const modalMessage = document.getElementById('modal-message');
+	const modalCancel = document.getElementById('modal-cancel');
+	const modalClose = document.getElementById('modal-close');
+	const modalConfirm = document.getElementById('modal-confirm');
+	let pendingForm = null;
+	let allowSubmit = false;
+
+	const closeConfirmationModal = () => {
+		confirmationModal.close();
+		pendingForm = null;
+	};
+
+	const openConfirmationModal = (title, message, form) => {
+		modalTitle.textContent = title;
+		modalMessage.textContent = message;
+		pendingForm = form;
+		confirmationModal.showModal();
+	};
+
+	lockForm?.addEventListener('submit', event => {
+		if (allowSubmit) {
+			allowSubmit = false;
+			return;
+		}
+		event.preventDefault();
+		openConfirmationModal(
+			'Khóa niên khóa',
+			`Sau khi khóa niên khóa ${lockForm.dataset.yearName}, toàn bộ dữ liệu sẽ không thể chỉnh sửa. Bạn có chắc chắn muốn tiếp tục không?`,
+			lockForm
+		);
+	});
+
+	newYearSelect.addEventListener('change', () => {
+		transferButton.disabled = !canTransfer || !newYearSelect.value;
+	});
+
+	transferForm.addEventListener('submit', event => {
+		if (allowSubmit) {
+			allowSubmit = false;
+			return;
+		}
+		if (!newYearSelect.value) {
+			event.preventDefault();
+			return;
+		}
+
+		const oldYear = transferForm.dataset.oldYear;
+		const newYear = newYearSelect.options[newYearSelect.selectedIndex].text.trim();
+		event.preventDefault();
+		openConfirmationModal(
+			'Xác nhận chuyển giao',
+			`Bạn đang chuyển giao học sinh từ niên khóa ${oldYear} sang niên khóa ${newYear}. Học sinh lên lớp sẽ lên khối tiếp theo, học sinh ở lại lớp sẽ ở lại khối. Bạn có chắc chắn muốn tiếp tục không?`,
+			transferForm
+		);
+	});
+
+	modalCancel.addEventListener('click', closeConfirmationModal);
+	modalClose.addEventListener('click', closeConfirmationModal);
+	confirmationModal.addEventListener('click', event => {
+		if (event.target === confirmationModal) closeConfirmationModal();
+	});
+	modalConfirm.addEventListener('click', () => {
+		if (!pendingForm) return;
+		const form = pendingForm;
+		allowSubmit = true;
+		closeConfirmationModal();
+		form.requestSubmit();
+	});
+</script>

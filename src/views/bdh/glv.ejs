@@ -1,0 +1,256 @@
+<link rel="stylesheet" href="/css/reset.css">
+<link rel="stylesheet" href="/css/bdh/bdh-glv.css">
+
+<div class="glv-page">
+	<div class="page-toolbar">
+		<div class="page-heading">
+			<h1>Danh sách Giáo lý viên</h1>
+			<p>Tra cứu hồ sơ, khối đang phụ trách và tình trạng phục vụ.</p>
+		</div>
+		<form method="GET" action="/bdh/glv" class="filter-form">
+			<div class="field-group search-field">
+				<label for="glv-search">Tìm kiếm</label>
+				<input id="glv-search" type="search" name="search" value="<%= search %>" placeholder="Tên, tên thánh, SĐT hoặc khối...">
+			</div>
+			<div class="field-group">
+				<label for="status-filter">Tình trạng</label>
+				<select id="status-filter" name="trang_thai">
+					<% statuses.forEach(status => { %>
+						<option value="<%= status %>" <%= status === selectedStatus ? 'selected' : '' %>><%= status %></option>
+					<% }) %>
+				</select>
+			</div>
+			<div class="field-group">
+				<label for="year-filter">Niên khóa</label>
+				<select id="year-filter" name="nien_khoa">
+					<% years.forEach(year => { %>
+						<option value="<%= year.id_cau_hinh_nam_hoc %>" <%= year.id_cau_hinh_nam_hoc === selectedYearId ? 'selected' : '' %>><%= year.nien_khoa %></option>
+					<% }) %>
+				</select>
+			</div>
+			<button type="submit" class="btn btn-primary">Lọc</button>
+		</form>
+		<div class="toolbar-actions">
+			<button type="button" class="btn btn-primary" id="open-create-glv">+ Thêm GLV</button>
+			<button type="button" class="btn btn-import" id="open-import-glv">Import Excel</button>
+		</div>
+	</div>
+
+	<% if (error) { %><div class="alert"><%= error %></div><% } %>
+	<% if (message) { %><div class="alert success"><%= message %></div><% } %>
+
+	<section class="section-card">
+		<div class="section-header">
+			<h2>Danh sách GLV</h2>
+			<span><%= total %> người</span>
+		</div>
+		<% if (!glvList.length) { %>
+			<div class="empty-state">Không tìm thấy giáo lý viên phù hợp.</div>
+		<% } else { %>
+			<div class="table-wrap">
+				<table>
+					<thead>
+						<tr>
+							<th>Họ và tên</th>
+							<th>Số điện thoại</th>
+							<th>Khối phụ trách</th>
+							<th>Tình trạng</th>
+							<th>Thao tác</th>
+						</tr>
+					</thead>
+					<tbody>
+						<% glvList.forEach(glv => { %>
+							<% const statusClass = glv.trang_thai === 'Đang hoạt động' ? 'status-active' : glv.trang_thai === 'Tạm nghỉ' ? 'status-break' : 'status-stopped'; %>
+							<tr>
+								<td><strong><%= glv.ho_ten || `GLV #${glv.id_glv}` %></strong></td>
+								<td><%= glv.sdt || 'Chưa cập nhật' %></td>
+								<td>
+									<% if (glv.khoi_phu_trach) { %>
+										<span class="khoi-badge"><%= glv.khoi_phu_trach %></span>
+									<% } else { %>
+										<span>Chưa phân công</span>
+									<% } %>
+								</td>
+								<td><span class="status-badge <%= statusClass %>"><%= glv.trang_thai || 'Đang hoạt động' %></span></td>
+								<td>
+									<div class="actions">
+										<button type="button" class="btn btn-view view-glv-btn"
+												data-name="<%= glv.ho_ten || '' %>"
+												data-saint="<%= glv.ten_thanh || '' %>"
+												data-phone="<%= glv.sdt || '' %>"
+												data-birth="<%= glv.ngay_sinh ? new Date(glv.ngay_sinh).toISOString().slice(0, 10) : '' %>"
+												data-gender="<%= glv.gioi_tinh || '' %>"
+												data-khoi="<%= glv.khoi_phu_trach || 'Chưa phân công' %>"
+												data-status="<%= glv.trang_thai || 'Đang hoạt động' %>">Xem</button>
+										<button type="button" class="btn btn-edit edit-glv-btn"
+												data-id="<%= glv.id_glv %>"
+												data-saint="<%= glv.ten_thanh || '' %>"
+												data-last-name="<%= glv.ho_va_ten_lot || '' %>"
+												data-first-name="<%= glv.ten || '' %>"
+												data-birth="<%= glv.ngay_sinh ? new Date(glv.ngay_sinh).toISOString().slice(0, 10) : '' %>"
+												data-gender="<%= glv.gioi_tinh || '' %>"
+												data-phone="<%= glv.sdt || '' %>">Sửa</button>
+										<form method="POST" action="/bdh/glv/<%= glv.id_glv %>/status" class="quick-status-form">
+											<input type="hidden" name="nien_khoa" value="<%= selectedYearId || '' %>">
+											<input type="hidden" name="search" value="<%= search %>">
+											<input type="hidden" name="trang_thai_filter" value="<%= selectedStatus %>">
+											<select name="trang_thai" aria-label="Đổi tình trạng">
+												<% statuses.forEach(status => { %>
+													<option value="<%= status %>" <%= status === glv.trang_thai ? 'selected' : '' %>><%= status %></option>
+												<% }) %>
+											</select>
+											<button type="submit" class="btn btn-status">Lưu</button>
+										</form>
+									</div>
+								</td>
+							</tr>
+						<% }) %>
+					</tbody>
+				</table>
+			</div>
+			<div class="pagination">
+				<% if (page > 1) { %><a href="?page=<%= page - 1 %>&<%= queryString %>">Trước</a><% } %>
+				<span>Trang <%= page %> / <%= totalPages %></span>
+				<% if (page < totalPages) { %><a href="?page=<%= page + 1 %>&<%= queryString %>">Sau</a><% } %>
+			</div>
+		<% } %>
+	</section>
+</div>
+
+<div class="glv-modal" id="glv-detail-modal" aria-hidden="true">
+	<div class="modal-dialog" role="dialog" aria-modal="true" aria-labelledby="detail-modal-title">
+		<div class="modal-header">
+			<div class="modal-title-block"><span>Hồ sơ nhân sự</span><h2 id="detail-modal-title">Chi tiết hồ sơ GLV</h2></div>
+			<button type="button" class="modal-close close-glv-modal" aria-label="Đóng">×</button>
+		</div>
+		<div class="modal-body detail-grid">
+			<div class="detail-row"><strong>Họ và tên</strong><span id="detail-name"></span></div>
+			<div class="detail-row"><strong>Tên thánh</strong><span id="detail-saint"></span></div>
+			<div class="detail-row"><strong>Số điện thoại</strong><span id="detail-phone"></span></div>
+			<div class="detail-row"><strong>Ngày sinh</strong><span id="detail-birth"></span></div>
+			<div class="detail-row"><strong>Giới tính</strong><span id="detail-gender"></span></div>
+			<div class="detail-row"><strong>Khối phụ trách</strong><span id="detail-khoi"></span></div>
+			<div class="detail-row"><strong>Tình trạng</strong><span id="detail-status"></span></div>
+		</div>
+		<div class="modal-footer"><button type="button" class="btn btn-secondary close-glv-modal">Đóng</button></div>
+	</div>
+</div>
+
+<div class="glv-modal" id="glv-edit-modal" aria-hidden="true">
+	<div class="modal-dialog" role="dialog" aria-modal="true" aria-labelledby="edit-modal-title">
+		<div class="modal-header">
+			<div class="modal-title-block"><span>Cập nhật hồ sơ</span><h2 id="edit-modal-title">Chỉnh sửa thông tin GLV</h2></div>
+			<button type="button" class="modal-close close-glv-modal" aria-label="Đóng">×</button>
+		</div>
+		<form method="POST" id="glv-edit-form">
+			<div class="modal-body">
+				<div class="field-group"><label for="edit-saint">Tên thánh</label><input id="edit-saint" name="ten_thanh" maxlength="50"></div>
+				<div class="field-group"><label for="edit-last-name">Họ và tên lót</label><input id="edit-last-name" name="ho_va_ten_lot" maxlength="100"></div>
+				<div class="field-group"><label for="edit-first-name">Tên</label><input id="edit-first-name" name="ten" maxlength="50" required></div>
+				<div class="field-group"><label for="edit-birth">Ngày sinh</label><input id="edit-birth" type="date" name="ngay_sinh"></div>
+				<div class="field-group"><label for="edit-gender">Giới tính</label><select id="edit-gender" name="gioi_tinh"><option value="">Chưa cập nhật</option><option value="Nam">Nam</option><option value="Nữ">Nữ</option></select></div>
+				<div class="field-group"><label for="edit-phone">Số điện thoại</label><input id="edit-phone" name="sdt" maxlength="15"></div>
+			</div>
+			<div class="modal-footer"><button type="button" class="btn btn-secondary close-glv-modal">Hủy</button><button type="submit" class="btn btn-primary">Lưu thay đổi</button></div>
+		</form>
+	</div>
+</div>
+
+<div class="glv-modal" id="glv-create-modal" aria-hidden="true">
+	<div class="modal-dialog" role="dialog" aria-modal="true" aria-labelledby="create-modal-title">
+		<div class="modal-header"><h2 id="create-modal-title">Thêm giáo lý viên</h2></div>
+		<form method="POST" action="/bdh/glv/create">
+			<input type="hidden" name="nien_khoa" value="<%= selectedYearId || '' %>">
+			<input type="hidden" name="search" value="<%= search %>">
+			<input type="hidden" name="trang_thai_filter" value="<%= selectedStatus %>">
+			<div class="modal-body">
+				<div class="field-group"><label for="create-saint">Tên thánh</label><input id="create-saint" name="ten_thanh" maxlength="50"></div>
+				<div class="field-group"><label for="create-last-name">Họ và tên lót</label><input id="create-last-name" name="ho_va_ten_lot" maxlength="100"></div>
+				<div class="field-group"><label for="create-first-name">Tên</label><input id="create-first-name" name="ten" maxlength="50" required></div>
+				<div class="field-group"><label for="create-birth">Ngày sinh</label><input id="create-birth" type="date" name="ngay_sinh"></div>
+				<div class="field-group"><label for="create-gender">Giới tính</label><select id="create-gender" name="gioi_tinh"><option value="">Chưa cập nhật</option><option value="Nam">Nam</option><option value="Nữ">Nữ</option></select></div>
+				<div class="field-group"><label for="create-phone">Số điện thoại</label><input id="create-phone" name="sdt" maxlength="15" required></div>
+				<div class="field-group full-width"><label for="create-status">Tình trạng</label><select id="create-status" name="trang_thai"><% statuses.forEach(status => { %><option value="<%= status %>" <%= status === 'Đang hoạt động' ? 'selected' : '' %>><%= status %></option><% }) %></select></div>
+			</div>
+			<div class="modal-footer"><button type="button" class="btn btn-secondary close-glv-modal">Hủy</button><button type="submit" class="btn btn-primary">Lưu GLV</button></div>
+		</form>
+	</div>
+</div>
+
+<div class="glv-modal" id="glv-import-modal" aria-hidden="true">
+	<div class="modal-dialog" role="dialog" aria-modal="true" aria-labelledby="import-modal-title">
+		<div class="modal-header"><h2 id="import-modal-title">Import GLV từ Excel</h2></div>
+		<form method="POST" action="/bdh/glv/import" enctype="multipart/form-data">
+			<input type="hidden" name="nien_khoa" value="<%= selectedYearId || '' %>">
+			<input type="hidden" name="search" value="<%= search %>">
+			<input type="hidden" name="trang_thai_filter" value="<%= selectedStatus %>">
+			<div class="modal-body import-body">
+				<div class="field-group full-width"><label for="glv-excel-file">Chọn file Excel (.xlsx, .xls)</label><input id="glv-excel-file" type="file" name="file" accept=".xlsx,.xls" required></div>
+				<p class="import-help">Dòng đầu tiên phải là tiêu đề cột: <strong>ten_thanh, ho_va_ten_lot, ten, ngay_sinh, gioi_tinh, sdt</strong>. Ngày sinh nhận dạng <strong>ddmmyyyy</strong> hoặc <strong>yyyy-mm-dd</strong>. Cột <strong>ten</strong> và <strong>sdt</strong> là bắt buộc. Tình trạng sẽ mặc định là <strong>Đang hoạt động</strong>.</p>
+			</div>
+			<div class="modal-footer"><button type="button" class="btn btn-secondary close-glv-modal">Hủy</button><button type="submit" class="btn btn-primary">Import dữ liệu</button></div>
+		</form>
+	</div>
+</div>
+
+<script>
+	(() => {
+		const openModal = modal => {
+			modal.classList.add('is-open');
+			modal.setAttribute('aria-hidden', 'false');
+		};
+		const closeModal = modal => {
+			modal.classList.remove('is-open');
+			modal.setAttribute('aria-hidden', 'true');
+		};
+		const detailModal = document.getElementById('glv-detail-modal');
+		const editModal = document.getElementById('glv-edit-modal');
+		const detailFields = ['name', 'saint', 'phone', 'birth', 'gender', 'khoi', 'status'];
+		const formatBirthDate = value => {
+			if (!value) return '';
+			const [year, month, day] = value.split('-');
+			return `${day}${month}${year}`;
+		};
+
+		document.getElementById('open-create-glv').addEventListener('click', () => openModal(document.getElementById('glv-create-modal')));
+		document.getElementById('open-import-glv').addEventListener('click', () => openModal(document.getElementById('glv-import-modal')));
+
+		document.querySelectorAll('.view-glv-btn').forEach(button => {
+			button.addEventListener('click', () => {
+				detailFields.forEach(field => {
+					const value = field === 'birth'
+						? formatBirthDate(button.dataset[field])
+						: button.dataset[field];
+					document.getElementById(`detail-${field}`).textContent = value || 'Chưa cập nhật';
+				});
+				openModal(detailModal);
+			});
+		});
+
+		document.querySelectorAll('.edit-glv-btn').forEach(button => {
+			button.addEventListener('click', () => {
+				const form = document.getElementById('glv-edit-form');
+				form.action = `/bdh/glv/${button.dataset.id}/update`;
+				document.getElementById('edit-saint').value = button.dataset.saint;
+				document.getElementById('edit-last-name').value = button.dataset.lastName;
+				document.getElementById('edit-first-name').value = button.dataset.firstName;
+				document.getElementById('edit-birth').value = button.dataset.birth;
+				document.getElementById('edit-gender').value = button.dataset.gender;
+				document.getElementById('edit-phone').value = button.dataset.phone;
+				openModal(editModal);
+			});
+		});
+
+		document.querySelectorAll('.close-glv-modal').forEach(button => {
+			button.addEventListener('click', () => closeModal(button.closest('.glv-modal')));
+		});
+		document.querySelectorAll('.glv-modal').forEach(modal => {
+			modal.addEventListener('click', event => {
+				if (event.target === modal) closeModal(modal);
+			});
+		});
+		document.addEventListener('keydown', event => {
+			if (event.key === 'Escape') document.querySelectorAll('.glv-modal.is-open').forEach(closeModal);
+		});
+	})();
+</script>

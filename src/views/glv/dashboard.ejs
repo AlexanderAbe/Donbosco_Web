@@ -1,0 +1,75 @@
+<link rel="stylesheet" href="/css/reset.css">
+<link rel="stylesheet" href="/css/glv/glv-dashboard.css">
+
+<main class="dashboard-page">
+	<header class="dashboard-hero">
+		<div>
+			<h1>Xin chào, <%= [user.ten_thanh, user.ten].filter(Boolean).join(' ') || 'Giáo lý viên' %></h1>
+			<p><%= year ? `Niên khóa ${year.nien_khoa}` : 'Chưa có niên khóa được phân công' %></p>
+			<% if (classes && classes.length > 0) { %>
+				<p class="header-classes"><strong>Lớp phụ trách:</strong> <%= classes.map(c => `${c.ten_khoi} - ${c.ten_lop}`).join(' | ') %></p>
+			<% } %>
+		</div>
+		<a class="dashboard-action" href="/glv/diem-danh"><i class="fa-solid fa-clipboard-check"></i> Điểm danh ngay</a>
+	</header>
+
+	<% if (!classes.length) { %>
+		<section class="dashboard-empty"><i class="fa-solid fa-school"></i><h2>Chưa có lớp phụ trách</h2><p>Bạn chưa được phân công lớp trong niên khóa hiện tại.</p></section>
+	<% } else { %>
+		<% 
+			// Tính tổng thống kê thiếu nhi, nam, nữ
+			const stats = {
+				totalThieuNhi: classes.reduce((sum, c) => sum + c.student_count, 0),
+				maleCount: classes.reduce((sum, c) => sum + c.male_count, 0),
+				femaleCount: classes.reduce((sum, c) => sum + c.female_count, 0)
+			};
+		%>
+
+		<!-- Phần thống kê tổng hợp -->
+		<section class="dashboard-section">
+			<div class="section-heading"><div><span class="dashboard-eyebrow">Tổng quan</span><h2>Thống kê thiếu nhi</h2></div></div>
+			<div class="stats-grid">
+				<div class="stat-card">
+					<div class="stat-icon"><i class="fa-solid fa-child-reaching"></i></div>
+					<div class="stat-info">
+						<h3>Tổng số Thiếu nhi</h3>
+						<p class="stat-number"><%= stats.totalThieuNhi %></p>
+						<span class="stat-desc">Trong các lớp của tôi</span>
+					</div>
+				</div>
+				<div class="stat-card">
+					<div class="stat-icon"><i class="fa-solid fa-mars" style="color: #4a90e2;"></i></div>
+					<div class="stat-info">
+						<h3>Nam</h3>
+						<p class="stat-number"><%= stats.maleCount %></p>
+						<span class="stat-desc">Thiếu nhi nam</span>
+					</div>
+				</div>
+				<div class="stat-card">
+					<div class="stat-icon"><i class="fa-solid fa-venus" style="color: #e24a4a;"></i></div>
+					<div class="stat-info">
+						<h3>Nữ</h3>
+						<p class="stat-number"><%= stats.femaleCount %></p>
+						<span class="stat-desc">Thiếu nhi nữ</span>
+					</div>
+				</div>
+			</div>
+		</section>
+
+		<section class="dashboard-section dashboard-two-col">
+			<article class="dashboard-panel attendance-panel">
+				<div class="panel-heading"><div><span class="dashboard-eyebrow">Theo dõi hôm nay</span><h2>Điểm danh gần nhất</h2></div><i class="fa-solid fa-calendar-day"></i></div>
+				<% if (!attendance) { %><div class="panel-empty">Chưa có buổi điểm danh nào được ghi nhận.</div><% } else { %>
+					<div class="attendance-focus"><div class="attendance-date"><strong><%= new Date(attendance.ngay_diem_danh).toLocaleDateString('vi-VN') %></strong><span><%= attendance.loai_buoi %></span></div><span class="attendance-badge"><%= attendance.marked_count === attendance.total_count ? 'Đã điểm danh' : 'Chưa điểm danh đủ' %></span></div>
+					<div class="attendance-numbers"><div><strong><%= attendance.present_count %></strong><span>Có mặt</span></div><div><strong><%= attendance.absent_count %></strong><span>Vắng</span></div><div><strong><%= attendance.marked_count %>/<%= attendance.total_count %></strong><span>Đã ghi nhận</span></div></div>
+				<% } %>
+				<a class="panel-link" href="/glv/diem-danh"><i class="fa-solid fa-arrow-right"></i> Mở trang điểm danh</a>
+			</article>
+
+			<article class="dashboard-panel alerts-panel"><div class="panel-heading"><div><span class="dashboard-eyebrow">Cần quan tâm</span><h2>Cảnh báo trong lớp</h2></div><i class="fa-solid fa-bell"></i></div>
+				<div class="alert-group"><h3><i class="fa-solid fa-user-clock"></i> Chuyên cần</h3><% if (!attendanceAlerts.length) { %><p class="panel-empty">Chưa có em nào vắng từ 2 buổi gần đây.</p><% } else { %><ul><% attendanceAlerts.forEach(item => { %><li><span><%= item.ho_ten %></span><strong><%= item.absent_count %> buổi vắng</strong></li><% }) %></ul><% } %></div>
+				<div class="alert-group"><h3><i class="fa-solid fa-book-open"></i> Học tập</h3><% if (!scoreAlerts.length) { %><p class="panel-empty">Chưa có em nào có điểm trung bình dưới hoặc bằng 5.</p><% } else { %><ul><% scoreAlerts.forEach(item => { %><li><span><%= item.ho_ten %></span><strong><%= item.average_score %> điểm</strong></li><% }) %></ul><% } %></div>
+			</article>
+		</section>
+	<% } %>
+</main>

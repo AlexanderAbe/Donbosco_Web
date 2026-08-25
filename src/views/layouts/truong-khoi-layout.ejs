@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= typeof title != 'undefined' ? title : 'Trưởng khối - Xứ Đoàn Don Bosco' %></title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/css/reset.css">
+    <link rel="stylesheet" href="/css//truong-khoi/truong-khoi-layout.css">
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="tk-header">
+    <div class="header-left">
+        <!-- Nút Hamburger: Chỉ hiển thị trên mobile/tablet/iPad -->
+        <button class="menu-toggle-btn" id="menuToggleBtn" title="Mở menu">
+            <i class="fa-solid fa-bars"></i>
+        </button>
+        <div class="logo-circle">
+            <img src="/imgs/Logo.png" alt="Logo" onerror="this.src='https://via.placeholder.com/40'">
+        </div>
+        <div class="church-info">
+            <h2>Xứ Đoàn Don Bosco</h2>
+            <p>Trưởng Khối</p>
+        </div>
+    </div>
+
+    <div class="header-right">
+        <%- include('../partials/role-switcher', { isGlv: false }) %>
+    </div>
+</header>
+
+ <!-- SIDEBAR DỌC -->
+<aside class="tk-sidebar" id="tkSidebar">
+    
+    <!-- Phần Menu chính (có thể cuộn nếu danh sách dài) -->
+    <ul class="sidebar-menu">
+        <!-- Mục đơn: Tổng quan -->
+        <li class="menu-item">
+            <a href="/truong-khoi/dashboard" class="menu-link">
+                <span><i class="fa-solid fa-chart-pie"></i> Tổng quan khối</span>
+            </a>
+        </li>
+
+        <!-- Mục lớn có Sub-menu 1: Quản lý lớp -->
+        <li class="menu-item">
+            <button class="dropdown-toggle" type="button">
+                <span><i class="fa-solid fa-school"></i> Quản lý Lớp học</span>
+                <span class="arrow-icon"><i class="fa-solid fa-chevron-right"></i></span>
+            </button>
+            <ul class="submenu">
+                <li><a href="/truong-khoi/lop">Danh sách lớp</a></li>
+                <li><a href="/truong-khoi/phan-cong-glv">Phân công Giáo lý viên</a></li>
+            </ul>
+        </li>
+
+        <!-- Mục lớn có Sub-menu 2: Kiểm duyệt & Báo cáo -->
+        <li class="menu-item">
+            <button class="dropdown-toggle" type="button">
+                <span><i class="fa-solid fa-clipboard-check"></i> Báo cáo</span>
+                <span class="arrow-icon"><i class="fa-solid fa-chevron-right"></i></span>
+            </button>
+            <ul class="submenu">
+                <li><a href="/truong-khoi/kiem-tra">Điểm kiểm tra</a></li>
+                <li><a href="/truong-khoi/diem-danh">Bảng chuyên cần</a></li>
+                <li><a href="/truong-khoi/ky-luat">Điểm kỷ luật</a></li>
+            </ul>
+        </li>
+    </ul>
+
+    <%- include('../partials/sidebar-footer') %>
+</aside>
+
+    <!-- MÀN HÌNH TỐI KHI MỞ SIDEBAR (Chỉ dùng trên mobile) -->
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+   <%- include('../partials/toast') %>
+
+    <!-- NỘI DUNG CHÍNH CỦA TRANG -->
+    <main class="main-container">
+        <%- body %>
+    </main>
+
+    <!-- Nhúng file JavaScript riêng -->
+    <script src="/javascript/truong-khoi-layout.js"></script>
+</body>
+</html>

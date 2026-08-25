@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= typeof title != 'undefined' ? title : 'Ban Điều Hành - Xứ Đoàn Don Bosco' %></title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/css/reset.css">
+    <link rel="stylesheet" href="/css/bdh/bdh-layout.css">
+</head>
+<body>
+
+    <!-- HEADER (Màu đỏ sáng chủ đạo) -->
+<header class="bdh-header">
+    <div class="header-left">
+        <!-- Nút mở menu mobile -->
+        <button class="menu-toggle-btn" id="menuToggleBtn" title="Mở menu">
+            <i class="fa-solid fa-bars"></i>
+        </button>
+        <div class="logo-circle">
+            <img src="/imgs/Logo.png" alt="Logo" onerror="this.src='https://via.placeholder.com/40'">
+        </div>
+        <div class="church-info">
+            <h2>Xứ Đoàn Don Bosco</h2>
+            <p>Ban Điều Hành</p>
+        </div>
+    </div>
+
+    <div class="header-right">
+        <%- include('../partials/role-switcher', { isGlv: false }) %>
+    </div>
+</header>
+
+<!-- SIDEBAR DỌC -->
+<aside class="bdh-sidebar" id="bdhSidebar">
+    
+    <ul class="sidebar-menu">
+        <!-- Mục đơn: Tổng quan -->
+        <li class="menu-item">
+            <a href="/bdh/dashboard" class="menu-link">
+                <span><i class="fa-solid fa-chart-line"></i> Tổng quan Ban Điều Hành</span>
+            </a>
+        </li>
+
+        <!-- Mục lớn có Sub-menu 1: Quản lý Thiếu nhi (CRUD toàn quyền) -->
+        <li class="menu-item">
+            <button class="dropdown-toggle" type="button">
+                <span><i class="fa-solid fa-child-reaching"></i> Quản lý Thiếu Nhi </span>
+                <span class="arrow-icon"><i class="fa-solid fa-chevron-right"></i></span>
+            </button>
+            <ul class="submenu">
+                <li><a href="/bdh/thieu-nhi">Danh sách Thiếu Nhi</a></li>
+                <li><a href="/bdh/glv">Danh sách giáo lý viên</a></li>
+            </ul>
+        </li>
+
+        <!-- Mục lớn có Sub-menu 2: Cơ cấu Xứ Đoàn -->
+        <li class="menu-item">
+            <button class="dropdown-toggle" type="button">
+                <span><i class="fa-solid fa-sitemap"></i> Cơ cấu Xứ Đoàn</span>
+                <span class="arrow-icon"><i class="fa-solid fa-chevron-right"></i></span>
+            </button>
+            <ul class="submenu">
+                <li><a href="/bdh/phan-cong">Phân công</a></li>
+                <li><a href="/bdh/khoi">Quản lý các Khối</a></li>
+                <li><a href="/bdh/lop">Quản lý lớp</a></li>
+            </ul>
+        </li>
+        <li class="menu-item">
+                <button class="dropdown-toggle" type="button">
+                    <span><i class="fa-solid fa-gear"></i> Cấu hình năm học </span>
+                    <span class="arrow-icon"><i class="fa-solid fa-chevron-right"></i></span>
+                </button>
+                <ul class="submenu">
+                    <li><a href="/bdh/weight">Hệ điểm và bài kiểm tra</a></li>
+                    <li><a href="/bdh/settings">Khung xếp loại</a></li>
+                </ul>
+             </li>
+        <!-- Mục lớn có Sub-menu 3: Tổng kết -->
+        <li class="menu-item">
+            <button class="dropdown-toggle" type="button">
+                <span><i class="fa-solid fa-file-lines"></i> Tổng kết </span>
+                <span class="arrow-icon"><i class="fa-solid fa-chevron-right"></i></span>
+            </button>
+            <ul class="submenu">
+                <li><a href="/bdh/bang-diem">Bảng điểm</a></li>
+                <li><a href="/bdh/chuyen-giao">Chuyển giao</a></li>
+            </ul>
+        </li>
+    </ul>
+
+    <%- include('../partials/sidebar-footer') %>
+</aside>
+
+    <!-- MÀN HÌNH TỐI KHI MỞ SIDEBAR TRÊN MOBILE -->
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <%- include('../partials/toast') %>
+
+    <!-- NỘI DUNG CHÍNH CỦA TRANG -->
+    <main class="main-container">
+        <%- body %>
+    </main>
+
+    <!-- Nhúng file JavaScript riêng -->
+    <script src="/javascript/bdh-layout.js"></script>
+</body>
+</html>

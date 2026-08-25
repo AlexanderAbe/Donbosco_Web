@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= typeof title != 'undefined' ? title : 'Quản Trị Hệ Thống - Xứ Đoàn Don Bosco' %></title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/css/reset.css">
+    <link rel="stylesheet" href="/css/admin/admin-layout.css">
+</head>
+<body>
+
+ <!-- HEADER (Màu Xanh lá sáng chủ đạo) -->
+<header class="admin-header">
+    <div class="header-left">
+        <!-- Nút mở menu mobile -->
+        <button class="menu-toggle-btn" id="menuToggleBtn" title="Mở menu">
+            <i class="fa-solid fa-bars"></i>
+        </button>
+        <div class="logo-circle">
+            <img src="/imgs/Logo.png" alt="Logo" onerror="this.src='https://via.placeholder.com/40'">
+        </div>
+        <div class="church-info">
+            <h2>Xứ Đoàn Don Bosco</h2>
+            <p>Admin</p>
+        </div>
+    </div>
+
+    <div class="header-right">
+        <%- include('../partials/role-switcher', { isGlv: false }) %>
+    </div>
+</header>
+
+<!-- SIDEBAR DỌC -->
+<aside class="admin-sidebar" id="adminSidebar">
+    
+    <ul class="sidebar-menu">
+        <!-- Mục đơn: Tổng quan -->
+        <li class="menu-item">
+            <a href="/admin/dashboard" class="menu-link">
+                <span><i class="fa-solid fa-tachograph-digital"></i> Trang chủ </span>
+            </a>
+        </li>
+
+        <!-- Mục lớn có Sub-menu 1: Quản lý người dùng & phân quyền -->
+        <li class="menu-item">
+            <button class="dropdown-toggle" type="button">
+                <span><i class="fa-solid fa-users-gear"></i> Tài khoản</span>
+                <span class="arrow-icon"><i class="fa-solid fa-chevron-right"></i></span>
+            </button>
+            <ul class="submenu">
+                <li><a href="/admin/users">Quản lý người dùng</a></li>
+                <li><a href="/admin/roles">Phân quyền</a></li>
+            </ul>
+        </li>
+    </ul>
+
+    <%- include('../partials/sidebar-footer') %>
+</aside>
+    <!-- MÀN HÌNH TỐI KHI MỞ SIDEBAR TRÊN MOBILE -->
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <%- include('../partials/toast') %>
+
+    <!-- NỘI DUNG CHÍNH CỦA TRANG -->
+    <main class="main-container">
+        <%- body %>
+    </main>
+
+    <!-- Nhúng file JavaScript riêng -->
+    <script src="/javascript/admin-layout.js"></script>
+</body>
+</html>

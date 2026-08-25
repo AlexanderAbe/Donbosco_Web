@@ -1,0 +1,150 @@
+<link rel="stylesheet" href="/css/reset.css">
+<link rel="stylesheet" href="/css/truong-khoi/truong-khoi-dashboard.css">
+
+<main class="tk-dashboard-page">
+    <header class="tk-dashboard-header">
+        <div>
+            <p class="dashboard-eyebrow"><i class="fa-solid fa-chart-line"></i> Tổng quan khối</p>
+            <h1>Dashboard Trưởng Khối</h1>
+            <p>Theo dõi nhanh quy mô thiếu nhi và đội ngũ giáo lý viên trong khối.</p>
+        </div>
+        <div class="current-year-label"><span>Niên khóa hiện tại</span><strong><%= selectedYear?.nien_khoa || 'Chưa có niên khóa' %></strong></div>
+    </header>
+
+    <%- include('../partials/stat-grid-truong-khoi', { stats }) %>
+
+    <section class="dashboard-note">
+        <i class="fa-solid fa-circle-info"></i>
+        <div><strong>Phạm vi thống kê</strong><p>Số liệu được tính từ các lớp thuộc khối và niên khóa đang chọn.</p></div>
+    </section>
+
+    <% if (sacramentBlocks && sacramentBlocks.some(block => block.is_bi_tich)) { %>
+        <section class="dashboard-note sacrament-action">
+            <div><strong><i class="fa-solid fa-cross"></i> Cập nhật bí tích theo khối</strong><p>Tạo cùng một bí tích cho các em trong khối đã được đánh dấu.</p></div>
+            <button type="button" class="primary-button" id="open-bulk-sacrament"><i class="fa-solid fa-plus"></i> Thêm bí tích hàng loạt</button>
+        </section>
+        <dialog id="bulk-sacrament-modal" class="tk-dashboard-modal" data-year-id="<%= selectedYearId || '' %>">
+            <form id="bulk-sacrament-form" method="dialog">
+                <div class="modal-heading"><h2>Thêm bí tích cho cả khối</h2><button type="button" class="close-button" id="close-bulk-sacrament">&times;</button></div>
+                <div class="modal-content">
+                    <label>Khối<select id="bulk-sacrament-block" required><% sacramentBlocks.filter(block => block.is_bi_tich).forEach(block => { %><option value="<%= block.id_khoi %>"><%= block.ten_khoi %> (<%= block.student_count %> em)</option><% }) %></select></label>
+                    <label>Loại bí tích<select id="bulk-sacrament-type" required><option>Xưng tội & Rước lễ</option><option>Thêm sức</option></select></label>
+                    <label>Ngày lãnh nhận<input id="bulk-sacrament-date" type="date" required></label>
+                    <div class="student-list-field"><span>Thiếu nhi được lãnh nhận</span><div id="bulk-sacrament-students" class="student-checkbox-list">Đang tải danh sách...</div></div>
+                    <p id="bulk-sacrament-error" class="modal-error"></p>
+                </div>
+                <div class="modal-actions"><button type="button" class="secondary-button" id="cancel-bulk-sacrament">Hủy</button><button type="submit" class="primary-button"><i class="fa-solid fa-floppy-disk"></i> Lưu cho cả khối</button></div>
+            </form>
+        </dialog>
+    <% } %>
+
+    <div class="dashboard-panels">
+        <section class="dashboard-panel">
+            <div class="panel-heading"><h2>Số lượng theo lớp</h2><span><%= classStats.length %> lớp</span></div>
+            <% if (!classStats.length) { %><p class="panel-empty">Chưa có dữ liệu lớp.</p><% } else { %>
+                <div class="dashboard-table-wrap"><table><thead><tr><th>Lớp</th><th>Khối</th><th>Thiếu nhi</th></tr></thead><tbody><% classStats.forEach(item => { %><tr><td><strong><%= item.ten_lop %></strong></td><td><%= item.ten_khoi %></td><td><%= item.student_count %></td></tr><% }) %></tbody></table></div>
+            <% } %>
+        </section>
+        <section class="dashboard-panel">
+            <div class="panel-heading"><h2>Trạng thái học tập</h2><span>Thiếu nhi</span></div>
+            <% if (!statusStats.length) { %><p class="panel-empty">Chưa có dữ liệu trạng thái.</p><% } else { %>
+                <div class="status-list"><% statusStats.forEach(item => { %><div class="status-row"><span><%= item.trang_thai %></span><strong><%= item.student_count %></strong></div><% }) %></div>
+            <% } %>
+        </section>
+        <section class="dashboard-panel">
+            <div class="panel-heading"><h2>Lớp chưa có GLV</h2><span><%= classesWithoutGlv.length %> lớp</span></div>
+            <% if (!classesWithoutGlv.length) { %><p class="panel-empty success-text"><i class="fa-solid fa-circle-check"></i> Tất cả lớp đã có GLV.</p><% } else { %><ul class="dashboard-list"><% classesWithoutGlv.forEach(item => { %><li><span><%= item.ten_khoi %> - <%= item.ten_lop %></span><i class="fa-solid fa-triangle-exclamation"></i></li><% }) %></ul><% } %>
+        </section>
+        <section class="dashboard-panel">
+            <div class="panel-heading"><h2>Điểm kiểm tra thấp</h2><span>Dưới 5 điểm</span></div>
+            <% if (!lowExamScores.length) { %><p class="panel-empty success-text"><i class="fa-solid fa-circle-check"></i> Chưa có điểm thấp.</p><% } else { %><div class="dashboard-table-wrap"><table><thead><tr><th>Thiếu nhi</th><th>Lớp</th><th>Bài</th><th>Điểm</th></tr></thead><tbody><% lowExamScores.forEach(item => { %><tr><td><%= item.ho_ten %></td><td><%= item.ten_lop %></td><td><%= item.stt_bai_ktra %></td><td class="warning-value"><%= item.diem_so %></td></tr><% }) %></tbody></table></div><% } %>
+        </section>
+        <section class="dashboard-panel">
+            <div class="panel-heading"><h2>Điểm kỷ luật thấp</h2><span>Dưới 5 điểm</span></div>
+            <% if (!lowDisciplineScores.length) { %><p class="panel-empty success-text"><i class="fa-solid fa-circle-check"></i> Chưa có điểm thấp.</p><% } else { %><div class="dashboard-table-wrap"><table><thead><tr><th>Thiếu nhi</th><th>Lớp</th><th>Tháng</th><th>Điểm</th></tr></thead><tbody><% lowDisciplineScores.forEach(item => { %><tr><td><%= item.ho_ten %></td><td><%= item.ten_lop %></td><td><%= item.thang %></td><td class="warning-value"><%= item.diem %></td></tr><% }) %></tbody></table></div><% } %>
+        </section>
+        <section class="dashboard-panel">
+            <div class="panel-heading"><h2>Điểm danh gần đây</h2><span><%= recentAttendance.length %> buổi</span></div>
+            <% if (!recentAttendance.length) { %><p class="panel-empty">Chưa có dữ liệu điểm danh.</p><% } else { %><div class="dashboard-table-wrap"><table><thead><tr><th>Ngày</th><th>Buổi</th><th>Lớp</th><th>Có mặt</th><th>Tổng</th></tr></thead><tbody><% recentAttendance.forEach(item => { %><tr><td><%= new Date(item.ngay_diem_danh).toLocaleDateString('vi-VN') %></td><td><%= item.loai_buoi %></td><td><%= item.ten_lop %></td><td><%= item.present_count %></td><td><%= item.student_count %></td></tr><% }) %></tbody></table></div><% } %>
+        </section>
+    </div>
+</main>
+
+<script>
+(() => {
+    const modal = document.getElementById('bulk-sacrament-modal');
+    const form = document.getElementById('bulk-sacrament-form');
+    if (!modal || !form) return;
+
+    // Lấy yearId an toàn từ thuộc tính data- of modal
+    const yearId = modal.dataset.yearId || '';
+
+    const close = () => modal.close();
+    
+    const openBtn = document.getElementById('open-bulk-sacrament');
+    if (openBtn) {
+        openBtn.addEventListener('click', () => {
+            modal.showModal();
+            loadStudents();
+        });
+    }
+
+    const closeBtn = document.getElementById('close-bulk-sacrament');
+    if (closeBtn) closeBtn.addEventListener('click', close);
+
+    const cancelBtn = document.getElementById('cancel-bulk-sacrament');
+    if (cancelBtn) cancelBtn.addEventListener('click', close);
+
+    const blockSelect = document.getElementById('bulk-sacrament-block');
+    const studentList = document.getElementById('bulk-sacrament-students');
+
+    const loadStudents = async () => {
+        if (!blockSelect || !blockSelect.value || !studentList) return;
+        studentList.textContent = 'Đang tải danh sách...';
+        try {
+            const response = await fetch(`/truong-khoi/dashboard/sacraments/students?yearId=${yearId}&blockId=${blockSelect.value}`);
+            if (!response.ok) throw new Error('Không thể tải dữ liệu');
+            const students = await response.json();
+            
+            studentList.innerHTML = students.length
+                ? students.map(student => `<label><input type="checkbox" value="${student.id_tn}" checked> ${student.ho_ten || ('#' + student.id_tn)}</label>`).join('')
+                : '<span>Khối chưa có thiếu nhi.</span>';
+        } catch (e) {
+            studentList.textContent = 'Không thể tải danh sách thiếu nhi.';
+        }
+    };
+
+    if (blockSelect) {
+        blockSelect.addEventListener('change', loadStudents);
+    }
+
+    form.addEventListener('submit', async event => {
+        event.preventDefault();
+        const error = document.getElementById('bulk-sacrament-error');
+        if (error) error.textContent = '';
+        
+        try {
+            const response = await fetch('/truong-khoi/dashboard/sacraments/bulk', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    yearId: yearId,
+                    blockId: blockSelect ? blockSelect.value : '',
+                    sacramentType: document.getElementById('bulk-sacrament-type')?.value || '',
+                    receivedDate: document.getElementById('bulk-sacrament-date')?.value || '',
+                    studentIds: studentList ? [...studentList.querySelectorAll('input:checked')].map(input => input.value) : []
+                })
+            });
+            const result = await response.json();
+            if (!response.ok) {
+                if (error) error.textContent = result.error || 'Không thể tạo bí tích.';
+                return;
+            }
+            close();
+            window.location.reload();
+        } catch (err) {
+            if (error) error.textContent = 'Đã xảy ra lỗi kết nối đến máy chủ.';
+        }
+    });
+})();
+</script>

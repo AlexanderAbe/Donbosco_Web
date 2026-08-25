@@ -1,0 +1,32 @@
+<% 
+    // Dự trù giá trị mặc định an toàn nếu Controller quên truyền 'stats'
+    const s = (typeof stats !== 'undefined' && stats) ? stats : { totalUsers: 0, totalThieuNhi: 0, totalLop: 0 };
+%>
+
+<!-- Thẻ thống kê nhanh (Quick Stats Cards) -->
+<div class="stats-grid">
+    <div class="stat-card">
+        <div class="stat-icon"><i class="fa-solid fa-users-gear"></i></div>
+        <div class="stat-info">
+            <h3>Tổng tài khoản</h3>
+            <p class="stat-number"><%= s.totalUsers %></p>
+            <span class="stat-desc text-success">Đang hoạt động trong hệ thống</span>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon"><i class="fa-solid fa-child-reaching"></i></div>
+        <div class="stat-info">
+            <h3>Tổng số Thiếu nhi</h3>
+            <p class="stat-number"><%= s.totalThieuNhi %></p>
+            <span class="stat-desc">Đang sinh hoạt toàn xứ đoàn</span>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon"><i class="fa-solid fa-school"></i></div>
+        <div class="stat-info">
+            <h3>Lớp học & Khối</h3>
+            <p class="stat-number"><%= s.totalLop %> Lớp</p>
+            <span class="stat-desc">Được quản lý theo hệ thống</span>
+        </div>
+    </div>
+</div>

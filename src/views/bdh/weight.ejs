@@ -1,0 +1,77 @@
+<link rel="stylesheet" href="/css/reset.css">
+<link rel="stylesheet" href="/css/bdh/bdh-weight.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+<div class="dashboard-container">
+    <div class="page-header">
+        <h1>Hệ điểm & Bài kiểm tra</h1>
+        <p>Thiết lập hệ số trọng số điểm số và danh mục bài kiểm tra trong năm học</p>
+    </div>
+    <%- include('../partials/toast') %>
+    <!-- ================= PHẦN 1: FORM NHẬP VÀ LƯU VÀO DB ================= -->
+    <div class="section-card weight-card">
+        <form action="/bdh/weight/save" method="POST">
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Niên khóa (VD: 2025-2026)</label>
+                    <input type="text" name="nien_khoa" required placeholder="2025-2026">
+                </div>
+                <div class="form-group">
+                    <label>Số lượng bài kiểm tra</label>
+                    <input type="number" name="so_luong_bai_ktra" required min="1" placeholder="Ví dụ: 4">
+                </div>
+                <div class="form-group">
+                    <label>STT khối kết thúc</label>
+                    <input type="number" name="stt_khoi_ket_thuc" required min="1" placeholder="Ví dụ: 11">
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Hệ số Học Tập</label>
+                    <input type="number" step="0.01" min="0" name="trong_so_hoc_tap" required placeholder="VD: 2">
+                </div>
+                <div class="form-group">
+                    <label>Hệ số Kỷ Luật</label>
+                    <input type="number" step="0.01" min="0" name="trong_so_ky_luat" required placeholder="VD: 1">
+                </div>
+                <div class="form-group">
+                    <label>Hệ số Chuyên Cần</label>
+                    <input type="number" step="0.01" min="0" name="trong_so_diem_chuyen_can" required placeholder="VD: 1">
+                </div>
+            </div>
+
+            <button type="submit" class="btn-primary-custom">
+                <i class="fa-solid fa-floppy-disk"></i> Lưu
+            </button>
+        </form>
+    </div>
+
+    <!-- ================= PHẦN 2: LỊCH SỬ CÁC NIÊN KHÓA TRƯỚC ================= -->
+    <div class="section-card weight-card">
+        <h2><i class="fa-solid fa-clock-rotate-left"></i> Lịch Sử Các Niên Khóa Trước</h2>
+        <p class="section-desc">
+            Danh sách các hệ số và cấu hình niên khóa đã được lưu trữ trong hệ thống.
+        </p>
+        <%- include('../partials/weight-table', { configs: configs }) %>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        // Lấy tất cả các thẻ input, select có thuộc tính required
+        const requiredInputs = document.querySelectorAll('input[required], select[required], textarea[required]');
+
+        requiredInputs.forEach(input => {
+            // Khi người dùng bấm Lưu mà để trống (gây ra lỗi invalid)
+            input.addEventListener('invalid', (e) => {
+                e.target.setCustomValidity('Vui lòng không để trống trường này!');
+            });
+
+            // Khi người dùng bắt đầu gõ lại, xóa thông báo lỗi đi để form cho phép submit
+            input.addEventListener('input', (e) => {
+                e.target.setCustomValidity('');
+            });
+        });
+    });
+</script>

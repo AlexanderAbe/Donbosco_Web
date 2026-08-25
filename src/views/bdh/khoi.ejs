@@ -1,0 +1,220 @@
+<link rel="stylesheet" href="/css/reset.css">
+<link rel="stylesheet" href="/css/bdh/bdh-khoi.css">
+
+<div class="container-fluid px-3 px-md-4 mt-3 mt-md-4">
+    <!-- Tiêu đề và Nút Thêm Mới -->
+    <div class="d-flex justify-content-between align-items-md-center mb-3 mb-md-4">
+        <button class="btn btn-primary shadow-sm" data-bs-toggle="modal" data-bs-target="#modalThemKhoi">
+            <i class="fas fa-plus me-1"></i> Thêm Khối Mới
+        </button>
+    </div>
+
+    <!-- BẢNG 1: CÁC KHỐI ĐANG HOẠT ĐỘNG -->
+    <div class="card shadow-sm mb-4">
+        <div class="card-header bg-success text-white">
+            <h5 class="mb-0"><i class="fas fa-check-circle me-2"></i> Các Khối Đang Hoạt Động </h5>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th class="text-start" style="width: 15%;">STT</th>
+                            <th class="text-start" style="width: 65%;">Tên Khối</th>
+                            <th class="text-center" style="width: 20%;">Thao tác</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% if (activeList && activeList.length > 0) { %>
+                            <% activeList.forEach(item => { %>
+                                <tr>
+                                    <td class="text-start"><strong><%= item.stt %></strong></td>
+                                    <td class="text-start"><%= item.ten_khoi %></td>
+                                    <td class="text-center action-buttons">
+                                        <!-- Nút Sửa (Bánh răng) -->
+                                        <button class="btn btn-sm btn-outline-warning" 
+                                                title="Điều chỉnh tên khối"
+                                                onclick="openEditModal('<%= item.id_khoi %>', '<%= item.stt %>', '<%= item.ten_khoi %>')">
+                                            <i class="fas fa-cog"></i>
+                                        </button>
+                                        <form action="/bdh/khoi/toggle" method="POST" class="d-inline-block m-0">
+                                            <input type="hidden" name="id" value="<%= item.id_khoi %>">
+                                            <input type="hidden" name="is_active" value="false">
+                                            <button type="submit" class="btn btn-sm btn-outline-secondary" 
+                                                    title="Khóa (Tạm ngưng) khối này">
+                                                <i class="fas fa-lock"></i>
+                                            </button>
+                                        </form>
+                                        <form action="/bdh/khoi/toggle-sacrament" method="POST" class="d-inline-block m-0">
+                                            <input type="hidden" name="id" value="<%= item.id_khoi %>">
+                                            <input type="hidden" name="is_bi_tich" value="<%= item.is_bi_tich ? 'false' : 'true' %>">
+                                            <button type="submit" class="btn btn-sm <%= item.is_bi_tich ? 'btn-warning' : 'btn-outline-info' %>"
+                                                    title="<%= item.is_bi_tich ? 'Tắt khối bí tích' : 'Đánh dấu là khối bí tích' %>">
+                                                <i class="fas fa-cross"></i> <%= item.is_bi_tich ? 'Khối bí tích' : 'Bí tích' %>
+                                            </button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            <% }) %>
+                        <% } else { %>
+                            <tr>
+                                <td colspan="3" class="text-center text-muted py-3">Chưa có khối nào đang hoạt động.</td>
+                            </tr>
+                        <% } %>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- BẢNG 2: CÁC KHỐI ĐÃ TẠM NGƯNG -->
+    <div class="card shadow-sm">
+        <div class="card-header bg-secondary text-white">
+            <h5 class="mb-0"><i class="fas fa-pause-circle me-2"></i> Các Khối Đã Tạm Ngưng </h5>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle text-muted mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th class="text-start" style="width: 15%;">STT</th>
+                            <th class="text-start" style="width: 65%;">Tên Khối</th>
+                            <th class="text-center" style="width: 20%;">Thao tác</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% if (inactiveList && inactiveList.length > 0) { %>
+                            <% inactiveList.forEach(item => { %>
+                                <tr>
+                                    <td class="text-start"><%= item.stt %></td>
+                                    <td class="text-start"><del><%= item.ten_khoi %></del></td>
+                                    <td class="text-center action-buttons">
+                                        <form action="/bdh/khoi/toggle" method="POST" class="d-inline-block m-0">
+                                            <input type="hidden" name="id" value="<%= item.id_khoi %>">
+                                            <input type="hidden" name="is_active" value="true">
+                                            <button type="submit" class="btn btn-sm btn-outline-success"
+                                                    title="Mở khóa (Kích hoạt lại) khối này">
+                                                <i class="fas fa-lock-open"></i>
+                                            </button>
+                                        </form>
+                                        <form action="/bdh/khoi/toggle-sacrament" method="POST" class="d-inline-block m-0">
+                                            <input type="hidden" name="id" value="<%= item.id_khoi %>">
+                                            <input type="hidden" name="is_bi_tich" value="<%= item.is_bi_tich ? 'false' : 'true' %>">
+                                            <button type="submit" class="btn btn-sm <%= item.is_bi_tich ? 'btn-warning' : 'btn-outline-info' %>" title="Bật/tắt khối bí tích">
+                                                <i class="fas fa-cross"></i> <%= item.is_bi_tich ? 'Khối bí tích' : 'Bí tích' %>
+                                            </button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            <% }) %>
+                        <% } else { %>
+                            <tr>
+                                <td colspan="3" class="text-center text-muted py-3">Không có khối nào đang tạm ngưng.</td>
+                            </tr>
+                        <% } %>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL THÊM MỚI KHỐI -->
+<div class="modal fade" id="modalThemKhoi" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <form action="/bdh/khoi/create" method="POST">
+                <div class="modal-header">
+                    <h5 class="modal-title fs-5"><i class="fas fa-plus-circle me-1 text-primary"></i> Thêm Khối Mới</h5>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">STT Khối</label>
+                        <input type="number" class="form-control" name="stt" value="<%= nextStt %>" readonly style="background-color: #f8fafc; cursor: not-allowed;">
+                        <div class="form-text">Số thứ tự được hệ thống tự động tăng dần.</div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Tên Khối</label>
+                        <input type="text" class="form-control" name="ten_khoi" maxlength="255" required placeholder="Nhập tên khối...">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                    <button type="submit" class="btn btn-primary">Lưu lại</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL CHỈNH SỬA TÊN KHỐI -->
+<div class="modal fade" id="modalSuaKhoi" tabindex="-1" aria-labelledby="modalSuaKhoiLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <form action="/bdh/khoi/update" method="POST">
+                <!-- Header của Modal -->
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalSuaKhoiLabel">
+                        <i class="fas fa-cog me-2"></i> Chỉnh Sửa Tên Khối 
+                    </h5>
+                </div>
+
+                <!-- Body chứa Form nhập liệu -->
+                <div class="modal-body">
+                    <input type="hidden" name="id" id="edit_id_khoi">
+                    
+                    <!-- Trường 1 -->
+                    <div class="mb-3">
+                        <label for="edit_stt" class="form-label">STT Khối</label>
+                        <input type="text" class="form-control w-100" id="edit_stt" disabled>
+                        <div class="form-text">Thứ tự hiển thị không thể thay đổi tại đây.</div>
+                    </div>
+
+                    <!-- Trường 2 -->
+                    <div class="mb-3">
+                        <label for="edit_ten_khoi" class="form-label">Tên Khối</label>
+                        <input type="text" class="form-control w-100" name="ten_khoi" id="edit_ten_khoi" required placeholder="Nhập tên khối...">
+                    </div>
+                </div>
+
+                <!-- Footer chứa các nút bấm -->
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Hủy</button>
+                    <button type="submit" class="btn btn-primary m-0">Cập nhật</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Thư viện Bootstrap 5 JS Bundle (Đã bao gồm Popper và Modal logic) -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    function openEditModal(id, stt, tenKhoi) {
+        document.getElementById('edit_id_khoi').value = id;
+        document.getElementById('edit_stt').value = stt;
+        document.getElementById('edit_ten_khoi').value = tenKhoi;
+        
+        var editModal = new bootstrap.Modal(document.getElementById('modalSuaKhoi'));
+        editModal.show();
+    }
+
+    // Lưu lại vị trí cuộn trước khi submit form
+    document.addEventListener("DOMContentLoaded", function () {
+        // Khôi phục lại vị trí cuộn cũ nếu có lưu trước đó
+        const scrollPosition = sessionStorage.getItem("scrollPosition");
+        if (scrollPosition) {
+            window.scrollTo(0, parseInt(scrollPosition));
+            sessionStorage.removeItem("scrollPosition"); // Xóa sau khi dùng xong
+        }
+
+        // Bắt sự kiện khi submit các form đổi trạng thái khóa/mở khóa
+        const forms = document.querySelectorAll('form[action="/bdh/khoi/toggle"]');
+        forms.forEach(form => {
+            form.addEventListener("submit", function () {
+                // Lưu tọa độ cuộn hiện tại vào bộ nhớ trình duyệt
+                sessionStorage.setItem("scrollPosition", window.scrollY);
+            });
+        });
+    });
+</script>

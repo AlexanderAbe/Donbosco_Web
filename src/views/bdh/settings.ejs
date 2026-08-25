@@ -1,0 +1,203 @@
+<link rel="stylesheet" href="/css/reset.css">
+<link rel="stylesheet" href="/css/bdh/bdh-settings.css">
+
+<div class="dashboard-container">
+    <div class="page-header">
+        <h1><i class="fa-solid fa-award"></i> Khung Xếp Loại</h1>
+        <p>Thiết lập khoảng điểm tối thiểu và tối đa cho từng mức xếp loại theo niên khóa</p>
+    </div>
+
+    <!-- Gọi file toast dùng chung -->
+    <%- include('../partials/toast') %>
+
+    <!-- Form thêm khung xếp loại -->
+    <div class="section-card">
+        <h3 style="margin-bottom: 16px; color: #2c3e50; font-size: 18px;">
+            <i class="fa-solid fa-sliders"></i> Thiết lập thông tin xếp loại
+        </h3>
+        <form action="/bdh/settings/save" method="POST">
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Tên xếp loại</label>
+                    <select name="ten_xep_loai" required>
+                        <option value="" disabled selected>-- Chọn xếp loại --</option>
+                        <option value="Xuất sắc">Xuất sắc</option>
+                        <option value="Giỏi">Giỏi</option>
+                        <option value="Khá">Khá</option>
+                        <option value="Trung Bình">Trung Bình</option>
+                        <option value="Yếu">Yếu</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Niên khóa</label>
+                    <select name="id_cau_hinh_nam_hoc" required>
+                        <option value="" disabled selected>-- Chọn niên khóa --</option>
+                        <% if (academicYears && academicYears.length > 0) { %>
+                            <% academicYears.forEach(ay => { %>
+                                <option value="<%= ay.id_cau_hinh_nam_hoc %>"><%= ay.nien_khoa %></option>
+                            <% }) %>
+                        <% } %>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Điểm tối thiểu (Min)</label>
+                    <input type="number" step="0.1" min="0" max="10" name="min" required placeholder="VD: 8.0">
+                </div>
+                <div class="form-group">
+                    <label>Điểm tối đa (Max)</label>
+                    <input type="number" step="0.1" min="0" max="10" name="max" required placeholder="VD: 10.0">
+                </div>
+            </div>
+
+            <button type="submit" class="btn-primary-custom">
+                <i class="fa-solid fa-floppy-disk"></i> Lưu Khung Xếp Loại
+            </button>
+        </form>
+    </div>
+
+    <!-- Bảng lịch sử gom nhóm theo niên khóa -->
+    <div class="section-card">
+        <h3 style="margin-bottom: 16px; color: #2c3e50; font-size: 18px;">
+            <i class="fa-solid fa-clock-rotate-left"></i> Lịch sử khung xếp loại
+        </h3>
+        <div class="table-responsive">
+            <table class="custom-table ranking-history-table">
+                <thead>
+                    <tr>
+                        <th>Niên Khóa</th>
+                        <th>Cấu Trúc Xếp Loại (Min - Max)</th>
+                        <th>Ngày Tạo</th>
+                        <th style="text-align: center;">Thao Tác</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% if (rankings && rankings.length > 0) { %>
+                        <% rankings.forEach(group => { %>
+                            <tr>
+                                <td data-label="Niên Khóa">
+                                    <strong><%= group.nien_khoa %></strong>
+                                </td>
+                                <td data-label="Cấu Trúc Xếp Loại">
+                                    <div class="ranking-badges-container">
+                                        <% group.details.forEach(item => { %>
+                                            <span class="ranking-badge">
+                                                <span class="badge-name"><%= item.ten_xep_loai %>:</span> 
+                                                <span class="badge-range">[<%= item.min %> - <%= item.max %>]</span>
+                                            </span>
+                                        <% }) %>
+                                    </div>
+                                </td>
+                                <td data-label="Ngày Tạo">
+                                    <%= group.ngay_tao ? new Date(group.ngay_tao).toLocaleDateString('vi-VN') : '' %>
+                                </td>
+                                <td data-label="Thao Tác" style="text-align: center;">
+                                    <button type="button" class="btn-config-year" data-group='<%- JSON.stringify(group) %>' onclick="openYearConfig(this)" title="Cấu hình niên khóa này">
+                                        <i class="fa-solid fa-gear"></i> Cấu hình
+                                    </button>
+                                </td>
+                            </tr>
+                        <% }) %>
+                    <% } else { %>
+                        <tr>
+                            <td colspan="4" style="text-align: center; color: #9ca3af; padding: 24px;">Chưa có dữ liệu khung xếp loại nào.</td>
+                        </tr>
+                    <% } %>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- MODAL CẤU HÌNH NIÊN KHÓA -->
+<div id="yearConfigModal" class="custom-modal-overlay" style="display: none;">
+    <div class="custom-modal" style="max-width: 520px;">
+        <div class="modal-header">
+            <h3><i class="fa-solid fa-gear"></i> Cấu Hình Khung Xếp Loại - <span id="modalNienKhoaTitle" style="color: #4f46e5;"></span></h3>
+            <button type="button" class="close-modal" onclick="closeYearConfigModal()">&times;</button>
+        </div>
+        
+        <form id="yearConfigForm" action="/bdh/settings/update-year" method="POST">
+            <input type="hidden" name="id_cau_hinh_nam_hoc" id="modal_id_cau_hinh_nam_hoc">
+            
+            <!-- Danh sách các mức học lực sẽ được render động vào đây -->
+            <div id="rankingInputsContainer" style="max-height: 320px; overflow-y: auto; margin-bottom: 20px; padding-right: 4px;">
+                <!-- Các dòng input Min/Max sẽ hiển thị tại đây -->
+            </div>
+
+            <div class="modal-actions" style="display: flex; justify-content: flex-end; gap: 10px;">
+                <button type="button" class="btn-secondary-custom" onclick="closeYearConfigModal()">Hủy</button>
+                <button type="submit" class="btn-primary-custom">Lưu Thay Đổi</button>
+            </div>
+        </form>
+    </div>
+</div>
+</div>
+
+<!-- Script Việt hóa thông báo bỏ trống input -->
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const requiredInputs = document.querySelectorAll('input[required], select[required]');
+        requiredInputs.forEach(input => {
+            input.addEventListener('invalid', (e) => {
+                e.target.setCustomValidity('Vui lòng không để trống trường này!');
+            });
+            input.addEventListener('input', (e) => {
+                e.target.setCustomValidity('');
+            });
+        });
+    });
+
+    // Mở Modal và đổ dữ liệu động ra các ô input
+    function openYearConfig(button) {
+        // Lấy dữ liệu JSON từ thuộc tính data-group của nút được bấm
+        const groupData = JSON.parse(button.getAttribute('data-group'));
+        
+        // Gán tên niên khóa và ID ẩn vào form
+        document.getElementById('modalNienKhoaTitle').textContent = groupData.nien_khoa;
+        document.getElementById('modal_id_cau_hinh_nam_hoc').value = groupData.id_cau_hinh_nam_hoc;
+
+        // Render danh sách các mức học lực để chỉnh sửa điểm Min - Max
+        const container = document.getElementById('rankingInputsContainer');
+        container.innerHTML = '';
+
+        groupData.details.forEach(item => {
+            const rowDiv = document.createElement('div');
+            rowDiv.style.cssText = "display: flex; gap: 12px; align-items: center; margin-bottom: 12px; background: #f9fafb; padding: 12px; border-radius: 8px; border: 1px solid #e5e7eb;";
+            
+            rowDiv.innerHTML = `
+                <div style="flex: 1.2; font-weight: 600; color: #1f2937; font-size: 14px;">
+                    <i class="fa-solid fa-award" style="color: #4f46e5; margin-right: 6px;"></i> ${item.ten_xep_loai}
+                    <input type="hidden" name="rankings[${item.id_khung_xep_loai}][id]" value="${item.id_khung_xep_loai}">
+                </div>
+                <div style="flex: 1;">
+                    <label style="font-size: 11px; color: #6b7280; display: block; margin-bottom: 2px; font-weight: 500;">Điểm Min</label>
+                    <input type="number" step="0.1" min="0" max="10" name="rankings[${item.id_khung_xep_loai}][min]" value="${item.min}" required class="form-control" style="margin-top:0; padding: 6px 10px;">
+                </div>
+                <div style="flex: 1;">
+                    <label style="font-size: 11px; color: #6b7280; display: block; margin-bottom: 2px; font-weight: 500;">Điểm Max</label>
+                    <input type="number" step="0.1" min="0" max="10" name="rankings[${item.id_khung_xep_loai}][max]" value="${item.max}" required class="form-control" style="margin-top:0; padding: 6px 10px;">
+                </div>
+            `;
+            container.appendChild(rowDiv);
+        });
+
+        // Hiển thị modal
+        document.getElementById('yearConfigModal').style.display = 'flex';
+    }
+
+    // Đóng Modal
+    function closeYearConfigModal() {
+        document.getElementById('yearConfigModal').style.display = 'none';
+    }
+
+    // Đóng khi bấm ra ngoài vùng nền mờ
+    window.onclick = function(event) {
+        const modal = document.getElementById('yearConfigModal');
+        if (event.target === modal) {
+            closeYearConfigModal();
+        }
+    }
+</script>

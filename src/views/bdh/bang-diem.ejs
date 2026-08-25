@@ -1,0 +1,85 @@
+<link rel="stylesheet" href="/css/reset.css">
+<link rel="stylesheet" href="/css/bdh/bdh-bang-diem.css">
+
+<div class="bang-diem-page">
+	<div class="bang-diem-header">
+		<div>
+			<p class="eyebrow">Tổng kết cuối năm</p>
+			<h1><i class="fa-solid fa-file-lines"></i> Bảng điểm tổng kết</h1>
+			<p class="page-description">Danh sách điểm chi tiết được sắp xếp theo khối, lớp và tên học sinh.</p>
+		</div>
+		<form method="GET" action="/bdh/bang-diem" class="year-filter">
+			<label for="nien-khoa">Niên khóa</label>
+			<select id="nien-khoa" name="nien_khoa" onchange="this.form.submit()">
+				<% if (academicYears.length === 0) { %>
+					<option>Chưa có niên khóa</option>
+				<% } %>
+				<% academicYears.forEach(year => { %>
+					<option value="<%= year.id_cau_hinh_nam_hoc %>" <%= String(year.id_cau_hinh_nam_hoc) === String(selectedYearId) ? 'selected' : '' %>>
+						<%= year.nien_khoa %>
+					</option>
+				<% }) %>
+			</select>
+		</form>
+	</div>
+
+	<% if (!selectedYear) { %>
+		<div class="empty-state">Chưa có niên khóa để hiển thị.</div>
+	<% } else if (summary.length === 0) { %>
+		<div class="empty-state">
+			<i class="fa-solid fa-inbox"></i>
+			<strong>Chưa có dữ liệu tổng kết</strong>
+			<span>Niên khóa <%= selectedYear.nien_khoa %> chưa có danh sách điểm cuối năm.</span>
+		</div>
+	<% } else { %>
+		<div class="summary-meta">
+			<span><i class="fa-solid fa-calendar-check"></i> Niên khóa <strong><%= selectedYear.nien_khoa %></strong></span>
+			<span><i class="fa-solid fa-users"></i> <strong><%= summary.length %></strong> học sinh</span>
+			<a class="export-score-button" href="/bdh/bang-diem/export?nien_khoa=<%= selectedYearId %>" target="_blank">
+				<i class="fa-solid fa-file-pdf"></i> Xuất bảng điểm A4
+			</a>
+		</div>
+
+		<% let currentKhoi = null; let currentLop = null; let classStudentNumber = 0; %>
+		<% summary.forEach((student, index) => { %>
+			<% if (currentKhoi !== student.id_khoi) { %>
+				<% if (currentKhoi !== null) { %></tbody></table></div></section></section><% } %>
+				<% currentKhoi = student.id_khoi; currentLop = null; %>
+				<section class="khoi-section">
+					<div class="khoi-heading">
+						<span class="khoi-marker"><i class="fa-solid fa-layer-group"></i></span>
+						<h2><%= student.ten_khoi %></h2>
+					</div>
+			<% } %>
+			<% if (currentLop !== student.id_lop) { %>
+				<% if (currentLop !== null) { %></tbody></table></div></section><% } %>
+				<% currentLop = student.id_lop; classStudentNumber = 0; %>
+				<section class="lop-section">
+					<h3><i class="fa-solid fa-school"></i> Lớp <%= student.ten_lop %></h3>
+					<div class="table-scroll">
+						<table class="score-table">
+							<thead>
+								<tr>
+									<th>STT</th><th>MSTN</th><th>Họ và tên</th>
+									<th>Học tập</th><th>Chuyên cần</th><th>Kỷ luật</th>
+									<th>Điểm tổng</th><th>Xếp loại</th><th>Tình trạng</th>
+								</tr>
+							</thead>
+							<tbody>
+			<% } %>
+			<% classStudentNumber += 1; %>
+								<tr>
+									<td><%= classStudentNumber %></td>
+									<td><%= student.mstn || '-' %></td>
+									<td class="student-name"><%= [student.ten_thanh, student.ho_va_ten_lot, student.ten].filter(Boolean).join(' ') %></td>
+									<td><%= student.diem_hoc_tap ?? '-' %></td>
+									<td><%= student.diem_chuyen_can ?? '-' %></td>
+									<td><%= student.diem_ky_luat ?? '-' %></td>
+									<td class="total-score"><%= student.diem_tong ?? '-' %></td>
+									<td><span class="classification"><%= student.ten_xep_loai || '-' %></span></td>
+																		<td><span class="status status-<%= student.tinh_trang === 'Lên lớp' ? 'pass' : 'other' %>"><%= student.tinh_trang || '-' %></span></td>
+								</tr>
+			<% if (index === summary.length - 1) { %></tbody></table></div></section></section><% } %>
+		<% }) %>
+	<% } %>
+</div>
