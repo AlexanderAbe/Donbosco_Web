@@ -94,7 +94,6 @@ exports.switchRole = async (req, res) => {
     const targetRole = req.params.role;
     const user = req.session.user;
 
-    // Quyền có thể được thay đổi trong lúc session vẫn còn hiệu lực.
     if (user.id_glv) {
         user.is_bdh = await AuthModel.checkBdh(user.id_glv);
         user.is_truong_khoi = await AuthModel.checkTruongKhoi(user.id_glv);
@@ -110,10 +109,17 @@ exports.switchRole = async (req, res) => {
         user.active_role = targetRole;
     }
 
-    if (targetRole === 'admin') return res.redirect('/admin');
-    if (targetRole === 'bdh') return res.redirect('/bdh');
-    if (targetRole === 'truong-khoi') return res.redirect('/truong-khoi');
-    res.redirect('/glv');
+    // Bắt buộc lưu session xuống database trước khi redirect để đồng bộ trạng thái role mới
+    req.session.save((err) => {
+        if (err) {
+            console.error("Lỗi khi lưu session switchRole:", err);
+        }
+        
+        if (targetRole === 'admin') return res.redirect('/admin');
+        if (targetRole === 'bdh') return res.redirect('/bdh');
+        if (targetRole === 'truong-khoi') return res.redirect('/truong-khoi');
+        return res.redirect('/glv');
+    });
 };
 
 // Xử lý đăng xuất

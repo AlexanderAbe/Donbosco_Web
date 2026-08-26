@@ -15,22 +15,28 @@ const GlvModel = {
         try {
             await client.query('BEGIN');
             await client.query(`
-                    INSERT INTO GLV (ten_thanh, ho_va_ten_lot, ten, ngay_sinh, gioi_tinh, sdt, trang_thai)
-                    SELECT item.ten_thanh, item.ho_lot, item.ten, item.ngay_sinh::date,
-                           item.gioi_tinh, item.sdt, item.trang_thai
-                    FROM jsonb_to_recordset($1::jsonb) AS item(
-                        ten_thanh text, ho_lot text, ten text, ngay_sinh text,
-                        gioi_tinh text, sdt text, trang_thai text
-                    )
-                `, [JSON.stringify(list.map(data => ({
-                    ten_thanh: data.tenThanh,
-                    ho_lot: data.hoLot,
-                    ten: data.ten,
-                    ngay_sinh: data.ngaySinh || null,
-                    gioi_tinh: data.gioiTinh || null,
-                    sdt: data.sdt,
-                    trang_thai: data.trangThai
-                })))]);
+                INSERT INTO GLV (ten_thanh, ho_va_ten_lot, ten, ngay_sinh, gioi_tinh, sdt, trang_thai)
+                SELECT 
+                    item.ten_thanh, 
+                    item.ho_lot, 
+                    item.ten, 
+                    NULLIF(item.ngay_sinh, '')::date,
+                    NULLIF(item.gioi_tinh, ''), 
+                    item.sdt, 
+                    item.trang_thai
+                FROM jsonb_to_recordset($1::jsonb) AS item(
+                    ten_thanh text, ho_lot text, ten text, ngay_sinh text,
+                    gioi_tinh text, sdt text, trang_thai text
+                )
+            `, [JSON.stringify(list.map(data => ({
+                ten_thanh: data.tenThanh,
+                ho_lot: data.hoLot,
+                ten: data.ten,
+                ngay_sinh: data.ngaySinh || null,
+                gioi_tinh: data.gioiTinh || null,
+                sdt: data.sdt,
+                trang_thai: data.trangThai
+            })))]);
             await client.query('COMMIT');
             return list.length;
         } catch (error) {
