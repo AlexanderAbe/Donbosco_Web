@@ -12,8 +12,10 @@ const PhanCongGlvModel = {
             ORDER BY l.ten_lop
         `, [idGlv, yearId]);
 
+        // Sử dụng TO_CHAR để ép ngày sinh trả về chuỗi 'YYYY-MM-DD', tránh lệch múi giờ JS
         const { rows: glvList } = await pool.query(`
-            SELECT g.id_glv, g.ten_thanh, g.ho_va_ten_lot, g.ten, g.ngay_sinh,
+            SELECT g.id_glv, g.ten_thanh, g.ho_va_ten_lot, g.ten, 
+                   TO_CHAR(g.ngay_sinh, 'YYYY-MM-DD') AS ngay_sinh,
                    g.gioi_tinh, g.sdt, g.trang_thai,
                    pc.id_lop AS assigned_class_id
             FROM GLV g
@@ -30,8 +32,10 @@ const PhanCongGlvModel = {
     },
 
     async getDetail(idGlv, yearId, teacherId) {
+        // Sử dụng TO_CHAR cho hàm lấy chi tiết
         const { rows } = await pool.query(`
-            SELECT g.id_glv, g.ten_thanh, g.ho_va_ten_lot, g.ten, g.ngay_sinh,
+            SELECT g.id_glv, g.ten_thanh, g.ho_va_ten_lot, g.ten, 
+                   TO_CHAR(g.ngay_sinh, 'YYYY-MM-DD') AS ngay_sinh,
                    g.gioi_tinh, g.sdt, g.trang_thai, l.ten_lop, k.ten_khoi
             FROM GLV g
             LEFT JOIN PHAN_CONG_GLV pc ON pc.id_glv = g.id_glv

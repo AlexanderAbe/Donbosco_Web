@@ -58,54 +58,54 @@
     </div>
 
     <section class="section-card">
-        <div class="section-header">
-            <h2>Danh sách thiếu nhi</h2>
-            <span><%= total %> em</span>
-        </div>
-        <% if (!students.length) { %>
-            <div class="empty-state">Không tìm thấy dữ liệu phù hợp.</div>
-        <% } else { %>
-            <div class="table-wrap">
-                <table>
-                    <thead>
+    <div class="section-header">
+        <h2>Danh sách thiếu nhi</h2>
+        <span><%= total %> em</span>
+    </div>
+    <% if (!students.length) { %>
+        <div class="empty-state">Không tìm thấy dữ liệu phù hợp.</div>
+    <% } else { %>
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Họ và tên</th>
+                        <th>Ngày sinh</th>
+                        <th>Giới tính</th> <!-- Đã bổ sung chuẩn theo header -->
+                        <th>Mã số</th>
+                        <th>Lớp</th>
+                        <th>Khối</th>
+                        <th>Trạng thái</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% students.forEach(student => { %>
                         <tr>
-                            <th>Họ và tên</th>
-                            <th>Ngày sinh</th>
-                            <th>Giới tính</th>
-                            <th>Mã số</th>
-                            <th>Lớp</th>
-                            <th>Khối</th>
-                            <th>Trạng thái</th>
-                            <th></th>
+                            <td><strong><%= student.ho_ten %></strong></td>
+                            <td><%= student.ngay_sinh %></td>
+                            <td><%= student.gioi_tinh || 'Chưa rõ' %></td> <!-- Thêm ô này để khớp cột Giới tính -->
+                            <td><%= student.mstn || 'Chưa có' %></td>
+                            <td><%= student.ten_lop || 'Chưa có' %></td>
+                            <td><%= student.ten_khoi || 'Chưa có' %></td>
+                            <td><%= student.trang_thai || 'Đang học' %></td>
+                            <td><button type="button" class="btn btn-view view-student" data-id="<%= student.id_tn %>">Xem chi tiết</button></td>
                         </tr>
-                    </thead>
-                    <tbody>
-                        <% students.forEach(student => { %>
-                            <tr>
-                                <td><strong><%= student.ho_ten %></strong></td>
-                                <td><%= student.ngay_sinh ? new Date(student.ngay_sinh).toISOString().slice(8, 10) + new Date(student.ngay_sinh).toISOString().slice(5, 7) + new Date(student.ngay_sinh).toISOString().slice(0, 4) : 'Chưa cập nhật' %></td>
-                                <td><%= student.gioi_tinh || 'Chưa cập nhật' %></td>
-                                <td><%= student.mstn || 'Chưa có' %></td>
-                                <td><%= student.ten_lop %></td>
-                                <td><%= student.ten_khoi %></td>
-                                <td><%= student.trang_thai || 'Đang học' %></td>
-                                <td><button type="button" class="btn btn-view view-student" data-id="<%= student.id_tn %>">Xem chi tiết</button></td>
-                            </tr>
-                        <% }) %>
-                    </tbody>
-                </table>
-            </div>
-            <div class="pagination">
-                <% if (page > 1) { %>
-                    <a href="?page=<%= page - 1 %>&<%= queryString %>">Trước</a>
-                <% } %>
-                <span>Trang <%= page %> / <%= totalPages %></span>
-                <% if (page < totalPages) { %>
-                    <a href="?page=<%= page + 1 %>&<%= queryString %>">Sau</a>
-                <% } %>
-            </div>
-        <% } %>
-    </section>
+                    <% }) %>
+                </tbody>
+            </table>
+        </div>
+        <div class="pagination">
+            <% if (page > 1) { %>
+                <a href="?page=<%= page - 1 %>&<%= queryString %>">Trước</a>
+            <% } %>
+            <span>Trang <%= page %> / <%= totalPages %></span>
+            <% if (page < totalPages) { %>
+                <a href="?page=<%= page + 1 %>&<%= queryString %>">Sau</a>
+            <% } %>
+        </div>
+    <% } %>
+</section>
 </div>
 
 <!-- Modal Chi Tiết Thiếu Nhi -->
@@ -165,7 +165,7 @@
                     <p><strong>Cấu trúc mỗi dòng:</strong> 1 thiếu nhi, từ 1 đến 2 phụ huynh và từ 0 đến 3 bí tích.</p>
                     <p><strong>Cột bắt buộc:</strong> MSTN, TÊN, GIỚI TÍNH (Nam/Nữ), NGÀY SINH, TÊN PHỤ HUYNH 1, SĐT PHỤ HUYNH 1.</p>
                     <p>Niên khóa và lớp được lấy từ lựa chọn phía trên, không cần tạo cột <strong>ID_LOP</strong> trong Excel.</p>
-                    <p><strong>Cột tùy chọn:</strong> TÊN THÁNH, HỌ VÀ TÊN LÓT, ĐỊA CHỈ; phụ huynh 2 dùng hậu tố 2.</p>
+                    <p><strong>Cột tùy chọn:</strong> TÊN THÁNH, HỌ VÀ TÊN LÓT, ĐỊA CHỈ. Cột <strong>TÊN PHỤ HUYNH 1</strong> có thể nhập gõ liền cả tên thánh (Ví dụ: <em>Gioan Nguyễn Văn B</em>); phụ huynh 2 dùng hậu tố 2.</p>
                     <p><strong>Bí tích:</strong> NGÀY RỬA TỘI, NGÀY XƯNG TỘI RƯỚC LỄ, NGÀY THÊM SỨC. Ngày dùng dạng <strong>dd/mm/yyyy</strong> hoặc ô ngày Excel.</p>
                 </div>
             </div>
@@ -249,8 +249,17 @@
     });
 
     // --- XỬ LÝ XEM CHI TIẾT HỌC SINH ---
-    const date = value => value ? `${String(value).slice(8, 10)}${String(value).slice(5, 7)}${String(value).slice(0, 4)}` : 'Chưa cập nhật';
-
+    const date = value => {
+        if (!value) return 'Chưa cập nhật';
+        const rawString = value instanceof Date ? value.toISOString() : String(value);
+        const datePart = rawString.split('T')[0]; // Lấy phần YYYY-MM-DD
+        const parts = datePart.split('-');
+        if (parts.length === 3) {
+            const [year, month, day] = parts;
+            return `${day}/${month}/${year}`;
+        }
+        return value;
+    };
     document.querySelectorAll('.view-student').forEach(button => {
         button.addEventListener('click', async () => {
             modalDetail.classList.add('is-open');

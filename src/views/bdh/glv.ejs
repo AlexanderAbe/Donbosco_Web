@@ -78,7 +78,7 @@
 												data-name="<%= glv.ho_ten || '' %>"
 												data-saint="<%= glv.ten_thanh || '' %>"
 												data-phone="<%= glv.sdt || '' %>"
-												data-birth="<%= glv.ngay_sinh ? new Date(glv.ngay_sinh).toISOString().slice(0, 10) : '' %>"
+												data-birth="<%= glv.ngay_sinh || '' %>"
 												data-gender="<%= glv.gioi_tinh || '' %>"
 												data-khoi="<%= glv.khoi_phu_trach || 'Chưa phân công' %>"
 												data-status="<%= glv.trang_thai || 'Đang hoạt động' %>">Xem</button>
@@ -87,7 +87,7 @@
 												data-saint="<%= glv.ten_thanh || '' %>"
 												data-last-name="<%= glv.ho_va_ten_lot || '' %>"
 												data-first-name="<%= glv.ten || '' %>"
-												data-birth="<%= glv.ngay_sinh ? new Date(glv.ngay_sinh).toISOString().slice(0, 10) : '' %>"
+												data-birth="<%= glv.ngay_sinh || '' %>"
 												data-gender="<%= glv.gioi_tinh || '' %>"
 												data-phone="<%= glv.sdt || '' %>">Sửa</button>
 										<form method="POST" action="/bdh/glv/<%= glv.id_glv %>/status" class="quick-status-form">
@@ -208,8 +208,15 @@
 		const detailFields = ['name', 'saint', 'phone', 'birth', 'gender', 'khoi', 'status'];
 		const formatBirthDate = value => {
 			if (!value) return '';
-			const [year, month, day] = value.split('-');
-			return `${day}${month}${year}`;
+			// Lấy chuỗi chuyển thành dạng chữ, cắt bỏ phần giờ giấc (nếu có chữ T)
+			const datePart = String(value).split('T')[0];
+			const parts = datePart.split('-');
+			
+			if (parts.length === 3) {
+				// parts[0] là năm, parts[1] là tháng, parts[2] là ngày
+				return `${parts[2]}/${parts[1]}/${parts[0]}`;
+			}
+			return value;
 		};
 
 		document.getElementById('open-create-glv').addEventListener('click', () => openModal(document.getElementById('glv-create-modal')));

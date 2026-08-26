@@ -25,7 +25,6 @@ JOIN KHOI k ON l.id_khoi = k.id_khoi;
 CREATE OR REPLACE VIEW vw_chi_tiet_phu_huynh AS
 SELECT 
     ph.id_phu_huynh,
-    ph.ten_thanh_ph,
     ph.ten_ph,
     ph.moi_quan_he,
     ph.sdt,

@@ -30,7 +30,7 @@ const BaseGlvModel = {
         for (const classItem of rows) {
             const result = await pool.query(`
                 SELECT tn.id_tn, tn.mstn, tn.ten_thanh, tn.ho_va_ten_lot, tn.ten,
-                       tn.gioi_tinh, tn.ngay_sinh, tn.dia_chi, pl.trang_thai
+                       tn.gioi_tinh, TO_CHAR(tn.ngay_sinh, 'YYYY-MM-DD') AS ngay_sinh, tn.dia_chi, pl.trang_thai
                 FROM PHAN_LOP pl
                 JOIN THIEU_NHI tn ON tn.id_tn = pl.id_tn
                 WHERE pl.id_lop = $1

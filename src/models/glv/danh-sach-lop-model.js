@@ -20,18 +20,18 @@ const DanhSachLopModel = {
         const [student, parents, sacraments] = await Promise.all([
             pool.query(`
                 SELECT id_tn, mstn, ten_thanh, ho_va_ten_lot, ten,
-                       gioi_tinh, ngay_sinh, dia_chi
+                       gioi_tinh, TO_CHAR(ngay_sinh, 'YYYY-MM-DD') AS ngay_sinh, dia_chi
                 FROM THIEU_NHI
                 WHERE id_tn = $1
             `, [idTn]),
             pool.query(`
-                SELECT id_phu_huynh, sdt, ten_thanh_ph, ten_ph, moi_quan_he
+                SELECT id_phu_huynh, sdt, ten_ph, moi_quan_he
                 FROM PHU_HUYNH
                 WHERE id_tn = $1
                 ORDER BY id_phu_huynh
             `, [idTn]),
             pool.query(`
-                SELECT id_bi_tich, loai_bi_tich, ngay_lanh_nhan
+                SELECT id_bi_tich, loai_bi_tich, TO_CHAR(ngay_lanh_nhan, 'YYYY-MM-DD') AS ngay_lanh_nhan
                 FROM BI_TICH
                 WHERE id_tn = $1
                 ORDER BY id_bi_tich
@@ -87,9 +87,9 @@ const DanhSachLopModel = {
             for (const parent of Array.isArray(data.phu_huynh) ? data.phu_huynh : []) {
                 if (String(parent.ten_ph || '').trim() || String(parent.sdt || '').trim()) {
                     await client.query(`
-                        INSERT INTO PHU_HUYNH (sdt, id_tn, ten_thanh_ph, ten_ph, moi_quan_he)
-                        VALUES ($1, $2, $3, $4, $5)
-                    `, [parent.sdt || null, idTn, parent.ten_thanh_ph || null,
+                        INSERT INTO PHU_HUYNH (sdt, id_tn, ten_ph, moi_quan_he)
+                        VALUES ($1, $2, $3, $4)
+                    `, [parent.sdt || null, idTn || null,
                         parent.ten_ph || null, parent.moi_quan_he || null]);
                 }
             }

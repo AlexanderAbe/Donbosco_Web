@@ -30,7 +30,7 @@ const TruongKhoiLopController = {
         const validParents = parents.filter(parent => parent && parent.ten_ph && parent.sdt);
         const validSacramentRows = sacraments.filter(item => item && item.loai_bi_tich && item.ngay_lanh_nhan);
         const hasIncompleteParent = parents.some(parent => {
-            const hasValue = parent && (parent.ten_thanh_ph || parent.ten_ph || parent.sdt);
+            const hasValue = parent && (parent.ten_ph || parent.sdt);
             return hasValue && (!parent.ten_ph || !parent.sdt);
         });
         const hasIncompleteSacrament = sacraments.some(item => item && Boolean(item.loai_bi_tich) !== Boolean(item.ngay_lanh_nhan));
@@ -66,8 +66,13 @@ const TruongKhoiLopController = {
 
     async getStudentDetail(req, res) {
         try {
-            const detail = await LopModel.getStudentDetail(req.session.user.id_glv, Number.parseInt(req.params.id, 10), Number.parseInt(req.query.nien_khoa, 10));
+            const detail = await LopModel.getStudentDetail(
+                req.session.user.id_glv, 
+                Number.parseInt(req.params.id, 10), 
+                Number.parseInt(req.query.nien_khoa, 10)
+            );
             if (!detail) return res.status(404).json({ error: 'Không tìm thấy thiếu nhi trong khối được phân công.' });
+            
             return res.json(detail);
         } catch (error) {
             console.error('Lỗi lấy chi tiết thiếu nhi Trưởng Khối:', error);

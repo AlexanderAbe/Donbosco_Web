@@ -29,7 +29,7 @@ const LopModel = {
         for (const classItem of rows) {
             const result = await pool.query(`
                 SELECT tn.id_tn, tn.mstn, tn.ten_thanh, tn.ho_va_ten_lot, tn.ten,
-                       tn.gioi_tinh, tn.ngay_sinh, tn.dia_chi, pl.trang_thai
+                       tn.gioi_tinh, TO_CHAR(tn.ngay_sinh, 'YYYY-MM-DD') AS ngay_sinh, tn.dia_chi, pl.trang_thai
                 FROM PHAN_LOP pl
                 JOIN THIEU_NHI tn ON tn.id_tn = pl.id_tn
                 WHERE pl.id_lop = $1
@@ -66,9 +66,9 @@ const LopModel = {
 
             for (const parent of data.parents) {
                 await client.query(`
-                    INSERT INTO PHU_HUYNH (sdt, id_tn, ten_thanh_ph, ten_ph, moi_quan_he)
-                    VALUES ($1, $2, $3, $4, $5)
-                `, [parent.sdt, idTn, parent.ten_thanh_ph, parent.ten_ph, parent.moi_quan_he]);
+                    INSERT INTO PHU_HUYNH (sdt, id_tn, ten_ph, moi_quan_he)
+                    VALUES ($1, $2, $3, $4)
+                `, [parent.sdt, idTn, parent.ten_ph, parent.moi_quan_he]);
             }
 
             for (const sacrament of data.sacraments) {
@@ -95,7 +95,7 @@ const LopModel = {
     async getStudentDetail(idGlv, idTn, yearId) {
         const { rows } = await pool.query(`
             SELECT tn.id_tn, tn.mstn, tn.ten_thanh, tn.ho_va_ten_lot, tn.ten,
-                   tn.gioi_tinh, tn.ngay_sinh, tn.dia_chi, pl.trang_thai,
+                   tn.gioi_tinh, TO_CHAR(tn.ngay_sinh, 'YYYY-MM-DD') AS ngay_sinh, tn.dia_chi, pl.trang_thai,
                    l.id_lop, l.ten_lop, k.ten_khoi
             FROM THIEU_NHI tn
             JOIN PHAN_LOP pl ON pl.id_tn = tn.id_tn
@@ -111,8 +111,8 @@ const LopModel = {
         if (!rows.length) return null;
 
         const [parents, sacraments] = await Promise.all([
-            pool.query('SELECT sdt, ten_thanh_ph, ten_ph, moi_quan_he FROM PHU_HUYNH WHERE id_tn = $1 ORDER BY id_phu_huynh', [idTn]),
-            pool.query('SELECT loai_bi_tich, ngay_lanh_nhan FROM BI_TICH WHERE id_tn = $1 ORDER BY id_bi_tich', [idTn])
+            pool.query('SELECT sdt, ten_ph, moi_quan_he FROM PHU_HUYNH WHERE id_tn = $1 ORDER BY id_phu_huynh', [idTn]),
+            pool.query('SELECT loai_bi_tich, TO_CHAR(ngay_lanh_nhan, \'YYYY-MM-DD\') AS ngay_lanh_nhan FROM BI_TICH WHERE id_tn = $1 ORDER BY id_bi_tich', [idTn])
         ]);
         return { student: rows[0], parents: parents.rows, sacraments: sacraments.rows };
     },

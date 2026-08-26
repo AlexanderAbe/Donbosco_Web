@@ -86,7 +86,7 @@ const ThieuNhiModel = {
                 tn.ten,
                 CONCAT_WS(' ', tn.ten_thanh, tn.ho_va_ten_lot, tn.ten) AS ho_ten,
                 tn.gioi_tinh,
-                tn.ngay_sinh,
+                TO_CHAR(tn.ngay_sinh, 'YYYY-MM-DD') AS ngay_sinh, -- Ép kiểu trực tiếp ở đây để tránh lệch múi giờ
                 tn.dia_chi,
                 tn.mstn,
                 l.id_lop,
@@ -110,8 +110,8 @@ const ThieuNhiModel = {
     async getDetail(idTn, yearId) {
         const studentResult = await pool.query(`
             SELECT id_tn, ten_thanh, ho_va_ten_lot, ten,
-                   CONCAT_WS(' ', ho_va_ten_lot, ten) AS ho_ten,
-                   gioi_tinh, ngay_sinh, dia_chi, mstn
+                   CONCAT_WS(' ', ten_thanh, ho_va_ten_lot, ten) AS ho_ten,
+                   gioi_tinh, TO_CHAR(ngay_sinh, 'YYYY-MM-DD') AS ngay_sinh, dia_chi, mstn
             FROM THIEU_NHI
             WHERE id_tn = $1
         `, [idTn]);
@@ -162,29 +162,42 @@ const ThieuNhiModel = {
             for (const item of danhSach) {
                 // Kiểm tra bắt buộc ngày sinh không được null/trống
                 if (!item.ngaySinh || isNaN(new Date(item.ngaySinh).getTime())) {
-                    throw new Error(`Thiếu hoặc sai định dạng ngày sinh cho thiếu nhi: ${item.hoVaTenLot} ${item.ten}`);
+                    throw new Error(`Thiếu hoặc sai định dạng ngày sinh cho thiếu nhi: ${item.hoVaTenLot || ''} ${item.ten || ''}`);
                 }
 
                 let idTn;
                 
-                // 1. Kiểm tra thiếu nhi qua MSTN
+                // 1. Kiểm tra thiếu nhi qua MSTN hoặc (Họ tên + Ngày sinh) để tránh trùng lặp
                 if (item.mstn) {
-                    const checkExist = await client.query(
+                    const checkExistByMstn = await client.query(
                         `SELECT id_tn FROM THIEU_NHI WHERE mstn = $1`,
                         [item.mstn]
                     );
-                    if (checkExist.rows.length > 0) {
-                        idTn = checkExist.rows[0].id_tn;
-                        await client.query(`
-                            UPDATE THIEU_NHI 
-                            SET ten_thanh = $1, ho_va_ten_lot = $2, ten = $3, gioi_tinh = $4, ngay_sinh = $5, dia_chi = $6
-                            WHERE id_tn = $7
-                        `, [item.tenThanh, item.hoVaTenLot, item.ten, item.gioiTinh, item.ngaySinh, item.diaChi, idTn]);
+                    if (checkExistByMstn.rows.length > 0) {
+                        idTn = checkExistByMstn.rows[0].id_tn;
                     }
                 }
 
-                // 2. Insert mới nếu chưa có
-                if (!idTn) {
+                // Nếu không tìm thấy bằng MSTN, thử tìm theo Họ tên + Ngày sinh
+                if (!idTn && item.hoVaTenLot && item.ten && item.ngaySinh) {
+                    const checkExistByName = await client.query(
+                        `SELECT id_tn FROM THIEU_NHI WHERE ho_va_ten_lot = $1 AND ten = $2 AND ngay_sinh = $3`,
+                        [item.hoVaTenLot, item.ten, item.ngaySinh]
+                    );
+                    if (checkExistByName.rows.length > 0) {
+                        idTn = checkExistByName.rows[0].id_tn;
+                    }
+                }
+
+                // 2. Nếu đã tồn tại -> UPDATE thông tin mới nhất
+                if (idTn) {
+                    await client.query(`
+                        UPDATE THIEU_NHI 
+                        SET ten_thanh = $1, ho_va_ten_lot = $2, ten = $3, gioi_tinh = $4, ngay_sinh = $5, dia_chi = $6, mstn = COALESCE($7, mstn)
+                        WHERE id_tn = $8
+                    `, [item.tenThanh, item.hoVaTenLot, item.ten, item.gioiTinh || 'Nam', item.ngaySinh, item.diaChi, item.mstn, idTn]);
+                } else {
+                    // Nếu chưa có -> INSERT mới
                     const insertTnResult = await client.query(`
                         INSERT INTO THIEU_NHI (ten_thanh, ho_va_ten_lot, ten, gioi_tinh, ngay_sinh, dia_chi, mstn)
                         VALUES ($1, $2, $3, $4, $5, $6, $7)
@@ -198,7 +211,6 @@ const ThieuNhiModel = {
                         item.diaChi || null, 
                         item.mstn || null 
                     ]);
-                    
                     idTn = insertTnResult.rows[0].id_tn;
                 }
 
@@ -222,29 +234,36 @@ const ThieuNhiModel = {
                     }
                 }
 
-                // 4. Xử lý danh sách Phụ huynh (Duyệt qua mảng phuHuynh)
+                // 4. Xử lý danh sách Phụ huynh (Xử lý an toàn với số điện thoại null/trống)
                 if (item.phuHuynh && item.phuHuynh.length > 0) {
                     for (const ph of item.phuHuynh) {
-                        const checkPh = await client.query(`
-                            SELECT id_phu_huynh FROM PHU_HUYNH WHERE id_tn = $1 AND sdt = $2
-                        `, [idTn, ph.sdt || '']);
+                        let checkPh;
+                        if (ph.sdt) {
+                            checkPh = await client.query(`
+                                SELECT id_phu_huynh FROM PHU_HUYNH WHERE id_tn = $1 AND sdt = $2
+                            `, [idTn, ph.sdt]);
+                        } else {
+                            checkPh = await client.query(`
+                                SELECT id_phu_huynh FROM PHU_HUYNH WHERE id_tn = $1 AND (sdt IS NULL OR sdt = '') AND ten_ph = $2
+                            `, [idTn, ph.tenPhuHuynh || '']);
+                        }
 
                         if (checkPh.rows.length > 0) {
                             await client.query(`
                                 UPDATE PHU_HUYNH 
-                                SET ten_thanh_ph = $1, ten_ph = $2, moi_quan_he = $3
-                                WHERE id_phu_huynh = $4
-                            `, [ph.tenThanhPhuHuynh, ph.tenPhuHuynh, ph.moiQuanHe, checkPh.rows[0].id_phu_huynh]);
+                                SET ten_ph = $1, moi_quan_he = $2
+                                WHERE id_phu_huynh = $3
+                            `, [ph.tenPhuHuynh, ph.moiQuanHe, checkPh.rows[0].id_phu_huynh]);
                         } else {
                             await client.query(`
-                                INSERT INTO PHU_HUYNH (sdt, id_tn, ten_thanh_ph, ten_ph, moi_quan_he)
-                                VALUES ($1, $2, $3, $4, $5)
-                            `, [ph.sdt || null, idTn, ph.tenThanhPhuHuynh || null, ph.tenPhuHuynh || null, ph.moiQuanHe]);
+                                INSERT INTO PHU_HUYNH (sdt, id_tn, ten_ph, moi_quan_he)
+                                VALUES ($1, $2, $3, $4)
+                            `, [ph.sdt || null, idTn, ph.tenPhuHuynh || null, ph.moiQuanHe]);
                         }
                     }
                 }
 
-                // 5. Xử lý danh sách Bí tích (Duyệt qua mảng biTich)
+                // 5. Xử lý danh sách Bí tích
                 if (item.biTich && item.biTich.length > 0) {
                     for (const bt of item.biTich) {
                         const checkBt = await client.query(`

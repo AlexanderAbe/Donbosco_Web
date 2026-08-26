@@ -26,21 +26,59 @@ const getProfileInput = body => ({
 });
 
 const parseImportDate = value => {
+    console.log("Giá trị thô đọc từ ô ngày sinh:", value, typeof value); // <--- Giữ lại log kiểm tra
     if (!value) return '';
+    
+    // Nếu là đối tượng Date của JS
     if (value instanceof Date && !Number.isNaN(value.getTime())) {
         return value.toISOString().slice(0, 10);
     }
+    
+    // Nếu là số serial ngày của Excel
     if (typeof value === 'number') {
         const date = XLSX.SSF.parse_date_code(value);
         return date ? `${date.y}-${String(date.m).padStart(2, '0')}-${String(date.d).padStart(2, '0')}` : '';
     }
 
-    const text = String(value).trim().replace(/[./]/g, '-');
-    const compact = text.replace(/-/g, '');
+    const text = String(value).trim();
+
+    // Nếu dữ liệu dạng ddmmyyyy viết liền (8 chữ số)
+    const compact = text.replace(/[-/]/g, '');
     if (/^\d{8}$/.test(compact)) {
+        // Nếu 4 ký tự đầu là năm (ví dụ 20001225)
+        if (Number.parseInt(compact.slice(0, 4), 10) > 1900) {
+            return `${compact.slice(0, 4)}-${compact.slice(4, 6)}-${compact.slice(6, 8)}`;
+        }
+        // Ngược lại hiểu là ddmmyyyy (ví dụ 25122000)
         return `${compact.slice(4, 8)}-${compact.slice(2, 4)}-${compact.slice(0, 2)}`;
     }
-    if (/^\d{4}-\d{2}-\d{2}$/.test(text)) return text;
+
+    // Nếu có dấu phân cách / hoặc - (ví dụ: 03/02/2003 hoặc 2003-02-03 hoặc 2/3/03)
+    const parts = text.split(/[-/]/);
+    if (parts.length === 3) {
+        let [p1, p2, p3] = parts;
+        
+        // Trường hợp năm ở đầu: YYYY-MM-DD hoặc YYYY/MM/DD
+        if (p1.length === 4) {
+            return `${p1}-${p2.padStart(2, '0')}-${p3.padStart(2, '0')}`;
+        }
+        
+        // Trường hợp năm ở cuối: DD-MM-YYYY hoặc DD/MM/YYYY (hoặc có năm 2 chữ số như YY)
+        if (p3.length === 4 || p3.length === 2) {
+            let year = p3;
+            if (year.length === 2) {
+                const yearNum = Number.parseInt(year, 10);
+                year = (yearNum > 50 ? '19' : '20') + year;
+            }
+            
+            // p1 là Ngày (day), p2 là Tháng (month) đúng theo thứ tự nhập DD/MM/YYYY
+            const day = p1;
+            const month = p2;
+
+            return `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
+        }
+    }
+
     return '';
 };
 
@@ -65,8 +103,7 @@ const validateGlvInput = data => {
     }
     if (data.gioiTinh && !['Nam', 'Nữ'].includes(data.gioiTinh)) return 'Giới tính phải là Nam hoặc Nữ.';
     if (data.trangThai && !statuses.includes(data.trangThai)) return 'Tình trạng GLV không hợp lệ.';
-    if (data.ngaySinh && !/^\d{4}-\d{2}-\d{2}$/.test(data.ngaySinh)) return 'Ngày sinh phải có dạng ddmmyyyy hoặc yyyy-mm-dd.';
-    if (!data.sdt) return 'Số điện thoại là bắt buộc.';
+    if (data.ngaySinh && !/^\d{4}-\d{2}-\d{2}$/.test(data.ngaySinh)) return 'Ngày sinh phải có dạng ddmmyyyy hoặc yyyy-mm-dd.';     if (!data.sdt) return 'Số điện thoại là bắt buộc.';
     return null;
 };
 
@@ -80,6 +117,22 @@ const GlvController = {
             const limit = Math.min(Math.max(Number.parseInt(req.query.limit, 10) || 20, 10), 100);
             const requestedPage = Math.max(Number.parseInt(req.query.page, 10) || 1, 1);
             const result = await GlvModel.getAll(search, status, yearId, requestedPage, limit);
+            const formattedRows = result.rows.map(glv => {
+            let ngaySinhStr = '';
+            if (glv.ngay_sinh) {
+                const d = new Date(glv.ngay_sinh);
+                if (!Number.isNaN(d.getTime())) {
+                    const year = d.getFullYear();
+                    const month = String(d.getMonth() + 1).padStart(2, '0');
+                    const day = String(d.getDate()).padStart(2, '0');
+                    ngaySinhStr = `${year}-${month}-${day}`; // Tạo chuỗi chuẩn "2003-02-03"
+                }
+            }
+            return {
+                ...glv,
+                ngay_sinh: ngaySinhStr // Ghi đè lại thành chuỗi sạch
+            };
+            });
             const totalPages = Math.max(Math.ceil(result.total / limit), 1);
             const page = Math.min(requestedPage, totalPages);
             const queryString = new URLSearchParams({
@@ -93,7 +146,7 @@ const GlvController = {
                 search,
                 selectedStatus: status,
                 statuses,
-                glvList: result.rows,
+                glvList: formattedRows,
                 page,
                 limit,
                 total: result.total,

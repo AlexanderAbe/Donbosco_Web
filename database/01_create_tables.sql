@@ -86,7 +86,6 @@ CREATE TABLE PHU_HUYNH (
     id_phu_huynh INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     sdt VARCHAR(15),
     id_tn INT REFERENCES THIEU_NHI(id_tn),
-    ten_thanh_ph VARCHAR(50),
     ten_ph VARCHAR(100),
     moi_quan_he enum_moi_quan_he
 );
