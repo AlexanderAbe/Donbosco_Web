@@ -14,7 +14,8 @@ module.exports = session({
     store: new pgSession({
         pool: pool,                // Sử dụng pool kết nối PostgreSQL ở trên
         tableName: 'session',      // Tên bảng sẽ tự động tạo trong database của bạn để lưu session
-        createTableIfMissing: true // Tự động tạo bảng 'session' nếu chưa có trong DB
+        createTableIfMissing: true, // Tự động tạo bảng 'session' nếu chưa có trong DB
+        pruneSessionInterval: false
     }),
     secret: process.env.SESSION_SECRET,
     resave: false,
