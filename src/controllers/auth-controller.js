@@ -62,7 +62,14 @@ exports.postLogin = async (req, res) => {
         // 4. Đăng nhập thành công -> Ghi log thành công
         await logAction(req, 'Đăng nhập vào hệ thống', 'Thành công', user.id_tk);
 
-        return res.redirect('/glv');
+        // --- SỬA Ở ĐÂY: DÙNG req.session.save() TRƯỚC KHI REDIRECT ---
+        req.session.save((err) => {
+            if (err) {
+                console.error("Lỗi lưu session khi đăng nhập:", err);
+                return next(err);
+            }
+            return res.redirect('/glv');
+        });
 
     } catch (error) {
         console.error('Lỗi đăng nhập:', error);
