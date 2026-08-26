@@ -14,7 +14,7 @@ exports.postLogin = async (req, res) => {
     try {
         const user = await AuthModel.findByUsername(phone);
 
-        // 1. Không tìm thấy số điện thoại -> Ghi log thất bại (id_tk là NULL / Vãng lai)
+        // 1. Không tìm thấy số điện thoại
         if (!user) {
             await logAction(req, `Đăng nhập thất bại (Không tồn tại SĐT: ${phone})`, 'Thất bại', null);
             return res.render('login', { layout: false, error: 'Sai số điện thoại' });
@@ -22,13 +22,13 @@ exports.postLogin = async (req, res) => {
 
         const match = await bcrypt.compare(password, user.password_hash);
         
-        // 2. Sai mật khẩu -> Ghi log thất bại kèm id_tk của người dùng
+        // 2. Sai mật khẩu
         if (!match) {
             await logAction(req, 'Đăng nhập thất bại (Sai mật khẩu)', 'Thất bại', user.id_tk);
             return res.render('login', { layout: false, error: 'Sai mật khẩu' });
         }
 
-        // 3. Tài khoản bị khóa -> Ghi log thất bại kèm id_tk của người dùng
+        // 3. Tài khoản bị khóa
         if (user.trang_thai === 'Đã khóa') {
             await logAction(req, 'Đăng nhập thất bại (Tài khoản đã bị khóa)', 'Thất bại', user.id_tk);
             return res.render('login', { 
@@ -46,42 +46,36 @@ exports.postLogin = async (req, res) => {
             isTruongKhoi = await AuthModel.checkTruongKhoi(id_glv);
         }
 
-        // --- SỬ DỤNG REGENERATE ĐỂ LÀM SẠCH SESSION CŨ VÀ ĐỒNG BỘ TRÊN MỌI THIẾT BỊ ---
-        req.session.regenerate(async (err) => {
+        // Gán thông tin vào session hiện tại
+        req.session.user = {
+            id_tk: user.id_tk,
+            username: user.username,
+            ten_thanh: user.ten_thanh,
+            ho_va_ten_lot: user.ho_va_ten_lot,
+            ten: user.ten,
+            is_admin: user.is_admin || false,
+            is_bdh: isBdh,
+            is_truong_khoi: isTruongKhoi,
+            id_glv: id_glv,
+            active_role: 'glv'
+        };
+
+        // 4. Ghi log thành công
+        await logAction(req, 'Đăng nhập vào hệ thống', 'Thành công', user.id_tk);
+
+        // Bắt buộc lưu session xuống cơ sở dữ liệu trước khi chuyển trang
+        req.session.save((err) => {
             if (err) {
-                console.error("Lỗi regenerate session:", err);
-                return res.status(500).send("Lỗi máy chủ nội bộ");
+                console.error("LỖI CHI TIẾT KHI LƯU SESSION:", err);
+                return res.status(500).send("Lỗi máy chủ nội bộ (Session Save)");
             }
-
-            req.session.user = {
-                id_tk: user.id_tk,
-                username: user.username,
-                ten_thanh: user.ten_thanh,
-                ho_va_ten_lot: user.ho_va_ten_lot,
-                ten: user.ten,
-                is_admin: user.is_admin || false,
-                is_bdh: isBdh,
-                is_truong_khoi: isTruongKhoi,
-                id_glv: id_glv,
-                active_role: 'glv'
-            };
-
-            // 4. Đăng nhập thành công -> Ghi log thành công
-            await logAction(req, 'Đăng nhập vào hệ thống', 'Thành công', user.id_tk);
-
-            // Bắt buộc lưu session hoàn tất xuống PostgreSQL trước khi redirect
-            req.session.save((saveErr) => {
-                if (saveErr) {
-                    console.error("Lỗi lưu session khi đăng nhập:", saveErr);
-                    return res.status(500).send("Lỗi máy chủ nội bộ");
-                }
-                return res.redirect('/glv');
-            });
+            return res.redirect('/glv');
         });
 
     } catch (error) {
-        console.error('Lỗi đăng nhập:', error);
-        res.status(500).send("Lỗi máy chủ nội bộ");
+        // IN LỖI RA TERMINAL ĐỂ XEM CHÍNH XÁC NÓ BÁO GÌ
+        console.error('LỖI CHI TIẾT TRONG CATCH ĐĂNG NHẬP:', error);
+        res.status(500).send("Lỗi máy chủ nội bộ: " + error.message);
     }
 };
 
