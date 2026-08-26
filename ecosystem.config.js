@@ -3,9 +3,9 @@ module.exports = {
     {
       name: 'thieu-nhi-tan-thai-son-app',
       script: './app.js',
-      cwd: '/var/www/Donbosco_Web', // <--- THÊM DÒNG NÀY ĐỂ PM2 ĐỨNG ĐÚNG THƯ MỤC DỰ ÁN
-      instances: 'max', 
-      exec_mode: 'cluster', 
+      cwd: '/var/www/Donbosco_Web',
+      instances: 1,         // <--- Đổi thành 1 instance duy nhất
+      exec_mode: 'fork',    // <--- Dùng chế độ fork để tập trung toàn bộ request vào 1 mối
       max_memory_restart: '400M',
       node_args: '--max-old-space-size=512',
       env: {
