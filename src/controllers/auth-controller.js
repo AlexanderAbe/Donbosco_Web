@@ -46,29 +46,37 @@ exports.postLogin = async (req, res) => {
             isTruongKhoi = await AuthModel.checkTruongKhoi(id_glv);
         }
 
-        req.session.user = {
-            id_tk: user.id_tk,
-            username: user.username,
-            ten_thanh: user.ten_thanh,
-            ho_va_ten_lot: user.ho_va_ten_lot,
-            ten: user.ten,
-            is_admin: user.is_admin || false,
-            is_bdh: isBdh,
-            is_truong_khoi: isTruongKhoi,
-            id_glv: id_glv,
-            active_role: 'glv'
-        };
-
-        // 4. Đăng nhập thành công -> Ghi log thành công
-        await logAction(req, 'Đăng nhập vào hệ thống', 'Thành công', user.id_tk);
-
-        // --- SỬA Ở ĐÂY: DÙNG req.session.save() TRƯỚC KHI REDIRECT ---
-        req.session.save((err) => {
+        // --- SỬ DỤNG REGENERATE ĐỂ LÀM SẠCH SESSION CŨ VÀ ĐỒNG BỘ TRÊN MỌI THIẾT BỊ ---
+        req.session.regenerate(async (err) => {
             if (err) {
-                console.error("Lỗi lưu session khi đăng nhập:", err);
-                return next(err);
+                console.error("Lỗi regenerate session:", err);
+                return res.status(500).send("Lỗi máy chủ nội bộ");
             }
-            return res.redirect('/glv');
+
+            req.session.user = {
+                id_tk: user.id_tk,
+                username: user.username,
+                ten_thanh: user.ten_thanh,
+                ho_va_ten_lot: user.ho_va_ten_lot,
+                ten: user.ten,
+                is_admin: user.is_admin || false,
+                is_bdh: isBdh,
+                is_truong_khoi: isTruongKhoi,
+                id_glv: id_glv,
+                active_role: 'glv'
+            };
+
+            // 4. Đăng nhập thành công -> Ghi log thành công
+            await logAction(req, 'Đăng nhập vào hệ thống', 'Thành công', user.id_tk);
+
+            // Bắt buộc lưu session hoàn tất xuống PostgreSQL trước khi redirect
+            req.session.save((saveErr) => {
+                if (saveErr) {
+                    console.error("Lỗi lưu session khi đăng nhập:", saveErr);
+                    return res.status(500).send("Lỗi máy chủ nội bộ");
+                }
+                return res.redirect('/glv');
+            });
         });
 
     } catch (error) {
@@ -138,7 +146,6 @@ exports.postChangePassword = async (req, res) => {
 
     try {
         if (newPassword !== confirmPassword) {
-            // --- BỔ SUNG LOG THẤT BẠI: Mật khẩu không khớp ---
             await logAction(req, 'Thay đổi mật khẩu thất bại (Mật khẩu mới không khớp)', 'Thất bại', id_tk);
             
             return res.render('change-password', { 
@@ -154,7 +161,6 @@ exports.postChangePassword = async (req, res) => {
 
         const isMatch = await bcrypt.compare(currentPassword, user.password_hash);
         if (!isMatch) {
-            // --- BỔ SUNG LOG THẤT BẠI: Sai mật khẩu hiện tại ---
             await logAction(req, 'Thay đổi mật khẩu thất bại (Sai mật khẩu hiện tại)', 'Thất bại', id_tk);
 
             return res.render('change-password', { 
@@ -165,7 +171,6 @@ exports.postChangePassword = async (req, res) => {
         const newPasswordHash = await bcrypt.hash(newPassword, 10);
         await AuthModel.updatePassword(id_tk, newPasswordHash);
 
-        // Ghi log đổi mật khẩu thành công
         await logAction(req, 'Thay đổi mật khẩu tài khoản', 'Thành công', id_tk);
 
         req.session.successMessage = 'Đổi mật khẩu thành công!';
@@ -179,8 +184,6 @@ exports.postChangePassword = async (req, res) => {
 
     } catch (error) {
         console.error('Lỗi đổi mật khẩu:', error);
-        
-        // --- BỔ SUNG LOG THẤT BẠI: Lỗi hệ thống bất ngờ ---
         await logAction(req, 'Thay đổi mật khẩu thất bại (Lỗi hệ thống nội bộ)', 'Thất bại', id_tk);
 
         res.render('change-password', { 
