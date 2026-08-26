@@ -23,6 +23,7 @@ module.exports = session({
     cookie: { 
         maxAge: 30 * 60 * 1000, // 30 phút
         secure: process.env.NODE_ENV === 'production', // Bật true nếu chạy HTTPS trên VPS (tùy chọn)
-        httpOnly: true
+        httpOnly: true,
+        sameSite: 'lax'
     } 
 });
