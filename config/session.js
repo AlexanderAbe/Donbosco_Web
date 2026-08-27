@@ -23,7 +23,7 @@ module.exports = session({
     proxy: true,
     cookie: { 
         maxAge: 30 * 60 * 1000, // 30 phút
-        secure: true, 
+        secure: false, 
         httpOnly: true,
         sameSite: 'lax',
         domain: 'thieunhitanthaison.com'
