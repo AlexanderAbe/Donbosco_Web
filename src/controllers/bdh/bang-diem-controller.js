@@ -1,4 +1,4 @@
-const BangDiemModel = require('../../models/bdh/bang-diem');
+const BangDiemModel = require('../../models/bdh/bang-diem-model');
 const { getBdhBaseData } = require('../../utils/base-data-helper');
 const pool = require('../../../config/database');
 const PDFDocument = require('pdfkit');
@@ -181,6 +181,9 @@ const BangDiemController = {
             );
             doc.pipe(res);
 
+            // Ghi log thành công ngay khi khởi tạo stream xuất file thành công
+            await logAction(req, `Xuất file PDF bảng điểm tổng kết niên khóa: ${selectedYear.nien_khoa}`, 'Thành công');
+
             const columns = [
                 { title: 'STT', width: 24, align: 'center', value: (_, number) => String(number) },
                 { title: 'MSTN', width: 43, align: 'center', value: student => student.mstn || '' },
@@ -238,7 +241,11 @@ const BangDiemController = {
 
                     if (tableY + estimatedRowHeight > 750) {
                         doc.addPage({ size: 'A4', layout: 'portrait', margin: 0 });
-                        tableY = 35;
+                        tableY = 50; // Cho lùi xuống một chút để thoáng trang mới
+                        
+                        // Vẽ tiêu đề phụ khi sang trang mới của cùng một lớp
+                        doc.font('Roboto-Bold').fontSize(9).text(`Khối: ${group.tenKhoi} - Lớp: ${group.tenLop} (tiếp theo)`, PDF_LEFT, 30);
+                        
                         drawScoreTableHeader(doc, columns, tableY);
                         tableY += PDF_HEADER_HEIGHT;
                     }
@@ -262,13 +269,8 @@ const BangDiemController = {
 
             doc.end();
 
-            // Ghi audit thành công sau khi xuất PDF thành công
-            await logAction(req, `Xuất file PDF bảng điểm tổng kết niên khóa: ${selectedYear.nien_khoa}`, 'Thành công');
-
         } catch (error) {
             console.error('❌ Lỗi xuất bảng điểm PDF:', error);
-            
-            // Ghi audit thất bại nếu lỗi xuất file
             await logAction(req, `Xuất PDF bảng điểm tổng kết thất bại do lỗi hệ thống`, 'Thất bại');
 
             if (!res.headersSent) {

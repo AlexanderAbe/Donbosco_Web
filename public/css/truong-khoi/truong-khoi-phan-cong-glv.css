@@ -1,0 +1,472 @@
+:root {
+    --bg-60-main: #fffbe8;
+    --bg-60-surface: #ffffff;
+    --primary-30: #d97706;
+    --primary-30-hover: #b45309;
+    --primary-30-light: #fef3c7;
+    --accent-10: #ea580c;
+    --text-main: #334155;
+    --text-muted: #64748b;
+    --border-color: #fef08a40;
+    --sidebar-width: 280px;
+}
+/* ==================== TỔNG THỂ TRANG ==================== */
+.tk-class-page {
+    padding: 35px 24px 40px;
+    max-width: 1400px;
+    margin: 0 auto;
+    font-family: inherit;
+    color: var(--text-main);
+    background-color: var(--bg-60-main);
+    min-height: 100vh;
+    box-sizing: border-box;
+}
+
+.tk-class-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+}
+
+.tk-class-header .eyebrow {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--text-main);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 0;
+}
+
+.tk-class-header .eyebrow i {
+    color: var(--primary-30);
+}
+
+/* ==================== THÔNG BÁO & TRẠNG THÁI TRỐNG ==================== */
+.tk-alert {
+    background: #fef2f2;
+    border: 1px solid #fecaca;
+    color: #991b1b;
+    padding: 12px 16px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 0.95rem;
+}
+
+.tk-empty {
+    text-align: center;
+    padding: 60px 20px;
+    background: var(--bg-60-surface);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+}
+
+.tk-empty i {
+    font-size: 3rem;
+    color: var(--text-muted);
+    margin-bottom: 16px;
+}
+
+.tk-empty h2 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--text-main);
+    margin-bottom: 8px;
+}
+
+.tk-empty p {
+    color: var(--text-muted);
+    font-size: 0.95rem;
+    margin: 0;
+}
+
+/* ==================== KHUNG LỚP HỌC (PANEL) ==================== */
+.class-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+}
+
+.class-panel {
+    background: var(--bg-60-surface);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    overflow: hidden;
+}
+
+.class-panel-header {
+    padding: 18px 24px;
+    background: var(--bg-60-surface);
+    border-bottom: 1px solid var(--border-color);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.class-panel-header div {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.class-label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    letter-spacing: 0.05em;
+    margin: 0;
+}
+
+.class-panel-header h2 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--text-main);
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.class-panel-header h2 i {
+    color: var(--primary-30);
+    font-size: 1rem;
+}
+
+.student-count {
+    background: var(--primary-30-light);
+    color: var(--primary-30-hover);
+    font-size: 0.8rem;
+    font-weight: 600;
+    padding: 4px 10px;
+    border-radius: 20px;
+}
+
+/* ==================== BẢNG DỮ LIỆU ==================== */
+.table-scroll {
+    width: 100%;
+    overflow-x: auto;
+}
+
+.class-panel table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: left;
+    font-size: 0.9rem;
+    min-width: 700px;
+}
+
+.class-panel th {
+    background: var(--bg-60-surface);
+    color: var(--text-muted);
+    font-weight: 600;
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border-color);
+    white-space: nowrap;
+}
+
+.class-panel td {
+    padding: 12px 16px;
+    border-bottom: 1px solid rgba(241, 245, 249, 0.6);
+    color: var(--text-main);
+    vertical-align: middle;
+}
+
+.class-panel tr:last-child td {
+    border-bottom: none;
+}
+
+.class-panel tr:hover td {
+    background: var(--bg-60-main);
+}
+
+/* ==================== CÁC THÀNH PHẦN TRONG BẢNG ==================== */
+/* Badge trạng thái GLV */
+.status {
+    display: inline-block;
+    padding: 4px 8px;
+    border-radius: 6px;
+    font-size: 0.78rem;
+    font-weight: 500;
+}
+.status.is-active {
+    background: #dcfce7;
+    color: #15803d;
+}
+.status.is-inactive {
+    background: #f1f5f9;
+    color: var(--text-muted);
+}
+
+/* Trạng thái phân công lớp */
+.assignment-current {
+    color: #15803d;
+    font-weight: 600;
+    font-size: 0.85rem;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.assignment-other {
+    color: var(--primary-30-hover);
+    background: var(--primary-30-light);
+    padding: 4px 8px;
+    border-radius: 6px;
+    font-size: 0.78rem;
+    font-weight: 500;
+}
+
+/* Form phân công nhanh */
+.assign-form {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.assign-form select {
+    padding: 6px 10px;
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    background: var(--bg-60-surface);
+    color: var(--text-main);
+    outline: none;
+}
+.assign-form select:focus {
+    border-color: var(--primary-30);
+}
+
+/* Nút bấm hành động chung */
+.action-button {
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    cursor: pointer;
+    border: 1px solid transparent;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: background 0.15s ease, border-color 0.15s ease;
+    text-decoration: none;
+}
+
+.assign-action {
+    background: var(--primary-30);
+    color: #fff;
+}
+.assign-action:hover {
+    background: var(--primary-30-hover);
+}
+
+.detail-button {
+    background: var(--bg-60-main);
+    color: var(--text-main);
+    border-color: #cbd5e1;
+}
+.detail-button:hover {
+    background: #e2e8f0;
+}
+
+/* ==================== MODAL CHI TIẾT GLV ==================== */
+.tk-modal {
+    border: none;
+    border-radius: 12px;
+    padding: 0;
+    width: 100%;
+    max-width: 480px;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    overflow: hidden;
+    background: var(--bg-60-surface);
+}
+
+.tk-modal::backdrop {
+    background: rgba(15, 23, 42, 0.6);
+}
+
+.modal-heading {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 20px;
+    background: var(--bg-60-main);
+    border-bottom: 1px solid var(--border-color);
+}
+
+.modal-heading h2 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--text-main);
+    margin: 0;
+}
+
+.close-button {
+    background: transparent;
+    border: none;
+    font-size: 1.5rem;
+    color: var(--text-muted);
+    cursor: pointer;
+    padding: 0;
+    line-height: 1;
+}
+.close-button:hover {
+    color: var(--text-main);
+}
+
+.modal-content {
+    padding: 20px;
+    background: var(--bg-60-surface);
+}
+
+.detail-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 12px;
+}
+
+.detail-grid div {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 0;
+    border-bottom: 1px solid rgba(241, 245, 249, 0.8);
+}
+
+.detail-grid div:last-child {
+    border-bottom: none;
+}
+
+.detail-grid span {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+}
+
+.detail-grid strong {
+    color: var(--text-main);
+    font-size: 0.9rem;
+    text-align: right;
+}
+
+/* ==================== RESPONSIVE (MOBILE) ==================== */
+@media (max-width: 760px) {
+    .tk-class-page {
+        padding: 20px 12px;
+    }
+}
+
+@media (max-width: 600px) {
+    .table-scroll {
+        overflow: visible;
+    }
+    .class-panel table {
+        min-width: 0;
+        display: block;
+    }
+    .class-panel table thead {
+        display: none;
+    }
+    .class-panel table tbody,
+    .class-panel table tr,
+    .class-panel table td {
+        display: block;
+        width: 100%;
+        box-sizing: border-box;
+    }
+    
+    /* Thiết kế card GLV siêu gọn trên mobile */
+    .class-panel table tr {
+        margin-bottom: 8px;
+        padding: 10px 12px;
+        border: 1px solid var(--border-color);
+        border-radius: 8px;
+        background: var(--bg-60-surface);
+        display: grid;
+        grid-template-columns: 1fr auto; /* Chia bố cục 2 cột: Thông tin bên trái, nút chi tiết bên phải */
+        gap: 4px 8px;
+        align-items: center;
+    }
+
+    .class-panel table td {
+        padding: 0;
+        border: 0;
+        white-space: normal;
+    }
+
+    /* 1. Họ và tên GLV (Chiếm cột trái, hàng 1) */
+    .class-panel table td:nth-child(1) {
+        grid-column: 1 / 2;
+        font-size: 0.95rem;
+        font-weight: 600;
+    }
+    
+    /* 2. Số điện thoại (Cột trái, hàng 2) */
+    .class-panel table td:nth-child(2) {
+        grid-column: 1 / 2;
+        font-size: 0.8rem;
+        color: var(--text-muted);
+    }
+    .class-panel table td:nth-child(2)::before {
+        content: "SĐT: ";
+    }
+
+    /* 3. Tình trạng (Đưa lên góc phải, hàng 1 cùng tên cho gọn) */
+    .class-panel table td:nth-child(3) {
+        grid-column: 2 / 3;
+        grid-row: 1 / 2;
+        text-align: right;
+    }
+    .class-panel table td:nth-child(3) .status {
+        font-size: 0.7rem;
+        padding: 2px 6px;
+    }
+
+    /* 5. Nút Xem chi tiết (Đưa lên góc phải, hàng 2 cùng SĐT) */
+    .class-panel table td:nth-child(5) {
+        grid-column: 2 / 3;
+        grid-row: 2 / 3;
+        text-align: right;
+    }
+    .detail-button {
+        width: auto !important;
+        padding: 4px 8px;
+        font-size: 0.75rem;
+    }
+
+    /* 4. Phân công lớp (Trải dài ở hàng dưới cùng của card) */
+    .class-panel table td:nth-child(4) {
+        grid-column: 1 / -1; /* Trải rộng hết chiều ngang bên dưới */
+        margin-top: 6px;
+        padding-top: 6px;
+        border-top: 1px dashed rgba(241, 245, 249, 0.9);
+    }
+
+    /* Form chọn lớp nằm ngang: Dropdown chiếm phần lớn, nút Lưu nhỏ gọn bên cạnh */
+    .assign-form {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        gap: 6px;
+        width: 100%;
+    }
+
+    .assign-form select {
+        flex: 1;
+        padding: 5px 8px;
+        font-size: 0.8rem;
+        height: 30px;
+    }
+
+    .assign-action {
+        width: auto !important;
+        padding: 4px 10px;
+        font-size: 0.8rem;
+        height: 30px;
+        justify-content: center;
+        white-space: nowrap;
+    }
+}

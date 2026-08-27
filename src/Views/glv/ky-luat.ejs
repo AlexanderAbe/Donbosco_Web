@@ -6,9 +6,8 @@
 
 <main class="discipline-page">
     <header class="class-header">
-        <span class="class-eyebrow"><i class="fa-solid fa-layer-group"></i> Nhập điểm</span>
+        <span class="class-eyebrow"><i class="fa-solid fa-layer-group"></i> Quản lý lớp học</span>
         <h1>Điểm kỷ luật theo tháng</h1>
-        <p>Chọn niên khóa, lớp và tháng để nhập điểm cho từng thiếu nhi.</p>
     </header>
 
     <% if (message) { %><div class="discipline-notice success"><i class="fa-solid fa-circle-check"></i> <%= message %></div><% } %>
@@ -21,14 +20,6 @@
             <div class="discipline-field">
                 <label for="discipline-search"><i class="fa-solid fa-magnifying-glass"></i> Tìm kiếm thiếu nhi</label>
                 <input id="discipline-search" type="search" placeholder="Tên hoặc mã số..." autocomplete="off">
-            </div>
-            <div class="discipline-field">
-                <label for="discipline-class"><i class="fa-solid fa-school"></i> Lớp</label>
-                <select id="discipline-class" name="id_lop" onchange="this.form.submit()">
-                    <% classes.forEach(item => { %>
-                        <option value="<%= item.id_lop %>" <%= item.id_lop === selectedClassId ? 'selected' : '' %>><%= item.ten_khoi %> - <%= item.ten_lop %></option>
-                    <% }) %>
-                </select>
             </div>
             <div class="discipline-field">
                 <label for="discipline-month"><i class="fa-solid fa-calendar-days"></i> Tháng</label>

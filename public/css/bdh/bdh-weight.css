@@ -196,17 +196,17 @@ table tr:hover {
 }
 
 /* ==========================================
-   4. RESPONSIVE
+   4. RESPONSIVE (TỐI ƯU CHO ĐIỆN THOẠI)
    ========================================== */
 @media (max-width: 768px) {
     .dashboard-container {
-        padding: 12px 16px;
+        padding: 12px 14px;
     }
 
     .weight-card,
     .section-card {
-        padding: 16px;
-        margin-bottom: 16px;
+        padding: 14px;
+        margin-bottom: 14px;
         border-radius: 10px;
     }
 
@@ -218,33 +218,53 @@ table tr:hover {
         font-size: 13px;
     }
 
+    /* Thu hẹp khoảng cách và thu gọn form trên mobile */
     .form-row {
-        gap: 12px;
-        margin-bottom: 12px;
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr)); /* Chia 2 cột để form ngắn lại */
+        gap: 10px;
+        margin-bottom: 10px;
+    }
+
+    /* Dòng đầu tiên (Niên khóa, Số lượng bài KT, STT khối) cho hiển thị 1 cột hoặc tùy chỉnh linh hoạt */
+    .weight-card form .form-row:first-of-type {
+        grid-template-columns: 1fr;
     }
 
     .form-group {
-        min-width: 100%;
+        min-width: unset !important;
+        flex: unset !important;
+    }
+
+    .form-group label {
+        margin-bottom: 4px;
+        font-size: 12px;
+    }
+
+    .form-group input,
+    .form-group select {
+        padding: 8px 10px;
+        font-size: 13px;
+        border-radius: 6px;
     }
 
     .btn-primary-custom {
         width: 100%;
-        padding: 12px;
-    }
-
-    .custom-table th,
-    .custom-table td,
-    table th,
-    table td {
-        padding: 10px 12px;
+        padding: 10px;
+        margin-top: 4px;
         font-size: 13px;
     }
 
+    /* --- Tối ưu hóa hiển thị bảng lịch sử dạng Card trên Mobile --- */
     .table-responsive {
         overflow-x: visible;
         border: none;
         background: transparent;
         box-shadow: none;
+    }
+
+    .custom-table thead {
+        display: none; /* Ẩn tiêu đề ngang */
     }
 
     .custom-table,
@@ -258,57 +278,21 @@ table tr:hover {
     .custom-table tr {
         background: #ffffff;
         border: 1px solid #e5e7eb;
-        border-radius: 10px;
-        margin-bottom: 12px;
-        padding: 12px;
-        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02);
-    }
-
-    .custom-table td {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 8px 0;
-        border-bottom: 1px solid #e5e7eb;
-    }
-
-    .custom-table td:last-child {
-        border-bottom: none;
-    }
-
-    .custom-table td::before {
-        content: attr(data-label);
-        font-weight: 600;
-        color: #64748b;
-        text-align: left;
-        font-size: 13px;
-    }
-
-    /* Ẩn tiêu đề ngang (thead) của bảng */
-    .custom-table thead {
-        display: none;
-    }
-
-    /* Biến mỗi dòng (mỗi niên khóa) thành một Card riêng biệt, bo tròn và đổ bóng nhẹ */
-    .custom-table tr {
-        background: #ffffff;
-        border: 1px solid #e5e7eb;
         border-radius: 12px;
-        padding: 16px;
-        margin-bottom: 14px;
-        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.03);
+        padding: 14px;
+        margin-bottom: 12px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
     }
 
-    /* Tách mỗi ô thành một dòng ngang trong card (Nhãn bên trái, Giá trị bên phải) */
     .custom-table td {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        padding: 8px 0;
+        padding: 7px 0;
         border-bottom: 1px solid #f3f4f6;
-        font-size: 14px;
+        font-size: 13px;
         text-align: right;
-        white-space: normal; /* Cho phép tự xuống dòng nếu nội dung dài */
+        white-space: normal;
     }
 
     .custom-table td:last-child {
@@ -320,14 +304,14 @@ table tr:hover {
         padding-top: 0;
     }
 
-    /* Tự động lấy nhãn từ thuộc tính data-label đã khai báo trong file partial */
+    /* Tự động lấy nhãn từ data-label để hiển thị rõ ràng bên trái mỗi dòng dữ liệu */
     .custom-table td::before {
         content: attr(data-label);
         font-weight: 500;
         color: #6b7280;
         font-size: 13px;
         text-align: left;
-        margin-right: 16px;
+        margin-right: 12px;
         flex-shrink: 0;
     }
 }

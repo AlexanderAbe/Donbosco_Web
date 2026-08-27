@@ -1,3 +1,6 @@
+/* ==========================================
+   1. GIAO DIỆN TỔNG THỂ & LAYOUT
+   ========================================== */
 .glv-page {
     max-width: 1280px;
     margin: 0 auto;
@@ -39,6 +42,9 @@
     font-size: 13px;
 }
 
+/* ==========================================
+   2. FORM LỌC & TOOLBAR ACTIONS
+   ========================================== */
 .glv-page .filter-form {
     display: flex;
     flex: 1 1 700px;
@@ -85,14 +91,19 @@
     background: #ffffff;
     color: #1e293b;
     padding: 9px 11px;
+    box-sizing: border-box;
 }
 
 .glv-page input:focus,
 .glv-page select:focus {
     border-color: #ef4444;
     box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.12);
+    outline: none;
 }
 
+/* ==========================================
+   3. NÚT BẤM (BUTTONS)
+   ========================================== */
 .glv-page .btn {
     border: 0;
     border-radius: 6px;
@@ -101,6 +112,10 @@
     font-weight: 600;
     padding: 9px 12px;
     white-space: nowrap;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
 }
 
 .glv-page .btn-primary {
@@ -136,6 +151,9 @@
     color: #334155;
 }
 
+/* ==========================================
+   4. BẢNG DỮ LIỆU & SECTION
+   ========================================== */
 .glv-page .section-card {
     overflow: hidden;
 }
@@ -255,6 +273,9 @@
     color: #166534;
 }
 
+/* ==========================================
+   5. MODAL CHUNG
+   ========================================== */
 .glv-modal {
     display: none;
     position: fixed;
@@ -418,32 +439,67 @@
     padding: 10px 12px;
 }
 
+/* ==========================================
+   6. TỐI ƯU RESPONSIVE CHO ĐIỆN THOẠI (MOBILE)
+   ========================================== */
 @media screen and (max-width: 900px) {
-    .glv-page .page-toolbar,
+    .glv-page .page-toolbar {
+        padding: 14px;
+        gap: 12px;
+    }
+
+    /* Gom form lọc thành dạng lưới 2 cột gọn gàng trên mobile */
     .glv-page .filter-form {
-        align-items: stretch;
-        flex-direction: column;
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 10px;
+        width: 100%;
+        flex: unset !important;
     }
 
-    .glv-page .field-group,
+    /* Ô tìm kiếm chiếm trọn 2 cột ở trên cùng */
     .glv-page .search-field {
-        min-width: 0;
+        grid-column: span 2;
+        min-width: 0 !important;
+        flex-grow: unset !important;
     }
 
-    .glv-page .filter-form .btn {
+    .glv-page .field-group {
+        min-width: 0 !important;
+        flex: unset !important;
         width: 100%;
     }
 
+    /* Thu nhỏ padding input/select */
+    .glv-page input,
+    .glv-page select {
+        padding: 8px 10px;
+        font-size: 13px;
+    }
+
+    /* Nút lọc chiếm trọn 2 cột ở cuối form */
+    .glv-page .filter-form .btn {
+        grid-column: span 2;
+        width: 100%;
+        padding: 10px;
+        font-size: 13px;
+    }
+
+    /* Nhóm các nút hành động (Thêm mới, Import) nằm ngang 50/50 phía trên hoặc dưới */
     .glv-page .toolbar-actions {
         width: 100%;
+        display: flex;
+        gap: 8px;
     }
 
     .glv-page .toolbar-actions .btn {
         flex: 1;
+        padding: 10px;
     }
 }
 
 @media screen and (max-width: 600px) {
+    /* Modal trên mobile chuyển về 1 cột */
     .glv-modal .modal-body,
     .glv-modal .detail-row {
         grid-template-columns: 1fr;
@@ -456,19 +512,72 @@
     .glv-modal .detail-row span {
         text-align: left;
     }
-}
 
-@media screen and (max-width: 600px) {
-    .glv-page .table-wrap { overflow: visible; }
-    .glv-page .table-wrap table { display: block; }
-    .glv-page .table-wrap thead { display: none; }
-    .glv-page .table-wrap tbody, .glv-page .table-wrap tr, .glv-page .table-wrap td { display: block; width: 100%; box-sizing: border-box; }
-    .glv-page .table-wrap tr { margin-bottom: 12px; padding: 12px; border: 1px solid #e2e8f0; border-radius: 8px; background: #fff; }
-    .glv-page .table-wrap td { padding: 4px 0; border: 0; white-space: normal; }
-    .glv-page .table-wrap td::before { display: inline; color: #64748b; font-size: .76rem; }
-    .glv-page .table-wrap td:nth-child(2)::before { content: 'Số điện thoại: '; }
-    .glv-page .table-wrap td:nth-child(3)::before { content: 'Khối phụ trách: '; }
-    .glv-page .table-wrap td:nth-child(4)::before { content: 'Tình trạng: '; }
-    .glv-page .table-wrap td:nth-child(5) { padding-top: 8px; }
-    .glv-page .table-wrap td:nth-child(5)::before { content: 'Thao tác: '; display: block; margin-bottom: 5px; }
+    /* Biến bảng danh sách GLV thành thẻ Card riêng biệt */
+    .glv-page .table-wrap { 
+        overflow: visible; 
+    }
+    .glv-page .table-wrap table { 
+        display: block; 
+    }
+    .glv-page .table-wrap thead { 
+        display: none; 
+    }
+    .glv-page .table-wrap tbody, 
+    .glv-page .table-wrap tr, 
+    .glv-page .table-wrap td { 
+        display: block; 
+        width: 100%; 
+        box-sizing: border-box; 
+    }
+    .glv-page .table-wrap tr { 
+        margin-bottom: 12px; 
+        padding: 14px; 
+        border: 1px solid #e2e8f0; 
+        border-radius: 10px; 
+        background: #fff; 
+        box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+    }
+    .glv-page .table-wrap td { 
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 7px 0; 
+        border-bottom: 1px solid #f8fafc; 
+        white-space: normal; 
+        text-align: right;
+    }
+    .glv-page .table-wrap td:last-child {
+        border-bottom: none;
+        padding-top: 10px;
+        display: block;
+        text-align: left;
+    }
+
+    /* Gắn nhãn tự động cho từng dòng dữ liệu trong thẻ Card */
+    .glv-page .table-wrap td:nth-child(1)::before { content: 'Họ tên'; color: #64748b; font-weight: 500; font-size: 13px; text-align: left; }
+    .glv-page .table-wrap td:nth-child(2)::before { content: 'Số điện thoại'; color: #64748b; font-weight: 500; font-size: 13px; text-align: left; }
+    .glv-page .table-wrap td:nth-child(3)::before { content: 'Khối phụ trách'; color: #64748b; font-weight: 500; font-size: 13px; text-align: left; }
+    .glv-page .table-wrap td:nth-child(4)::before { content: 'Tình trạng'; color: #64748b; font-weight: 500; font-size: 13px; text-align: left; }
+    
+    .glv-page .table-wrap td:nth-child(5)::before { 
+        content: 'Thao tác'; 
+        display: block; 
+        margin-bottom: 6px; 
+        color: #64748b; 
+        font-weight: 500; 
+        font-size: 13px; 
+    }
+    
+    /* Làm các nút bấm thao tác và form đổi trạng thái trải đều trên mobile */
+    .glv-page .table-wrap .actions,
+    .glv-page .table-wrap .quick-status-form {
+        flex-direction: column;
+        width: 100%;
+    }
+    .glv-page .table-wrap .quick-status-form select,
+    .glv-page .table-wrap .actions .btn {
+        width: 100%;
+        min-width: 0;
+    }
 }

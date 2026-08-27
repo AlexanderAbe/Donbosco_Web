@@ -148,7 +148,7 @@ BEFORE INSERT OR UPDATE ON PHAN_LOP
 FOR EACH ROW
 EXECUTE FUNCTION fn_check_trung_lop_cau_hinh();
 
--- A. Thủ tục tự động tổng hợp điểm chuyên cần tháng từ bảng điểm danh
+--thủ tục tụ động tính điểm chuyên cần tháng
 CREATE OR REPLACE PROCEDURE sp_tinh_chuyen_can_thang(
     p_id_tn INT,
     p_thang INT,
@@ -161,13 +161,15 @@ DECLARE
     v_so_buoi_hien_dien INT := 0;
     v_diem_cc DECIMAL(4,2) := 0;
 BEGIN
+    -- Sửa lại bằng cách kiểm tra id_cau_hinh_nam_hoc thông qua bảng LOP_HOC của buổi điểm danh
     SELECT COUNT(*), 
-           SUM(CASE WHEN trang_thai IN ('Có mặt', 'Đi sớm') THEN 1 ELSE 0 END)
+           SUM(CASE WHEN dd.trang_thai IN ('Có mặt', 'Đi sớm') THEN 1 ELSE 0 END)
     INTO v_tong_buoi, v_so_buoi_hien_dien
-    FROM DIEM_DANH
-    WHERE id_tn = p_id_tn 
-      AND id_cau_hinh_nam_hoc = p_id_cau_hinh_nam_hoc
-      AND EXTRACT(MONTH FROM ngay_diem_danh) = p_thang;
+    FROM DIEM_DANH dd
+    JOIN LOP_HOC l ON dd.id_lop = l.id_lop
+    WHERE dd.id_tn = p_id_tn 
+      AND l.id_cau_hinh_nam_hoc = p_id_cau_hinh_nam_hoc
+      AND EXTRACT(MONTH FROM dd.ngay_diem_danh) = p_thang;
 
     IF v_tong_buoi = 0 THEN
         RETURN;
@@ -189,7 +191,6 @@ END;
 $$;
 
 
--- B. Thủ tục tính điểm tổng kết năm học dựa trên ID cấu hình năm học
 CREATE OR REPLACE PROCEDURE sp_tinh_tong_ket_nam_hoc(
     p_id_cau_hinh_nam_hoc INT,
     p_id_lop INT
@@ -225,12 +226,12 @@ BEGIN
         v_tong_he_so := v_hs_chuyen_can + v_hs_hoc_tap + v_hs_ky_luat;
     END IF;
 
-    -- Duyệt qua từng thiếu nhi trong lớp
+    -- Duyệt qua từng thiếu nhi trong lớp (Sử dụng đúng id_cau_hinh_nam_hoc)
     FOR r_tn IN 
-                SELECT id_tn FROM PHAN_LOP
-                WHERE id_lop = p_id_lop
-                    AND id_cau_hinh_nam_hoc = p_id_cau_hinh_nam_hoc
-                    AND trang_thai = 'Đang học'
+        SELECT id_tn FROM PHAN_LOP
+        WHERE id_lop = p_id_lop
+            AND id_cau_hinh_nam_hoc = p_id_cau_hinh_nam_hoc
+            AND trang_thai = 'Đang học'
     LOOP
         SELECT COALESCE(AVG(diem_so), 0) INTO v_dtb_hoc_tap
         FROM DIEM_HOC_TAP WHERE id_tn = r_tn.id_tn AND id_cau_hinh_nam_hoc = p_id_cau_hinh_nam_hoc;

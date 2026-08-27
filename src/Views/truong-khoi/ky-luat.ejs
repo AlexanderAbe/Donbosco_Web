@@ -1,5 +1,67 @@
 <link rel="stylesheet" href="/css/reset.css">
-<link rel="stylesheet" href="/css/truong-khoi/truong-khoi-lop.css">
+<link rel="stylesheet" href="/css/truong-khoi/truong-khoi-ky-luat.css">
 
-<main class="tk-class-page"><header class="tk-class-header"><div><p class="eyebrow"><i class="fa-solid fa-scale-balanced"></i> Theo dõi rèn luyện</p><h1>Điểm kỷ luật</h1><p>Chỉ xem điểm kỷ luật của thiếu nhi trong khối.</p></div></header>
-<% if (!discipline.length) { %><div class="tk-empty"><i class="fa-solid fa-file-circle-question"></i><h2>Chưa có điểm kỷ luật</h2><p>Niên khóa này chưa có dữ liệu trong khối.</p></div><% } else { const classes = []; discipline.forEach(item => { let group = classes.find(value => value.id_lop === item.id_lop); if (!group) { group = { id_lop: item.id_lop, ten_lop: item.ten_lop, ten_khoi: item.ten_khoi, rows: [] }; classes.push(group); } group.rows.push(item); }); %><div class="class-grid"><% classes.forEach(classItem => { %><section class="class-panel"><div class="class-panel-header"><div><p class="class-label"><%= classItem.ten_khoi %></p><h2><i class="fa-solid fa-school"></i> <%= classItem.ten_lop %></h2></div></div><div class="table-scroll"><table><thead><tr><th>STT</th><th>Mã số</th><th>Họ và tên</th><th>Tháng</th><th>Điểm kỷ luật</th></tr></thead><tbody><% classItem.rows.forEach((item, index) => { %><tr><td><%= index + 1 %></td><td><%= item.mstn || '-' %></td><td><strong><%= [item.ten_thanh, item.ho_va_ten_lot, item.ten].filter(Boolean).join(' ') %></strong></td><td>Tháng <%= item.thang %></td><td><strong><%= item.diem ?? '-' %></strong></td></tr><% }) %></tbody></table></div></section><% }) %></div><% } %></main>
+<main class="tk-class-page">
+    <header class="tk-class-header">
+        <div>
+            <p class="eyebrow"><i class="fa-solid fa-scale-balanced"></i> Theo dõi kỷ luật</p>
+            <h1>Điểm kỷ luật toàn khối</h1>
+        </div>
+    </header>
+
+    <% if (!discipline || !discipline.length) { %>
+        <div class="tk-empty">
+            <i class="fa-solid fa-file-circle-question"></i>
+            <h2>Chưa có điểm kỷ luật</h2>
+            <p>Niên khóa này chưa có dữ liệu trong khối.</p>
+        </div>
+    <% } else { %>
+        <% 
+            // Sắp xếp trực tiếp mảng discipline theo tên thiếu nhi (A-Z)
+            const sortedDiscipline = [...discipline].sort((a, b) => {
+                const nameA = (a.ten || '').trim().toLowerCase();
+                const nameB = (b.ten || '').trim().toLowerCase();
+                if (nameA !== nameB) {
+                    return nameA.localeCompare(nameB, 'vi');
+                }
+                // Nếu trùng tên thì so sánh tiếp họ lót
+                const hoA = (a.ho_va_ten_lot || '').trim().toLowerCase();
+                const hoB = (b.ho_va_ten_lot || '').trim().toLowerCase();
+                return hoA.localeCompare(hoB, 'vi');
+            });
+        %>
+
+        <div class="class-panel">
+            <div class="table-scroll">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>STT</th>
+                            <th>Mã số</th>
+                            <th>Họ và tên</th>
+                            <th>Lớp</th>
+                            <th>Tháng</th>
+                            <th>Điểm kỷ luật</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% sortedDiscipline.forEach((item, index) => { %>
+                            <tr>
+                                <td><%= index + 1 %></td>
+                                <td><%= item.mstn || '-' %></td>
+                                <td>
+                                    <strong><%= [item.ten_thanh, item.ho_va_ten_lot, item.ten].filter(Boolean).join(' ') %></strong>
+                                </td>
+                                <td><%= item.ten_lop || '-' %></td>
+                                <td>Tháng <%= item.thang %></td>
+                                <td>
+                                    <strong><%= item.diem ?? '-' %></strong>
+                                </td>
+                            </tr>
+                        <% }) %>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    <% } %>
+</main>

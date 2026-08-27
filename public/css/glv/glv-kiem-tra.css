@@ -1,3 +1,15 @@
+:root {
+    --class-bg: #f5f8fc;
+    --class-surface: #ffffff;
+    --class-ink: #1f2937;
+    --class-muted: #64748b;
+    --class-line: #dbe5f0;
+    --class-primary: #2563eb;
+    --class-primary-dark: #1d4ed8;
+}
+.class-header h1 { margin: 6px 0 8px; font-size: clamp(1.6rem, 3vw, 2.35rem); }
+.class-header p { color: var(--class-muted); margin: 0; }
+.class-eyebrow { color: var(--class-primary-dark); font-size: .78rem; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
 .test-page { min-height: calc(100vh - 60px); padding: 36px clamp(18px, 4vw, 56px); background: linear-gradient(145deg, #eef5ff 0%, #f5f8fc 48%, #fffdf7 100%); color: #1f2937; }
 .test-toolbar { display: grid; grid-template-columns: minmax(220px, 1fr) repeat(3, minmax(140px, 190px)); gap: 12px; align-items: end; margin: 22px 0; }
 .test-field { display: grid; gap: 6px; }

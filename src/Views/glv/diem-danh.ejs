@@ -8,7 +8,6 @@
     <header class="class-header">
         <span class="class-eyebrow"><i class="fa-solid fa-layer-group"></i> Quản lý lớp học</span>
         <h1>Điểm danh thiếu nhi</h1>
-        <p>Chọn lớp, loại buổi và ngày để ghi nhận điểm danh.</p>
     </header>
 
     <% if (message) { %><div class="attendance-notice success"><i class="fa-solid fa-circle-check"></i> <%= message %></div><% } %>
@@ -21,14 +20,6 @@
             <div class="attendance-field">
                 <label for="attendance-search"><i class="fa-solid fa-magnifying-glass"></i> Tìm kiếm thiếu nhi</label>
                 <input id="attendance-search" type="search" placeholder="Tên hoặc mã số..." autocomplete="off">
-            </div>
-            <div class="attendance-field">
-                <label for="attendance-class"><i class="fa-solid fa-school"></i> Lớp</label>
-                <select id="attendance-class" name="id_lop" onchange="this.form.submit()">
-                    <% classes.forEach(item => { %>
-                        <option value="<%= item.id_lop %>" <%= item.id_lop === selectedClassId ? 'selected' : '' %>><%= item.ten_khoi %> - <%= item.ten_lop %></option>
-                    <% }) %>
-                </select>
             </div>
             <div class="attendance-field">
                 <label for="attendance-type"><i class="fa-solid fa-clock"></i> Loại buổi</label>

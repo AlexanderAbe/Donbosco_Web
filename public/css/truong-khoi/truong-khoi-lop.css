@@ -1,62 +1,466 @@
-.tk-class-page { padding: 92px 32px 40px; max-width: 1500px; margin: 0 auto; }
-.tk-class-header { display: flex; justify-content: space-between; gap: 24px; align-items: end; margin-bottom: 28px; }
-.tk-class-header h1 { margin: 5px 0 6px; color: #172554; font-size: 30px; }
-.tk-class-header p { margin: 0; color: #64748b; }
-.add-student-button { margin-left: auto; }
-.eyebrow, .class-label { color: #b45309 !important; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; }
-.year-filter { display: flex; flex-direction: column; gap: 6px; min-width: 190px; }
-.year-filter label, .modal-content label { font-weight: 700; color: #334155; font-size: 13px; }
-.year-filter select, .modal-content select { padding: 10px 12px; border: 1px solid #cbd5e1; border-radius: 6px; background: white; }
-.class-grid { display: grid; gap: 24px; }
-.class-panel { background: #fff; border: 1px solid #e2e8f0; box-shadow: 0 8px 24px rgba(15, 23, 42, .06); }
-.class-panel-header { display: flex; justify-content: space-between; align-items: center; padding: 18px 22px; border-bottom: 3px solid #fbbf24; }
-.class-panel-header h2 { margin: 4px 0 0; color: #172554; font-size: 21px; }
-.class-label { margin: 0 !important; }
-.student-count { color: #475569; font-weight: 700; white-space: nowrap; }
-.table-scroll { overflow-x: auto; }
-table { width: 100%; border-collapse: collapse; min-width: 1020px; }
-th, td { padding: 13px 14px; border-bottom: 1px solid #e2e8f0; text-align: left; white-space: nowrap; }
-th { background: #f8fafc; color: #475569; font-size: 12px; text-transform: uppercase; }
-td { color: #334155; font-size: 14px; }
-td strong { color: #172554; }
-.status { display: inline-block; padding: 4px 9px; border-radius: 999px; font-size: 12px; font-weight: 700; }
-.status.is-active { color: #166534; background: #dcfce7; }.status.is-inactive { color: #9a3412; background: #ffedd5; }
-.assignment-current { color: #166534; font-weight: 700; }.assignment-other { color: #64748b; font-size: 12px; }
-.assign-form { display: flex; align-items: center; gap: 8px; }.assign-form select { padding: 8px; border: 1px solid #cbd5e1; border-radius: 5px; }.assign-action { color: #fff; background: #0f766e; }
-.actions { display: flex; gap: 6px; }
-.action-button, .primary-button, .secondary-button { border: 0; border-radius: 5px; padding: 8px 10px; cursor: pointer; font-weight: 700; font-size: 12px; white-space: nowrap; }
-.detail-button, .primary-button { color: #fff; background: #1d4ed8; }.status-button { color: #92400e; background: #fef3c7; }.transfer-button { color: #0f766e; background: #ccfbf1; }
-.tk-empty, .table-empty { padding: 40px; text-align: center; color: #64748b; }.tk-empty { background: #fff; border: 1px dashed #cbd5e1; }.tk-empty i { font-size: 28px; color: #d97706; }.tk-empty h2 { color: #334155; }
-.tk-alert { padding: 12px 16px; margin-bottom: 20px; color: #991b1b; background: #fee2e2; border-left: 4px solid #dc2626; }
-.create-student-modal { max-height: 90vh; overflow: auto; }
-.create-form-content { display: grid; gap: 20px; }
-.form-section { border-top: 1px solid #e2e8f0; padding-top: 16px; }
-.form-section h3 { margin: 0 0 14px; color: #172554; }
-.form-section small { color: #64748b; font-weight: 400; }
-.form-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
-.form-grid label, .repeat-form-row { display: flex; flex-direction: column; gap: 6px; color: #334155; font-size: 13px; font-weight: 700; }
-.form-grid input, .form-grid select, .repeat-form-row input, .repeat-form-row select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #cbd5e1; border-radius: 5px; background: #fff; font: inherit; font-weight: 400; }
-.wide-field { grid-column: 1 / -1; }
-.repeat-form-grid { display: grid; gap: 12px; }
-.repeat-form-row { display: grid; grid-template-columns: 110px 1fr 1.4fr 1fr; align-items: center; gap: 8px; }
-.repeat-form-row strong { color: #64748b; font-size: 12px; }
-.tk-modal { width: min(620px, calc(100% - 32px)); border: 0; padding: 0; box-shadow: 0 20px 60px rgba(15, 23, 42, .25); }.tk-modal::backdrop { background: rgba(15, 23, 42, .45); }
-.modal-heading, .modal-actions { display: flex; align-items: center; justify-content: space-between; padding: 18px 22px; border-bottom: 1px solid #e2e8f0; }.modal-heading h2 { margin: 0; color: #172554; }.close-button { border: 0; background: none; font-size: 26px; cursor: pointer; color: #64748b; }.modal-content { padding: 22px; }.modal-content select { width: 100%; margin-top: 8px; }.modal-actions { justify-content: flex-end; gap: 10px; border-top: 1px solid #e2e8f0; border-bottom: 0; }.secondary-button { color: #475569; background: #e2e8f0; }.modal-error { color: #b91c1c; }.detail-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; margin-bottom: 22px; }.detail-grid div { padding: 12px; background: #f8fafc; }.detail-grid span { display: block; color: #64748b; font-size: 12px; margin-bottom: 4px; }.detail-grid strong { color: #172554; }
-@media (max-width: 760px) { .tk-class-page { padding: 82px 14px 28px; }.tk-class-header { display: block; }.year-filter { margin-top: 18px; }.add-student-button { margin: 18px 0 0; width: 100%; }.tk-class-header h1 { font-size: 25px; }.class-panel-header { padding: 15px; }.actions { flex-wrap: wrap; white-space: normal; }.detail-grid, .form-grid { grid-template-columns: 1fr; }.repeat-form-row { grid-template-columns: 1fr; }.wide-field { grid-column: auto; } }
+.tk-class-page {
+  padding: 35px 32px 40px;
+  max-width: 1500px;
+  margin: 0 auto;
+}
+.tk-class-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 24px;
+  align-items: end;
+  margin-bottom: 28px;
+}
+.tk-class-header h1 {
+  margin: 5px 0 6px;
+  color: #172554;
+  font-size: 30px;
+}
+.tk-class-header p {
+  margin: 0;
+  color: #64748b;
+}
+.add-student-button {
+  margin-left: auto;
+}
+.eyebrow,
+.class-label {
+  color: #b45309 !important;
+  font-size: 22px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+.year-filter {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 190px;
+}
+.year-filter label,
+.modal-content label {
+  font-weight: 700;
+  color: #334155;
+  font-size: 13px;
+}
+.year-filter select,
+.modal-content select {
+  padding: 10px 12px;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  background: white;
+}
+.class-grid {
+  display: grid;
+  gap: 24px;
+}
+.class-panel {
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
+}
+.class-panel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 18px 22px;
+  border-bottom: 3px solid #fbbf24;
+}
+.class-panel-header h2 {
+  margin: 4px 0 0;
+  color: #172554;
+  font-size: 21px;
+}
+.class-label {
+  margin: 0 !important;
+}
+.student-count {
+  color: #475569;
+  font-weight: 700;
+  white-space: nowrap;
+}
+.table-scroll {
+  overflow-x: auto;
+}
+table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 1020px;
+}
+th,
+td {
+  padding: 13px 14px;
+  border-bottom: 1px solid #e2e8f0;
+  text-align: left;
+  white-space: nowrap;
+}
+th {
+  background: #f8fafc;
+  color: #475569;
+  font-size: 12px;
+  text-transform: uppercase;
+}
+td {
+  color: #334155;
+  font-size: 14px;
+}
+td strong {
+  color: #172554;
+}
+.status {
+  display: inline-block;
+  padding: 4px 9px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+}
+.status.is-active {
+  color: #166534;
+  background: #dcfce7;
+}
+.status.is-inactive {
+  color: #9a3412;
+  background: #ffedd5;
+}
+.assignment-current {
+  color: #166534;
+  font-weight: 700;
+}
+.assignment-other {
+  color: #64748b;
+  font-size: 12px;
+}
+.assign-form {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.assign-form select {
+  padding: 8px;
+  border: 1px solid #cbd5e1;
+  border-radius: 5px;
+}
+.assign-action {
+  color: #fff;
+  background: #0f766e;
+}
+.actions {
+  display: flex;
+  gap: 6px;
+}
+.action-button,
+.primary-button,
+.secondary-button {
+  border: 0;
+  border-radius: 5px;
+  padding: 8px 10px;
+  cursor: pointer;
+  font-weight: 700;
+  font-size: 12px;
+  white-space: nowrap;
+}
+.detail-button,
+.primary-button {
+  color: #fff;
+  background: #1d4ed8;
+}
+.status-button {
+  color: #92400e;
+  background: #fef3c7;
+}
+.transfer-button {
+  color: #0f766e;
+  background: #ccfbf1;
+}
+.tk-empty,
+.table-empty {
+  padding: 40px;
+  text-align: center;
+  color: #64748b;
+}
+.tk-empty {
+  background: #fff;
+  border: 1px dashed #cbd5e1;
+}
+.tk-empty i {
+  font-size: 28px;
+  color: #d97706;
+}
+.tk-empty h2 {
+  color: #334155;
+}
+.tk-alert {
+  padding: 12px 16px;
+  margin-bottom: 20px;
+  color: #991b1b;
+  background: #fee2e2;
+  border-left: 4px solid #dc2626;
+}
+.create-student-modal {
+  max-height: 90vh;
+  overflow: auto;
+}
+.create-form-content {
+  display: grid;
+  gap: 20px;
+}
+.form-section {
+  border-top: 1px solid #e2e8f0;
+  padding-top: 16px;
+}
+.form-section h3 {
+  margin: 0 0 14px;
+  color: #172554;
+}
+.form-section small {
+  color: #64748b;
+  font-weight: 400;
+}
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+.form-grid label,
+.repeat-form-row {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  color: #334155;
+  font-size: 13px;
+  font-weight: 700;
+}
+.form-grid input,
+.form-grid select,
+.repeat-form-row input,
+.repeat-form-row select {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 9px 10px;
+  border: 1px solid #cbd5e1;
+  border-radius: 5px;
+  background: #fff;
+  font: inherit;
+  font-weight: 400;
+}
+.wide-field {
+  grid-column: 1 / -1;
+}
+.repeat-form-grid {
+  display: grid;
+  gap: 12px;
+}
+.repeat-form-row {
+  display: grid;
+  grid-template-columns: 110px 1fr 1.4fr 1fr;
+  align-items: center;
+  gap: 8px;
+}
+.repeat-form-row strong {
+  color: #64748b;
+  font-size: 12px;
+}
+.tk-modal {
+  width: min(620px, calc(100% - 32px));
+  border: 0;
+  padding: 0;
+  box-shadow: 0 20px 60px rgba(15, 23, 42, 0.25);
+}
+.tk-modal::backdrop {
+  background: rgba(15, 23, 42, 0.45);
+}
+.modal-heading,
+.modal-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 22px;
+  border-bottom: 1px solid #e2e8f0;
+}
+.modal-heading h2 {
+  margin: 0;
+  color: #172554;
+}
+.close-button {
+  border: 0;
+  background: none;
+  font-size: 26px;
+  cursor: pointer;
+  color: #64748b;
+}
+.modal-content {
+  padding: 22px;
+}
+.modal-content select {
+  width: 100%;
+  margin-top: 8px;
+}
+.modal-actions {
+  justify-content: flex-end;
+  gap: 10px;
+  border-top: 1px solid #e2e8f0;
+  border-bottom: 0;
+}
+.secondary-button {
+  color: #475569;
+  background: #e2e8f0;
+}
+.modal-error {
+  color: #b91c1c;
+}
+.detail-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 14px;
+  margin-bottom: 22px;
+}
+.detail-grid div {
+  padding: 12px;
+  background: #f8fafc;
+}
+.detail-grid span {
+  display: block;
+  color: #64748b;
+  font-size: 12px;
+  margin-bottom: 4px;
+}
+.detail-grid strong {
+  color: #172554;
+}
+@media (max-width: 760px) {
+  .tk-class-page {
+    padding: 30px 14px 28px;
+  }
+  .tk-class-header {
+    display: block;
+  }
+  .year-filter {
+    margin-top: 18px;
+  }
+  .add-student-button {
+    margin: 18px 0 0;
+    width: 100%;
+  }
+  .tk-class-header h1 {
+    font-size: 25px;
+  }
+  .class-panel-header {
+    padding: 15px;
+  }
+  .actions {
+    flex-wrap: wrap;
+    white-space: normal;
+  }
+  .detail-grid,
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
+  .repeat-form-row {
+    grid-template-columns: 1fr;
+  }
+  .wide-field {
+    grid-column: auto;
+  }
+}
 @media (max-width: 600px) {
-	.table-scroll { overflow: visible; }
-	.class-panel table { min-width: 0; display: block; }
-	.class-panel table thead { display: none; }
-	.class-panel table tbody, .class-panel table tr, .class-panel table td { display: block; width: 100%; box-sizing: border-box; }
-	.class-panel table tr { margin-bottom: 10px; padding: 10px 12px; border: 1px solid #e2e8f0; border-radius: 7px; background: #fff; }
-	.class-panel table td { padding: 3px 0; border: 0; white-space: normal; }
-	.class-panel table td:first-child { display: none; }
-	.class-panel table td:nth-child(2)::before { content: 'Mã số: '; color: #64748b; font-size: .76rem; }
-	.class-panel table td:nth-child(3)::before { content: 'Họ tên: '; color: #64748b; font-size: .76rem; }
-	.class-panel table td:nth-child(4)::before { content: 'Thông tin: '; color: #64748b; font-size: .76rem; }
-	.class-panel table td:nth-child(5)::before { content: 'Điểm: '; color: #64748b; font-size: .76rem; }
-	.class-panel table td:nth-child(6)::before { content: 'Tình trạng: '; color: #64748b; font-size: .76rem; }
-	.class-panel table td:nth-child(7)::before { content: 'Thao tác: '; color: #64748b; font-size: .76rem; }
-	.class-panel .actions, .class-panel .assign-form { flex-wrap: wrap; }
-	.class-panel .actions > *, .class-panel .assign-form > * { width: 100%; }
+  .table-scroll {
+    overflow: visible;
+  }
+  .class-panel table {
+    min-width: 0;
+    display: block;
+  }
+  .class-panel table thead {
+    display: none;
+  }
+  .class-panel table tbody,
+  .class-panel table tr,
+  .class-panel table td {
+    display: block;
+    width: 100%;
+    box-sizing: border-box;
+  }
+  
+  /* Biến mỗi em thiếu nhi thành một card mini cực gọn */
+  .class-panel table tr {
+    margin-bottom: 8px;
+    padding: 8px 10px;
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+    background: #fff;
+    display: grid;
+    grid-template-columns: 1fr auto; /* Chia làm 2 cột: Thông tin bên trái, trạng thái/nút bên phải */
+    gap: 4px 8px;
+    align-items: center;
+  }
+
+  .class-panel table td {
+    padding: 1px 0;
+    border: 0;
+    white-space: normal;
+  }
+
+  /* Ẩn STT cho đỡ chật */
+  .class-panel table td:first-child {
+    display: none; 
+  }
+
+  /* Cột 2: Mã số (Hiển thị nhỏ gọn) */
+  .class-panel table td:nth-child(2) {
+    grid-column: 1 / 2;
+    font-size: 0.75rem;
+    color: #64748b;
+  }
+  .class-panel table td:nth-child(2)::before {
+    content: "Mã: ";
+  }
+
+  /* Cột 3: Họ tên (Làm nổi bật lên dòng đầu) */
+  .class-panel table td:nth-child(3) {
+    grid-column: 1 / 2;
+    font-size: 0.9rem;
+  }
+  
+  /* Cột 4: Ngày sinh / Thông tin */
+  .class-panel table td:nth-child(4) {
+    grid-column: 1 / 2;
+    font-size: 0.78rem;
+    color: #64748b;
+  }
+  .class-panel table td:nth-child(4)::before {
+    content: "NS: ";
+  }
+
+  /* Cột 5: Giới tính */
+  .class-panel table td:nth-child(5) {
+    display: none; /* Có thể ẩn bớt trên mobile nếu chật, hoặc để tuỳ bạn */
+  }
+
+  /* Cột 6: Trạng thái (Đưa lên góc trên bên phải của card) */
+  .class-panel table td:nth-child(6) {
+    grid-column: 2 / 3;
+    grid-row: 1 / 2;
+    text-align: right;
+  }
+
+  /* Cột 7: Thao tác (Nằm ở hàng dưới cùng của card, dàn ngang các nút nhỏ) */
+  .class-panel table td:nth-child(7) {
+    grid-column: 1 / -1;
+    margin-top: 4px;
+    padding-top: 6px;
+    border-top: 1px dashed #f1f5f9;
+  }
+
+  .class-panel .actions {
+    display: flex;
+    gap: 6px;
+    justify-content: flex-end;
+  }
+
+  /* Thu nhỏ các nút thao tác thành dạng icon/chữ nhỏ gọn */
+  .class-panel .actions .action-button {
+    width: auto !important;
+    padding: 4px 8px;
+    font-size: 0.75rem;
+    border-radius: 4px;
+  }
 }

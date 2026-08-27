@@ -1,7 +1,7 @@
 const PDFDocument = require('pdfkit');
 const path = require('path');
 const pool = require('../../../config/database');
-const NamHocMoiModel = require('../../models/bdh/chuyen-giao');
+const NamHocMoiModel = require('../../models/bdh/chuyen-giao-model');
 const { getBdhBaseData } = require('../../utils/base-data-helper');
 const { logAction } = require('../../utils/logger');
 

@@ -70,7 +70,7 @@ router.post('/settings/update-year', settingsController.updateYearConfig);
 // Bảng điểm tổng kết cuối năm
 router.get('/bang-diem', BangDiemController.getBangDiemPage);
 router.get('/bang-diem/export', BangDiemController.exportBangDiem);
-router.post('/tong-ket', BangDiemController.tongKetDiem);
+router.post('/bang-diem/tong-ket', BangDiemController.tongKetDiem);
 router.get('/chuyen-giao', ChuyenGiaoController.getPage);
 router.post('/chuyen-giao/lock', ChuyenGiaoController.lockYear);
 router.post('/chuyen-giao/transfer', ChuyenGiaoController.transferYear);

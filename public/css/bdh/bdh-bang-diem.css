@@ -1,55 +1,377 @@
-:root { --score-red: #b42318; --score-red-soft: #fff1f0; --score-ink: #202124; --score-muted: #667085; --score-line: #e4e7ec; }
-.bang-diem-page { max-width: 1500px; margin: 0 auto; }
-.bang-diem-header { display: flex; justify-content: space-between; align-items: end; gap: 24px; margin-bottom: 24px; }
-.eyebrow { margin: 0 0 6px; color: var(--score-red); font-size: .78rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
-.bang-diem-header h1 { margin: 0; color: var(--score-ink); font-size: 1.65rem; }
-.bang-diem-header h1 i { color: var(--score-red); margin-right: 8px; }
-.page-description { margin: 8px 0 0; color: var(--score-muted); }
-.year-filter { min-width: 220px; }
-.year-filter label { display: block; margin-bottom: 6px; color: var(--score-muted); font-size: .82rem; font-weight: 600; }
-.year-filter select { width: 100%; padding: 11px 12px; border: 1px solid #d0d5dd; border-radius: 8px; background: #fff; color: var(--score-ink); font-size: .95rem; }
-.summary-meta { display: flex; gap: 22px; margin-bottom: 18px; color: var(--score-muted); font-size: .9rem; }
-.summary-meta i { color: var(--score-red); margin-right: 6px; }
-.export-score-button { margin-left: auto; padding: 9px 13px; border-radius: 6px; color: #fff; background: var(--score-red); font-size: .88rem; font-weight: 700; text-decoration: none; }
-.export-score-button i { color: #fff; }
-.export-score-button:hover { background: #8f1d14; }
-.khoi-section { margin-bottom: 30px; }
-.khoi-heading { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; border-bottom: 2px solid var(--score-red); }
-.khoi-heading h2 { margin: 0; padding-bottom: 9px; color: var(--score-ink); font-size: 1.2rem; }
-.khoi-marker { display: grid; place-items: center; width: 30px; height: 30px; color: #fff; background: var(--score-red); border-radius: 6px; }
-.lop-section { margin: 0 0 20px 16px; border: 1px solid var(--score-line); border-radius: 8px; background: #fff; overflow: hidden; }
-.lop-section h3 { margin: 0; padding: 12px 16px; color: var(--score-ink); background: var(--score-red-soft); font-size: 1rem; }
-.lop-section h3 i { color: var(--score-red); margin-right: 7px; }
-.table-scroll { overflow-x: auto; }
-.score-table { width: 100%; min-width: 900px; border-collapse: collapse; }
-.score-table th, .score-table td { padding: 10px 12px; border-bottom: 1px solid var(--score-line); text-align: center; white-space: nowrap; }
-.score-table th { color: var(--score-muted); background: #fcfcfd; font-size: .76rem; text-transform: uppercase; }
-.score-table td { color: #475467; font-size: .9rem; }
-.score-table tbody tr:hover { background: #fffaf9; }
-.score-table .student-name { min-width: 220px; color: var(--score-ink); text-align: left; font-weight: 600; }
-.score-table .total-score { color: var(--score-red); font-weight: 700; }
-.classification, .status { display: inline-block; padding: 4px 8px; border-radius: 5px; font-size: .8rem; }
-.classification { color: #344054; background: #f2f4f7; }
-.status-pass { color: #027a48; background: #ecfdf3; }
-.status-other { color: #b54708; background: #fffaeb; }
-.empty-state { display: grid; justify-items: center; gap: 8px; padding: 56px 20px; border: 1px dashed #d0d5dd; border-radius: 8px; color: var(--score-muted); background: #fff; }
-.empty-state i { color: var(--score-red); font-size: 1.8rem; }
-.empty-state strong { color: var(--score-ink); }
-@media (max-width: 700px) { .bang-diem-header { display: block; } .year-filter { margin-top: 18px; } .summary-meta { display: block; } .summary-meta span, .export-score-button { display: inline-block; margin: 0 10px 8px 0; } .lop-section { margin-left: 0; } }
-@media (max-width: 600px) {
-	.table-scroll { overflow: visible; }
-	.score-table { min-width: 0; display: block; }
-	.score-table thead { display: none; }
-	.score-table tbody, .score-table tr, .score-table td { display: block; width: 100%; box-sizing: border-box; }
-	.score-table tr { margin-bottom: 10px; padding: 10px 12px; border: 1px solid var(--score-line); border-radius: 7px; background: #fff; }
-	.score-table td { padding: 3px 0; border: 0; white-space: normal; text-align: left; }
-	.score-table td:first-child { display: none; }
-	.score-table td:nth-child(2)::before { content: 'MSTN: '; color: var(--score-muted); font-size: .76rem; }
-	.score-table td:nth-child(3)::before { content: 'Họ tên: '; color: var(--score-muted); font-size: .76rem; }
-	.score-table td:nth-child(4)::before { content: 'Học tập: '; color: var(--score-muted); font-size: .76rem; }
-	.score-table td:nth-child(5)::before { content: 'Chuyên cần: '; color: var(--score-muted); font-size: .76rem; }
-	.score-table td:nth-child(6)::before { content: 'Kỷ luật: '; color: var(--score-muted); font-size: .76rem; }
-	.score-table td:nth-child(7)::before { content: 'Điểm tổng: '; color: var(--score-muted); font-size: .76rem; }
-	.score-table td:nth-child(8)::before { content: 'Xếp loại: '; color: var(--score-muted); font-size: .76rem; }
-	.score-table td:nth-child(9)::before { content: 'Tình trạng: '; color: var(--score-muted); font-size: .76rem; }
+:root {
+  --score-red: #b42318;
+  --score-red-soft: #fff1f0;
+  --score-ink: #202124;
+  --score-muted: #667085;
+  --score-line: #e4e7ec;
+}
+
+.bang-diem-page {
+  max-width: 1500px;
+  margin: 0 auto;
+  box-sizing: border-box;
+}
+
+.bang-diem-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: end;
+  gap: 24px;
+  margin-bottom: 24px;
+}
+
+.eyebrow {
+  margin: 0 0 6px;
+  color: var(--score-red);
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.bang-diem-header h1 {
+  margin: 0;
+  color: var(--score-ink);
+  font-size: 1.65rem;
+}
+
+.bang-diem-header h1 i {
+  color: var(--score-red);
+  margin-right: 8px;
+}
+
+.page-description {
+  margin: 8px 0 0;
+  color: var(--score-muted);
+}
+
+.year-filter {
+  min-width: 220px;
+}
+
+.year-filter label {
+  display: block;
+  margin-bottom: 6px;
+  color: var(--score-muted);
+  font-size: 0.82rem;
+  font-weight: 600;
+}
+
+.year-filter select {
+  width: 100%;
+  padding: 11px 12px;
+  border: 1px solid #d0d5dd;
+  border-radius: 8px;
+  background: #fff;
+  color: var(--score-ink);
+  font-size: 0.95rem;
+}
+
+.summary-meta {
+  display: flex;
+  gap: 22px;
+  margin-bottom: 18px;
+  color: var(--score-muted);
+  font-size: 0.9rem;
+  align-items: center;
+}
+
+.summary-meta i {
+  color: var(--score-red);
+  margin-right: 6px;
+}
+
+.export-score-button {
+  margin-left: auto;
+  padding: 9px 13px;
+  border-radius: 6px;
+  color: #fff;
+  background: var(--score-red);
+  font-size: 0.88rem;
+  font-weight: 700;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  box-sizing: border-box;
+}
+
+.export-score-button i {
+  color: #fff;
+  margin-right: 0;
+}
+
+.export-score-button:hover {
+  background: #8f1d14;
+}
+
+.khoi-section {
+  margin-bottom: 30px;
+}
+
+.khoi-heading {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+  border-bottom: 2px solid var(--score-red);
+}
+
+.khoi-heading h2 {
+  margin: 0;
+  padding-bottom: 9px;
+  color: var(--score-ink);
+  font-size: 1.2rem;
+}
+
+.khoi-marker {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  color: #fff;
+  background: var(--score-red);
+  border-radius: 6px;
+}
+
+.lop-section {
+  margin: 0 0 20px 16px;
+  border: 1px solid var(--score-line);
+  border-radius: 8px;
+  background: #fff;
+  overflow: hidden;
+}
+
+.lop-section h3 {
+  margin: 0;
+  padding: 12px 16px;
+  color: var(--score-ink);
+  background: var(--score-red-soft);
+  font-size: 1rem;
+}
+
+.lop-section h3 i {
+  color: var(--score-red);
+  margin-right: 7px;
+}
+
+.table-scroll {
+  overflow-x: auto;
+}
+
+.score-table {
+  width: 100%;
+  min-width: 900px;
+  border-collapse: collapse;
+}
+
+.score-table th,
+.score-table td {
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--score-line);
+  text-align: center;
+  white-space: nowrap;
+}
+
+.score-table th {
+  color: var(--score-muted);
+  background: #fcfcfd;
+  font-size: 0.76rem;
+  text-transform: uppercase;
+}
+
+.score-table td {
+  color: #475467;
+  font-size: 0.9rem;
+}
+
+.score-table tbody tr:hover {
+  background: #fffaf9;
+}
+
+.score-table .student-name {
+  min-width: 220px;
+  color: var(--score-ink);
+  text-align: left;
+  font-weight: 600;
+}
+
+.score-table .total-score {
+  color: var(--score-red);
+  font-weight: 700;
+}
+
+.classification,
+.status {
+  display: inline-block;
+  padding: 4px 8px;
+  border-radius: 5px;
+  font-size: 0.8rem;
+}
+
+.classification {
+  color: #344054;
+  background: #f2f4f7;
+}
+
+.status-pass {
+  color: #027a48;
+  background: #ecfdf3;
+}
+
+.status-other {
+  color: #b54708;
+  background: #fffaeb;
+}
+
+.empty-state {
+  display: grid;
+  justify-items: center;
+  gap: 8px;
+  padding: 56px 20px;
+  border: 1px dashed #d0d5dd;
+  border-radius: 8px;
+  color: var(--score-muted);
+  background: #fff;
+}
+
+.empty-state i {
+  color: var(--score-red);
+  font-size: 1.8rem;
+}
+
+.empty-state strong {
+  color: var(--score-ink);
+}
+
+/* ==========================================================
+   TỐI ƯU HÓA CHO ĐIỆN THOẠI VÀ MÁY TÍNH BẢNG NHỎ
+   ========================================================== */
+
+@media (max-width: 768px) {
+  .bang-diem-page {
+    padding: 0 10px;
+  }
+
+  .bang-diem-header {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 16px;
+  }
+
+  .year-filter {
+    width: 100%;
+  }
+
+  .summary-meta {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+    background: #fcfcfd;
+    padding: 14px;
+    border-radius: 8px;
+    border: 1px solid var(--score-line);
+  }
+
+  .summary-meta > div:last-child {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    width: 100%;
+  }
+
+  .summary-meta .export-score-button {
+    width: 100%;
+    justify-content: center;
+    margin-left: 0 !important;
+  }
+
+  .lop-section {
+    margin-left: 0; /* Bỏ thụt lề trên mobile để tối đa hóa không gian */
+  }
+}
+
+@media (max-width: 650px) {
+  .table-scroll {
+    overflow: visible;
+  }
+
+  .score-table {
+    min-width: 0;
+    display: block;
+  }
+
+  .score-table thead {
+    display: none;
+  }
+
+  .score-table tbody,
+  .score-table tr,
+  .score-table td {
+    display: block;
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  .score-table tr {
+    margin-bottom: 12px;
+    padding: 12px;
+    border: 1px solid var(--score-line);
+    border-radius: 8px;
+    background: #fff;
+    box-shadow: 0 1px 3px rgba(16, 24, 40, 0.04);
+  }
+
+  .score-table td {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 6px 0;
+    border: none;
+    border-bottom: 1px dashed #f2f4f7;
+    text-align: right;
+    white-space: normal;
+  }
+
+  .score-table td:last-child {
+    border-bottom: none;
+  }
+
+  /* Tự động gán nhãn thông tin dựa vào data-label truyền từ EJS */
+  .score-table td::before {
+    content: attr(data-label);
+    color: var(--score-muted);
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-align: left;
+    margin-right: 12px;
+  }
+
+  /* Định dạng nổi bật riêng cho STT */
+  .score-table td[data-label="STT"] {
+    font-size: 0.75rem;
+    color: var(--score-muted);
+    background: #f9fafb;
+    padding: 4px 8px;
+    border-radius: 4px;
+    margin-bottom: 6px;
+  }
+  .score-table td[data-label="STT"]::before {
+    content: "Số thứ tự";
+  }
+
+  /* Định dạng nổi bật cho tên học sinh (to hơn, có gạch chân nhẹ tách biệt) */
+  .score-table .student-name {
+    font-size: 0.98rem;
+    font-weight: 700;
+    color: var(--score-ink);
+    text-align: right;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--score-line) !important;
+    margin-bottom: 4px;
+  }
+  .score-table .student-name::before {
+    content: "Họ và tên";
+    font-size: 0.85rem;
+  }
 }

@@ -13,29 +13,23 @@ exports.postLogin = async (req, res) => {
     console.log(`[LOGIN] Đang xử lý đăng nhập cho số điện thoại: ${phone}`);
     
     try {
-        console.log('[LOGIN] Bước 1: Đang tìm kiếm user trong database...');
         const user = await AuthModel.findByUsername(phone);
 
         // 1. Không tìm thấy số điện thoại
         if (!user) {
-            console.log(`[LOGIN] Thất bại: Không tìm thấy SĐT ${phone}`);
             await logAction(req, `Đăng nhập thất bại (Không tồn tại SĐT: ${phone})`, 'Thất bại', null);
             return res.render('login', { layout: false, error: 'Sai số điện thoại' });
         }
-        console.log(`[LOGIN] Đã tìm thấy user ID: ${user.id_tk}, đang tiến hành so sánh mật khẩu...`);
-
         const match = await bcrypt.compare(password, user.password_hash);
         
         // 2. Sai mật khẩu
         if (!match) {
-            console.log(`[LOGIN] Thất bại: Sai mật khẩu cho user ID: ${user.id_tk}`);
             await logAction(req, 'Đăng nhập thất bại (Sai mật khẩu)', 'Thất bại', user.id_tk);
             return res.render('login', { layout: false, error: 'Sai mật khẩu' });
         }
 
         // 3. Tài khoản bị khóa
         if (user.trang_thai === 'Đã khóa') {
-            console.log(`[LOGIN] Thất bại: Tài khoản ${user.id_tk} đã bị khóa`);
             await logAction(req, 'Đăng nhập thất bại (Tài khoản đã bị khóa)', 'Thất bại', user.id_tk);
             return res.render('login', { 
                 layout: false, 
@@ -48,7 +42,6 @@ exports.postLogin = async (req, res) => {
         const id_glv = user.id_glv;
 
         if (id_glv) {
-            console.log(`[LOGIN] Bước 2: Đang kiểm tra quyền hạn (Bdh, TruongKhoi) cho id_glv: ${id_glv}...`);
             isBdh = await AuthModel.checkBdh(id_glv);
             isTruongKhoi = await AuthModel.checkTruongKhoi(id_glv);
         }
@@ -68,17 +61,14 @@ exports.postLogin = async (req, res) => {
         };
 
         // 4. Ghi log thành công
-        console.log('[LOGIN] Bước 3: Đang ghi log lịch sử đăng nhập thành công...');
         await logAction(req, 'Đăng nhập vào hệ thống', 'Thành công', user.id_tk);
 
         // Bắt buộc lưu session xuống cơ sở dữ liệu trước khi chuyển trang
-        console.log('[LOGIN] Bước 4: Đang lưu session xuống database (connect-pg-simple)...');
         req.session.save((err) => {
             if (err) {
                 console.error("LỖI CHI TIẾT KHI LƯU SESSION:", err);
                 return res.status(500).send("Lỗi máy chủ nội bộ (Session Save)");
             }
-            console.log('[LOGIN] Thành công! Đang chuyển hướng sang trang /glv');
             return res.redirect('/glv');
         });
 

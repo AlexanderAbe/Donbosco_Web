@@ -8,7 +8,6 @@
     <header class="class-header">
         <span class="class-eyebrow"><i class="fa-solid fa-layer-group"></i> Quản lý lớp học</span>
         <h1>Điểm kiểm tra thiếu nhi</h1>
-        <p>Chọn lớp và bài kiểm tra để nhập hoặc cập nhật điểm số.</p>
     </header>
 
     <% if (message) { %><div class="notice success"><i class="fa-solid fa-circle-check"></i> <%= message %></div><% } %>
@@ -21,14 +20,6 @@
             <div class="test-field">
                 <label for="student-search"><i class="fa-solid fa-magnifying-glass"></i> Tìm kiếm thiếu nhi</label>
                 <input id="student-search" type="search" placeholder="Tên hoặc mã số..." autocomplete="off">
-            </div>
-            <div class="test-field">
-                <label for="test-class"><i class="fa-solid fa-school"></i> Lớp</label>
-                <select id="test-class" name="id_lop" onchange="this.form.submit()">
-                    <% classes.forEach(item => { %>
-                        <option value="<%= item.id_lop %>" <%= item.id_lop === selectedClassId ? 'selected' : '' %>><%= item.ten_khoi %> - <%= item.ten_lop %></option>
-                    <% }) %>
-                </select>
             </div>
             <div class="test-field">
                 <label for="test-number"><i class="fa-solid fa-pen-to-square"></i> Bài kiểm tra</label>
