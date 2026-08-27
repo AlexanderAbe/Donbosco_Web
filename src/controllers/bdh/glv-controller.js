@@ -26,6 +26,7 @@ const getProfileInput = body => ({
 });
 
 const parseImportDate = (value) => {
+    if (!value) return "";
     if (value instanceof Date && !Number.isNaN(value.getTime()))
         return value.toISOString().slice(0, 10);
     if (typeof value === "number") {
@@ -34,12 +35,28 @@ const parseImportDate = (value) => {
             ? `${date.y}-${String(date.m).padStart(2, "0")}-${String(date.d).padStart(2, "0")}`
             : "";
     }
-    const textValue = String(value || "")
-        .trim()
-        .replace(/[./]/g, "-");
-    const compact = textValue.replace(/-/g, "");
-    if (/^\d{8}$/.test(compact))
-        return `${compact.slice(4)}-${compact.slice(2, 4)}-${compact.slice(0, 2)}`;
+    
+    const textValue = String(value).trim();
+    
+    // Tách chuỗi theo các ký tự phân cách phổ biến: /, ., -
+    const parts = textValue.split(/[-./]/);
+    if (parts.length === 3) {
+        let [p1, p2, p3] = parts;
+        // Nếu định dạng YYYY-MM-DD
+        if (p1.length === 4) {
+            return `${p1}-${p2.padStart(2, "0")}-${p3.padStart(2, "0")}`;
+        }
+        // Nếu định dạng DD/MM/YYYY hoặc D/M/YYYY
+        if (p3.length === 4) {
+            return `${p3}-${p2.padStart(2, "0")}-${p1.padStart(2, "0")}`;
+        }
+    }
+
+    const compact = textValue.replace(/[-./]/g, "");
+    if (/^\d{8}$/.test(compact)) {
+        return `${compact.slice(4, 8)}-${compact.slice(2, 4)}-${compact.slice(0, 2)}`;
+    }
+
     if (/^\d{4}-\d{2}-\d{2}$/.test(textValue)) return textValue;
     return "";
 };
@@ -237,7 +254,7 @@ const GlvController = {
             // 2. Đọc file Excel từ Buffer
             const workbook = XLSX.read(req.file.buffer, { type: 'buffer', cellDates: true });
             const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
-            const rawRows = XLSX.utils.sheet_to_json(firstSheet, { defval: '', raw: false });
+            const rawRows = XLSX.utils.sheet_to_json(firstSheet, { defval: ''});
 
             if (!rawRows || !rawRows.length) {
                 await logAction(req, `Import Excel giáo lý viên thất bại: File không có dữ liệu`, 'Thất bại');

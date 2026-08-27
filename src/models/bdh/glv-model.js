@@ -20,8 +20,8 @@ const GlvModel = {
                     item.ten_thanh, 
                     item.ho_lot, 
                     item.ten, 
-                    item.ngay_sinh::date,
-                    item.gioi_tinh::enum_gioi_tinh, 
+                    NULLIF(item.ngay_sinh, '')::date,
+                    NULLIF(item.gioi_tinh, '')::enum_gioi_tinh,
                     item.sdt, 
                     item.trang_thai::enum_trang_thai_glv
                 FROM jsonb_to_recordset($1::jsonb) AS item(
