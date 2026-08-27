@@ -12,9 +12,9 @@ const pool = new Pool({
 
 module.exports = session({
     store: new pgSession({
-        pool: pool,                // Sử dụng pool kết nối PostgreSQL ở trên
-        tableName: 'session',      // Tên bảng sẽ tự động tạo trong database của bạn để lưu session
-        createTableIfMissing: true, // Tự động tạo bảng 'session' nếu chưa có trong DB
+        pool: pool,
+        tableName: 'session',
+        createTableIfMissing: true,
         pruneSessionInterval: false
     }),
     secret: process.env.SESSION_SECRET,
@@ -22,7 +22,7 @@ module.exports = session({
     saveUninitialized: false,
     cookie: { 
         maxAge: 30 * 60 * 1000, // 30 phút
-        secure: false,
+        secure: process.env.NODE_ENV === 'production', 
         httpOnly: true,
         sameSite: 'lax'
     } 
