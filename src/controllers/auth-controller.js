@@ -9,9 +9,7 @@ exports.getLogin = (req, res) => {
 
 // Xử lý logic đăng nhập
 exports.postLogin = async (req, res) => {
-    const { phone, password } = req.body; 
-    console.log(`[LOGIN] Đang xử lý đăng nhập cho số điện thoại: ${phone}`);
-    
+    const { phone, password } = req.body;     
     try {
         const user = await AuthModel.findByUsername(phone);
 
@@ -175,12 +173,16 @@ exports.postChangePassword = async (req, res) => {
 
         req.session.successMessage = 'Đổi mật khẩu thành công!';
 
-        req.session.save(() => {
-            if (req.session.user.is_admin) return res.redirect('/admin');
-            if (req.session.user.is_bdh) return res.redirect('/bdh');
-            if (req.session.user.is_truong_khoi) return res.redirect('/truong-khoi');
-            return res.redirect('/glv');
-        });
+        switch (activeRole) {
+            case 'admin':
+                return res.redirect('/admin');
+            case 'bdh':
+                return res.redirect('/bdh');
+            case 'truong-khoi':
+                return res.redirect('/truong-khoi');
+            default:
+                return res.redirect('/glv');
+        }
 
     } catch (error) {
         console.error('Lỗi đổi mật khẩu:', error);
