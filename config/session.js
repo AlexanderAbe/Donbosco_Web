@@ -23,8 +23,9 @@ module.exports = session({
     proxy: true,
     cookie: { 
         maxAge: 30 * 60 * 1000, // 30 phút
-        secure: process.env.NODE_ENV === 'production', 
+        secure: true, 
         httpOnly: true,
-        sameSite: 'lax'
+        sameSite: 'lax',
+        domain: 'thieunhitanthaison.com'
     } 
 });
