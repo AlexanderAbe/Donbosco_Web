@@ -26,40 +26,25 @@ const getProfileInput = body => ({
 });
 
 const parseImportDate = value => {
-    console.log("Giá trị thô đọc từ ô ngày sinh:", value, typeof value);
-    if (!value) return null; // Trả về null nếu không có giá trị để tránh lỗi validate chuỗi rỗng
+    if (!value) return null;
     
-    if (value instanceof Date && !Number.isNaN(value.getTime())) {
-        return value.toISOString().slice(0, 10);
-    }
-    
-    if (typeof value === 'number') {
-        const date = XLSX.SSF.parse_date_code(value);
-        return date ? `${date.y}-${String(date.m).padStart(2, '0')}-${String(date.d).padStart(2, '0')}` : null;
-    }
-
+    // Ép toàn bộ về chuỗi text và loại bỏ khoảng trắng thừa
     const text = String(value).trim();
-    const compact = text.replace(/[-/]/g, '');
-    if (/^\d{8}$/.test(compact)) {
-        if (Number.parseInt(compact.slice(0, 4), 10) > 1900) {
-            return `${compact.slice(0, 4)}-${compact.slice(4, 6)}-${compact.slice(6, 8)}`;
-        }
-        return `${compact.slice(4, 8)}-${compact.slice(2, 4)}-${compact.slice(0, 2)}`;
-    }
+    if (!text) return null;
 
+    // Tách chuỗi theo dấu / hoặc - (Ví dụ: 03/02/2003 -> ['03', '02', '2003'])
     const parts = text.split(/[-/]/);
     if (parts.length === 3) {
-        let [p1, p2, p3] = parts;
-        if (p1.length === 4) {
-            return `${p1}-${p2.padStart(2, '0')}-${p3.padStart(2, '0')}`;
+        const [day, month, year] = parts;
+        
+        // Kiểm tra nếu là định dạng DD/MM/YYYY chuẩn text
+        if (day.length <= 2 && month.length <= 2 && year.length === 4) {
+            return `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
         }
-        if (p3.length === 4 || p3.length === 2) {
-            let year = p3;
-            if (year.length === 2) {
-                const yearNum = Number.parseInt(year, 10);
-                year = (yearNum > 50 ? '19' : '20') + year;
-            }
-            return `${year}-${p2.padStart(2, '0')}-${p1.padStart(2, '0')}`;
+        
+        // Trường hợp người dùng gõ ngược YYYY-MM-DD
+        if (day.length === 4 && month.length <= 2 && year.length <= 2) {
+            return `${day}-${month.padStart(2, '0')}-${year.padStart(2, '0')}`;
         }
     }
 
@@ -95,7 +80,7 @@ const validateGlvInput = data => {
     }
     if (data.gioiTinh && !['Nam', 'Nữ'].includes(data.gioiTinh)) return 'Giới tính phải là Nam hoặc Nữ.';
     if (data.trangThai && !statuses.includes(data.trangThai)) return 'Tình trạng GLV không hợp lệ.';
-    if (!data.ngaySinh || !/^\d{4}-\d{2}-\d{2}$/.test(data.ngaySinh)) return 'Ngày sinh không hợp lệ hoặc thiếu.';
+    if (!data.ngaySinh || !/^\d{4}-\d{2}-\d{2}$/.test(data.ngaySinh)) return 'Ngày sinh không hợp lệ hoặc sai định dạng text (DD/MM/YYYY).';
     if (!sdt) return 'Số điện thoại là bắt buộc.';
     return null;
 };
