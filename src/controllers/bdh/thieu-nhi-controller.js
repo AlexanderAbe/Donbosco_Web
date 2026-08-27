@@ -224,6 +224,13 @@ const ThieuNhiController = {
       const danhSach = [];
       for (const [index, row] of sheetData.entries()) {
         const rowNumber = index + 2;
+        const isRowEmpty = Object.values(row).every(
+          (value) => value === undefined || value === null || String(value).trim() === ""
+        );
+        if (isRowEmpty) {
+          // Gặp dòng trống hoàn toàn thì dừng vòng lặp mượt mà tại đây, không quét tiếp nữa
+          break;
+        }
         const ngaySinh = parseImportDate(
           getCell(row, ["NGÀY SINH", "NGAY SINH"]),
         );

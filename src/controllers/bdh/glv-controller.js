@@ -254,6 +254,10 @@ const GlvController = {
             const workbook = XLSX.read(req.file.buffer, { type: 'buffer', cellDates: true });
             const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
             const rows = XLSX.utils.sheet_to_json(firstSheet, { defval: '', raw: false });
+            rows = rows.filter(row => {
+                // Kiểm tra xem dòng đó có chữ/số nào không, nếu toàn bộ ô đều rỗng thì xóa khỏi danh sách
+                return Object.values(row).some(value => value !== undefined && value !== null && String(value).trim() !== '');
+            });
             if (!rows.length) {
                 await logAction(req, `Import Excel giáo lý viên thất bại: File không có dữ liệu`, 'Thất bại');
                 return redirect(res, params, 'File Excel không có dữ liệu.', true);
