@@ -253,14 +253,29 @@ const GlvController = {
             }
             const workbook = XLSX.read(req.file.buffer, { type: 'buffer', cellDates: true });
             const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
-            let rows = XLSX.utils.sheet_to_json(firstSheet, { defval: '', raw: false });
-            rows = rows.filter(row => {
-                // Kiểm tra xem dòng đó có chữ/số nào không, nếu toàn bộ ô đều rỗng thì xóa khỏi danh sách
-                return Object.values(row).some(value => value !== undefined && value !== null && String(value).trim() !== '');
-            });
-            if (!rows.length) {
+            const rawRows = XLSX.utils.sheet_to_json(firstSheet, { defval: '', raw: false });
+
+            if (!rawRows || !rawRows.length) {
                 await logAction(req, `Import Excel giáo lý viên thất bại: File không có dữ liệu`, 'Thất bại');
                 return redirect(res, params, 'File Excel không có dữ liệu.', true);
+            }
+
+            const rows = [];
+            for (const row of rawRows) {
+                const ngaySinhRaw = Object.keys(row).find(key => 
+                    ['NGAY SINH', 'NGÀY SINH', 'NGAYSINH'].includes(key.trim().toUpperCase())
+                );
+                const ngaySinhVal = ngaySinhRaw ? String(row[ngaySinhRaw]).trim() : '';
+
+                if (!ngaySinhVal) {
+                    break;
+                }
+                rows.push(row);
+            }
+
+            if (!rows.length) {
+                await logAction(req, `Import Excel giáo lý viên thất bại: File không có dữ liệu hợp lệ`, 'Thất bại');
+                return redirect(res, params, 'File Excel không có dữ liệu hợp lệ để import.', true);
             }
 
             const dataList = rows.map(getImportInput);
