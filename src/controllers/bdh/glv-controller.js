@@ -247,10 +247,13 @@ const GlvController = {
         };
 
         try {
+            // 1. Kiểm tra file upload từ Multer
             if (!req.file) {
                 await logAction(req, `Import Excel giáo lý viên thất bại: Không chọn file`, 'Thất bại');
                 return redirect(res, params, 'Vui lòng chọn file Excel.', true);
             }
+
+            // 2. Đọc file Excel từ Buffer
             const workbook = XLSX.read(req.file.buffer, { type: 'buffer', cellDates: true });
             const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
             const rawRows = XLSX.utils.sheet_to_json(firstSheet, { defval: '', raw: false });
@@ -260,40 +263,50 @@ const GlvController = {
                 return redirect(res, params, 'File Excel không có dữ liệu.', true);
             }
 
-            const rows = [];
-            for (const row of rawRows) {
-                const ngaySinhRaw = Object.keys(row).find(key => 
-                    ['NGAY SINH', 'NGÀY SINH', 'NGAYSINH'].includes(key.trim().toUpperCase())
-                );
-                const ngaySinhVal = ngaySinhRaw ? String(row[ngaySinhRaw]).trim() : '';
+            const dataList = [];
 
-                if (!ngaySinhVal) {
+            // 3. Vòng lặp vừa đọc, vừa check dòng trống để break, vừa validate từng dòng giống Thiếu Nhi
+            for (const [index, row] of rawRows.entries()) {
+                const rowNumber = index + 2;
+
+                // Kiểm tra nếu dòng trống hoàn toàn thì dừng lại mượt mà
+                const isRowEmpty = Object.values(row).every(
+                    value => value === undefined || value === null || String(value).trim() === ''
+                );
+                if (isRowEmpty) {
                     break;
                 }
-                rows.push(row);
+
+                const data = getImportInput(row);
+                data.trangThai = statuses[0];
+
+                // Validate từng dòng dữ liệu ngay trong vòng lặp
+                const validationError = validateGlvInput(data);
+                if (validationError) {
+                    const errDetail = `Dòng Excel ${rowNumber}: ${validationError}`;
+                    await logAction(req, `Import Excel giáo lý viên thất bại: ${errDetail}`, 'Thất bại');
+                    return redirect(res, params, errDetail, true);
+                }
+
+                dataList.push(data);
             }
 
-            if (!rows.length) {
+            if (!dataList.length) {
                 await logAction(req, `Import Excel giáo lý viên thất bại: File không có dữ liệu hợp lệ`, 'Thất bại');
                 return redirect(res, params, 'File Excel không có dữ liệu hợp lệ để import.', true);
             }
 
-            const dataList = rows.map(getImportInput);
-            const invalidRow = dataList.findIndex(data => validateGlvInput(data));
-            if (invalidRow !== -1) {
-                const errDetail = `Dòng Excel ${invalidRow + 2}: ${validateGlvInput(dataList[invalidRow])}`;
-                await logAction(req, `Import Excel giáo lý viên thất bại: ${errDetail}`, 'Thất bại');
-                return redirect(res, params, errDetail, true);
-            }
+            // 4. Lưu dữ liệu xuống Database
             await GlvModel.createBulk(dataList);
 
             await logAction(req, `Import Excel thành công ${dataList.length} giáo lý viên`, 'Thành công');
-            redirect(res, params, `Đã import ${dataList.length} giáo lý viên.`);
+            redirect(res, params, `Đã import thành công ${dataList.length} giáo lý viên.`);
         } catch (error) {
             console.error('Lỗi import GLV:', error);
             const errorMessage = error.code === '23505'
                 ? 'File có số điện thoại trùng với dữ liệu hiện tại.'
-                : 'Không thể import file Excel. Hãy kiểm tra đúng mẫu dữ liệu.';
+                : (error.message || 'Không thể import file Excel. Hãy kiểm tra đúng mẫu dữ liệu.');
+            
             await logAction(req, `Import Excel giáo lý viên thất bại do lỗi hệ thống`, 'Thất bại');
             redirect(res, params, errorMessage, true);
         }
