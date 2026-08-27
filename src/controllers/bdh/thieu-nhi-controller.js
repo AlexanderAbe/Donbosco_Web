@@ -207,7 +207,7 @@ const ThieuNhiController = {
         cellDates: true,
       });
       const sheetName = workbook.SheetNames[0];
-      const sheetData = xlsx.utils.sheet_to_json(workbook.Sheets[sheetName], {
+      let sheetData = xlsx.utils.sheet_to_json(workbook.Sheets[sheetName], {
         defval: "",
       });
       if (!sheetData || sheetData.length === 0) {

@@ -141,6 +141,7 @@ exports.postChangePassword = async (req, res) => {
 
     const { currentPassword, newPassword, confirmPassword } = req.body;
     const id_tk = req.session.user.id_tk;
+    const activeRole = req.session.activeRole || req.session.user.role;
 
     try {
         if (newPassword !== confirmPassword) {
