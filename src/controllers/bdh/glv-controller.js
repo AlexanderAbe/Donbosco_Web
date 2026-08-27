@@ -26,65 +26,52 @@ const getProfileInput = body => ({
 });
 
 const parseImportDate = value => {
-    console.log("Giá trị thô đọc từ ô ngày sinh:", value, typeof value); // <--- Giữ lại log kiểm tra
-    if (!value) return '';
+    console.log("Giá trị thô đọc từ ô ngày sinh:", value, typeof value);
+    if (!value) return null; // Trả về null nếu không có giá trị để tránh lỗi validate chuỗi rỗng
     
-    // Nếu là đối tượng Date của JS
     if (value instanceof Date && !Number.isNaN(value.getTime())) {
         return value.toISOString().slice(0, 10);
     }
     
-    // Nếu là số serial ngày của Excel
     if (typeof value === 'number') {
         const date = XLSX.SSF.parse_date_code(value);
-        return date ? `${date.y}-${String(date.m).padStart(2, '0')}-${String(date.d).padStart(2, '0')}` : '';
+        return date ? `${date.y}-${String(date.m).padStart(2, '0')}-${String(date.d).padStart(2, '0')}` : null;
     }
 
     const text = String(value).trim();
-
-    // Nếu dữ liệu dạng ddmmyyyy viết liền (8 chữ số)
     const compact = text.replace(/[-/]/g, '');
     if (/^\d{8}$/.test(compact)) {
-        // Nếu 4 ký tự đầu là năm (ví dụ 20001225)
         if (Number.parseInt(compact.slice(0, 4), 10) > 1900) {
             return `${compact.slice(0, 4)}-${compact.slice(4, 6)}-${compact.slice(6, 8)}`;
         }
-        // Ngược lại hiểu là ddmmyyyy (ví dụ 25122000)
         return `${compact.slice(4, 8)}-${compact.slice(2, 4)}-${compact.slice(0, 2)}`;
     }
 
-    // Nếu có dấu phân cách / hoặc - (ví dụ: 03/02/2003 hoặc 2003-02-03 hoặc 2/3/03)
     const parts = text.split(/[-/]/);
     if (parts.length === 3) {
         let [p1, p2, p3] = parts;
-        
-        // Trường hợp năm ở đầu: YYYY-MM-DD hoặc YYYY/MM/DD
         if (p1.length === 4) {
             return `${p1}-${p2.padStart(2, '0')}-${p3.padStart(2, '0')}`;
         }
-        
-        // Trường hợp năm ở cuối: DD-MM-YYYY hoặc DD/MM/YYYY (hoặc có năm 2 chữ số như YY)
         if (p3.length === 4 || p3.length === 2) {
             let year = p3;
             if (year.length === 2) {
                 const yearNum = Number.parseInt(year, 10);
                 year = (yearNum > 50 ? '19' : '20') + year;
             }
-            
-            // p1 là Ngày (day), p2 là Tháng (month) đúng theo thứ tự nhập DD/MM/YYYY
-            const day = p1;
-            const month = p2;
-
-            return `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
+            return `${year}-${p2.padStart(2, '0')}-${p1.padStart(2, '0')}`;
         }
     }
 
-    return '';
+    return null;
 };
 
 const getImportValue = (row, names) => {
-    const key = Object.keys(row).find(item => names.includes(item.trim().toLowerCase()));
-    return key ? row[key] : '';
+    const keys = Object.keys(row);
+    // Chuẩn hóa danh sách tên cột cần tìm để khớp chính xác không phân biệt khoảng trắng/hoa thường
+    const targetNames = names.map(n => n.trim().toLowerCase());
+    const foundKey = keys.find(k => targetNames.includes(k.trim().toLowerCase()));
+    return foundKey ? row[foundKey] : '';
 };
 
 const getImportInput = row => ({
@@ -98,12 +85,18 @@ const getImportInput = row => ({
 });
 
 const validateGlvInput = data => {
-    if (!data.ten || data.ten.length > 50 || data.hoLot.length > 100 || data.tenThanh.length > 50 || data.sdt.length > 15) {
+    const ten = String(data.ten || '').trim();
+    const hoLot = String(data.hoLot || '').trim();
+    const tenThanh = String(data.tenThanh || '').trim();
+    const sdt = String(data.sdt || '').trim();
+
+    if (!ten || ten.length > 50 || hoLot.length > 100 || tenThanh.length > 50 || sdt.length > 15) {
         return 'Tên, họ tên lót, thánh danh hoặc số điện thoại vượt quá độ dài cho phép.';
     }
     if (data.gioiTinh && !['Nam', 'Nữ'].includes(data.gioiTinh)) return 'Giới tính phải là Nam hoặc Nữ.';
     if (data.trangThai && !statuses.includes(data.trangThai)) return 'Tình trạng GLV không hợp lệ.';
-    if (data.ngaySinh && !/^\d{4}-\d{2}-\d{2}$/.test(data.ngaySinh)) return 'Ngày sinh phải có dạng ddmmyyyy hoặc yyyy-mm-dd.';     if (!data.sdt) return 'Số điện thoại là bắt buộc.';
+    if (!data.ngaySinh || !/^\d{4}-\d{2}-\d{2}$/.test(data.ngaySinh)) return 'Ngày sinh không hợp lệ hoặc thiếu.';
+    if (!sdt) return 'Số điện thoại là bắt buộc.';
     return null;
 };
 
