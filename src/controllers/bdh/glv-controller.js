@@ -88,12 +88,12 @@ const getImportValue = (row, names) => {
 };
 
 const getImportInput = row => ({
-    tenThanh: String(getImportValue(row, ['ten_thanh', 'tên thánh', 'ten thanh'])).trim(),
-    hoLot: String(getImportValue(row, ['ho_va_ten_lot', 'họ và tên lót', 'ho va ten lot'])).trim(),
-    ten: String(getImportValue(row, ['ten', 'tên'])).trim(),
-    ngaySinh: parseImportDate(getImportValue(row, ['ngay_sinh', 'ngày sinh', 'ngay sinh'])),
-    gioiTinh: String(getImportValue(row, ['gioi_tinh', 'giới tính', 'gioi tinh'])).trim(),
-    sdt: String(getImportValue(row, ['sdt', 'số điện thoại', 'so dien thoai'])).trim(),
+    tenThanh: String(getImportValue(row, ['TEN_THANH', 'TÊN THÁNH', 'TEN THANH'])).trim(),
+    hoLot: String(getImportValue(row, ['HO_VA_TEN_LOT', 'HỌ VÀ TÊN LÓT', 'HO VA TEN LOT'])).trim(),
+    ten: String(getImportValue(row, ['TEN', 'TÊN'])).trim(),
+    ngaySinh: parseImportDate(getImportValue(row, ['NGAY_SINH', 'NGÀY SINH', 'NGAY SINH'])),
+    gioiTinh: String(getImportValue(row, ['GIOI_TINH', 'GIỚI TÍNH', 'GIOI TINH'])).trim(),
+    sdt: String(getImportValue(row, ['SDT', 'SỐ ĐIỆN THOẠI', 'SO DIEN THOAI'])).trim(),
     trangThai: statuses[0]
 });
 
