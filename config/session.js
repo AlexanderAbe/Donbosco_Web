@@ -20,6 +20,7 @@ module.exports = session({
     secret: process.env.SESSION_SECRET,
     resave: false,
     saveUninitialized: false,
+    proxy: true,
     cookie: { 
         maxAge: 30 * 60 * 1000, // 30 phút
         secure: process.env.NODE_ENV === 'production', 
