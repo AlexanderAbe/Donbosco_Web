@@ -1,0 +1,199 @@
+<footer class="internal-footer">
+    <div class="footer-container">
+        <!-- Cột 1: Thông tin tổ chức -->
+        <div class="footer-section">
+            <h4>Thông Tin Đơn Vị</h4>
+            <p><strong>Xứ Đoàn:</strong> Donbosco</p>
+            <p><strong>Giáo Xứ:</strong> Tân Thái Sơn</p>
+            <p><strong>Giáo Hạt:</strong> Tân Sơn Nhì</p>
+            <p><strong>Giáo Phận:</strong> Sài Gòn</p>
+            <p><strong>Địa chỉ:</strong> Số 1 Hoàng Văn Hòe, Phú Thọ Hòa, Hồ Chí Minh</p>
+        </div>
+
+        <!-- Cột 2: Lưu ý hệ thống nội bộ -->
+        <div class="footer-section">
+            <h4>Hệ Thống Quản Lý Điểm Nội Bộ</h4>
+            <p>Hệ thống phục vụ công tác quản lý và lưu trữ dữ liệu nội bộ. Nghiêm cấm mọi hành vi chia sẻ thông tin tài khoản hoặc phát tán dữ liệu ra bên ngoài.</p>
+        </div>
+
+        <!-- Cột 3: Hỗ trợ kỹ thuật & Mạng xã hội -->
+        <div class="footer-section">
+            <h4>Hỗ Trợ & Truyền Thông</h4>
+            <p>Quản trị hệ thống: <strong>Giuse Nguyễn Lê Thái Vĩ</strong></p>
+            <p>Hotline/Zalo: <a href="tel:0934103807">0934 103 807</a></p>
+            <p>Email: <a href="mailto:giadinhthieunhitts@gmail.com">giadinhthieunhitts@gmail.com</a></p>
+            
+            <!-- Danh sách các link Mạng xã hội -->
+            <div class="social-links">
+                <a href="https://www.facebook.com/ThieuNhi.TTS" target="_blank" title="Facebook" class="social-icon fb">
+                    <i class="fa-brands fa-facebook-f"></i>
+                </a>
+                <a href="https://www.tiktok.com/@xudoandonbosco_tts" target="_blank" title="TikTok" class="social-icon tk">
+                    <i class="fa-brands fa-tiktok"></i>
+                </a>
+                <a href="https://www.youtube.com/@ThieuNhiTanThaiSon" target="_blank" title="YouTube" class="social-icon yt">
+                    <i class="fa-brands fa-youtube"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Dòng bản quyền phía dưới -->
+    <div class="footer-bottom">
+        <p>&copy; 2026 Hệ thống Quản lý Điểm Nội Bộ. Bản quyền thuộc về Xứ Đoàn Donbosco.</p>
+    </div>
+</footer>
+
+<style>
+    /* --- CSS CHO CÁC ICON MẠNG XÃ HỘI --- */
+    .social-links {
+        display: flex;
+        gap: 10px; /* Khoảng cách giữa các icon */
+        margin-top: 12px;
+    }
+
+    .social-icon {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 36px;
+        height: 36px;
+        background-color: #334155; /* Màu nền mặc định của icon */
+        color: #ffffff;
+        border-radius: 50%;       /* Bo tròn thành hình tròn */
+        font-size: 16px;
+        transition: all 0.3s ease;
+        text-decoration: none;
+    }
+
+    /* Hiệu ứng khi rê chuột hoặc chạm vào trên điện thoại */
+    .social-icon:hover {
+        transform: translateY(-3px); /* Nhẹ nhàng nổi lên trên */
+    }
+
+    /* Màu riêng cho từng mạng xã hội khi hover cho sinh động */
+    .social-icon.fb:hover {
+        background-color: #1877f2; /* Xanh Facebook */
+    }
+    
+    .social-icon.tk:hover {
+        background-color: #000000; /* Đen TikTok */
+        border: 1px solid #ffffff;
+    }
+    
+    .social-icon.yt:hover {
+        background-color: #ff0000; /* Đỏ YouTube */
+    }
+    /* --- CSS CHÍNH CHO DESKTOP (MÀN HÌNH LỚN) --- */
+    .internal-footer {
+        width: calc(100% - 260px); /* Trừ đi đúng bề rộng của sidebar (260px) */
+        margin-left: 260px;        /* Đẩy sang phải để né sidebar, không bị che khuất */
+        background-color: #1e293b;
+        color: #94a3b8;
+        font-size: 14px;
+        padding-top: 30px;
+        margin-top: auto;
+        border-top: 3px solid #0284c7;
+        box-sizing: border-box;
+        position: relative;
+        z-index: 10;
+    }
+
+    .footer-container {
+        max-width: 100%;
+        margin: 0 auto;
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+        padding: 0 30px 20px 30px;
+        box-sizing: border-box;
+    }
+
+    .footer-section {
+        flex: 1;
+        min-width: 250px;
+        margin-bottom: 20px;
+        padding-right: 20px;
+        box-sizing: border-box;
+    }
+
+    .footer-section h4 {
+        color: #f8fafc;
+        font-size: 16px;
+        margin-bottom: 12px;
+        border-bottom: 1px solid #334155;
+        padding-bottom: 6px;
+    }
+
+    .footer-section p {
+        margin: 6px 0;
+        line-height: 1.5;
+        word-break: break-word; /* Tránh tràn chữ trên màn hình quá nhỏ */
+    }
+
+    .footer-section a {
+        color: #38bdf8;
+        text-decoration: none;
+    }
+
+    .footer-section a:hover {
+        text-decoration: underline;
+    }
+
+    .footer-bottom {
+        background-color: #0f172a;
+        text-align: center;
+        padding: 12px 20px;
+        color: #64748b;
+        font-size: 13px;
+        border-top: 1px solid #1e293b;
+        box-sizing: border-box;
+    }
+
+
+    /* --- RESPONSIVE CHO MÁY TÍNH BẢNG & ĐIỆN THOẠI (DƯỚI 768px) --- */
+    @media screen and (max-width: 768px) {
+        .internal-footer {
+            width: 100% !important;     /* Tràn toàn bộ màn hình điện thoại */
+            margin-left: 0 !important;  /* Bỏ khoảng cách né sidebar vì mobile sidebar thường ẩn hoặc đè full */
+        }
+
+        .footer-container {
+            flex-direction: column;     /* Chuyển các cột thành xếp dọc từ trên xuống */
+            padding: 0 20px 10px 20px;
+        }
+
+        .footer-section {
+            padding-right: 0;
+            margin-bottom: 20px;
+            min-width: 100%;
+        }
+    }
+
+
+    /* --- RESPONSIVE CHO ĐIỆN THOẠI NHỎ (DƯỚI 480px NHƯ IPHONE SE, v.v.) --- */
+    @media screen and (max-width: 480px) {
+        .internal-footer {
+            font-size: 13px;
+            padding-top: 20px;
+        }
+
+        .footer-container {
+            padding: 0 15px 5px 15px;
+        }
+
+        .footer-section h4 {
+            font-size: 15px;
+            margin-bottom: 8px;
+        }
+
+        .footer-section {
+            margin-bottom: 15px;
+        }
+
+        .footer-bottom {
+            font-size: 11px;
+            padding: 10px 15px;
+        }
+    }
+</style>
