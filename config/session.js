@@ -26,6 +26,6 @@ module.exports = session({
         secure: false, 
         httpOnly: true,
         sameSite: 'lax',
-        //domain: 'thieunhitanthaison.com'
+        domain: 'thieunhitanthaison.com'
     } 
 });
