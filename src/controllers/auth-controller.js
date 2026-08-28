@@ -174,16 +174,7 @@ exports.postChangePassword = async (req, res) => {
 
         req.session.successMessage = 'Đổi mật khẩu thành công!';
 
-        switch (activeRole) {
-            case 'admin':
-                return res.redirect('/admin');
-            case 'bdh':
-                return res.redirect('/bdh');
-            case 'truong-khoi':
-                return res.redirect('/truong-khoi');
-            default:
-                return res.redirect('/glv');
-        }
+        return res.redirect('/auth/login');
 
     } catch (error) {
         console.error('Lỗi đổi mật khẩu:', error);
