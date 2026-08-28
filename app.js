@@ -11,7 +11,7 @@ const flashMiddleware = require('./src/middlewares/flash-middleware');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-app.set('trust proxy', ['loopback', 'linklocal', 'uniquelocal']);
+app.set('trust proxy', 1);
 
 // Cấu hình cơ bản
 app.use(express.urlencoded({ extended: true }));

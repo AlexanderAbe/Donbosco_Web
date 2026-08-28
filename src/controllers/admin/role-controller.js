@@ -5,13 +5,20 @@ const { logAction } = require('../../utils/logger');
 // 1. Hiển thị trang phân quyền
 exports.getRolesPage = async (req, res) => {
     try {
-        // Lấy danh sách đã được sắp xếp chung một mảng
-        const users = await UserModel.getUsersWithRolesSorted();
+        const searchQuery = req.query.search;
+        let users;
+
+        if (searchQuery && searchQuery.trim() !== '') {
+            users = await UserModel.searchUsersWithRolesSorted(searchQuery.trim());
+        } else {
+            users = await UserModel.getUsersWithRolesSorted();
+        }
 
         res.render('admin/roles', {
             ...getAdminBaseData(req, 'Quản Lý Phân Quyền'),
-            users, // Trả về mảng users duy nhất
-            success: req.query.success
+            users,
+            success: req.query.success,
+            searchQuery: searchQuery || ''
         });
     } catch (error) {
         console.error('❌ Lỗi tải trang phân quyền:', error);

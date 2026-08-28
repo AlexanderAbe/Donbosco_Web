@@ -50,7 +50,7 @@
             <!-- Mật khẩu -->
             <div class="form-group">
                 <label for="password">Mật khẩu</label>
-                <div class="input-wrapper">
+                <div class="input-wrapper" style="position: relative;">
                     <i class="fa-solid fa-lock input-icon"></i>
                     <input
                         type="password"
@@ -58,7 +58,10 @@
                         name="password"
                         placeholder="Nhập mật khẩu"
                         required
+                        style="padding-right: 40px;"
                     />
+                    <!-- Icon con mắt -->
+                    <i class="fa-solid fa-eye" id="togglePassword" style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); cursor: pointer; color: #94a3b8;"></i>
                 </div>
             </div>
 
@@ -71,5 +74,37 @@
             </div>
         </form>
     </div>
+
+    <!-- Script xử lý hiển thị mật khẩu trong vài giây -->
+    <script>
+        const togglePassword = document.getElementById('togglePassword');
+        const passwordInput = document.getElementById('password');
+        let hideTimeout = null;
+
+        togglePassword.addEventListener('click', function () {
+            // Kiểm tra xem input đang là password hay text
+            const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+            passwordInput.setAttribute('type', type);
+
+            // Đổi icon con mắt mở / nhắm
+            this.classList.toggle('fa-eye');
+            this.classList.toggle('fa-eye-slash');
+
+            // Nếu vừa chuyển sang hiện mật khẩu (type === 'text'), đặt đếm ngược 3 giây tự ẩn lại
+            if (type === 'text') {
+                // Xóa timeout cũ nếu người dùng bấm liên tục
+                if (hideTimeout) clearTimeout(hideTimeout);
+
+                hideTimeout = setTimeout(() => {
+                    passwordInput.setAttribute('type', 'password');
+                    togglePassword.classList.remove('fa-eye-slash');
+                    togglePassword.classList.add('fa-eye');
+                }, 3000); // 3000ms = 3 giây (bạn có thể thay đổi số này)
+            } else {
+                // Nếu người dùng bấm chủ động ẩn đi trước 3 giây thì hủy lệnh đếm ngược
+                if (hideTimeout) clearTimeout(hideTimeout);
+            }
+        });
+    </script>
 </body>
 </html>

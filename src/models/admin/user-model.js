@@ -174,6 +174,41 @@ const UserModel = {
             console.error('❌ Lỗi sắp xếp user theo quyền:', error);
             throw error;
         }
+    },
+
+    async searchUsersWithRolesSorted(keyword) {
+        try {
+            const query = `
+                SELECT * FROM vw_tai_khoan_glv 
+                WHERE username ILIKE $1 OR ho_ten ILIKE $1 
+                ORDER BY id_tk ASC
+            `;
+            const searchPattern = `%${keyword}%`;
+            const { rows } = await pool.query(query, [searchPattern]);
+
+            const usersWithRoles = rows.map(user => ({
+                ...user,
+                is_admin: user.is_admin || false,
+                is_bdh: user.is_bdh || false,
+                is_truong_khoi: false
+            }));
+
+            // Sắp xếp theo trọng số vai trò y hệt như getUsersWithRolesSorted
+            usersWithRoles.sort((a, b) => {
+                const getWeight = (u) => {
+                    if (u.is_admin) return 1;          // Admin đứng đầu tiên
+                    if (u.is_bdh) return 2;            // Tiếp theo là Ban Điều Hành
+                    return 3;                          // Cuối cùng là giáo lý viên thường
+                };
+
+                return getWeight(a) - getWeight(b);
+            });
+
+            return usersWithRoles;
+        } catch (error) {
+            console.error('❌ Lỗi tìm kiếm và sắp xếp user theo quyền:', error);
+            throw error;
+        }
     }
 };
 

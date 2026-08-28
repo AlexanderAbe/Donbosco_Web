@@ -1,0 +1,92 @@
+<link rel="stylesheet" href="/css/reset.css">
+<link rel="stylesheet" href="/css/glv/glv-profile.css">
+
+<div class="profile-container">
+    <div class="profile-header">
+        <h1>Hồ Sơ Cá Nhân</h1>
+    </div>
+
+    <div class="profile-card">
+        <!-- Hiển thị thông báo thành công -->
+        <% if (locals.success && success) { %>
+            <div class="profile-alert profile-alert-success">
+                <i class="fa-solid fa-circle-check"></i> <%= success %>
+            </div>
+        <% } %>
+
+        <!-- Hiển thị thông báo lỗi -->
+        <% if (locals.error && error) { %>
+            <div class="profile-alert profile-alert-error">
+                <i class="fa-solid fa-triangle-exclamation"></i> <%= error %>
+            </div>
+        <% } %>
+
+        <form action="/glv/profile/update" method="POST" class="profile-form">
+            
+            <!-- ID Giáo lý viên (Read-only) -->
+            <div class="profile-group">
+                <label for="id_glv">ID Giáo lý viên (Chỉ đọc)</label>
+                <input type="text" id="id_glv" value="#<%= glv.id_glv %>" readonly />
+            </div>
+
+            <div class="profile-grid-2">
+                <!-- Tên thánh -->
+                <div class="profile-group">
+                    <label for="ten_thanh">Tên Thánh</label>
+                    <input type="text" id="ten_thanh" name="ten_thanh" value="<%= glv.ten_thanh || '' %>" placeholder="VD: Giuse, Maria..." />
+                </div>
+
+                <!-- Giới tính -->
+                <div class="profile-group">
+                    <label for="gioi_tinh">Giới tính</label>
+                    <select id="gioi_tinh" name="gioi_tinh">
+                        <option value="Nam" <%= glv.gioi_tinh === 'Nam' ? 'selected' : '' %>>Nam</option>
+                        <option value="Nữ" <%= glv.gioi_tinh === 'Nữ' ? 'selected' : '' %>>Nữ</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="profile-grid-2">
+                <!-- Họ và tên lót -->
+                <div class="profile-group">
+                    <label for="ho_va_ten_lot">Họ và tên lót</label>
+                    <input type="text" id="ho_va_ten_lot" name="ho_va_ten_lot" value="<%= glv.ho_va_ten_lot || '' %>" required />
+                </div>
+
+                <!-- Tên -->
+                <div class="profile-group">
+                    <label for="ten">Tên</label>
+                    <input type="text" id="ten" name="ten" value="<%= glv.ten || '' %>" required />
+                </div>
+            </div>
+
+            <div class="profile-grid-2">
+                <!-- Ngày sinh -->
+                <div class="profile-group">
+                    <label for="ngay_sinh">Ngày sinh</label>
+                    <input type="date" id="ngay_sinh" name="ngay_sinh" value="<%= glv.ngay_sinh_formatted || '' %>" />
+                </div>
+
+                <!-- Số điện thoại -->
+                <div class="profile-group">
+                    <label for="sdt">Số điện thoại</label>
+                    <input type="tel" id="sdt" name="sdt" value="<%= glv.sdt || '' %>" required />
+                </div>
+            </div>
+
+            <!-- Trạng thái (Read-only) -->
+            <div class="profile-group">
+                <label for="trang_thai">Trạng thái hoạt động</label>
+                <input type="text" id="trang_thai" value="<%= glv.trang_thai || 'Đang hoạt động' %>" readonly />
+            </div>
+
+            <!-- Nút thao tác -->
+            <div class="profile-action">
+                <button type="submit" class="btn-save-profile">
+                    <i class="fa-solid fa-floppy-disk"></i> Lưu thay đổi
+                </button>
+            </div>
+
+        </form>
+    </div>
+</div>

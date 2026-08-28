@@ -73,6 +73,35 @@ const TruongKhoiLopController = {
             );
             if (!detail) return res.status(404).json({ error: 'Không tìm thấy thiếu nhi trong khối được phân công.' });
             
+            // 1. Chuẩn hóa ngày sinh của thiếu nhi tránh lệch múi giờ UTC
+            if (detail.ngay_sinh) {
+                const d = new Date(detail.ngay_sinh);
+                if (!Number.isNaN(d.getTime())) {
+                    const year = d.getFullYear();
+                    const month = String(d.getMonth() + 1).padStart(2, '0');
+                    const day = String(d.getDate()).padStart(2, '0');
+                    detail.ngay_sinh = `${year}-${month}-${day}`;
+                } else {
+                    detail.ngay_sinh = '';
+                }
+            }
+
+            // 2. Nếu thiếu nhi có mảng thông tin bí tích, chuẩn hóa luôn ngày lãnh nhận bí tích
+            if (Array.isArray(detail.sacraments)) {
+                detail.sacraments = detail.sacraments.map(item => {
+                    if (item.ngay_lanh_nhan) {
+                        const sd = new Date(item.ngay_lanh_nhan);
+                        if (!Number.isNaN(sd.getTime())) {
+                            const sy = sd.getFullYear();
+                            const sm = String(sd.getMonth() + 1).padStart(2, '0');
+                            const sday = String(sd.getDate()).padStart(2, '0');
+                            item.ngay_lanh_nhan = `${sy}-${sm}-${sday}`;
+                        }
+                    }
+                    return item;
+                });
+            }
+
             return res.json(detail);
         } catch (error) {
             console.error('Lỗi lấy chi tiết thiếu nhi Trưởng Khối:', error);

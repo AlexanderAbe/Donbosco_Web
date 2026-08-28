@@ -125,6 +125,26 @@ AFTER INSERT ON GLV
 FOR EACH ROW
 EXECUTE FUNCTION fn_tu_dong_tao_tai_khoan_glv();
 
+-- Hàm xử lý cập nhật username khi sdt của GLV thay đổi
+CREATE OR REPLACE FUNCTION fn_tu_dong_cap_nhat_sdt_tai_khoan()
+RETURNS TRIGGER AS $$
+BEGIN
+    -- Chỉ cập nhật nếu số điện thoại thực sự thay đổi
+    IF OLD.sdt IS DISTINCT FROM NEW.sdt THEN
+        UPDATE TAI_KHOAN
+        SET username = NEW.sdt
+        WHERE id_glv = NEW.id_glv;
+    END IF;
+
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trg_cap_nhat_sdt_tai_khoan
+AFTER UPDATE OF sdt ON GLV
+FOR EACH ROW
+EXECUTE FUNCTION fn_tu_dong_cap_nhat_sdt_tai_khoan();
+
 
 -- C. Trigger kiểm tra không cho phép xếp một thiếu nhi vào 2 lớp trong cùng 1 cấu hình năm học
 CREATE OR REPLACE FUNCTION fn_check_trung_lop_cau_hinh()

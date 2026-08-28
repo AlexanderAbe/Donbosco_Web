@@ -1,0 +1,207 @@
+/* ==========================================
+   BIẾN MÀU VÀ GIAO DIỆN TRANG PROFILE
+   ========================================== */
+:root {
+    --bg-60-main: #f4f8fb;
+    --bg-60-surface: #ffffff;
+    --primary-30: #2563eb;
+    --primary-30-hover: #1d4ed8;
+    --primary-30-light: #e0f2fe;
+    --accent-10: #1e40af;
+    --text-main: #334155;
+    --text-muted: #64748b;
+    --sidebar-width: 280px;
+}
+
+.profile-container {
+    padding: 24px;
+    background-color: var(--bg-60-main);
+    min-height: 100vh;
+}
+
+/* Gom chung độ rộng và căn giữa cho cả Header lẫn Card để thẳng hàng với nhau */
+.profile-header,
+.profile-card {
+    max-width: 650px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.profile-header {
+    margin-bottom: 20px;
+}
+
+.profile-header h1 {
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--accent-10);
+    margin-bottom: 4px;
+}
+
+.profile-header p {
+    color: var(--text-muted);
+    font-size: 14px;
+    margin: 0;
+}
+
+.profile-card {
+    background: var(--bg-60-surface);
+    border-radius: 12px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05), 0 1px 2px rgba(0, 0, 0, 0.1);
+    border: 1px solid #e2e8f0;
+    padding: 28px;
+}
+
+/* Thông báo */
+.profile-alert {
+    padding: 12px 16px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.profile-alert-success {
+    background-color: #d1fae5;
+    color: #065f46;
+}
+
+.profile-alert-error {
+    background-color: #fee2e2;
+    color: #991b1b;
+}
+
+/* Form và Inputs */
+.profile-form {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+}
+
+.profile-grid-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+}
+
+.profile-group label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 6px;
+    color: var(--text-main);
+    font-size: 14px;
+}
+
+.profile-group input,
+.profile-group select {
+    width: 100%;
+    padding: 10px 14px;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    font-size: 14px;
+    color: var(--text-main);
+    outline: none;
+    background-color: var(--bg-60-surface);
+    transition: all 0.2s ease;
+}
+
+.profile-group input:focus,
+.profile-group select:focus {
+    border-color: var(--primary-30);
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+.profile-group input:read-only {
+    background-color: #f8fafc;
+    color: var(--text-muted);
+    border-color: #e2e8f0;
+    cursor: not-allowed;
+}
+
+/* Nút bấm */
+.profile-action {
+    margin-top: 10px;
+    padding-top: 16px;
+    border-top: 1px solid #f1f5f9;
+}
+
+.btn-save-profile {
+    background-color: var(--primary-30);
+    color: #ffffff;
+    border: none;
+    padding: 10px 22px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 500;
+    font-size: 14px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: background-color 0.2s;
+}
+
+.btn-save-profile:hover {
+    background-color: var(--primary-30-hover);
+}
+
+/* ==========================================
+   TỐI ƯU RESPONSIVE CHO CÁC LOẠI MÀN HÌNH
+   ========================================== */
+
+/* 1. Màn hình điện thoại nhỏ (dưới 480px) */
+@media screen and (max-width: 480px) {
+    .profile-container {
+        padding: 12px;
+    }
+
+    .profile-card {
+        padding: 16px;
+        border-radius: 8px;
+    }
+
+    .profile-header h1 {
+        font-size: 20px;
+    }
+
+    .profile-group label {
+        font-size: 13px;
+    }
+
+    .profile-group input,
+    .profile-group select {
+        padding: 8px 10px;
+        font-size: 13px;
+    }
+
+    .btn-save-profile {
+        width: 100%;
+        justify-content: center;
+        padding: 12px;
+    }
+}
+
+/* 2. Màn hình máy tính bảng & điện thoại cỡ trung (từ 481px đến 768px) */
+@media screen and (min-width: 481px) and (max-width: 768px) {
+    .profile-container {
+        padding: 16px;
+    }
+
+    .profile-card {
+        padding: 20px;
+    }
+
+    .profile-grid-2 {
+        grid-template-columns: 1fr;
+        gap: 12px;
+    }
+}
+
+/* 3. Màn hình lớn (Desktop / Laptop từ 1200px trở lên) */
+@media screen and (min-width: 1200px) {
+    .profile-header,
+    .profile-card {
+        max-width: 750px;
+    }
+}

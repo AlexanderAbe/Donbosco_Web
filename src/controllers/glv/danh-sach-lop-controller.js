@@ -37,6 +37,20 @@ const DanhSachLopController = {
 
             const detail = await DanhSachLopModel.getStudentDetail(req.session.user.id_glv, idTn, yearId);
             if (!detail) return res.status(404).json({ error: 'Không tìm thấy học sinh trong lớp được phân công.' });
+
+            // Xử lý chuẩn hóa ngày sinh để tránh lệch múi giờ UTC (UTC+7 ở VN)
+            if (detail.ngay_sinh) {
+                const d = new Date(detail.ngay_sinh);
+                if (!Number.isNaN(d.getTime())) {
+                    const year = d.getFullYear();
+                    const month = String(d.getMonth() + 1).padStart(2, '0');
+                    const day = String(d.getDate()).padStart(2, '0');
+                    detail.ngay_sinh = `${year}-${month}-${day}`;
+                } else {
+                    detail.ngay_sinh = '';
+                }
+            }
+
             return res.json(detail);
         } catch (error) {
             console.error('Lỗi lấy chi tiết học sinh GLV:', error);

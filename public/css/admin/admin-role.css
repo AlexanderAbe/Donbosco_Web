@@ -28,6 +28,97 @@
     margin-top: 20px;
 }
 
+/* Các class tiện ích dùng chung */
+.text-center {
+    text-align: center;
+}
+
+.text-muted {
+    display: block;
+    color: #718096;
+    font-size: 12px;
+    margin-top: 4px;
+}
+
+/* ==========================================
+   2. THANH TÌM KIẾM (SEARCH BAR)
+   ========================================== */
+.search-section {
+    margin-bottom: 20px;
+}
+
+.search-form {
+    display: flex;
+    gap: 10px;
+    max-width: 400px;
+}
+
+.search-input-wrapper {
+    position: relative;
+    flex: 1;
+}
+
+.search-input-wrapper input[type="text"] {
+    width: 100%;
+    padding: 8px 12px 8px 36px;
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+    outline: none;
+    font-size: 14px;
+    color: #334155;
+    background-color: #fff;
+    transition: border-color 0.2s;
+}
+
+.search-input-wrapper input[type="text"]:focus {
+    border-color: #2563eb;
+}
+
+.search-input-wrapper i {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #94a3b8;
+    font-size: 14px;
+}
+
+.btn-search {
+    background-color: #14532d;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 500;
+    font-size: 14px;
+    transition: background-color 0.2s;
+}
+
+.btn-search:hover {
+    background-color: #15803d;
+}
+
+.btn-reset {
+    background-color: #e2e8f0;
+    color: #475569;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 8px 12px;
+    border-radius: 6px;
+    text-decoration: none;
+    font-size: 14px;
+    transition: background-color 0.2s;
+}
+
+.btn-reset:hover {
+    background-color: #cbd5e1;
+}
+
+/* ==========================================
+   3. BẢNG DỮ LIỆU (DATA TABLE)
+   ========================================== */
 .table-responsive {
     overflow-x: auto;
 }
@@ -59,7 +150,8 @@
     background-color: #f8fafc;
 }
 
-.data-table input[type="checkbox"] {
+/* Checkbox tùy chỉnh */
+.role-checkbox {
     appearance: none;
     -webkit-appearance: none;
     width: 20px;
@@ -75,23 +167,29 @@
     transition: all 0.2s ease;
 }
 
-.data-table input[type="checkbox"]:checked {
+.role-checkbox:checked {
     background-color: #10b981;
     border-color: #10b981;
 }
 
-.data-table input[type="checkbox"]:checked::after {
+.role-checkbox:checked::after {
     content: "✔";
     font-size: 12px;
     color: white;
     font-weight: bold;
 }
 
-.data-table input[type="checkbox"]:hover {
+.role-checkbox:hover:not(:disabled) {
     border-color: #94a3b8;
 }
 
-.data-table button[type="submit"] {
+.role-checkbox:disabled {
+    cursor: not-allowed;
+    background-color: #f1f5f9;
+}
+
+/* Nút Lưu */
+.btn-save {
     background-color: #10b981;
     color: white;
     border: none;
@@ -106,14 +204,15 @@
     transition: background-color 0.2s;
 }
 
-.data-table button[type="submit"]:hover {
+.btn-save:hover {
     background-color: #059669;
 }
 
 /* ==========================================
-   2. RESPONSIVE MOBILE
+   4. RESPONSIVE MOBILE TỔNG THỂ (MÀN HÌNH < 768px)
    ========================================== */
 @media screen and (max-width: 768px) {
+    /* Container & Card */
     .dashboard-container {
         padding: 12px;
     }
@@ -123,6 +222,24 @@
         margin-top: 12px;
     }
 
+    /* Tối ưu Thanh tìm kiếm */
+    .search-form {
+        max-width: 100%;
+        width: 100%;
+        flex-wrap: nowrap;
+    }
+
+    .search-input-wrapper {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .btn-search {
+        padding: 8px 12px;
+        white-space: nowrap;
+    }
+
+    /* Tối ưu Bảng dữ liệu */
     .data-table thead {
         display: none;
     }
@@ -175,7 +292,8 @@
         display: none;
     }
 
-    .data-table button[type="submit"] {
+    /* Nút lưu trên Mobile */
+    .btn-save {
         width: 100%;
         justify-content: center;
         padding: 10px;

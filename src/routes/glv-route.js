@@ -1,4 +1,3 @@
-// src/routes/glv-route.js
 const express = require('express');
 const router = express.Router();
 const dashboardController = require('../controllers/glv/dashboard-controller');
@@ -7,6 +6,7 @@ const bangDiemController = require('../controllers/glv/bang-diem-controller');
 const kiemTraController = require('../controllers/glv/kiem-tra-controller');
 const kyLuatController = require('../controllers/glv/ky-luat-controller');
 const diemDanhController = require('../controllers/glv/diem-danh-controller');
+const profileController = require('../controllers/glv/profile-controller'); // Khai báo controller profile của bạn
 const { isAuthenticated } = require('../middlewares/auth-middleware');
 const { checkRole } = require('../middlewares/role-middleware');
 
@@ -15,6 +15,10 @@ router.use(isAuthenticated, checkRole('glv'));
 
 // Dashboard
 router.get(['/', '/dashboard'], dashboardController.getDashboard);
+
+// Hồ sơ cá nhân
+router.get('/profile', profileController.getProfile);
+router.post('/profile/update', profileController.updateProfile);
 
 // Danh sách lớp
 router.get('/danh-sach-lop', danhSachLopController.getDanhSachLop);
