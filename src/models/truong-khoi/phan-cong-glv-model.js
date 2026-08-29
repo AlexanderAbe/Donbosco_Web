@@ -2,8 +2,9 @@ const pool = require('../../../config/database');
 
 const PhanCongGlvModel = {
     async getPageData(idGlv, yearId) {
+        // 1. Lấy danh sách lớp thuộc các khối mà Trưởng khối này phụ trách
         const { rows: classes } = await pool.query(`
-            SELECT l.id_lop, l.ten_lop, k.ten_khoi
+            SELECT l.id_lop, l.ten_lop, k.ten_khoi, k.id_khoi
             FROM PHAN_CONG_TRUONG_KHOI tk
             JOIN LOP_HOC l ON l.id_khoi = tk.id_khoi
                 AND l.id_cau_hinh_nam_hoc = tk.id_cau_hinh_nam_hoc
@@ -12,22 +13,33 @@ const PhanCongGlvModel = {
             ORDER BY l.ten_lop
         `, [idGlv, yearId]);
 
-        // Sử dụng TO_CHAR để ép ngày sinh trả về chuỗi 'YYYY-MM-DD', tránh lệch múi giờ JS
+        // Nếu khối không có lớp nào thì trả về mảng trống
+        if (!classes.length) {
+            return { classes: [], glvList: [] };
+        }
+
+        // Lấy danh sách id_khoi mà trưởng khối này quản lý
+        const khoiIds = [...new Set(classes.map(c => c.id_khoi))];
+
+        // 2. Lấy danh sách GLV chỉ thuộc phạm vi các khối mà trưởng khối quản lý
+        // (Bao gồm GLV đã được phân công vào lớp thuộc khối HOẶC các GLV thuộc phạm vi khối đó)
         const { rows: glvList } = await pool.query(`
-            SELECT g.id_glv, g.ten_thanh, g.ho_va_ten_lot, g.ten, 
+            SELECT DISTINCT g.id_glv, g.ten_thanh, g.ho_va_ten_lot, g.ten, 
                    TO_CHAR(g.ngay_sinh, 'YYYY-MM-DD') AS ngay_sinh,
                    g.gioi_tinh, g.sdt, g.trang_thai,
                    pc.id_lop AS assigned_class_id
             FROM GLV g
-            LEFT JOIN PHAN_CONG_GLV pc ON pc.id_glv = g.id_glv
-                AND pc.id_cau_hinh_nam_hoc = $1
+            LEFT JOIN PHAN_CONG_GLV pc ON pc.id_glv = g.id_glv AND pc.id_cau_hinh_nam_hoc = $1
+            LEFT JOIN LOP_HOC l ON l.id_lop = pc.id_lop
             WHERE g.trang_thai = 'Đang hoạt động'
+              AND (
+                  l.id_khoi = ANY($2::int[])
+                  -- Nếu hệ thống của bạn có bảng liên kết GLV trực tiếp với khối (ví dụ: PHAN_CONG_KHOI_GLV), 
+                  -- bạn có thể mở rộng điều kiện OR ở đây để lấy cả những GLV chưa phân công lớp nhưng thuộc khối quản lý.
+              )
             ORDER BY g.ten, g.ho_va_ten_lot, g.ten_thanh
-        `, [yearId]);
+        `, [yearId, khoiIds]);
 
-        for (const classItem of classes) {
-            classItem.glvList = glvList.filter(glv => glv.assigned_class_id === classItem.id_lop);
-        }
         return { classes, glvList };
     },
 
@@ -54,23 +66,42 @@ const PhanCongGlvModel = {
     },
 
     async assign(idGlv, teacherId, yearId, classId) {
-        const { rows } = await pool.query(`
-            INSERT INTO PHAN_CONG_GLV (id_glv, id_lop, id_cau_hinh_nam_hoc)
-            SELECT $1, l.id_lop, $3
-            FROM LOP_HOC l
-            JOIN PHAN_CONG_TRUONG_KHOI tk ON tk.id_khoi = l.id_khoi
-                AND tk.id_cau_hinh_nam_hoc = l.id_cau_hinh_nam_hoc
-            WHERE l.id_lop = $4
-              AND tk.id_glv = $2
-              AND NOT EXISTS (
-                  SELECT 1 FROM PHAN_CONG_GLV existing
-                  WHERE existing.id_glv = $1
-                    AND existing.id_cau_hinh_nam_hoc = $3
-              )
-            RETURNING id_phan_cong_glv
-        `, [idGlv, teacherId, yearId, classId]);
-        if (!rows.length) throw new Error('GLV đã được phân công hoặc lớp không thuộc khối bạn phụ trách.');
-        return rows[0];
+        // 1. Nếu có chọn lớp, kiểm tra xem lớp đó có thuộc khối do Trưởng khối này phụ trách hay không
+        if (classId) {
+            const { rows: checkRows } = await pool.query(`
+                SELECT 1 
+                FROM LOP_HOC l
+                JOIN PHAN_CONG_TRUONG_KHOI tk ON tk.id_khoi = l.id_khoi 
+                    AND tk.id_cau_hinh_nam_hoc = l.id_cau_hinh_nam_hoc
+                WHERE l.id_lop = $1 
+                  AND tk.id_glv = $2 
+                  AND tk.id_cau_hinh_nam_hoc = $3
+            `, [classId, teacherId, yearId]);
+
+            if (!checkRows.length) {
+                throw new Error('Lớp này không thuộc khối bạn phụ trách.');
+            }
+        }
+
+        // 2. Xóa phân công cũ của GLV này trong niên khóa (hỗ trợ việc đổi lớp hoặc hủy phân công)
+        await pool.query(`
+            DELETE FROM PHAN_CONG_GLV 
+            WHERE id_glv = $1 
+              AND id_cau_hinh_nam_hoc = $2
+        `, [idGlv, yearId]);
+
+        // 3. Nếu có chọn lớp mới thì tiến hành thêm phân công mới
+        if (classId) {
+            const { rows } = await pool.query(`
+                INSERT INTO PHAN_CONG_GLV (id_glv, id_lop, id_cau_hinh_nam_hoc)
+                VALUES ($1, $2, $3)
+                RETURNING id_phan_cong_glv
+            `, [idGlv, classId, yearId]);
+
+            return rows[0];
+        }
+
+        return { success: true, message: 'Đã hủy phân công thành công' };
     }
 };
 
