@@ -65,43 +65,56 @@ const PhanCongGlvModel = {
         return rows[0] || null;
     },
 
-    async assign(idGlv, teacherId, yearId, classId) {
-        // 1. Nếu có chọn lớp, kiểm tra xem lớp đó có thuộc khối do Trưởng khối này phụ trách hay không
-        if (classId) {
-            const { rows: checkRows } = await pool.query(`
-                SELECT 1 
-                FROM LOP_HOC l
-                JOIN PHAN_CONG_TRUONG_KHOI tk ON tk.id_khoi = l.id_khoi 
-                    AND tk.id_cau_hinh_nam_hoc = l.id_cau_hinh_nam_hoc
-                WHERE l.id_lop = $1 
-                  AND tk.id_glv = $2 
-                  AND tk.id_cau_hinh_nam_hoc = $3
-            `, [classId, teacherId, yearId]);
+    async saveAll(teacherId, yearId, assignments) {
+        // assignments nhận vào dạng object: { [id_glv]: id_lop }
+        const client = await pool.connect();
+        try {
+            await client.query('BEGIN');
 
-            if (!checkRows.length) {
-                throw new Error('Lớp này không thuộc khối bạn phụ trách.');
+            for (const [idGlvStr, idLopStr] of Object.entries(assignments)) {
+                const idGlv = Number.parseInt(idGlvStr, 10);
+                const classId = idLopStr ? Number.parseInt(idLopStr, 10) : null;
+
+                // Nếu có chọn lớp, kiểm tra quyền lớp đó có thuộc khối trưởng khối quản lý không
+                if (classId) {
+                    const { rows: checkRows } = await client.query(`
+                        SELECT 1 
+                        FROM LOP_HOC l
+                        JOIN PHAN_CONG_TRUONG_KHOI tk ON tk.id_khoi = l.id_khoi 
+                            AND tk.id_cau_hinh_nam_hoc = l.id_cau_hinh_nam_hoc
+                        WHERE l.id_lop = $1 
+                          AND tk.id_glv = $2 
+                          AND tk.id_cau_hinh_nam_hoc = $3
+                    `, [classId, teacherId, yearId]);
+
+                    if (!checkRows.length) {
+                        throw new Error(`Lớp ID ${classId} không thuộc khối bạn phụ trách.`);
+                    }
+                }
+
+                // Xóa phân công cũ của GLV này trong năm học
+                await client.query(`
+                    DELETE FROM PHAN_CONG_GLV 
+                    WHERE id_glv = $1 AND id_cau_hinh_nam_hoc = $2
+                `, [idGlv, yearId]);
+
+                // Thêm phân công mới nếu có chọn lớp
+                if (classId) {
+                    await client.query(`
+                        INSERT INTO PHAN_CONG_GLV (id_glv, id_lop, id_cau_hinh_nam_hoc)
+                        VALUES ($1, $2, $3)
+                    `, [idGlv, classId, yearId]);
+                }
             }
+
+            await client.query('COMMIT');
+            return true;
+        } catch (error) {
+            await client.query('ROLLBACK');
+            throw error;
+        } finally {
+            client.release();
         }
-
-        // 2. Xóa phân công cũ của GLV này trong niên khóa (hỗ trợ việc đổi lớp hoặc hủy phân công)
-        await pool.query(`
-            DELETE FROM PHAN_CONG_GLV 
-            WHERE id_glv = $1 
-              AND id_cau_hinh_nam_hoc = $2
-        `, [idGlv, yearId]);
-
-        // 3. Nếu có chọn lớp mới thì tiến hành thêm phân công mới
-        if (classId) {
-            const { rows } = await pool.query(`
-                INSERT INTO PHAN_CONG_GLV (id_glv, id_lop, id_cau_hinh_nam_hoc)
-                VALUES ($1, $2, $3)
-                RETURNING id_phan_cong_glv
-            `, [idGlv, classId, yearId]);
-
-            return rows[0];
-        }
-
-        return { success: true, message: 'Đã hủy phân công thành công' };
     }
 };
 
