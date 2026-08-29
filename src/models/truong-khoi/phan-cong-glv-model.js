@@ -71,27 +71,11 @@ const PhanCongGlvModel = {
         try {
             await client.query('BEGIN');
 
-            const entries = assignments && typeof assignments === 'object' ? Object.entries(assignments) : [];
+            for (const [idGlvStr, idLopStr] of Object.entries(assignments)) {
+                const idGlv = Number.parseInt(idGlvStr, 10);
+                const classId = idLopStr ? Number.parseInt(idLopStr, 10) : null;
 
-            for (const [glvIdKey, lopIdVal] of entries) {
-                const idGlv = Number.parseInt(glvIdKey, 10);
-                const classId = lopIdVal ? Number.parseInt(lopIdVal, 10) : null;
-
-                // Bỏ qua nếu id_glv không phải là số hợp lệ
-                if (!idGlv || Number.isNaN(idGlv)) {
-                    continue;
-                }
-
-                const { rows: checkGlv } = await client.query(`
-                    SELECT 1 FROM GLV WHERE id_glv = $1
-                `, [idGlv]);
-
-                if (!checkGlv.length) {
-                    console.warn(`Cảnh báo: id_glv = ${idGlv} không tồn tại trong bảng GLV, đã bỏ qua.`);
-                    continue; // Bỏ qua GLV ảo/không có thật để tránh lỗi vi phạm khóa ngoại
-                }
-
-                // Nếu có chọn lớp, kiểm tra xem lớp đó có thuộc khối do Trưởng khối phụ trách hay không
+                // Nếu có chọn lớp, kiểm tra quyền lớp đó có thuộc khối trưởng khối quản lý không
                 if (classId) {
                     const { rows: checkRows } = await client.query(`
                         SELECT 1 
@@ -108,13 +92,13 @@ const PhanCongGlvModel = {
                     }
                 }
 
-                // Xóa phân công cũ của GLV này trong năm học hiện tại
+                // Xóa phân công cũ của GLV này trong năm học
                 await client.query(`
                     DELETE FROM PHAN_CONG_GLV 
                     WHERE id_glv = $1 AND id_cau_hinh_nam_hoc = $2
                 `, [idGlv, yearId]);
 
-                // Nếu có chọn lớp mới thì thêm bản ghi phân công mới
+                // Thêm phân công mới nếu có chọn lớp
                 if (classId) {
                     await client.query(`
                         INSERT INTO PHAN_CONG_GLV (id_glv, id_lop, id_cau_hinh_nam_hoc)
