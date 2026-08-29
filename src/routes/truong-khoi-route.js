@@ -25,7 +25,7 @@ router.post('/lop/:id/status', lopController.updateStudentStatus);
 router.post('/lop/:id/transfer', lopController.transferStudent);
 router.get('/phan-cong-glv', phanCongGlvController.getPage);
 router.get('/phan-cong-glv/:id/detail', phanCongGlvController.getDetail);
-router.post('/phan-cong-glv/save-all', phanCongGlvController.saveAll);
+router.post('/phan-cong-glv/assign', phanCongGlvController.assign);
 router.get('/kiem-tra', kiemTraController.getPage);
 router.get('/diem-danh', diemDanhController.getPage);
 router.get('/ky-luat', kyLuatController.getPage);

@@ -42,24 +42,20 @@ const TruongKhoiPhanCongGlvController = {
         }
     },
 
-    async saveAll(req, res) {
-        const yearId = req.body.yearId;
+    async assign(req, res) {
         try {
-            const teacherId = req.session.user.id_glv;
-            const assignments = req.body.assignments || {}; // { id_glv: id_lop, ... }
-
-            await PhanCongGlvModel.saveAll(
-                teacherId,
-                Number.parseInt(yearId, 10),
-                assignments
+            await PhanCongGlvModel.assign(
+                Number.parseInt(req.body.id_glv, 10),
+                req.session.user.id_glv,
+                Number.parseInt(req.body.yearId, 10),
+                Number.parseInt(req.body.id_lop, 10)
             );
-
-            await logAction(req, `Cập nhật phân công hàng loạt GLV thành công (Niên khóa ID: ${yearId})`, 'Thành công');
-            return res.redirect(`/truong-khoi/phan-cong-glv?nien_khoa=${yearId}`);
+            await logAction(req, `Phân công GLV thành công (GLV ID: ${req.body.id_glv}, Lớp ID: ${req.body.id_lop}, Niên khóa ID: ${req.body.yearId})`, 'Thành công');
+            return res.redirect(`/truong-khoi/phan-cong-glv?nien_khoa=${req.body.yearId}`);
         } catch (error) {
-            console.error('Lỗi lưu phân công hàng loạt:', error);
-            await logAction(req, `Lỗi lưu phân công hàng loạt: ${error.message}`, 'Thất bại');
-            return res.redirect(`/truong-khoi/phan-cong-glv?nien_khoa=${yearId}&error=${encodeURIComponent(error.message)}`);
+            console.error('Lỗi phân công GLV Trưởng Khối:', error);
+            await logAction(req, `Phân công GLV thất bại (GLV ID: ${req.body.id_glv}, Lớp ID: ${req.body.id_lop}): ${error.message}`, 'Thất bại');
+            return res.redirect(`/truong-khoi/phan-cong-glv?nien_khoa=${req.body.yearId}&error=${encodeURIComponent(error.message)}`);
         }
     }
 };

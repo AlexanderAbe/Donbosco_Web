@@ -10,55 +10,51 @@
     <% if (!glvList || !glvList.length) { %>
         <div class="tk-empty"><i class="fa-solid fa-chalkboard"></i><h2>Chưa có danh sách GLV</h2></div>
     <% } else { %>
-        <!-- Form bọc toàn bộ bảng để submit 1 lần -->
-        <form method="POST" action="/truong-khoi/phan-cong-glv/save-all">
-            <input type="hidden" name="yearId" value="<%= selectedYearId %>">
-            
-            <section class="class-panel">
-                <div class="class-panel-header">
-                    <div><h2><i class="fa-solid fa-users"></i> Danh sách Huynh trưởng / Giáo lý viên</h2></div>
-                    <button type="submit" class="action-button assign-action" style="padding: 8px 16px;"><i class="fa-solid fa-floppy-disk"></i> Lưu tất cả thay đổi</button>
-                </div>
-                <div class="table-scroll">
-                    <table>
-                        <thead>
+        <section class="class-panel">
+            <div class="class-panel-header">
+                <div><h2><i class="fa-solid fa-users"></i> Danh sách Huynh trưởng / Giáo lý viên</h2></div>
+                <span class="student-count">Tổng: <%= glvList.length %> GLV</span>
+            </div>
+            <div class="table-scroll">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Họ và tên GLV</th>
+                            <th>Số điện thoại</th>
+                            <th>Tình trạng</th>
+                            <th>Phân công lớp</th>
+                            <th>Thao tác</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% glvList.forEach(glv => { %>
                             <tr>
-                                <th>Họ và tên GLV</th>
-                                <th>Số điện thoại</th>
-                                <th>Tình trạng</th>
-                                <th>Phân công lớp</th>
-                                <th>Thao tác</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <% glvList.forEach(glv => { %>
-                                <tr>
-                                    <td><strong><%= [glv.ten_thanh, glv.ho_va_ten_lot, glv.ten].filter(Boolean).join(' ') %></strong></td>
-                                    <td><%= glv.sdt || '-' %></td>
-                                    <td><span class="status <%= glv.trang_thai === 'Đang hoạt động' ? 'is-active' : 'is-inactive' %>"><%= glv.trang_thai %></span></td>
-                                    <td>
-                                        <!-- Dùng name là dạng mảng hoặc object key theo id_glv để nhận dữ liệu ở Controller -->
-                                        <select name="assignments[<%= glv.id_glv %>]" aria-label="Chọn lớp cho GLV">
+                                <td><strong><%= [glv.ten_thanh, glv.ho_va_ten_lot, glv.ten].filter(Boolean).join(' ') %></strong></td>
+                                <td><%= glv.sdt || '-' %></td>
+                                <td><span class="status <%= glv.trang_thai === 'Đang hoạt động' ? 'is-active' : 'is-inactive' %>"><%= glv.trang_thai %></span></td>
+                                <td>
+                                    <form method="POST" action="/truong-khoi/phan-cong-glv/assign" class="assign-form">
+                                        <input type="hidden" name="id_glv" value="<%= glv.id_glv %>">
+                                        <input type="hidden" name="yearId" value="<%= selectedYearId %>">
+                                        <select name="id_lop" aria-label="Chọn lớp cho GLV">
                                             <option value="">-- Chưa phân công --</option>
                                             <% classes.forEach(c => { %>
-                                                <!-- Chỉ hiển thị tên lớp c.ten_lop -->
-                                                <option value="<%= c.id_lop %>" <%= glv.assigned_class_id === c.id_lop ? 'selected' : '' %>><%= c.ten_lop %></option>
+                                                <option value="<%= c.id_lop %>" <%= glv.assigned_class_id === c.id_lop ? 'selected' : '' %>><%= c.ten_khoi %> - <%= c.ten_lop %></option>
+                                            <% %>
                                             <% }) %>
                                         </select>
-                                    </td>
-                                    <td>
-                                        <button type="button" class="action-button detail-button" data-id="<%= glv.id_glv %>"><i class="fa-solid fa-eye"></i> Xem</button>
-                                    </td>
-                                </tr>
-                            <% }) %>
-                        </tbody>
-                    </table>
-                </div>
-                <div style="margin-top: 15px; text-align: right;">
-                    <button type="submit" class="action-button assign-action" style="padding: 10px 20px;"><i class="fa-solid fa-floppy-disk"></i> Lưu tất cả thay đổi</button>
-                </div>
-            </section>
-        </form>
+                                        <button type="submit" class="action-button assign-action" title="Lưu phân công"><i class="fa-solid fa-check"></i> Lưu</button>
+                                    </form>
+                                </td>
+                                <td>
+                                    <button type="button" class="action-button detail-button" data-id="<%= glv.id_glv %>"><i class="fa-solid fa-eye"></i> Xem</button>
+                                </td>
+                            </tr>
+                        <% }) %>
+                    </tbody>
+                </table>
+            </div>
+        </section>
     <% } %>
 </main>
 
