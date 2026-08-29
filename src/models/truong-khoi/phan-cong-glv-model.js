@@ -71,11 +71,19 @@ const PhanCongGlvModel = {
         try {
             await client.query('BEGIN');
 
-            for (const [idGlvStr, idLopStr] of Object.entries(assignments)) {
-                const idGlv = Number.parseInt(idGlvStr, 10);
-                const classId = idLopStr ? Number.parseInt(idLopStr, 10) : null;
+            // Đảm bảo assignments tồn tại và là object hợp lệ
+            const entries = assignments && typeof assignments === 'object' ? Object.entries(assignments) : [];
 
-                // Nếu có chọn lớp, kiểm tra quyền lớp đó có thuộc khối trưởng khối quản lý không
+            for (const [glvIdKey, lopIdVal] of entries) {
+                const idGlv = Number.parseInt(glvIdKey, 10);
+                const classId = lopIdVal ? Number.parseInt(lopIdVal, 10) : null;
+
+                // Bỏ qua nếu id_glv không phải là số hợp lệ
+                if (!idGlv || Number.isNaN(idGlv)) {
+                    continue;
+                }
+
+                // Nếu có chọn lớp, kiểm tra xem lớp đó có thuộc khối do Trưởng khối phụ trách hay không
                 if (classId) {
                     const { rows: checkRows } = await client.query(`
                         SELECT 1 
@@ -92,13 +100,13 @@ const PhanCongGlvModel = {
                     }
                 }
 
-                // Xóa phân công cũ của GLV này trong năm học
+                // Xóa phân công cũ của GLV này trong năm học hiện tại
                 await client.query(`
                     DELETE FROM PHAN_CONG_GLV 
                     WHERE id_glv = $1 AND id_cau_hinh_nam_hoc = $2
                 `, [idGlv, yearId]);
 
-                // Thêm phân công mới nếu có chọn lớp
+                // Nếu có chọn lớp mới thì thêm bản ghi phân công mới
                 if (classId) {
                     await client.query(`
                         INSERT INTO PHAN_CONG_GLV (id_glv, id_lop, id_cau_hinh_nam_hoc)
