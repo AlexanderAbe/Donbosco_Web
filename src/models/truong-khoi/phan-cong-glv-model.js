@@ -71,7 +71,6 @@ const PhanCongGlvModel = {
         try {
             await client.query('BEGIN');
 
-            // Đảm bảo assignments tồn tại và là object hợp lệ
             const entries = assignments && typeof assignments === 'object' ? Object.entries(assignments) : [];
 
             for (const [glvIdKey, lopIdVal] of entries) {
@@ -81,6 +80,15 @@ const PhanCongGlvModel = {
                 // Bỏ qua nếu id_glv không phải là số hợp lệ
                 if (!idGlv || Number.isNaN(idGlv)) {
                     continue;
+                }
+
+                const { rows: checkGlv } = await client.query(`
+                    SELECT 1 FROM GLV WHERE id_glv = $1
+                `, [idGlv]);
+
+                if (!checkGlv.length) {
+                    console.warn(`Cảnh báo: id_glv = ${idGlv} không tồn tại trong bảng GLV, đã bỏ qua.`);
+                    continue; // Bỏ qua GLV ảo/không có thật để tránh lỗi vi phạm khóa ngoại
                 }
 
                 // Nếu có chọn lớp, kiểm tra xem lớp đó có thuộc khối do Trưởng khối phụ trách hay không
