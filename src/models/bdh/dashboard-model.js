@@ -46,8 +46,8 @@ const DashboardModel = {
                 pool.query(`
                     SELECT COUNT(DISTINCT id_tn) AS count 
                     FROM PHAN_LOP 
-                                        WHERE id_cau_hinh_nam_hoc = $1
-                                            AND trang_thai = 'Đang học';
+                    WHERE id_cau_hinh_nam_hoc = $1
+                      AND trang_thai = 'Đang học';
                 `, [currentId]),
 
                 // Danh sách Trưởng khối theo năm học
@@ -72,14 +72,17 @@ const DashboardModel = {
                     );
                 `, [currentId]),
 
-                // Thống kê số lượng GLV theo lớp (để cảnh báo lớp thiếu người)
+                // Thống kê số lượng GLV và số lượng thiếu nhi theo lớp (Đã bỏ cột khối)
                 pool.query(`
-                    SELECT l.ten_lop, k.ten_khoi, COUNT(pc.id_glv) AS so_luong_glv
+                    SELECT l.ten_lop, 
+                           COUNT(DISTINCT pc.id_glv) AS so_luong_glv,
+                           COUNT(DISTINCT tn.id_tn) AS so_luong_thieu_nhi
                     FROM LOP_HOC l
                     JOIN KHOI k ON l.id_khoi = k.id_khoi
                     LEFT JOIN PHAN_CONG_GLV pc ON l.id_lop = pc.id_lop
+                    LEFT JOIN PHAN_LOP tn ON l.id_lop = tn.id_lop AND tn.id_cau_hinh_nam_hoc = $1 AND tn.trang_thai = 'Đang học'
                     WHERE l.id_cau_hinh_nam_hoc = $1
-                    GROUP BY l.id_lop, l.ten_lop, k.ten_khoi, k.stt
+                    GROUP BY l.id_lop, l.ten_lop, k.stt
                     ORDER BY k.stt ASC, l.ten_lop ASC;
                 `, [currentId]),
 
@@ -103,8 +106,8 @@ const DashboardModel = {
                 totalThieuNhi: parseInt(thieuNhiCount.rows[0].count) || 0,
                 truongKhoiList: truongKhoiRes.rows,
                 glvChuaPhanCongList: glvChuaPhanCongRes.rows,
-                thongKeLopList: thongKeLopRes.rows
-                ,daTongKet: tongKetRes.rows[0]?.da_tong_ket || false
+                thongKeLopList: thongKeLopRes.rows,
+                daTongKet: tongKetRes.rows[0]?.da_tong_ket || false
             };
 
         } catch (error) {
@@ -122,7 +125,6 @@ const DashboardModel = {
             };
         }
     },
-
 };
 
 module.exports = DashboardModel;

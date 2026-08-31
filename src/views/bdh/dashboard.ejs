@@ -72,22 +72,30 @@
         <!-- Cột phải: Thống kê số lượng GLV theo lớp -->
         <div class="custom-col">
             <div class="card p-3 mb-4 shadow-sm h-100">
-                <h4><i class="fa-solid fa-chalkboard me-2 text-success"></i> Nhân sự Giáo Lý Viên theo Lớp</h4>
+                <h4><i class="fa-solid fa-chalkboard me-2 text-success"></i> Nhân sự & Thiếu nhi theo Lớp</h4>
                 <div class="table-responsive">
                     <table class="table table-striped mt-2">
                         <thead>
                             <tr>
                                 <th><i class="fa-solid fa-school me-1"></i> Lớp</th>
-                                <th><i class="fa-solid fa-layer-group me-1"></i> Khối</th>
-                                <th><i class="fa-solid fa-users me-1"></i> Số GLV</th>
+                                <th class="text-center"><i class="fa-solid fa-child me-1"></i> Số Thiếu nhi</th>
+                                <th class="text-center"><i class="fa-solid fa-users me-1"></i> Số GLV</th>
                             </tr>
                         </thead>
                         <tbody>
                             <% stats.thongKeLopList.forEach(lop => { %>
                                 <tr>
                                     <td><%= lop.ten_lop %></td>
-                                    <td><%= lop.ten_khoi %></td>
-                                    <td>
+                                    
+                                    <!-- Cột hiển thị số lượng thiếu nhi mới thêm vào -->
+                                    <td class="text-center">
+                                        <span class="badge bg-info text-dark rounded-pill px-3 py-2">
+                                            <%= lop.so_luong_thieu_nhi || 0 %>
+                                        </span>
+                                    </td>
+
+                                    <!-- Cột hiển thị số lượng GLV -->
+                                    <td class="text-center">
                                         <% if (lop.so_luong_glv < 2) { %>
                                             <span class="badge bg-danger text-white rounded-pill px-3 py-2">
                                                 <i class="fa-solid fa-circle-exclamation me-1"></i> <%= lop.so_luong_glv %> (Ít)
