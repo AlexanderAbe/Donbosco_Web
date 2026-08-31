@@ -48,11 +48,20 @@ const PhanCongModel = {
             `, [idCauHinhNamHoc])
         ]);
 
+        // Lấy thêm thông tin các GLV đang dạy lớp nào thuộc khối nào để lọc dropdown Trưởng khối
+        const khoiGlvMappingRes = await pool.query(`
+            SELECT DISTINCT l.id_khoi, pc.id_glv
+            FROM PHAN_CONG_GLV pc
+            JOIN LOP_HOC l ON l.id_lop = pc.id_lop
+            WHERE pc.id_cau_hinh_nam_hoc = $1 AND l.id_cau_hinh_nam_hoc = $1
+        `, [idCauHinhNamHoc]);
+
         return {
             classes: classes.rows,
             glvList: glvList.rows,
             classAssignments: classAssignments.rows,
-            truongKhoiList: truongKhoiList.rows
+            truongKhoiList: truongKhoiList.rows,
+            khoiGlvMapping: khoiGlvMappingRes.rows // Truyền thêm mảng ánh xạ này ra
         };
     },
 

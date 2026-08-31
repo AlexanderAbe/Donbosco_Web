@@ -51,8 +51,8 @@ const PhanCongController = {
                 ...getBdhBaseData(req, 'Phân Công Nhân Sự'),
                 years,
                 selectedYearId,
-                ...data,
-                availableGlvList, // Truyền danh sách GLV chưa phân công sang EJS
+                ...data, // Sẽ tự động bao gồm classes, glvList, classAssignments, truongKhoiList, khoiGlvMapping
+                availableGlvList,
                 message: req.query.message || null,
                 error: req.query.error || null
             });

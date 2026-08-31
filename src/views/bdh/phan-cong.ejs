@@ -139,7 +139,7 @@
                     </thead>
                     <tbody>
                         <% 
-                            // Gom nhóm danh sách trưởng khối theo từng id_khoi vì 1 khối có thể xuất hiện nhiều dòng
+                            // 1. Gom nhóm danh sách trưởng khối
                             const groupedTruongKhoi = {};
                             truongKhoiList.forEach(item => {
                                 if (!groupedTruongKhoi[item.id_khoi]) {
@@ -158,6 +158,17 @@
                                     });
                                 }
                             });
+
+                            // 2. Tạo Set hoặc Map chứa ID các GLV đang dạy theo từng id_khoi
+                            const teachingGlvByKhoi = {};
+                            if (typeof khoiGlvMapping !== 'undefined') {
+                                khoiGlvMapping.forEach(m => {
+                                    if (!teachingGlvByKhoi[m.id_khoi]) {
+                                        teachingGlvByKhoi[m.id_khoi] = new Set();
+                                    }
+                                    teachingGlvByKhoi[m.id_khoi].add(m.id_glv);
+                                });
+                            }
                         %>
 
                         <% Object.values(groupedTruongKhoi).forEach(khoi => { %>
@@ -169,7 +180,7 @@
                                             <% khoi.leaders.forEach(leader => { %>
                                                 <div class="assignment-item" style="display: flex; justify-content: space-between; align-items: center; background: #f8fafc; padding: 4px 8px; border-radius: 4px; border: 1px solid #e2e8f0;">
                                                     <span><%= leader.ho_ten || `GLV #${leader.id_glv}` %></span>
-                                                    <form method="POST" action="/bdh/phan-cong/truorg-khoi/remove" style="margin: 0;">
+                                                    <form method="POST" action="/bdh/phan-cong/truong-khoi/remove" style="margin: 0;">
                                                         <input type="hidden" name="id_phan_cong_truong" value="<%= leader.id_phan_cong_truong %>">
                                                         <input type="hidden" name="id_cau_hinh_nam_hoc" value="<%= selectedYearId %>">
                                                         <button type="submit" class="btn btn-remove" title="Gỡ trưởng khối" style="border: none; background: transparent; color: #ef4444; cursor: pointer; font-weight: bold;">×</button>
@@ -188,16 +199,25 @@
                                             <input type="hidden" name="id_cau_hinh_nam_hoc" value="<%= selectedYearId %>">
                                             <select name="id_glv" required style="flex: 1; padding: 6px; border: 1px solid #cbd5e1; border-radius: 4px; font-size: 13px;">
                                                 <option value="">Chọn GLV làm trưởng khối</option>
-                                                <% glvList.forEach(glv => { %>
-                                                    <option value="<%= glv.id_glv %>">
-                                                        <%= glv.ho_ten || `GLV #${glv.id_glv}` %>
-                                                    </option>
-                                                <% }) %>
+                                                <% 
+                                                    // Lọc chỉ lấy những GLV đang dạy các lớp trong khối này
+                                                    const allowedGlvIds = teachingGlvByKhoi[khoi.id_khoi] || new Set();
+                                                    const filteredGlvList = glvList.filter(g => allowedGlvIds.has(g.id_glv));
+                                                %>
+                                                <% if (filteredGlvList.length > 0) { %>
+                                                    <% filteredGlvList.forEach(glv => { %>
+                                                        <option value="<%= glv.id_glv %>">
+                                                            <%= glv.ho_ten || `GLV #${glv.id_glv}` %>
+                                                        </option>
+                                                    <% }) %>
+                                                <% } else { %>
+                                                    <option value="" disabled>Không có GLV nào dạy khối này</option>
+                                                <% } %>
                                             </select>
                                             <button type="submit" class="btn btn-primary" style="padding: 6px 12px; font-size: 13px;">Thêm</button>
                                         </form>
                                     <% } else { %>
-                                        <span style="color: #2563eb; font-size: 12px; font-weight: 500;">Đã đủ tối đa 3 Trưởng khối</span>
+                                        <span style="color: #000000; font-size: 12px; font-weight: 500;">Đã đủ tối đa 3 Trưởng khối</span>
                                     <% } %>
                                 </td>
                             </tr>
