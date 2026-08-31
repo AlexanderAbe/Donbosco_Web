@@ -30,6 +30,16 @@ const KiemTraController = {
                 ? await KiemTraModel.getExamStudents(idGlv, selectedYearId, selectedClassId, selectedExam)
                 : [];
 
+            // Lấy ngày kiểm tra từ học sinh đầu tiên (nếu có dữ liệu) để hiển thị lên input date
+            let selectedDate = '';
+            if (students.length > 0 && students[0].ngay_kiem_tra) {
+                // Định dạng ngày sang YYYY-MM-DD để hiển thị chuẩn trong input[type="date"]
+                const d = new Date(students[0].ngay_kiem_tra);
+                if (!isNaN(d.getTime())) {
+                    selectedDate = d.toISOString().split('T')[0];
+                }
+            }
+
             return res.render('glv/kiem-tra', {
                 title: 'Nhập điểm kiểm tra',
                 selectedYearId,
@@ -38,6 +48,7 @@ const KiemTraController = {
                 examCount,
                 selectedExam,
                 students,
+                selectedDate, // Truyền ngày kiểm tra xuống view
                 message: req.query.message || null,
                 error: req.query.error || null
             });
@@ -52,6 +63,7 @@ const KiemTraController = {
         const yearId = getId(req.body.nien_khoa);
         const classId = getId(req.body.id_lop);
         const examNumber = getId(req.body.bai_kiem_tra);
+        const ngayKiemTra = req.body.ngay_kiem_tra || null; // Lấy ngày kiểm tra từ form gửi lên
         const scores = Array.isArray(req.body.scores) ? req.body.scores : [];
 
         if (!yearId || !classId || !examNumber) {
@@ -65,10 +77,11 @@ const KiemTraController = {
                 yearId,
                 classId,
                 examNumber,
-                scores
+                scores,
+                ngayKiemTra // Truyền thêm ngày kiểm tra vào Model
             );
 
-            await logAction(req, `Lưu điểm kiểm tra thành công cho Lớp ID: ${classId} (Bài kiểm tra số: ${examNumber}, Niên khóa ID: ${yearId})`, 'Thành công');
+            await logAction(req, `Lưu điểm kiểm tra thành công cho Lớp ID: ${classId} (Bài kiểm tra số: ${examNumber}, Ngày: ${ngayKiemTra || 'Không có'}, Niên khóa ID: ${yearId})`, 'Thành công');
 
             return res.redirect(`/glv/kiem-tra?nien_khoa=${yearId}&id_lop=${classId}&bai_kiem_tra=${examNumber}&message=Đã lưu điểm kiểm tra.`);
         } catch (error) {

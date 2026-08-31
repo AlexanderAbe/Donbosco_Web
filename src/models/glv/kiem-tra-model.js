@@ -13,7 +13,7 @@ const KiemTraModel = {
     async getExamStudents(idGlv, yearId, classId, examNumber) {
         const { rows } = await pool.query(`
             SELECT tn.id_tn, tn.mstn, tn.ten_thanh, tn.ho_va_ten_lot, tn.ten,
-                   pl.trang_thai, dht.diem_so,
+                   pl.trang_thai, dht.diem_so, dht.ngay_kiem_tra,
                    (dht.id_hoc_tap IS NOT NULL) AS da_luu
             FROM PHAN_CONG_GLV pc
             JOIN PHAN_LOP pl
@@ -32,7 +32,7 @@ const KiemTraModel = {
         return rows;
     },
 
-    async saveExamScores(idGlv, yearId, classId, examNumber, scores) {
+    async saveExamScores(idGlv, yearId, classId, examNumber, scores, ngayKiemTra) {
         const client = await pool.connect();
         try {
             await client.query('BEGIN');
@@ -44,6 +44,7 @@ const KiemTraModel = {
 
             const examCount = await this.getExamCount(yearId);
             if (examNumber > examCount) throw new Error('Bài kiểm tra không hợp lệ.');
+            
             const studentIds = await client.query(`
                 SELECT id_tn FROM PHAN_LOP
                 WHERE id_lop = $1 AND id_cau_hinh_nam_hoc = $2
@@ -60,14 +61,20 @@ const KiemTraModel = {
                 }
                 validScores.push({ id_tn: Number(item.id_tn), diem_so: score });
             }
+
             if (validScores.length) {
+                // Xử lý giá trị ngày (nếu rỗng thì gán NULL)
+                const parsedDate = ngayKiemTra ? ngayKiemTra : null;
+
                 await client.query(`
-                    INSERT INTO DIEM_HOC_TAP (stt_bai_ktra, diem_so, id_tn, id_cau_hinh_nam_hoc)
-                    SELECT $1, item.diem_so, item.id_tn, $2
-                    FROM jsonb_to_recordset($3::jsonb) AS item(id_tn integer, diem_so numeric)
+                    INSERT INTO DIEM_HOC_TAP (stt_bai_ktra, diem_so, ngay_kiem_tra, id_tn, id_cau_hinh_nam_hoc)
+                    SELECT $1, item.diem_so, $2::date, item.id_tn, $3
+                    FROM jsonb_to_recordset($4::jsonb) AS item(id_tn integer, diem_so numeric)
                     ON CONFLICT (id_tn, id_cau_hinh_nam_hoc, stt_bai_ktra)
-                    DO UPDATE SET diem_so = EXCLUDED.diem_so
-                `, [examNumber, yearId, JSON.stringify(validScores)]);
+                    DO UPDATE SET 
+                        diem_so = EXCLUDED.diem_so,
+                        ngay_kiem_tra = EXCLUDED.ngay_kiem_tra
+                `, [examNumber, parsedDate, yearId, JSON.stringify(validScores)]);
             }
             await client.query('COMMIT');
         } catch (error) {

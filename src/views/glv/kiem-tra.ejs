@@ -29,6 +29,11 @@
                     <% } %>
                 </select>
             </div>
+
+            <div class="test-field">
+                <label for="test-date"><i class="fa-solid fa-calendar-days"></i> Ngày kiểm tra</label>
+                <input id="test-date" type="date" name="ngay_kiem_tra" value="<%= selectedDate ?? '' %>">
+            </div>
         </form>
 
         <form method="POST" action="/glv/kiem-tra/save" id="score-form">

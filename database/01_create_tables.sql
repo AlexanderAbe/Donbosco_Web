@@ -120,6 +120,7 @@ CREATE TABLE DIEM_KY_LUAT (
 CREATE TABLE DIEM_HOC_TAP (
     id_hoc_tap INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     stt_bai_ktra INT,
+    ngay_kiem_tra DATE,
     diem_so DECIMAL(4,2),
     id_tn INT REFERENCES THIEU_NHI(id_tn),
     id_cau_hinh_nam_hoc INT REFERENCES CAU_HINH_NAM_HOC(id_cau_hinh_nam_hoc)
