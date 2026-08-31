@@ -44,17 +44,21 @@ EXECUTE FUNCTION fn_tu_dong_tao_mstn_after();
 
 CREATE EXTENSION IF NOT EXISTS pgcrypto;
 
--- F. Một GLV chỉ được thuộc một khối trong cùng một niên khóa
-CREATE OR REPLACE FUNCTION fn_check_glv_one_khoi_per_year()
+-- Hàm kiểm tra kết hợp: 
+-- 1. Mỗi khối trong một niên khóa tối đa 3 Trưởng khối.
+-- 2. Một GLV trong cùng một niên khóa chỉ được phép thuộc về duy nhất một khối (dù là làm trưởng khối hay dạy lớp).
+CREATE OR REPLACE FUNCTION fn_check_glv_and_truong_khoi()
 RETURNS TRIGGER AS $$
 DECLARE
     v_id_khoi INT;
+    v_so_luong_truong_khoi INT;
 BEGIN
+    -- 1. Xác định id_khoi tùy thuộc vào bảng đang thao tác
     IF TG_TABLE_NAME = 'phan_cong_glv' THEN
         SELECT id_khoi INTO v_id_khoi
         FROM LOP_HOC
         WHERE id_lop = NEW.id_lop;
-    ELSE
+    ELSE -- Bảng PHAN_CONG_TRUONG_KHOI
         v_id_khoi := NEW.id_khoi;
     END IF;
 
@@ -62,42 +66,58 @@ BEGIN
         RETURN NEW;
     END IF;
 
+    -- 2. Kiểm tra quy tắc: Một GLV không được thuộc 2 khối khác nhau trong cùng niên khóa
     IF EXISTS (
+        -- Kiểm tra xem GLV đã làm trưởng ở khối khác chưa
         SELECT 1
         FROM PHAN_CONG_TRUONG_KHOI pk
         WHERE pk.id_glv = NEW.id_glv
           AND pk.id_cau_hinh_nam_hoc = NEW.id_cau_hinh_nam_hoc
           AND pk.id_khoi IS DISTINCT FROM v_id_khoi
-          AND (TG_TABLE_NAME <> 'phan_cong_truong_khoi'
-               OR pk.id_phan_cong_truong <> NEW.id_phan_cong_truong)
+          AND (TG_TABLE_NAME <> 'phan_cong_truong_khoi' OR pk.id_phan_cong_truong <> NEW.id_phan_cong_truong)
     ) OR EXISTS (
+        -- Kiểm tra xem GLV đã dạy lớp ở khối khác chưa
         SELECT 1
         FROM PHAN_CONG_GLV pc
         JOIN LOP_HOC l ON l.id_lop = pc.id_lop
         WHERE pc.id_glv = NEW.id_glv
           AND pc.id_cau_hinh_nam_hoc = NEW.id_cau_hinh_nam_hoc
           AND l.id_khoi IS DISTINCT FROM v_id_khoi
-          AND (TG_TABLE_NAME <> 'phan_cong_glv'
-               OR pc.id_phan_cong_glv <> NEW.id_phan_cong_glv)
+          AND (TG_TABLE_NAME <> 'phan_cong_glv' OR pc.id_phan_cong_glv <> NEW.id_phan_cong_glv)
     ) THEN
-        RAISE EXCEPTION 'GLV chỉ được phân công trong một khối của một niên khóa';
+        RAISE EXCEPTION 'GLV chỉ được phân công hoạt động trong một khối duy nhất của một niên khóa!';
+    END IF;
+
+    -- 3. Kiểm tra quy tắc: Mỗi khối chỉ có tối đa 3 Trưởng khối (Chỉ check khi thao tác trên bảng Trưởng Khối)
+    IF TG_TABLE_NAME = 'phan_cong_truong_khoi' THEN
+        SELECT COUNT(*)
+        INTO v_so_luong_truong_khoi
+        FROM PHAN_CONG_TRUONG_KHOI
+        WHERE id_khoi = v_id_khoi
+          AND id_cau_hinh_nam_hoc = NEW.id_cau_hinh_nam_hoc
+          AND id_phan_cong_truong IS DISTINCT FROM NEW.id_phan_cong_truong;
+
+        IF v_so_luong_truong_khoi >= 3 THEN
+            RAISE EXCEPTION 'Mỗi khối trong một niên khóa chỉ được phép có tối đa 3 Trưởng khối!';
+        END IF;
     END IF;
 
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
 
-DROP TRIGGER IF EXISTS trg_glv_one_khoi_per_year ON PHAN_CONG_GLV;
-CREATE TRIGGER trg_glv_one_khoi_per_year
+-- Gắn trigger cho cả 2 bảng PHAN_CONG_GLV và PHAN_CONG_TRUONG_KHOI
+DROP TRIGGER IF EXISTS trg_check_glv_one_khoi ON PHAN_CONG_GLV;
+CREATE TRIGGER trg_check_glv_one_khoi
 BEFORE INSERT OR UPDATE ON PHAN_CONG_GLV
 FOR EACH ROW
-EXECUTE FUNCTION fn_check_glv_one_khoi_per_year();
+EXECUTE FUNCTION fn_check_glv_and_truong_khoi();
 
-DROP TRIGGER IF EXISTS trg_truong_khoi_one_khoi_per_year ON PHAN_CONG_TRUONG_KHOI;
-CREATE TRIGGER trg_truong_khoi_one_khoi_per_year
+DROP TRIGGER IF EXISTS trg_check_truong_khoi ON PHAN_CONG_TRUONG_KHOI;
+CREATE TRIGGER trg_check_truong_khoi
 BEFORE INSERT OR UPDATE ON PHAN_CONG_TRUONG_KHOI
 FOR EACH ROW
-EXECUTE FUNCTION fn_check_glv_one_khoi_per_year();
+EXECUTE FUNCTION fn_check_glv_and_truong_khoi();
 
 -- B. Trigger tự động tạo tài khoản khi thêm Giáo lý viên mới
 CREATE OR REPLACE FUNCTION fn_tu_dong_tao_tai_khoan_glv()
@@ -124,6 +144,44 @@ CREATE TRIGGER trg_tao_tai_khoan_glv
 AFTER INSERT ON GLV
 FOR EACH ROW
 EXECUTE FUNCTION fn_tu_dong_tao_tai_khoan_glv();
+
+-- Hàm kiểm tra điều kiện trước khi nhập/sửa điểm kỷ luật
+CREATE OR REPLACE FUNCTION fn_check_dieu_kien_diem_ky_luat()
+RETURNS TRIGGER AS $$
+DECLARE
+    v_tong_buoi INT := 0;
+    v_so_buoi_hien_dien INT := 0;
+BEGIN
+    -- Chỉ kiểm tra ràng buộc khi giáo lý viên nhập hoặc sửa điểm kỷ luật bằng đúng 10
+    IF NEW.diem = 10 THEN
+        
+        -- Đếm tổng số buổi điểm danh và số buổi đạt yêu cầu của thiếu nhi trong tháng đó
+        SELECT COUNT(*), 
+               SUM(CASE WHEN dd.trang_thai IN ('Có mặt', 'Đi sớm') THEN 1 ELSE 0 END)
+        INTO v_tong_buoi, v_so_buoi_hien_dien
+        FROM DIEM_DANH dd
+        JOIN LOP_HOC l ON dd.id_lop = l.id_lop
+        WHERE dd.id_tn = NEW.id_tn 
+          AND l.id_cau_hinh_nam_hoc = NEW.id_cau_hinh_nam_hoc
+          AND EXTRACT(MONTH FROM dd.ngay_diem_danh) = NEW.thang;
+
+        -- Nếu tháng đó có điểm danh nhưng số buổi có mặt không bằng tổng số buổi
+        IF v_tong_buoi = 0 OR v_so_buoi_hien_dien < v_tong_buoi THEN
+            RAISE EXCEPTION 'Thiếu nhi có buổi vắng nên không được phép đạt 10 điểm kỷ luật!';
+        END IF;
+        
+    END IF;
+
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+-- Gắn trigger chạy trước khi INSERT hoặc UPDATE bảng DIEM_KY_LUAT
+DROP TRIGGER IF EXISTS trg_check_diem_ky_luat ON DIEM_KY_LUAT;
+CREATE TRIGGER trg_check_diem_ky_luat
+BEFORE INSERT OR UPDATE ON DIEM_KY_LUAT
+FOR EACH ROW
+EXECUTE FUNCTION fn_check_dieu_kien_diem_ky_luat();
 
 -- Hàm xử lý cập nhật username khi sdt của GLV thay đổi
 CREATE OR REPLACE FUNCTION fn_tu_dong_cap_nhat_sdt_tai_khoan()

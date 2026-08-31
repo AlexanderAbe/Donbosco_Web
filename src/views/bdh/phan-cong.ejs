@@ -44,14 +44,30 @@
 				</div>
 				<input type="hidden" name="id_cau_hinh_nam_hoc" value="<%= selectedYearId %>">
 				<div class="bulk-glv-list">
-					<span class="bulk-label">Chọn GLV</span>
-					<div class="checkbox-grid">
-						<% glvList.forEach(glv => { %>
-							<label class="checkbox-item">
-								<input type="checkbox" name="id_glv" value="<%= glv.id_glv %>">
-								<span><%= glv.ho_ten || `GLV #${glv.id_glv}` %></span>
-							</label>
-						<% }) %>
+					<div class="bulk-label-wrapper" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+						<span class="bulk-label">Chọn GLV (Chưa phân công)</span>
+						<span style="font-size: 11px; color: #64748b;">(Có thể chọn nhiều)</span>
+					</div>
+					
+					<!-- Ô tìm kiếm nhanh GLV -->
+					<div style="margin-bottom: 8px;">
+						<input type="text" id="search-glv-input" placeholder="🔍 Gõ tên GLV để tìm nhanh..." style="width: 100%; padding: 8px 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 13px; box-sizing: border-box;">
+					</div>
+
+					<!-- Khung chứa danh sách GLV chưa phân công -->
+					<div class="checkbox-grid" id="glv-checkbox-grid">
+						<% if (typeof availableGlvList !== 'undefined' && availableGlvList.length > 0) { %>
+							<% availableGlvList.forEach(glv => { %>
+								<label class="checkbox-item" data-name="<%= (glv.ho_ten || `GLV #${glv.id_glv}`).toLowerCase() %>">
+									<input type="checkbox" name="id_glv" value="<%= glv.id_glv %>">
+									<span><%= glv.ho_ten || `GLV #${glv.id_glv}` %></span>
+								</label>
+							<% }) %>
+						<% } else { %>
+							<div style="grid-column: 1 / -1; text-align: center; color: #64748b; font-size: 13px; padding: 12px;">
+								Tất cả GLV đều đã được phân công trong niên khóa này.
+							</div>
+						<% } %>
 					</div>
 				</div>
 				<button type="submit" class="btn btn-primary">Phân công đã chọn</button>
@@ -155,3 +171,23 @@
 		<% } %>
 	</section>
 </div>
+
+<!-- Script lọc tên GLV ngay lập tức khi gõ -->
+<script>
+    const searchInput = document.getElementById('search-glv-input');
+    if (searchInput) {
+        searchInput.addEventListener('input', function(e) {
+            const keyword = e.target.value.toLowerCase().trim();
+            const items = document.querySelectorAll('#glv-checkbox-grid .checkbox-item');
+            
+            items.forEach(item => {
+                const name = item.getAttribute('data-name');
+                if (name && name.includes(keyword)) {
+                    item.style.display = 'flex';
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+        });
+    }
+</script>

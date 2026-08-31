@@ -22,6 +22,7 @@ const redirect = (res, yearId, message, isError = false) => {
 };
 
 const PhanCongController = {
+    // Thay thế hàm getTrangQuanLy hiện tại trong PhanCongController của bạn bằng đoạn này:
     async getTrangQuanLy(req, res) {
         try {
             const years = await PhanCongModel.getAcademicYears();
@@ -30,11 +31,28 @@ const PhanCongController = {
                 ? await PhanCongModel.getPageData(selectedYearId)
                 : { classes: [], glvList: [], classAssignments: [], truongKhoiList: [] };
 
+            // === XỬ LÝ LỌC GLV CHƯA ĐƯỢC PHÂN CÔNG ===
+            let availableGlvList = [];
+            if (selectedYearId && data.glvList.length) {
+                // 1. Lấy danh sách ID các GLV đã được phân công vào lớp
+                const assignedClassGlvIds = data.classAssignments.map(item => item.id_glv);
+                
+                // 2. Lấy danh sách ID các Trưởng khối hiện tại (lọc bỏ giá trị null/undefined nếu có)
+                const assignedTruongKhoiIds = data.truongKhoiList.map(item => item.id_glv).filter(Boolean);
+                
+                // 3. Gom chung tất cả ID đã có phân công thành một Set để tối ưu tốc độ tìm kiếm
+                const busyGlvIds = new Set([...assignedClassGlvIds, ...assignedTruongKhoiIds]);
+                
+                // 4. Lọc mảng glvList gốc chỉ giữ lại những người chưa có trong tập "bận"
+                availableGlvList = data.glvList.filter(glv => !busyGlvIds.has(glv.id_glv));
+            }
+
             res.render('bdh/phan-cong', {
                 ...getBdhBaseData(req, 'Phân Công Nhân Sự'),
                 years,
                 selectedYearId,
                 ...data,
+                availableGlvList, // Truyền danh sách GLV chưa phân công sang EJS
                 message: req.query.message || null,
                 error: req.query.error || null
             });
