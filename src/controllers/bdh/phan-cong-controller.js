@@ -136,7 +136,15 @@ const PhanCongController = {
             redirect(res, yearId, 'Đã cập nhật Trưởng khối.');
         } catch (error) {
             console.error('Lỗi phân công Trưởng khối:', error);
-            const message = error.message || 'Không thể phân công Trưởng khối.';
+            
+            // Thêm check mã lỗi 23505 (Unique constraint violation trong PostgreSQL) 
+            // để bắt trường hợp vô tình chọn trùng 1 GLV làm trưởng khối 2 lần trong cùng 1 khối
+            let message = error.message;
+            if (error.code === '23505') {
+                message = 'Giáo lý viên này đã là Trưởng khối của khối này rồi.';
+            } else if (!message) {
+                message = 'Không thể phân công Trưởng khối.';
+            }
             
             await logAction(req, `Phân công Trưởng khối thất bại (GLV ID: ${idGlv}): ${message}`, 'Thất bại');
             redirect(res, yearId, message, true);

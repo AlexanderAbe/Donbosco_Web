@@ -93,13 +93,23 @@ const PhanCongModel = {
     },
 
     async assignTruongKhoi(idGlv, idKhoi, idCauHinhNamHoc) {
+        // 1. Kiểm tra xem khối này đã có đủ 3 trưởng khối chưa
+        const countRes = await pool.query(`
+            SELECT COUNT(*) AS total 
+            FROM PHAN_CONG_TRUONG_KHOI 
+            WHERE id_khoi = $1 AND id_cau_hinh_nam_hoc = $2
+        `, [idKhoi, idCauHinhNamHoc]);
+        
+        if (Number.parseInt(countRes.rows[0].total, 10) >= 3) {
+            throw new Error('Mỗi khối chỉ được phép chọn tối đa 3 Trưởng khối.');
+        }
+
+        // 2. Thêm mới trưởng khối (bỏ ON CONFLICT cập nhật cũ, thay bằng thêm dòng mới)
         const query = `
             INSERT INTO PHAN_CONG_TRUONG_KHOI (id_glv, id_khoi, id_cau_hinh_nam_hoc)
             SELECT $1, id_khoi, $3
             FROM KHOI
             WHERE id_khoi = $2 AND is_active = TRUE
-            ON CONFLICT (id_khoi, id_cau_hinh_nam_hoc)
-            DO UPDATE SET id_glv = EXCLUDED.id_glv
             RETURNING id_phan_cong_truong
         `;
         const { rows } = await pool.query(query, [idGlv, idKhoi, idCauHinhNamHoc]);

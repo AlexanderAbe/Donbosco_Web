@@ -121,58 +121,92 @@
 	</section>
 
 	<section class="section-card">
-		<div class="section-header">
-			<h2>Phân công Trưởng khối</h2>
-			<span><%= truongKhoiList.length %> khối</span>
-		</div>
-		<% if (!selectedYearId || !truongKhoiList.length) { %>
-			<div class="empty-state">Niên khóa này chưa có khối để phân công.</div>
-		<% } else { %>
-			<div class="table-wrap">
-				<table>
-					<thead>
-						<tr>
-							<th>Khối</th>
-							<th>Trưởng khối hiện tại</th>
-							<th>Cập nhật phân công</th>
-						</tr>
-					</thead>
-					<tbody>
-						<% truongKhoiList.forEach(khoi => { %>
-							<tr>
-								<td><strong><%= khoi.ten_khoi %></strong></td>
-								<td><%= khoi.ho_ten || 'Chưa phân công' %></td>
-								<td>
-									<div class="inline-form">
-										<form method="POST" action="/bdh/phan-cong/truong-khoi" class="inline-form">
-											<input type="hidden" name="id_khoi" value="<%= khoi.id_khoi %>">
-											<input type="hidden" name="id_cau_hinh_nam_hoc" value="<%= selectedYearId %>">
-											<select name="id_glv" required>
-												<option value="">Chọn GLV</option>
-												<% glvList.forEach(glv => { %>
-													<option value="<%= glv.id_glv %>" <%= glv.id_glv === khoi.id_glv ? 'selected' : '' %>>
-														<%= glv.ho_ten || `GLV #${glv.id_glv}` %>
-													</option>
-												<% }) %>
-											</select>
-											<button type="submit" class="btn btn-primary">Lưu</button>
-										</form>
-										<% if (khoi.id_phan_cong_truong) { %>
-											<form method="POST" action="/bdh/phan-cong/truong-khoi/remove">
-												<input type="hidden" name="id_phan_cong_truong" value="<%= khoi.id_phan_cong_truong %>">
-												<input type="hidden" name="id_cau_hinh_nam_hoc" value="<%= selectedYearId %>">
-												<button type="submit" class="btn btn-remove">Gỡ</button>
-											</form>
-										<% } %>
-									</div>
-								</td>
-							</tr>
-						<% }) %>
-					</tbody>
-				</table>
-			</div>
-		<% } %>
-	</section>
+        <div class="section-header">
+            <h2>Phân công Trưởng khối</h2>
+            <span>Tối đa 3 Trưởng khối mỗi khối</span>
+        </div>
+        <% if (!selectedYearId || !truongKhoiList.length) { %>
+            <div class="empty-state">Niên khóa này chưa có khối để phân công.</div>
+        <% } else { %>
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr>
+                            <th style="width: 20%;">Khối</th>
+                            <th style="width: 45%;">Trưởng khối hiện tại</th>
+                            <th style="width: 35%;">Thêm Trưởng khối</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% 
+                            // Gom nhóm danh sách trưởng khối theo từng id_khoi vì 1 khối có thể xuất hiện nhiều dòng
+                            const groupedTruongKhoi = {};
+                            truongKhoiList.forEach(item => {
+                                if (!groupedTruongKhoi[item.id_khoi]) {
+                                    groupedTruongKhoi[item.id_khoi] = {
+                                        id_khoi: item.id_khoi,
+                                        stt: item.stt,
+                                        ten_khoi: item.ten_khoi,
+                                        leaders: []
+                                    };
+                                }
+                                if (item.id_phan_cong_truong) {
+                                    groupedTruongKhoi[item.id_khoi].leaders.push({
+                                        id_phan_cong_truong: item.id_phan_cong_truong,
+                                        id_glv: item.id_glv,
+                                        ho_ten: item.ho_ten
+                                    });
+                                }
+                            });
+                        %>
+
+                        <% Object.values(groupedTruongKhoi).forEach(khoi => { %>
+                            <tr>
+                                <td><strong><%= khoi.ten_khoi %></strong></td>
+                                <td>
+                                    <% if (khoi.leaders.length > 0) { %>
+                                        <div class="assignment-list" style="display: flex; flex-direction: column; gap: 6px;">
+                                            <% khoi.leaders.forEach(leader => { %>
+                                                <div class="assignment-item" style="display: flex; justify-content: space-between; align-items: center; background: #f8fafc; padding: 4px 8px; border-radius: 4px; border: 1px solid #e2e8f0;">
+                                                    <span><%= leader.ho_ten || `GLV #${leader.id_glv}` %></span>
+                                                    <form method="POST" action="/bdh/phan-cong/truorg-khoi/remove" style="margin: 0;">
+                                                        <input type="hidden" name="id_phan_cong_truong" value="<%= leader.id_phan_cong_truong %>">
+                                                        <input type="hidden" name="id_cau_hinh_nam_hoc" value="<%= selectedYearId %>">
+                                                        <button type="submit" class="btn btn-remove" title="Gỡ trưởng khối" style="border: none; background: transparent; color: #ef4444; cursor: pointer; font-weight: bold;">×</button>
+                                                    </form>
+                                                </div>
+                                            <% }) %>
+                                        </div>
+                                    <% } else { %>
+                                        <span style="color: #94a3b8; font-style: italic;">Chưa có trưởng khối</span>
+                                    <% } %>
+                                </td>
+                                <td>
+                                    <% if (khoi.leaders.length < 3) { %>
+                                        <form method="POST" action="/bdh/phan-cong/truong-khoi" class="inline-form" style="display: flex; gap: 8px; align-items: center;">
+                                            <input type="hidden" name="id_khoi" value="<%= khoi.id_khoi %>">
+                                            <input type="hidden" name="id_cau_hinh_nam_hoc" value="<%= selectedYearId %>">
+                                            <select name="id_glv" required style="flex: 1; padding: 6px; border: 1px solid #cbd5e1; border-radius: 4px; font-size: 13px;">
+                                                <option value="">Chọn GLV làm trưởng khối</option>
+                                                <% glvList.forEach(glv => { %>
+                                                    <option value="<%= glv.id_glv %>">
+                                                        <%= glv.ho_ten || `GLV #${glv.id_glv}` %>
+                                                    </option>
+                                                <% }) %>
+                                            </select>
+                                            <button type="submit" class="btn btn-primary" style="padding: 6px 12px; font-size: 13px;">Thêm</button>
+                                        </form>
+                                    <% } else { %>
+                                        <span style="color: #2563eb; font-size: 12px; font-weight: 500;">Đã đủ tối đa 3 Trưởng khối</span>
+                                    <% } %>
+                                </td>
+                            </tr>
+                        <% }) %>
+                    </tbody>
+                </table>
+            </div>
+        <% } %>
+    </section>
 </div>
 
 <!-- Script lọc tên GLV ngay lập tức khi gõ -->

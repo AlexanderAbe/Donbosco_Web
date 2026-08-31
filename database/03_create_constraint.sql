@@ -111,7 +111,12 @@ ALTER TABLE PHAN_CONG_BDH DROP CONSTRAINT IF EXISTS uk_phan_cong_bdh_nam;
 ALTER TABLE PHAN_CONG_BDH ADD CONSTRAINT uk_phan_cong_bdh_nam UNIQUE (id_glv, id_cau_hinh_nam_hoc);
 
 -- 10. Bảng PHAN_CONG_TRUONG_KHOI
+-- 1. Xóa ràng buộc unique theo khối cũ để 1 khối được phép có nhiều trưởng khối
 ALTER TABLE PHAN_CONG_TRUONG_KHOI DROP CONSTRAINT IF EXISTS uk_truong_khoi_nam;
+
+-- 2. Đảm bảo ràng buộc mỗi GLV chỉ làm trưởng khối 1 khối trong 1 niên khóa vẫn được giữ nguyên
+ALTER TABLE PHAN_CONG_TRUONG_KHOI DROP CONSTRAINT IF EXISTS uk_glv_mot_khoi_moi_nien_khoa;
+ALTER TABLE PHAN_CONG_TRUONG_KHOI ADD CONSTRAINT uk_glv_mot_khoi_moi_nien_khoa UNIQUE (id_glv, id_cau_hinh_nam_hoc);
 ALTER TABLE PHAN_CONG_TRUONG_KHOI ADD CONSTRAINT uk_truong_khoi_nam UNIQUE (id_khoi, id_cau_hinh_nam_hoc);
 ALTER TABLE PHAN_CONG_TRUONG_KHOI DROP CONSTRAINT IF EXISTS uk_glv_mot_khoi_moi_nien_khoa;
 ALTER TABLE PHAN_CONG_TRUONG_KHOI ADD CONSTRAINT uk_glv_mot_khoi_moi_nien_khoa UNIQUE (id_glv, id_cau_hinh_nam_hoc);

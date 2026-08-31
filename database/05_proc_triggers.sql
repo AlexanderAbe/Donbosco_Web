@@ -67,25 +67,42 @@ BEGIN
     END IF;
 
     -- 2. Kiểm tra quy tắc: Một GLV không được thuộc 2 khối khác nhau trong cùng niên khóa
-    IF EXISTS (
-        -- Kiểm tra xem GLV đã làm trưởng ở khối khác chưa
-        SELECT 1
-        FROM PHAN_CONG_TRUONG_KHOI pk
-        WHERE pk.id_glv = NEW.id_glv
-          AND pk.id_cau_hinh_nam_hoc = NEW.id_cau_hinh_nam_hoc
-          AND pk.id_khoi IS DISTINCT FROM v_id_khoi
-          AND (TG_TABLE_NAME <> 'phan_cong_truong_khoi' OR pk.id_phan_cong_truong <> NEW.id_phan_cong_truong)
-    ) OR EXISTS (
-        -- Kiểm tra xem GLV đã dạy lớp ở khối khác chưa
-        SELECT 1
-        FROM PHAN_CONG_GLV pc
-        JOIN LOP_HOC l ON l.id_lop = pc.id_lop
-        WHERE pc.id_glv = NEW.id_glv
-          AND pc.id_cau_hinh_nam_hoc = NEW.id_cau_hinh_nam_hoc
-          AND l.id_khoi IS DISTINCT FROM v_id_khoi
-          AND (TG_TABLE_NAME <> 'phan_cong_glv' OR pc.id_phan_cong_glv <> NEW.id_phan_cong_glv)
-    ) THEN
-        RAISE EXCEPTION 'GLV chỉ được phân công hoạt động trong một khối duy nhất của một niên khóa!';
+    IF TG_TABLE_NAME = 'phan_cong_truong_khoi' THEN
+        IF EXISTS (
+            SELECT 1
+            FROM PHAN_CONG_TRUONG_KHOI pk
+            WHERE pk.id_glv = NEW.id_glv
+              AND pk.id_cau_hinh_nam_hoc = NEW.id_cau_hinh_nam_hoc
+              AND pk.id_khoi IS DISTINCT FROM v_id_khoi
+              AND pk.id_phan_cong_truong IS DISTINCT FROM NEW.id_phan_cong_truong
+        ) OR EXISTS (
+            SELECT 1
+            FROM PHAN_CONG_GLV pc
+            JOIN LOP_HOC l ON l.id_lop = pc.id_lop
+            WHERE pc.id_glv = NEW.id_glv
+              AND pc.id_cau_hinh_nam_hoc = NEW.id_cau_hinh_nam_hoc
+              AND l.id_khoi IS DISTINCT FROM v_id_khoi
+        ) THEN
+            RAISE EXCEPTION 'GLV chỉ được phân công hoạt động trong một khối duy nhất của một niên khóa!';
+        END IF;
+    ELSE -- Thao tác trên bảng phan_cong_glv
+        IF EXISTS (
+            SELECT 1
+            FROM PHAN_CONG_TRUONG_KHOI pk
+            WHERE pk.id_glv = NEW.id_glv
+              AND pk.id_cau_hinh_nam_hoc = NEW.id_cau_hinh_nam_hoc
+              AND pk.id_khoi IS DISTINCT FROM v_id_khoi
+        ) OR EXISTS (
+            SELECT 1
+            FROM PHAN_CONG_GLV pc
+            JOIN LOP_HOC l ON l.id_lop = pc.id_lop
+            WHERE pc.id_glv = NEW.id_glv
+              AND pc.id_cau_hinh_nam_hoc = NEW.id_cau_hinh_nam_hoc
+              AND l.id_khoi IS DISTINCT FROM v_id_khoi
+              AND pc.id_phan_cong_glv IS DISTINCT FROM NEW.id_phan_cong_glv
+        ) THEN
+            RAISE EXCEPTION 'GLV chỉ được phân công hoạt động trong một khối duy nhất của một niên khóa!';
+        END IF;
     END IF;
 
     -- 3. Kiểm tra quy tắc: Mỗi khối chỉ có tối đa 3 Trưởng khối (Chỉ check khi thao tác trên bảng Trưởng Khối)
@@ -106,7 +123,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
--- Gắn trigger cho cả 2 bảng PHAN_CONG_GLV và PHAN_CONG_TRUONG_KHOI
+-- Gắn lại trigger cho cả 2 bảng PHAN_CONG_GLV và PHAN_CONG_TRUONG_KHOI
 DROP TRIGGER IF EXISTS trg_check_glv_one_khoi ON PHAN_CONG_GLV;
 CREATE TRIGGER trg_check_glv_one_khoi
 BEFORE INSERT OR UPDATE ON PHAN_CONG_GLV
