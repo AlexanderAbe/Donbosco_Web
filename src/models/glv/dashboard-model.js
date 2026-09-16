@@ -5,9 +5,9 @@ const DashboardModel = {
         const [classesResult, attendanceResult, attendanceAlertsResult, scoreAlertsResult] = await Promise.all([
             pool.query(`
                 SELECT l.id_lop, l.ten_lop, k.ten_khoi, k.stt,
-                       COUNT(pl.id_tn)::int AS student_count,
-                       COUNT(pl.id_tn) FILTER (WHERE tn.gioi_tinh = 'Nam')::int AS male_count,
-                       COUNT(pl.id_tn) FILTER (WHERE tn.gioi_tinh = 'Nữ')::int AS female_count,
+                       COUNT(DISTINCT pl.id_tn)::int AS student_count,
+                       COUNT(DISTINCT pl.id_tn) FILTER (WHERE tn.gioi_tinh = 'Nam')::int AS male_count,
+                       COUNT(DISTINCT pl.id_tn) FILTER (WHERE tn.gioi_tinh = 'Nữ')::int AS female_count,
                        COALESCE(ROUND(100.0 * COUNT(dd.id_diem_danh) FILTER (WHERE dd.trang_thai IN ('Có mặt', 'Đi sớm')) / NULLIF(COUNT(dd.id_diem_danh), 0), 1), 0) AS attendance_rate
                 FROM PHAN_CONG_GLV pc
                 JOIN LOP_HOC l ON l.id_lop = pc.id_lop

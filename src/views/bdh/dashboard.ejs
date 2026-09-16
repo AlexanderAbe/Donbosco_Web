@@ -40,27 +40,45 @@
             <div class="card p-3 mb-4 shadow-sm h-100">
                 <h4><i class="fa-solid fa-user-tie me-2 text-primary"></i> Phân công Trưởng Khối</h4>
                 <div class="table-responsive">
-                    <table class="table table-striped mt-2">
+                    <table class="table table-striped align-middle mt-2">
                         <thead>
                             <tr>
-                                <th><i class="fa-solid fa-layer-group me-1"></i> Khối</th>
-                                <th><i class="fa-solid fa-user me-1"></i> Trưởng Khối</th>
-                                <th><i class="fa-solid fa-phone me-1"></i> SĐT</th>
+                                <th style="width: 30%;"><i class="fa-solid fa-layer-group me-1"></i> Khối</th>
+                                <th style="width: 45%;"><i class="fa-solid fa-user me-1"></i> Trưởng Khối</th>
+                                <th style="width: 25%;"><i class="fa-solid fa-phone me-1"></i> SĐT</th>
                             </tr>
                         </thead>
                         <tbody>
                             <% stats.truongKhoiList.forEach(tk => { %>
                                 <tr>
-                                    <td><%= tk.ten_khoi %></td>
+                                    <td class="fw-bold"><%= tk.ten_khoi %></td>
                                     <td>
-                                        <% if (tk.ten) { %>
-                                            <i class="fa-solid fa-user-check text-success me-1"></i>
-                                            <%= `${tk.ten_thanh || ''} ${tk.ho_va_ten_lot || ''} ${tk.ten}` %>
+                                        <% if (tk.danh_sach_ns && tk.danh_sach_ns.length > 0) { %>
+                                            <ul class="list-unstyled m-0">
+                                                <% tk.danh_sach_ns.forEach((ns, index) => { %>
+                                                    <li class="<%= index > 0 ? 'mt-1 pt-1 border-top' : '' %>">
+                                                        <i class="fa-solid fa-user-check text-success me-1"></i> 
+                                                        <%= ns.ho_ten %>
+                                                    </li>
+                                                <% }) %>
+                                            </ul>
                                         <% } else { %>
                                             <span class="text-muted"><i class="fa-solid fa-triangle-exclamation text-warning me-1"></i> Chưa phân công</span>
                                         <% } %>
                                     </td>
-                                    <td><%= tk.sdt || '-' %></td>
+                                    <td>
+                                        <% if (tk.danh_sach_ns && tk.danh_sach_ns.length > 0) { %>
+                                            <ul class="list-unstyled m-0">
+                                                <% tk.danh_sach_ns.forEach((ns, index) => { %>
+                                                    <li class="<%= index > 0 ? 'mt-1 pt-1 border-top' : '' %>">
+                                                        <%= ns.sdt %>
+                                                    </li>
+                                                <% }) %>
+                                            </ul>
+                                        <% } else { %>
+                                            -
+                                        <% } %>
+                                    </td>
                                 </tr>
                             <% }) %>
                         </tbody>

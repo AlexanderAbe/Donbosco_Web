@@ -18,6 +18,31 @@ const DashboardController = {
             setCurrentYearId(selectedYearId);
             const stats = await DashboardModel.getDashboardStats(selectedYearId);
 
+            // === ĐOẠN XỬ LÝ GỢI Ý: Gộp nhóm Trưởng Khối theo tên khối ===
+            if (stats && stats.truongKhoiList) {
+                const groupedTruongKhoi = {};
+                
+                stats.truongKhoiList.forEach(tk => {
+                    if (!groupedTruongKhoi[tk.ten_khoi]) {
+                        groupedTruongKhoi[tk.ten_khoi] = {
+                            ten_khoi: tk.ten_khoi,
+                            danh_sach_ns: []
+                        };
+                    }
+                    // Nếu khối có người làm trưởng khối (có tên)
+                    if (tk.ten) {
+                        groupedTruongKhoi[tk.ten_khoi].danh_sach_ns.push({
+                            ho_ten: `${tk.ten_thanh || ''} ${tk.ho_va_ten_lot || ''} ${tk.ten}`.trim(),
+                            sdt: tk.sdt || '-'
+                        });
+                    }
+                });
+
+                // Ghi đè lại truongKhoiList thành danh sách đã gom nhóm
+                stats.truongKhoiList = Object.values(groupedTruongKhoi);
+            }
+            // ==========================================================
+
             res.render('bdh/dashboard', {
                 ...getBdhBaseData(req, 'Dashboard Ban Điều Hành'),
                 nienKhoaList,
