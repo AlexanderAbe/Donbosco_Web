@@ -16,21 +16,6 @@
             <p>Niên khóa này chưa có dữ liệu trong khối.</p>
         </div>
     <% } else { %>
-        <% 
-            // Sắp xếp trực tiếp mảng discipline theo tên thiếu nhi (A-Z)
-            const sortedDiscipline = [...discipline].sort((a, b) => {
-                const nameA = (a.ten || '').trim().toLowerCase();
-                const nameB = (b.ten || '').trim().toLowerCase();
-                if (nameA !== nameB) {
-                    return nameA.localeCompare(nameB, 'vi');
-                }
-                // Nếu trùng tên thì so sánh tiếp họ lót
-                const hoA = (a.ho_va_ten_lot || '').trim().toLowerCase();
-                const hoB = (b.ho_va_ten_lot || '').trim().toLowerCase();
-                return hoA.localeCompare(hoB, 'vi');
-            });
-        %>
-
         <div class="class-panel">
             <div class="table-scroll">
                 <table>
@@ -45,12 +30,12 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <% sortedDiscipline.forEach((item, index) => { %>
+                        <% discipline.forEach((item, index) => { %>
                             <tr>
                                 <td><%= index + 1 %></td>
                                 <td><%= item.mstn || '-' %></td>
                                 <td>
-                                    <strong><%= [item.ten_thanh, item.ho_va_ten_lot, item.ten].filter(Boolean).join(' ') %></strong>
+                                    <strong><%= item._fullName %></strong>
                                 </td>
                                 <td><%= item.ten_lop || '-' %></td>
                                 <td>Tháng <%= item.thang %></td>

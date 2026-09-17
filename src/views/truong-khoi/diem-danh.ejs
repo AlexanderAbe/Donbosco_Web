@@ -17,55 +17,142 @@
             <p>Niên khóa này chưa có buổi điểm danh trong khối.</p>
         </div>
     <% } else { %>
-        <% 
-            // Sắp xếp mảng attendance theo tên thiếu nhi (A-Z)
-            const sortedAttendance = [...attendance].sort((a, b) => {
-                const nameA = (a.ten || '').trim().toLowerCase();
-                const nameB = (b.ten || '').trim().toLowerCase();
-                if (nameA !== nameB) {
-                    return nameA.localeCompare(nameB, 'vi');
-                }
-                const hoA = (a.ho_va_ten_lot || '').trim().toLowerCase();
-                const hoB = (b.ho_va_ten_lot || '').trim().toLowerCase();
-                return hoA.localeCompare(hoB, 'vi');
-            });
+        <%
+            const statusMeta = {
+                'Đi sớm': { label: 'Đi sớm', className: 'is-early', icon: 'fa-circle-check' },
+                'Có mặt': { label: 'Có mặt', className: 'is-present', icon: 'fa-circle' },
+                'Vắng có phép': { label: 'Vắng có phép', className: 'is-excused', icon: 'fa-circle-exclamation' },
+                'Vắng không phép': { label: 'Vắng không phép', className: 'is-absent', icon: 'fa-circle-xmark' }
+            };
         %>
 
-        <div class="class-panel">
-            <div class="table-scroll">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>STT</th>
-                            <th>Mã số</th>
-                            <th>Họ và tên</th>
-                            <th>Lớp</th>
-                            <th>Buổi điểm danh</th>
-                            <th>Trạng thái</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <% sortedAttendance.forEach((item, index) => { %>
-                            <tr>
-                                <td><%= index + 1 %></td>
-                                <td><%= item.mstn || '-' %></td>
-                                <td>
-                                    <strong><%= [item.ten_thanh, item.ho_va_ten_lot, item.ten].filter(Boolean).join(' ') %></strong>
-                                </td>
-                                <td><%= item.ten_lop || '-' %></td>
-                                <td>
-                                    <%= item.loai_buoi %> · <%= item.ngay_diem_danh ? new Date(item.ngay_diem_danh).toLocaleDateString('vi-VN') : '-' %>
-                                </td>
-                                <td>
-                                    <span class="status <%= ['Có mặt', 'Đi sớm'].includes(item.trang_thai) ? 'is-active' : 'is-inactive' %>">
-                                        <%= item.trang_thai %>
-                                    </span>
-                                </td>
-                            </tr>
-                        <% }) %>
-                    </tbody>
-                </table>
+        <section class="attendance-summary-wrap">
+            <div class="date-filter-bar" aria-label="Bộ lọc ngày điểm danh">
+                <button class="date-filter is-active" data-filter="all" type="button">Tất cả</button>
+                <% dateGroups.forEach((group) => { %>
+                    <button class="date-filter" data-filter="<%= group.dateKey %>" type="button">
+                        <%= group.label %>
+                    </button>
+                <% }) %>
             </div>
-        </div>
+
+            <div class="summary-grid">
+                <div class="summary-card summary-card--primary">
+                    <span class="summary-label">Tổng lượt điểm danh</span>
+                    <strong><%= attendanceStats.total %></strong>
+                </div>
+                <div class="summary-card summary-card--present">
+                    <span class="summary-label">Có mặt</span>
+                    <strong><%= attendanceStats.present %></strong>
+                </div>
+                <div class="summary-card summary-card--excused">
+                    <span class="summary-label">Vắng có phép</span>
+                    <strong><%= attendanceStats.excused %></strong>
+                </div>
+                <div class="summary-card summary-card--absent">
+                    <span class="summary-label">Vắng không phép</span>
+                    <strong><%= attendanceStats.absent %></strong>
+                </div>
+            </div>
+        </section>
+
+        <section class="attendance-shell">
+            <div class="list-panel">
+                <% dateGroups.forEach((group) => { %>
+                    <section class="session-group" data-date="<%= group.dateKey %>">
+                        <header class="session-group-header">
+                            <div>
+                                <p class="session-date"><%= group.label %></p>
+                                <p class="session-meta"><%= group.items.length %> thiếu nhi</p>
+                            </div>
+                            <span class="session-tag"><%= group.items[0]?.loai_buoi || 'Buổi học' %></span>
+                        </header>
+
+                        <div class="attendance-card-list">
+                            <% group.items.forEach((item) => {
+                                const badge = statusMeta[item._status] || { label: item._status || 'Chưa xác định', className: 'is-unknown', icon: 'fa-circle-question' };
+                            %>
+                                <article class="attendance-card">
+                                    <div class="card-top">
+                                        <div class="student-head">
+                                            <p class="student-name"><%= item._fullName %></p>
+                                            <p class="student-sub"><%= item.ten_lop || 'Chưa có lớp' %> · Mã <%= item.mstn || '-' %></p>
+                                        </div>
+                                        <span class="status-badge <%= badge.className %>">
+                                            <i class="fa-solid <%= badge.icon %>"></i>
+                                            <%= badge.label %>
+                                        </span>
+                                    </div>
+
+                                    <div class="card-bottom">
+                                        <span><i class="fa-regular fa-calendar"></i> <%= item._dateLabel %></span>
+                                        <span><i class="fa-solid fa-people-roof"></i> <%= item.loai_buoi || 'Chưa xác định' %></span>
+                                    </div>
+                                </article>
+                            <% }) %>
+                        </div>
+                    </section>
+                <% }) %>
+            </div>
+
+            <div class="desktop-panel">
+                <div class="class-panel">
+                    <div class="table-scroll">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Ngày</th>
+                                    <th>Buổi</th>
+                                    <th>Lớp</th>
+                                    <th>Đi sớm</th>
+                                    <th>Có mặt</th>
+                                    <th>Vắng có phép</th>
+                                    <th>Vắng không phép</th>
+                                    <th>Tổng</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <% attendanceSummary.forEach((row) => { %>
+                                    <tr>
+                                        <td><%= row.dateLabel %></td>
+                                        <td><%= row.loai_buoi %></td>
+                                        <td><%= row.ten_lop || '-' %></td>
+                                        <td><span class="mini-pill is-early"><%= row['Đi sớm'] %></span></td>
+                                        <td><span class="mini-pill is-present"><%= row['Có mặt'] %></span></td>
+                                        <td><span class="mini-pill is-excused"><%= row['Vắng có phép'] %></span></td>
+                                        <td><span class="mini-pill is-absent"><%= row['Vắng không phép'] %></span></td>
+                                        <td><strong><%= row.total %></strong></td>
+                                    </tr>
+                                <% }) %>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </section>
     <% } %>
 </main>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const filterButtons = document.querySelectorAll('.date-filter');
+        const groups = document.querySelectorAll('.session-group');
+
+        const updateFilters = (selectedDate) => {
+            filterButtons.forEach((button) => {
+                button.classList.toggle('is-active', button.dataset.filter === selectedDate);
+            });
+
+            groups.forEach((group) => {
+                const shouldShow = selectedDate === 'all' || group.dataset.date === selectedDate;
+                group.style.display = shouldShow ? 'block' : 'none';
+            });
+        };
+
+        filterButtons.forEach((button) => {
+            button.addEventListener('click', function () {
+                updateFilters(this.dataset.filter);
+            });
+        });
+    });
+</script>

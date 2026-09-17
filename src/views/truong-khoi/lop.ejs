@@ -31,21 +31,8 @@
                                         <tr>
                                             <td><%= index + 1 %></td>
                                             <td><%= student.mstn || '-' %></td>
-                                            <td><strong><%= [student.ten_thanh, student.ho_va_ten_lot, student.ten].filter(Boolean).join(' ') %></strong></td>
-                                            <td>
-                                                <% 
-                                                    // Đổi định dạng hiển thị thành DD/MM/YYYY
-                                                    let formattedDob = '-';
-                                                    if (student.ngay_sinh) {
-                                                        const dateStr = String(student.ngay_sinh).slice(0, 10);
-                                                        const parts = dateStr.split('-');
-                                                        if (parts.length === 3) {
-                                                            formattedDob = `${parts[2]}/${parts[1]}/${parts[0]}`;
-                                                        }
-                                                    }
-                                                %>
-                                                <%= formattedDob %>
-                                            </td>
+                                            <td><strong><%= student._fullName %></strong></td>
+                                            <td><%= student._dobDisplay %></td>
                                             <td><%= student.gioi_tinh || '-' %></td>
                                             <td><span class="status <%= student.trang_thai === 'Đang học' ? 'is-active' : 'is-inactive' %>"><%= student.trang_thai %></span></td>
                                             <td class="actions">

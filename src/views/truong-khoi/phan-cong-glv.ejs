@@ -40,7 +40,6 @@
                                             <option value="">-- Chưa phân công --</option>
                                             <% classes.forEach(c => { %>
                                                 <option value="<%= c.id_lop %>" <%= glv.assigned_class_id === c.id_lop ? 'selected' : '' %>><%= c.ten_khoi %> - <%= c.ten_lop %></option>
-                                            <% %>
                                             <% }) %>
                                         </select>
                                         <button type="submit" class="action-button assign-action" title="Lưu phân công"><i class="fa-solid fa-check"></i> Lưu</button>

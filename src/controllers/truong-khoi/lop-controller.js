@@ -3,16 +3,50 @@ const LopModel = require('../../models/truong-khoi/lop-model');
 const { logAction } = require('../../utils/logger');
 const { getCurrentYear } = require('../../utils/current-year-helper');
 
+const sortByStudentName = (items = []) => [...items].sort((a, b) => {
+    const nameA = (a.ten || '').trim().toLowerCase();
+    const nameB = (b.ten || '').trim().toLowerCase();
+    if (nameA !== nameB) return nameA.localeCompare(nameB, 'vi');
+
+    const hoA = (a.ho_va_ten_lot || '').trim().toLowerCase();
+    const hoB = (b.ho_va_ten_lot || '').trim().toLowerCase();
+    return hoA.localeCompare(hoB, 'vi');
+});
+
+const formatDateToVietnam = (value) => {
+    if (!value) return '-';
+
+    const dateStr = String(value).slice(0, 10);
+    const parts = dateStr.split('-');
+    if (parts.length !== 3) return '-';
+
+    return `${parts[2]}/${parts[1]}/${parts[0]}`;
+};
+
+const normalizeClasses = (classes = []) => classes.map((classItem) => ({
+    ...classItem,
+    students: sortByStudentName(classItem.students || []).map((student) => ({
+        ...student,
+        _fullName: [student.ten_thanh, student.ho_va_ten_lot, student.ten].filter(Boolean).join(' '),
+        _dobDisplay: formatDateToVietnam(student.ngay_sinh)
+    }))
+}));
+
 const TruongKhoiLopController = {
     async getLop(req, res) {
         try {
             const years = await LopModel.getAcademicYears(req.session.user.id_glv);
             const { selectedYearId } = getCurrentYear(years, req.session);
             const classes = selectedYearId
-                ? await LopModel.getClasses(req.session.user.id_glv, selectedYearId) : [];
+                ? await LopModel.getClasses(req.session.user.id_glv, selectedYearId)
+                : [];
+
             return res.render('truong-khoi/lop', {
                 ...getTruongKhoiBaseData(req, 'Quản lý lớp học'),
-                title: 'Quản lý lớp học', years, selectedYearId, classes,
+                title: 'Quản lý lớp học',
+                years,
+                selectedYearId,
+                classes: normalizeClasses(classes),
                 error: req.query.error || null
             });
         } catch (error) {
