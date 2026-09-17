@@ -10,9 +10,6 @@
         <h1>Điểm kỷ luật theo tháng</h1>
     </header>
 
-    <% if (message) { %><div class="discipline-notice success"><i class="fa-solid fa-circle-check"></i> <%= message %></div><% } %>
-    <% if (error) { %><div class="discipline-notice error"><i class="fa-solid fa-circle-exclamation"></i> <%= error %></div><% } %>
-
     <% if (!classes.length) { %>
         <div class="discipline-empty"><i class="fa-solid fa-triangle-exclamation"></i> Bạn chưa được phân công lớp trong niên khóa này.</div>
     <% } else { %>

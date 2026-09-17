@@ -7,20 +7,6 @@
     </div>
 
     <div class="profile-card">
-        <!-- Hiển thị thông báo thành công -->
-        <% if (locals.success && success) { %>
-            <div class="profile-alert profile-alert-success">
-                <i class="fa-solid fa-circle-check"></i> <%= success %>
-            </div>
-        <% } %>
-
-        <!-- Hiển thị thông báo lỗi -->
-        <% if (locals.error && error) { %>
-            <div class="profile-alert profile-alert-error">
-                <i class="fa-solid fa-triangle-exclamation"></i> <%= error %>
-            </div>
-        <% } %>
-
         <form action="/glv/profile/update" method="POST" class="profile-form">
             
             <!-- ID Giáo lý viên (Read-only) -->

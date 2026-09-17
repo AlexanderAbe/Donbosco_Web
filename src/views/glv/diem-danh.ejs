@@ -10,9 +10,6 @@
         <h1>Điểm danh thiếu nhi</h1>
     </header>
 
-    <% if (message) { %><div class="attendance-notice success"><i class="fa-solid fa-circle-check"></i> <%= message %></div><% } %>
-    <% if (error) { %><div class="attendance-notice error"><i class="fa-solid fa-circle-exclamation"></i> <%= error %></div><% } %>
-
     <% if (!classes.length) { %>
         <div class="attendance-empty"><i class="fa-solid fa-triangle-exclamation"></i> Bạn chưa được phân công lớp trong niên khóa này.</div>
     <% } else { %>

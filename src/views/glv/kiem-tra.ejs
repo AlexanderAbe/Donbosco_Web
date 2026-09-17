@@ -10,9 +10,6 @@
         <h1>Điểm kiểm tra thiếu nhi</h1>
     </header>
 
-    <% if (message) { %><div class="notice success"><i class="fa-solid fa-circle-check"></i> <%= message %></div><% } %>
-    <% if (error) { %><div class="notice error"><i class="fa-solid fa-circle-exclamation"></i> <%= error %></div><% } %>
-
     <% if (!classes.length || !examCount) { %>
         <div class="empty-state"><i class="fa-solid fa-triangle-exclamation"></i> Chưa có lớp được phân công hoặc chưa cấu hình số bài kiểm tra.</div>
     <% } else { %>

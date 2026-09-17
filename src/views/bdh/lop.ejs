@@ -26,10 +26,6 @@
 		</button>
 	</div>
 
-	<% if (error) { %>
-		<div class="alert"><%= error %></div>
-	<% } %>
-
 	<section class="section-card">
 		<div class="section-header">
 			<h2>Danh sách lớp<% if (selectedYearId) { %> - <%= years.find(year => year.id_cau_hinh_nam_hoc === selectedYearId)?.nien_khoa %><% } %></h2>
