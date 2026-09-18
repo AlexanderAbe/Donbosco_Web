@@ -9,6 +9,9 @@
         <span class="class-eyebrow">Quản lý lớp học</span>
         <h1>Bảng điểm thiếu nhi</h1>
         <p>Điểm số được cập nhật tính tới thời điểm hiện tại.</p>
+        <label class="class-search" for="score-student-search"><i class="fa-solid fa-magnifying-glass"></i> Tìm kiếm thiếu nhi
+            <input id="score-student-search" type="search" placeholder="Tên hoặc mã số..." autocomplete="off">
+        </label>
     </header>
 
     <% if (!scores.length) { %>
@@ -21,7 +24,7 @@
                 <% if (currentClass !== classKey) { %>
                     <% if (currentClass !== null) { %></tbody></table></div></section><% } %>
                     <% currentClass = classKey; %>
-                    <section class="class-card">
+                    <section class="class-card" data-score-card>
                         <div class="class-card-header">
                             <h2><i class="fa-solid fa-school"></i> <%= student.ten_khoi %> - <%= student.ten_lop %></h2>
                         </div>
@@ -30,7 +33,7 @@
                                 <thead><tr><th>STT</th><th>Mã số</th><th>Họ và tên</th><th>Học tập</th><th>Chuyên cần</th><th>Kỷ luật</th><th>Tổng</th><th>Tình trạng</th><th></th></tr></thead>
                                 <tbody>
                 <% } %>
-                <tr>
+                <tr data-score-row data-search="<%= `${student.mstn || ''} ${student.ten_thanh || ''} ${student.ho_va_ten_lot || ''} ${student.ten || ''}`.toLowerCase() %>">
                     <td><%= scores.filter(item => item.id_lop === student.id_lop).indexOf(student) + 1 %></td>
                     <td><%= student.mstn || '-' %></td>
                     <td><strong><%= [student.ten_thanh, student.ho_va_ten_lot, student.ten].filter(Boolean).join(' ') %></strong></td>
@@ -59,6 +62,19 @@
 
 <script>
 (() => {
+    const search = document.getElementById('score-student-search');
+    search?.addEventListener('input', () => {
+        const keyword = search.value.trim().toLowerCase();
+        document.querySelectorAll('[data-score-card]').forEach(card => {
+            const rows = [...card.querySelectorAll('[data-score-row]')];
+            const visibleRows = rows.filter(row => {
+                const visible = !keyword || row.dataset.search.includes(keyword);
+                row.hidden = !visible;
+                return visible;
+            });
+            card.hidden = visibleRows.length === 0;
+        });
+    });
     const yearId = '<%= selectedYearId %>';
     document.querySelectorAll('[data-result-save]').forEach(button => {
         button.addEventListener('click', async () => {
