@@ -1,11 +1,3 @@
--- ================================================================
--- RLS THEO auth.uid() CHO SCHEMA public
--- ================================================================
--- Yêu cầu PostgreSQL 15+ (VIEW security_invoker).
--- Trước khi chạy, ánh xạ auth.users.id vào TAI_KHOAN.auth_user_id.
--- Ví dụ: UPDATE tai_khoan SET auth_user_id = '<uuid-auth-users>' WHERE username = '...';
--- Không cấp quyền cho anon. service_role của Supabase vẫn bypass RLS.
-
 -- 1. Thêm khóa liên kết với Supabase Auth nếu schema chưa có.
 ALTER TABLE public.tai_khoan
     ADD COLUMN IF NOT EXISTS auth_user_id uuid;
@@ -238,3 +230,9 @@ GRANT INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA public TO authenticated;
 GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA public TO authenticated;
 
 -- Lưu ý: cần map auth.users.id vào TAI_KHOAN.auth_user_id trước khi kiểm thử.
+
+CREATE POLICY rls_glv_update_self ON public.glv
+    FOR UPDATE 
+    TO authenticated 
+    USING (id_glv = public.app_glv_id())
+    WITH CHECK (id_glv = public.app_glv_id());

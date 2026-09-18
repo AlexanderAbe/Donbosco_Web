@@ -19,16 +19,13 @@
                 <!-- Tên thánh -->
                 <div class="profile-group">
                     <label for="ten_thanh">Tên Thánh</label>
-                    <input type="text" id="ten_thanh" name="ten_thanh" value="<%= glv.ten_thanh || '' %>" placeholder="VD: Giuse, Maria..." />
+                    <input type="text" id="ten_thanh" name="ten_thanh" value="<%= glv.ten_thanh || '' %>" readonly />
                 </div>
 
-                <!-- Giới tính -->
+                <!-- Giới tính (Chuyển thành readonly bằng input text) -->
                 <div class="profile-group">
                     <label for="gioi_tinh">Giới tính</label>
-                    <select id="gioi_tinh" name="gioi_tinh">
-                        <option value="Nam" <%= glv.gioi_tinh === 'Nam' ? 'selected' : '' %>>Nam</option>
-                        <option value="Nữ" <%= glv.gioi_tinh === 'Nữ' ? 'selected' : '' %>>Nữ</option>
-                    </select>
+                    <input type="text" id="gioi_tinh" name="gioi_tinh" value="<%= glv.gioi_tinh || '' %>" readonly />
                 </div>
             </div>
 
@@ -36,13 +33,13 @@
                 <!-- Họ và tên lót -->
                 <div class="profile-group">
                     <label for="ho_va_ten_lot">Họ và tên lót</label>
-                    <input type="text" id="ho_va_ten_lot" name="ho_va_ten_lot" value="<%= glv.ho_va_ten_lot || '' %>" required />
+                    <input type="text" id="ho_va_ten_lot" name="ho_va_ten_lot" value="<%= glv.ho_va_ten_lot || '' %>" readonly />
                 </div>
 
                 <!-- Tên -->
                 <div class="profile-group">
                     <label for="ten">Tên</label>
-                    <input type="text" id="ten" name="ten" value="<%= glv.ten || '' %>" required />
+                    <input type="text" id="ten" name="ten" value="<%= glv.ten || '' %>" readonly />
                 </div>
             </div>
 
@@ -50,10 +47,10 @@
                 <!-- Ngày sinh -->
                 <div class="profile-group">
                     <label for="ngay_sinh">Ngày sinh</label>
-                    <input type="date" id="ngay_sinh" name="ngay_sinh" value="<%= glv.ngay_sinh_formatted || '' %>" />
+                    <input type="date" id="ngay_sinh" name="ngay_sinh" value="<%= glv.ngay_sinh_formatted || '' %>" readonly />
                 </div>
 
-                <!-- Số điện thoại -->
+                <!-- Số điện thoại (Được phép đổi tự do) -->
                 <div class="profile-group">
                     <label for="sdt">Số điện thoại</label>
                     <input type="tel" id="sdt" name="sdt" value="<%= glv.sdt || '' %>" required />

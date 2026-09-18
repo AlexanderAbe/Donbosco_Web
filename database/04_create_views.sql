@@ -165,32 +165,43 @@ SELECT
     pl.trang_thai AS trang_thai_phan_lop,
 
     -- 1. Điểm học tập (Trung bình cộng các bài kiểm tra hoặc lấy từ bảng tổng kết)
-    COALESCE(tk.diem_hoc_tap, (
+    COALESCE((
         SELECT ROUND(AVG(diem_so), 2)
         FROM DIEM_HOC_TAP dht
         WHERE dht.id_tn = tn.id_tn AND dht.id_cau_hinh_nam_hoc = pl.id_cau_hinh_nam_hoc
-    ), 0) AS diem_hoc_tap,
+    ), tk.diem_hoc_tap, 0) AS diem_hoc_tap,
 
     -- 2. Điểm chuyên cần
-    COALESCE(tk.diem_chuyen_can, (
+    COALESCE((
         SELECT ROUND(AVG(diem_chuyen_can), 2)
         FROM DIEM_CHUYEN_CAN dhc
         WHERE dhc.id_tn = tn.id_tn AND dhc.id_cau_hinh_nam_hoc = pl.id_cau_hinh_nam_hoc
-    ), 0) AS diem_chuyen_can,
+    ), tk.diem_chuyen_can, 0) AS diem_chuyen_can,
 
     -- 3. Điểm kỷ luật
-    COALESCE(tk.diem_ky_luat, (
+    COALESCE((
         SELECT ROUND(AVG(diem), 2)
         FROM DIEM_KY_LUAT dkl
         WHERE dkl.id_tn = tn.id_tn AND dkl.id_cau_hinh_nam_hoc = pl.id_cau_hinh_nam_hoc
-    ), 0) AS diem_ky_luat,
+    ), tk.diem_ky_luat, 0) AS diem_ky_luat,
 
     -- 4. Điểm tổng kết (Tính theo trọng số cấu hình năm học hoặc lấy từ bảng tổng kết)
-    COALESCE(tk.diem_tong, (
-        COALESCE((SELECT AVG(diem_so) FROM DIEM_HOC_TAP dht WHERE dht.id_tn = tn.id_tn AND dht.id_cau_hinh_nam_hoc = pl.id_cau_hinh_nam_hoc), 0) * cnh.trong_so_hoc_tap
-        + COALESCE((SELECT AVG(diem_chuyen_can) FROM DIEM_CHUYEN_CAN dhc WHERE dhc.id_tn = tn.id_tn AND dhc.id_cau_hinh_nam_hoc = pl.id_cau_hinh_nam_hoc), 0) * cnh.trong_so_diem_chuyen_can
-        + COALESCE((SELECT AVG(diem) FROM DIEM_KY_LUAT dkl WHERE dkl.id_tn = tn.id_tn AND dkl.id_cau_hinh_nam_hoc = pl.id_cau_hinh_nam_hoc), 0) * cnh.trong_so_ky_luat
-    ), 0) AS diem_tong
+    CASE
+        WHEN EXISTS (
+            SELECT 1 FROM DIEM_HOC_TAP dht
+            WHERE dht.id_tn = tn.id_tn AND dht.id_cau_hinh_nam_hoc = pl.id_cau_hinh_nam_hoc
+        ) OR EXISTS (
+            SELECT 1 FROM DIEM_CHUYEN_CAN dhc
+            WHERE dhc.id_tn = tn.id_tn AND dhc.id_cau_hinh_nam_hoc = pl.id_cau_hinh_nam_hoc
+        ) OR EXISTS (
+            SELECT 1 FROM DIEM_KY_LUAT dkl
+            WHERE dkl.id_tn = tn.id_tn AND dkl.id_cau_hinh_nam_hoc = pl.id_cau_hinh_nam_hoc
+        ) THEN
+            COALESCE((SELECT AVG(diem_so) FROM DIEM_HOC_TAP dht WHERE dht.id_tn = tn.id_tn AND dht.id_cau_hinh_nam_hoc = pl.id_cau_hinh_nam_hoc), 0) * cnh.trong_so_hoc_tap
+            + COALESCE((SELECT AVG(diem_chuyen_can) FROM DIEM_CHUYEN_CAN dhc WHERE dhc.id_tn = tn.id_tn AND dhc.id_cau_hinh_nam_hoc = pl.id_cau_hinh_nam_hoc), 0) * cnh.trong_so_diem_chuyen_can
+            + COALESCE((SELECT AVG(diem) FROM DIEM_KY_LUAT dkl WHERE dkl.id_tn = tn.id_tn AND dkl.id_cau_hinh_nam_hoc = pl.id_cau_hinh_nam_hoc), 0) * cnh.trong_so_ky_luat
+        ELSE COALESCE(tk.diem_tong, 0)
+    END AS diem_tong
 
 FROM PHAN_LOP pl
 JOIN THIEU_NHI tn ON pl.id_tn = tn.id_tn

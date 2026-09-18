@@ -3,8 +3,8 @@ const pool = require('../../../config/database');
 const DiemDanhModel = {
     async getAttendanceStudents(idGlv, yearId, classId, attendanceDate, sessionType) {
         const { rows } = await pool.query(`
-            SELECT tn.id_tn, tn.mstn, tn.ten_thanh, tn.ho_va_ten_lot, tn.ten,
-                   COALESCE(dd.trang_thai, 'Có mặt') AS trang_thai_diem_danh,
+                        SELECT tn.id_tn, tn.mstn, tn.ten_thanh, tn.ho_va_ten_lot, tn.ten,
+                                     dd.trang_thai AS trang_thai_diem_danh,
                    (dd.id_diem_danh IS NOT NULL) AS da_luu
             FROM PHAN_CONG_GLV pc
             JOIN PHAN_LOP pl ON pl.id_lop = pc.id_lop
@@ -43,11 +43,22 @@ const DiemDanhModel = {
             `, [classId, yearId]);
             const allowedIds = new Set(students.rows.map(row => String(row.id_tn)));
             const validAttendance = attendance
-                .filter(item => allowedIds.has(String(item.id_tn)))
+                .filter(item => allowedIds.has(String(item.id_tn)) && statuses.includes(item.trang_thai))
                 .map(item => ({
                     id_tn: Number(item.id_tn),
-                    trang_thai: statuses.includes(item.trang_thai) ? item.trang_thai : 'Có mặt'
+                    trang_thai: item.trang_thai
                 }));
+            const markedIds = validAttendance.map(item => item.id_tn);
+            await client.query(`
+                DELETE FROM DIEM_DANH
+                WHERE ngay_diem_danh = $1
+                  AND loai_buoi = $2::enum_loai_buoi
+                  AND id_lop = $3
+                  AND id_tn = ANY($4::integer[])
+            `, [attendanceDate, sessionType, classId,
+                students.rows
+                    .map(row => row.id_tn)
+                    .filter(idTn => !markedIds.includes(idTn))]);
             if (validAttendance.length) {
                 await client.query(`
                     INSERT INTO DIEM_DANH (ngay_diem_danh, loai_buoi, trang_thai, id_lop, id_tn)
