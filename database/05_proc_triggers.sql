@@ -267,6 +267,13 @@ BEGIN
       AND EXTRACT(MONTH FROM dd.ngay_diem_danh) = p_thang;
 
     IF v_tong_buoi = 0 THEN
+        UPDATE DIEM_CHUYEN_CAN
+        SET tong_so_buoi = 0,
+            co_mat = 0,
+            diem_chuyen_can = 0
+        WHERE id_tn = p_id_tn
+          AND thang = p_thang
+          AND id_cau_hinh_nam_hoc = p_id_cau_hinh_nam_hoc;
         RETURN;
     END IF;
 

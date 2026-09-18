@@ -68,6 +68,14 @@ const DiemDanhModel = {
                     DO UPDATE SET trang_thai = EXCLUDED.trang_thai, id_lop = EXCLUDED.id_lop
                 `, [attendanceDate, sessionType, classId, JSON.stringify(validAttendance)]);
             }
+
+            const month = Number(attendanceDate.slice(5, 7));
+            for (const row of students.rows) {
+                await client.query(
+                    'CALL sp_tinh_chuyen_can_thang($1, $2, $3)',
+                    [row.id_tn, month, yearId]
+                );
+            }
             await client.query('COMMIT');
         } catch (error) {
             await client.query('ROLLBACK');
