@@ -80,10 +80,11 @@
 <script>
 (() => {
     const search = document.getElementById('discipline-search');
+    const normalize = value => String(value || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
     search?.addEventListener('input', () => {
-        const keyword = search.value.trim().toLowerCase();
+        const keyword = normalize(search.value.trim());
         document.querySelectorAll('[data-discipline-row]').forEach(row => {
-            row.hidden = keyword && !row.dataset.search.includes(keyword);
+            row.classList.toggle('search-hidden', Boolean(keyword) && !normalize(row.dataset.search).includes(keyword));
         });
     });
 })();

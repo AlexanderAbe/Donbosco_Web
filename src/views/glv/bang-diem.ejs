@@ -63,16 +63,17 @@
 <script>
 (() => {
     const search = document.getElementById('score-student-search');
+    const normalize = value => String(value || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
     search?.addEventListener('input', () => {
-        const keyword = search.value.trim().toLowerCase();
+        const keyword = normalize(search.value.trim());
         document.querySelectorAll('[data-score-card]').forEach(card => {
             const rows = [...card.querySelectorAll('[data-score-row]')];
             const visibleRows = rows.filter(row => {
-                const visible = !keyword || row.dataset.search.includes(keyword);
-                row.hidden = !visible;
+                const visible = !keyword || normalize(row.dataset.search).includes(keyword);
+                row.classList.toggle('search-hidden', !visible);
                 return visible;
             });
-            card.hidden = visibleRows.length === 0;
+            card.classList.toggle('search-hidden', visibleRows.length === 0);
         });
     });
     const yearId = '<%= selectedYearId %>';

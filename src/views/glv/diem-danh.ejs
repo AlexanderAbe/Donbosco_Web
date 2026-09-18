@@ -91,6 +91,7 @@
 <script>
 (() => {
     const search = document.getElementById('attendance-search');
+    const normalize = value => String(value || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
     const type = document.getElementById('attendance-type');
     const date = document.getElementById('attendance-date');
     const filter = document.getElementById('attendance-filter');
@@ -98,6 +99,6 @@
     const smartDate = sessionType => { const current = new Date(); current.setDate(current.getDate() - ((current.getDay() - targetDays[sessionType] + 7) % 7)); return `${current.getFullYear()}-${String(current.getMonth() + 1).padStart(2, '0')}-${String(current.getDate()).padStart(2, '0')}`; };
     type?.addEventListener('change', () => { date.value = smartDate(type.value); filter.submit(); });
     date?.addEventListener('change', () => { filter.submit(); });
-    search?.addEventListener('input', () => { const keyword = search.value.trim().toLowerCase(); document.querySelectorAll('[data-attendance-row]').forEach(row => { row.hidden = keyword && !row.dataset.search.includes(keyword); }); });
+    search?.addEventListener('input', () => { const keyword = normalize(search.value.trim()); document.querySelectorAll('[data-attendance-row]').forEach(row => { row.classList.toggle('search-hidden', Boolean(keyword) && !normalize(row.dataset.search).includes(keyword)); }); });
 })();
 </script>
