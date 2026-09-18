@@ -53,17 +53,62 @@ const DashboardModel = {
                 GROUP BY latest.ngay_diem_danh, latest.loai_buoi
             `, [idGlv, yearId]),
             pool.query(`
-                SELECT tn.id_tn, tn.mstn, CONCAT_WS(' ', tn.ten_thanh, tn.ho_va_ten_lot, tn.ten) AS ho_ten,
-                       COUNT(*) FILTER (WHERE dd.trang_thai IN ('Vắng phép', 'Vắng không phép'))::int AS absent_count
-                FROM PHAN_CONG_GLV pc
-                JOIN PHAN_LOP pl ON pl.id_lop = pc.id_lop AND pl.id_cau_hinh_nam_hoc = pc.id_cau_hinh_nam_hoc AND pl.trang_thai = 'Đang học'
-                JOIN THIEU_NHI tn ON tn.id_tn = pl.id_tn
-                JOIN DIEM_DANH dd ON dd.id_tn = pl.id_tn AND dd.id_lop = pl.id_lop
-                    AND dd.ngay_diem_danh >= CURRENT_DATE - INTERVAL '30 days'
-                WHERE pc.id_glv = $1 AND pc.id_cau_hinh_nam_hoc = $2
-                GROUP BY tn.id_tn, tn.mstn, tn.ten_thanh, tn.ho_va_ten_lot, tn.ten
-                HAVING COUNT(*) FILTER (WHERE dd.trang_thai IN ('Vắng phép', 'Vắng không phép')) >= 2
-                ORDER BY absent_count DESC, ho_ten
+                WITH assigned_students AS (
+                    SELECT DISTINCT pl.id_tn, pl.id_lop
+                    FROM PHAN_CONG_GLV pc
+                    JOIN PHAN_LOP pl ON pl.id_lop = pc.id_lop
+                        AND pl.id_cau_hinh_nam_hoc = pc.id_cau_hinh_nam_hoc
+                        AND pl.trang_thai = 'Đang học'
+                    WHERE pc.id_glv = $1 AND pc.id_cau_hinh_nam_hoc = $2
+                ), latest_sessions AS (
+                    SELECT DISTINCT dd.ngay_diem_danh, dd.loai_buoi
+                    FROM DIEM_DANH dd
+                    JOIN assigned_students s ON s.id_tn = dd.id_tn AND s.id_lop = dd.id_lop
+                    WHERE dd.loai_buoi = 'Học Giáo Lý'
+                    ORDER BY dd.ngay_diem_danh DESC, dd.loai_buoi DESC
+                    LIMIT 5
+                ), numbered_sessions AS (
+                    SELECT ngay_diem_danh, loai_buoi,
+                           ROW_NUMBER() OVER (ORDER BY ngay_diem_danh, loai_buoi) AS session_number
+                    FROM latest_sessions
+                ), student_sessions AS (
+                    SELECT s.id_tn, ns.session_number,
+                           (dd.trang_thai IN ('Vắng phép', 'Vắng không phép')) AS is_absent
+                    FROM assigned_students s
+                    CROSS JOIN numbered_sessions ns
+                    LEFT JOIN DIEM_DANH dd
+                        ON dd.id_tn = s.id_tn
+                        AND dd.id_lop = s.id_lop
+                        AND dd.ngay_diem_danh = ns.ngay_diem_danh
+                        AND dd.loai_buoi = ns.loai_buoi
+                ), absent_runs AS (
+                    SELECT id_tn, COUNT(*)::int AS run_length
+                    FROM (
+                        SELECT id_tn, session_number,
+                               session_number - ROW_NUMBER() OVER (PARTITION BY id_tn ORDER BY session_number) AS run_group
+                        FROM student_sessions
+                        WHERE is_absent
+                    ) absent_rows
+                    GROUP BY id_tn, run_group
+                ), alert_summary AS (
+                    SELECT ss.id_tn,
+                           COUNT(*) FILTER (WHERE ss.is_absent)::int AS absent_count,
+                           COALESCE(MAX(ar.run_length), 0)::int AS max_consecutive_absences
+                    FROM student_sessions ss
+                    LEFT JOIN absent_runs ar ON ar.id_tn = ss.id_tn
+                    GROUP BY ss.id_tn
+                )
+                SELECT tn.id_tn, tn.mstn,
+                       CONCAT_WS(' ', tn.ten_thanh, tn.ho_va_ten_lot, tn.ten) AS ho_ten,
+                       alert_summary.absent_count,
+                       alert_summary.max_consecutive_absences
+                FROM alert_summary
+                JOIN THIEU_NHI tn ON tn.id_tn = alert_summary.id_tn
+                WHERE alert_summary.absent_count >= 2
+                ORDER BY (alert_summary.max_consecutive_absences >= 2) DESC,
+                         alert_summary.max_consecutive_absences DESC,
+                         alert_summary.absent_count DESC,
+                         ho_ten
                 LIMIT 10
             `, [idGlv, yearId]),
             pool.query(`

@@ -197,9 +197,16 @@ SELECT
             SELECT 1 FROM DIEM_KY_LUAT dkl
             WHERE dkl.id_tn = tn.id_tn AND dkl.id_cau_hinh_nam_hoc = pl.id_cau_hinh_nam_hoc
         ) THEN
-            COALESCE((SELECT AVG(diem_so) FROM DIEM_HOC_TAP dht WHERE dht.id_tn = tn.id_tn AND dht.id_cau_hinh_nam_hoc = pl.id_cau_hinh_nam_hoc), 0) * cnh.trong_so_hoc_tap
-            + COALESCE((SELECT AVG(diem_chuyen_can) FROM DIEM_CHUYEN_CAN dhc WHERE dhc.id_tn = tn.id_tn AND dhc.id_cau_hinh_nam_hoc = pl.id_cau_hinh_nam_hoc), 0) * cnh.trong_so_diem_chuyen_can
-            + COALESCE((SELECT AVG(diem) FROM DIEM_KY_LUAT dkl WHERE dkl.id_tn = tn.id_tn AND dkl.id_cau_hinh_nam_hoc = pl.id_cau_hinh_nam_hoc), 0) * cnh.trong_so_ky_luat
+            ROUND((
+                COALESCE((SELECT AVG(diem_so) FROM DIEM_HOC_TAP dht WHERE dht.id_tn = tn.id_tn AND dht.id_cau_hinh_nam_hoc = pl.id_cau_hinh_nam_hoc), 0) * COALESCE(cnh.trong_so_hoc_tap, 2)
+                + COALESCE((SELECT AVG(diem_chuyen_can) FROM DIEM_CHUYEN_CAN dhc WHERE dhc.id_tn = tn.id_tn AND dhc.id_cau_hinh_nam_hoc = pl.id_cau_hinh_nam_hoc), 0) * COALESCE(cnh.trong_so_diem_chuyen_can, 1)
+                + COALESCE((SELECT AVG(diem) FROM DIEM_KY_LUAT dkl WHERE dkl.id_tn = tn.id_tn AND dkl.id_cau_hinh_nam_hoc = pl.id_cau_hinh_nam_hoc), 0) * COALESCE(cnh.trong_so_ky_luat, 1)
+            ) / NULLIF(
+                COALESCE(cnh.trong_so_hoc_tap, 2)
+                + COALESCE(cnh.trong_so_diem_chuyen_can, 1)
+                + COALESCE(cnh.trong_so_ky_luat, 1),
+                0
+            ), 2)
         ELSE COALESCE(tk.diem_tong, 0)
     END AS diem_tong
 
