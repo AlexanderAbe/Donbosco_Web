@@ -305,104 +305,28 @@
     gap: 6px;
 }
 
-.desktop-panel {
-    display: block;
-}
-
-.class-panel {
-    background: var(--bg-60-surface);
-    border: 1px solid var(--border-color);
-    border-radius: 12px;
-    box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
-    overflow: hidden;
-}
-
-.table-scroll {
-    width: 100%;
-    overflow-x: auto;
-}
-
-.class-panel table {
-    width: 100%;
-    border-collapse: collapse;
-    text-align: left;
-    font-size: 0.9rem;
-    min-width: 760px;
-}
-
-.class-panel th {
-    background: rgba(248, 250, 252, 0.96);
-    color: var(--text-muted);
-    font-weight: 700;
-    padding: 12px 14px;
-    border-bottom: 1px solid var(--border-color);
-    white-space: nowrap;
-}
-
-.class-panel td {
-    padding: 12px 14px;
-    border-bottom: 1px solid rgba(148, 163, 184, 0.28);
-    color: var(--text-main);
-    vertical-align: middle;
-}
-
-.class-panel tr:last-child td {
-    border-bottom: none;
-}
-
-.mini-pill {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    min-width: 32px;
-    padding: 4px 8px;
-    border-radius: 999px;
-    font-size: 0.74rem;
-    font-weight: 700;
-}
-
-.mini-pill.is-early {
-    background: #14532d;
-    color: #f0fdf4;
-}
-
-.mini-pill.is-present {
-    background: #dbeafe;
-    color: #1d4ed8;
-}
-
-.mini-pill.is-excused {
-    background: #fef3c7;
-    color: #92400e;
-}
-
-.mini-pill.is-absent {
-    background: #fee2e2;
-    color: #b91c1c;
-}
-
 @media (min-width: 860px) {
     .attendance-shell {
-        display: grid;
-        grid-template-columns: 1.08fr 1.3fr;
-        gap: 18px;
-        align-items: start;
+        display: block;
     }
 
     .list-panel {
-        display: none;
+        display: block;
     }
 
-    .desktop-panel {
-        display: block;
+    .attendance-card-list {
+        padding: 16px 18px 18px;
+        gap: 12px;
+    }
+
+    .attendance-card {
+        width: 100%;
+        box-sizing: border-box;
+        padding: 16px 18px;
     }
 }
 
 @media (max-width: 859px) {
-    .desktop-panel {
-        display: none;
-    }
-}
 
 @media (max-width: 760px) {
     .tk-class-page {

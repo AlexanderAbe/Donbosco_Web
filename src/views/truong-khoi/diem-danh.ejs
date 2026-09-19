@@ -35,25 +35,6 @@
                     </button>
                 <% }) %>
             </div>
-
-            <div class="summary-grid">
-                <div class="summary-card summary-card--primary">
-                    <span class="summary-label">Tổng lượt điểm danh</span>
-                    <strong><%= attendanceStats.total %></strong>
-                </div>
-                <div class="summary-card summary-card--present">
-                    <span class="summary-label">Có mặt</span>
-                    <strong><%= attendanceStats.present %></strong>
-                </div>
-                <div class="summary-card summary-card--excused">
-                    <span class="summary-label">Vắng có phép</span>
-                    <strong><%= attendanceStats.excused %></strong>
-                </div>
-                <div class="summary-card summary-card--absent">
-                    <span class="summary-label">Vắng không phép</span>
-                    <strong><%= attendanceStats.absent %></strong>
-                </div>
-            </div>
         </section>
 
         <section class="attendance-shell">
@@ -95,40 +76,6 @@
                 <% }) %>
             </div>
 
-            <div class="desktop-panel">
-                <div class="class-panel">
-                    <div class="table-scroll">
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>Ngày</th>
-                                    <th>Buổi</th>
-                                    <th>Lớp</th>
-                                    <th>Đi sớm</th>
-                                    <th>Có mặt</th>
-                                    <th>Vắng có phép</th>
-                                    <th>Vắng không phép</th>
-                                    <th>Tổng</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <% attendanceSummary.forEach((row) => { %>
-                                    <tr>
-                                        <td><%= row.dateLabel %></td>
-                                        <td><%= row.loai_buoi %></td>
-                                        <td><%= row.ten_lop || '-' %></td>
-                                        <td><span class="mini-pill is-early"><%= row['Đi sớm'] %></span></td>
-                                        <td><span class="mini-pill is-present"><%= row['Có mặt'] %></span></td>
-                                        <td><span class="mini-pill is-excused"><%= row['Vắng có phép'] %></span></td>
-                                        <td><span class="mini-pill is-absent"><%= row['Vắng không phép'] %></span></td>
-                                        <td><strong><%= row.total %></strong></td>
-                                    </tr>
-                                <% }) %>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
         </section>
     <% } %>
 </main>

@@ -3,8 +3,8 @@ const pool = require('../../../config/database');
 const DiemDanhModel = {
     async getAttendanceStudents(idGlv, yearId, classId, attendanceDate, sessionType) {
         const { rows } = await pool.query(`
-            SELECT tn.id_tn, tn.mstn, tn.ten_thanh, tn.ho_va_ten_lot, tn.ten,
-                   COALESCE(dd.trang_thai, 'Có mặt') AS trang_thai_diem_danh,
+                        SELECT tn.id_tn, tn.mstn, tn.ten_thanh, tn.ho_va_ten_lot, tn.ten,
+                                     dd.trang_thai AS trang_thai_diem_danh,
                    (dd.id_diem_danh IS NOT NULL) AS da_luu
             FROM PHAN_CONG_GLV pc
             JOIN PHAN_LOP pl ON pl.id_lop = pc.id_lop
@@ -43,10 +43,10 @@ const DiemDanhModel = {
             `, [classId, yearId]);
             const allowedIds = new Set(students.rows.map(row => String(row.id_tn)));
             const validAttendance = attendance
-                .filter(item => allowedIds.has(String(item.id_tn)))
+                .filter(item => allowedIds.has(String(item.id_tn)) && statuses.includes(item.trang_thai))
                 .map(item => ({
                     id_tn: Number(item.id_tn),
-                    trang_thai: statuses.includes(item.trang_thai) ? item.trang_thai : 'Có mặt'
+                    trang_thai: item.trang_thai
                 }));
             if (validAttendance.length) {
                 await client.query(`
@@ -57,7 +57,88 @@ const DiemDanhModel = {
                     DO UPDATE SET trang_thai = EXCLUDED.trang_thai, id_lop = EXCLUDED.id_lop
                 `, [attendanceDate, sessionType, classId, JSON.stringify(validAttendance)]);
             }
+
+                        await client.query(`
+                                INSERT INTO DIEM_DANH (ngay_diem_danh, loai_buoi, trang_thai, id_lop, id_tn)
+                                SELECT $1, $2::enum_loai_buoi, 'Vắng không phép'::enum_diem_danh, $3, pl.id_tn
+                                FROM PHAN_LOP pl
+                                WHERE pl.id_lop = $3
+                                    AND pl.id_cau_hinh_nam_hoc = $4
+                                    AND pl.trang_thai = 'Đang học'
+                                    AND NOT EXISTS (
+                                            SELECT 1
+                                            FROM DIEM_DANH dd
+                                            WHERE dd.ngay_diem_danh = $1
+                                                AND dd.loai_buoi = $2::enum_loai_buoi
+                                                AND dd.id_tn = pl.id_tn
+                                    )
+                        `, [attendanceDate, sessionType, classId, yearId]);
+
+            const month = Number(attendanceDate.slice(5, 7));
+            for (const row of students.rows) {
+                await client.query(
+                    'CALL sp_tinh_chuyen_can_thang($1, $2, $3)',
+                    [row.id_tn, month, yearId]
+                );
+            }
             await client.query('COMMIT');
+        } catch (error) {
+            await client.query('ROLLBACK');
+            throw error;
+        } finally {
+            client.release();
+        }
+    },
+
+    async markAttendanceByQr(idGlv, yearId, classId, studentId, mstn, attendanceDate, sessionType, status = 'Có mặt') {
+        const sessionTypes = ['Lễ Thứ 3', 'Lễ Thứ 5', 'Lễ Chúa Nhật', 'Học Giáo Lý'];
+        const statuses = ['Có mặt', 'Đi sớm'];
+        if (!Number.isInteger(yearId) || !Number.isInteger(classId)
+            || !/^\d{4}-\d{2}-\d{2}$/.test(attendanceDate || '')
+            || !sessionTypes.includes(sessionType) || !statuses.includes(status)) {
+            throw new Error('Thông tin quét điểm danh không hợp lệ.');
+        }
+
+        const client = await pool.connect();
+        try {
+            await client.query('BEGIN');
+
+            const studentResult = await client.query(`
+                SELECT tn.id_tn, tn.mstn,
+                       CONCAT_WS(' ', tn.ten_thanh, tn.ho_va_ten_lot, tn.ten) AS ho_ten
+                FROM PHAN_CONG_GLV pc
+                JOIN PHAN_LOP pl ON pl.id_lop = pc.id_lop
+                    AND pl.id_cau_hinh_nam_hoc = pc.id_cau_hinh_nam_hoc
+                    AND pl.trang_thai = 'Đang học'
+                JOIN THIEU_NHI tn ON tn.id_tn = pl.id_tn
+                WHERE pc.id_glv = $1
+                  AND pc.id_lop = $2
+                  AND pc.id_cau_hinh_nam_hoc = $3
+                  AND (($4::int IS NOT NULL AND tn.id_tn = $4)
+                    OR ($5::text IS NOT NULL AND tn.mstn = $5))
+                LIMIT 1
+            `, [idGlv, classId, yearId, studentId, mstn]);
+
+            if (!studentResult.rows.length) {
+                throw new Error('QR không thuộc thiếu nhi đang học trong lớp này.');
+            }
+
+            const student = studentResult.rows[0];
+            await client.query(`
+                INSERT INTO DIEM_DANH (ngay_diem_danh, loai_buoi, trang_thai, id_lop, id_tn)
+                VALUES ($1, $2::enum_loai_buoi, $3::enum_diem_danh, $4, $5)
+                ON CONFLICT (ngay_diem_danh, loai_buoi, id_tn)
+                DO UPDATE SET trang_thai = EXCLUDED.trang_thai, id_lop = EXCLUDED.id_lop
+            `, [attendanceDate, sessionType, status, classId, student.id_tn]);
+
+            await client.query('CALL sp_tinh_chuyen_can_thang($1, $2, $3)', [
+                student.id_tn,
+                Number(attendanceDate.slice(5, 7)),
+                yearId
+            ]);
+
+            await client.query('COMMIT');
+            return student;
         } catch (error) {
             await client.query('ROLLBACK');
             throw error;

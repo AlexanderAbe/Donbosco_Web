@@ -11,21 +11,22 @@ const pool = new Pool({
 });
 
 module.exports = session({
-  store: new pgSession({
-    pool: pool,
-    tableName: "session",
-    createTableIfMissing: true,
-    pruneSessionInterval: false,
-  }),
-  secret: process.env.SESSION_SECRET,
-  resave: false,
-  saveUninitialized: false,
-  proxy: true,
-  cookie: {
-    maxAge: 30 * 60 * 1000, // 30 phút
-    secure: /*false*/ process.env.NODE_ENV === "production",
-    httpOnly: true,
-    sameSite: "lax",
-    domain: "thieunhitanthaison.com",
-  },
+    store: new pgSession({
+        pool: pool,
+        tableName: 'session',
+        createTableIfMissing: true,
+        pruneSessionInterval: false
+    }),
+    secret: process.env.SESSION_SECRET,
+    resave: false,
+    saveUninitialized: false,
+    proxy: true,
+    cookie: { 
+        maxAge: 30 * 60 * 1000, // 30 phút
+        //secure: false,
+        secure: process.env.NODE_ENV === 'production',
+        httpOnly: true,
+        sameSite: 'lax',
+        domain: 'thieunhitanthaison.com'
+    } 
 });

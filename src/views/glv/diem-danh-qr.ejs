@@ -1,0 +1,169 @@
+<!-- Font Awesome CDN -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+<link rel="stylesheet" href="/css/reset.css">
+<link rel="stylesheet" href="/css/glv/glv-diem-danh.css">
+
+<main class="attendance-page">
+    <header class="class-header">
+        <span class="class-eyebrow"><i class="fa-solid fa-qrcode"></i> Điểm danh tức thì</span>
+        <h1>Quét QR điểm danh</h1>
+    </header>
+
+    <% if (!classes.length) { %>
+        <div class="attendance-empty"><i class="fa-solid fa-triangle-exclamation"></i> Bạn chưa được phân công lớp trong niên khóa này.</div>
+    <% } else { %>
+        <form class="attendance-toolbar" method="GET" action="/glv/diem-danh/qr" id="qr-filter">
+            <div class="attendance-field">
+                <label for="qr-class"><i class="fa-solid fa-school"></i> Lớp</label>
+                <select id="qr-class" name="id_lop" required>
+                    <% classes.forEach(item => { %>
+                        <option value="<%= item.id_lop %>" <%= item.id_lop === selectedClassId ? 'selected' : '' %>><%= item.ten_khoi %> - <%= item.ten_lop %></option>
+                    <% }) %>
+                </select>
+            </div>
+            <div class="attendance-field">
+                <label for="qr-type"><i class="fa-solid fa-clock"></i> Loại buổi</label>
+                <select id="qr-type" name="loai_buoi" required>
+                    <% if (!sessionTypes.length) { %><option value="">Ngày không khớp lịch</option><% } %>
+                    <% sessionTypes.forEach(type => { %>
+                        <option value="<%= type %>" <%= type === sessionType ? 'selected' : '' %>><%= type %></option>
+                    <% }) %>
+                </select>
+            </div>
+            <div class="attendance-field">
+                <label for="qr-date"><i class="fa-solid fa-calendar-day"></i> Ngày điểm danh</label>
+                <input id="qr-date" type="date" name="ngay_diem_danh" value="<%= selectedDate %>" max="<%= todayKey %>" required>
+            </div>
+            <button class="attendance-save-button" type="submit" <%= isFutureDate ? 'disabled' : '' %>><i class="fa-solid fa-filter"></i> Chọn</button>
+            <a class="attendance-save-button" href="/glv/diem-danh?id_lop=<%= selectedClassId %>&loai_buoi=<%= encodeURIComponent(sessionType) %>&ngay_diem_danh=<%= selectedDate %>"><i class="fa-solid fa-list-check"></i> Xem bảng</a>
+        </form>
+
+        <section class="qr-attendance-panel" aria-labelledby="qr-attendance-title">
+            <div class="qr-panel-heading">
+                <div>
+                    <span class="class-eyebrow"><i class="fa-solid fa-camera"></i> <%= classes.find(item => item.id_lop === selectedClassId)?.ten_lop %></span>
+                    <h2 id="qr-attendance-title">Quét mã QR từng thiếu nhi</h2>
+                    <p>Mỗi lượt quét thành công sẽ được lưu ngay vào hệ thống.</p>
+                </div>
+                <button class="attendance-save-button qr-stop-button" id="qr-stop-button" type="button" disabled <%= !isQrDate ? 'hidden' : '' %>><i class="fa-solid fa-stop"></i> Dừng camera</button>
+            </div>
+            <% if (isFutureDate) { %>
+                <div class="attendance-empty"><i class="fa-solid fa-calendar-xmark"></i> Không thể quét QR cho ngày chưa tới.</div>
+            <% } else if (!isQrDate) { %>
+                <div class="attendance-empty"><i class="fa-solid fa-calendar-xmark"></i> Quét QR chỉ được sử dụng trong đúng ngày hôm nay.</div>
+            <% } else if (!sessionType) { %>
+                <div class="attendance-empty"><i class="fa-solid fa-calendar-xmark"></i> Ngày này không có loại buổi điểm danh.</div>
+            <% } else { %>
+                <div class="qr-scanner-layout">
+                    <div id="qr-reader" class="qr-reader"></div>
+                    <div class="qr-scan-status" id="qr-scan-status"><i class="fa-solid fa-circle-info"></i> Đang khởi tạo camera...</div>
+                </div>
+            <% } %>
+            <div id="qr-toast" class="qr-toast" role="status" aria-live="polite"></div>
+        </section>
+
+        <form method="POST" action="/glv/diem-danh/save" class="attendance-summary">
+            <input type="hidden" name="nien_khoa" value="<%= selectedYearId %>">
+            <input type="hidden" name="id_lop" value="<%= selectedClassId %>">
+            <input type="hidden" name="loai_buoi" value="<%= sessionType %>">
+            <input type="hidden" name="ngay_diem_danh" value="<%= selectedDate %>">
+            <span><i class="fa-solid fa-circle-info"></i> Sau khi lưu, các em chưa được quét sẽ được đánh <strong>Vắng không phép</strong>.</span>
+            <button class="attendance-save-button" type="submit" <%= !sessionType || isFutureDate || !isQrDate ? 'disabled' : '' %>>
+                <i class="fa-solid fa-floppy-disk"></i> Lưu điểm danh
+            </button>
+        </form>
+    <% } %>
+</main>
+
+<% if (classes.length && !isFutureDate && isQrDate && sessionType) { %>
+<script src="/vendor/html5-qrcode/html5-qrcode.min.js"></script>
+<script>
+(() => {
+    const statusElement = document.getElementById('qr-scan-status');
+    const stopButton = document.getElementById('qr-stop-button');
+    const toast = document.getElementById('qr-toast');
+    const scanUrl = '/glv/diem-danh/scan';
+    let scanner;
+    let requestInFlight = false;
+    let lastCode = '';
+    let lastScanAt = 0;
+    let toastTimer;
+
+    const showToast = (message, type) => {
+        toast.textContent = message;
+        toast.className = `qr-toast is-visible ${type}`;
+        window.clearTimeout(toastTimer);
+        toastTimer = window.setTimeout(() => { toast.className = 'qr-toast'; }, 2600);
+    };
+
+    const setStatus = (message, isError = false) => {
+        statusElement.innerHTML = `<i class="fa-solid ${isError ? 'fa-circle-exclamation' : 'fa-camera'}"></i> ${message}`;
+        statusElement.classList.toggle('is-error', isError);
+    };
+
+    const sendScan = async decodedText => {
+        const now = Date.now();
+        if (requestInFlight || (decodedText === lastCode && now - lastScanAt < 3500)) return;
+        requestInFlight = true;
+        lastCode = decodedText;
+        lastScanAt = now;
+        setStatus('Đang gửi kết quả quét...');
+
+        try {
+            const response = await fetch(scanUrl, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+                body: JSON.stringify({
+                    qr_value: decodedText,
+                    nien_khoa: '<%= selectedYearId %>',
+                    id_lop: '<%= selectedClassId %>',
+                    loai_buoi: '<%= sessionType %>',
+                    ngay_diem_danh: '<%= selectedDate %>'
+                })
+            });
+            const result = await response.json();
+            if (!response.ok || !result.success) throw new Error(result.message || 'QR không hợp lệ.');
+            showToast(`Đã lưu ${result.status}: ${result.student.name}`, 'success');
+            setStatus(`Đã lưu ${result.status}. Mời quét mã tiếp theo.`);
+        } catch (error) {
+            showToast(error.message || 'Quét QR thất bại.', 'error');
+            setStatus('Mã vừa quét chưa được lưu. Mời thử lại.', true);
+        } finally {
+            requestInFlight = false;
+        }
+    };
+
+    const startScanner = async () => {
+        if (!window.Html5Qrcode) {
+            setStatus('Không tải được thư viện quét QR.', true);
+            showToast('Không thể khởi tạo camera.', 'error');
+            return;
+        }
+        scanner = new Html5Qrcode('qr-reader');
+        try {
+            await scanner.start(
+                { facingMode: 'environment' },
+                { fps: 10, qrbox: { width: 250, height: 250 } },
+                sendScan,
+                () => {}
+            );
+            stopButton.disabled = false;
+            setStatus('Camera đang sẵn sàng. Đưa mã QR vào khung quét.');
+        } catch (error) {
+            setStatus('Không thể mở camera. Hãy cấp quyền camera và dùng HTTPS hoặc localhost.', true);
+            showToast('Không thể mở camera.', 'error');
+        }
+    };
+
+    stopButton.addEventListener('click', async () => {
+        if (!scanner) return;
+        await scanner.stop();
+        stopButton.disabled = true;
+        setStatus('Camera đã dừng.');
+    });
+
+    startScanner();
+})();
+</script>
+<% } %>

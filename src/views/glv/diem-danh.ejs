@@ -19,6 +19,14 @@
                 <input id="attendance-search" type="search" placeholder="Tên hoặc mã số..." autocomplete="off">
             </div>
             <div class="attendance-field">
+                <label for="attendance-class"><i class="fa-solid fa-school"></i> Lớp</label>
+                <select id="attendance-class" name="id_lop" required>
+                    <% classes.forEach(item => { %>
+                        <option value="<%= item.id_lop %>" <%= item.id_lop === selectedClassId ? 'selected' : '' %>><%= item.ten_khoi %> - <%= item.ten_lop %></option>
+                    <% }) %>
+                </select>
+            </div>
+            <div class="attendance-field">
                 <label for="attendance-type"><i class="fa-solid fa-clock"></i> Loại buổi</label>
                 <select id="attendance-type" name="loai_buoi" required>
                     <% if (!sessionTypes.length) { %>
@@ -31,12 +39,13 @@
             </div>
             <div class="attendance-field">
                 <label for="attendance-date"><i class="fa-solid fa-calendar-day"></i> Ngày điểm danh</label>
-                <input id="attendance-date" type="date" name="ngay_diem_danh" value="<%= selectedDate %>" required>
+                <input id="attendance-date" type="date" name="ngay_diem_danh" value="<%= selectedDate %>" max="<%= todayKey %>" required>
             </div>
-            <button class="attendance-save-button" type="submit"><i class="fa-solid fa-filter"></i> Xem danh sách</button>
+            <button class="attendance-save-button" type="submit" <%= isFutureDate ? 'disabled' : '' %>><i class="fa-solid fa-filter"></i> Xem danh sách</button>
         </form>
 
         <form method="POST" action="/glv/diem-danh/save">
+            <% const attendanceSaved = students.length > 0 && students.every(student => student.da_luu); %>
             <input type="hidden" name="nien_khoa" value="<%= selectedYearId %>">
             <input type="hidden" name="id_lop" value="<%= selectedClassId %>">
             <input type="hidden" name="loai_buoi" value="<%= sessionType %>">
@@ -44,7 +53,11 @@
             
             <div class="attendance-summary">
                 <span><i class="fa-solid fa-circle-info"></i> <strong><%= classes.find(item => item.id_lop === selectedClassId)?.ten_lop %></strong> · <%= sessionType || 'Chưa chọn loại buổi' %> · <strong><%= selectedDate %></strong></span>
-                <button class="attendance-save-button" type="submit" <%= !sessionType ? 'disabled' : '' %>><i class="fa-solid fa-floppy-disk"></i> Lưu điểm danh</button>
+                <span class="score-save-status <%= attendanceSaved ? 'is-saved' : 'is-unsaved' %>">
+                    <i class="fa-solid <%= attendanceSaved ? 'fa-circle-check' : 'fa-clock' %>"></i>
+                    <%= attendanceSaved ? 'Đã lưu' : 'Chưa lưu' %>
+                </span>
+                <button class="attendance-save-button" type="submit" <%= !sessionType || isFutureDate ? 'disabled' : '' %>><i class="fa-solid fa-floppy-disk"></i> Lưu điểm danh</button>
             </div>
 
             <% if (!students.length) { %>
@@ -91,13 +104,17 @@
 <script>
 (() => {
     const search = document.getElementById('attendance-search');
+    const normalize = value => String(value || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
     const type = document.getElementById('attendance-type');
     const date = document.getElementById('attendance-date');
     const filter = document.getElementById('attendance-filter');
+    const classSelect = document.getElementById('attendance-class');
     const targetDays = { 'Lễ Thứ 3': 2, 'Lễ Thứ 5': 4, 'Lễ Chúa Nhật': 0, 'Học Giáo Lý': 0 };
     const smartDate = sessionType => { const current = new Date(); current.setDate(current.getDate() - ((current.getDay() - targetDays[sessionType] + 7) % 7)); return `${current.getFullYear()}-${String(current.getMonth() + 1).padStart(2, '0')}-${String(current.getDate()).padStart(2, '0')}`; };
     type?.addEventListener('change', () => { date.value = smartDate(type.value); filter.submit(); });
     date?.addEventListener('change', () => { filter.submit(); });
-    search?.addEventListener('input', () => { const keyword = search.value.trim().toLowerCase(); document.querySelectorAll('[data-attendance-row]').forEach(row => { row.hidden = keyword && !row.dataset.search.includes(keyword); }); });
+    classSelect?.addEventListener('change', () => { filter.submit(); });
+    search?.addEventListener('input', () => { const keyword = normalize(search.value.trim()); document.querySelectorAll('[data-attendance-row]').forEach(row => { row.classList.toggle('search-hidden', Boolean(keyword) && !normalize(row.dataset.search).includes(keyword)); }); });
 })();
 </script>
+

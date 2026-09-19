@@ -1,0 +1,180 @@
+<link rel="stylesheet" href="/css/reset.css">
+<link rel="stylesheet" href="/css/bdh/bdh-chuyen-lop.css">
+
+<main class="class-transfer-page">
+    <header class="class-transfer-header">
+        <div>
+            <p class="eyebrow"><i class="fa-solid fa-shuffle"></i> Quản lý phân lớp</p>
+            <h1>Chuyển lớp thiếu nhi</h1>
+            <p>Chọn lớp hiện tại, lớp mới và các thiếu nhi cần chuyển trong cùng niên khóa.</p>
+        </div>
+        <div class="current-year-badge">
+            <span>Niên khóa đang dùng</span>
+            <strong><%= years.find(year => year.id_cau_hinh_nam_hoc === selectedYearId)?.nien_khoa || 'Chưa chọn' %></strong>
+        </div>
+    </header>
+
+    <% if (message) { %><div class="notice notice-success"><i class="fa-solid fa-circle-check"></i> <%= message %></div><% } %>
+    <% if (error) { %><div class="notice notice-error"><i class="fa-solid fa-triangle-exclamation"></i> <%= error %></div><% } %>
+
+    <form class="class-filter-grid" method="GET" action="/bdh/chuyen-lop" id="class-filter-form">
+        <input type="hidden" name="nien_khoa" value="<%= selectedYearId || '' %>">
+        <section class="filter-card source-card">
+            <div class="filter-card-heading">
+                <span class="filter-icon"><i class="fa-solid fa-location-dot"></i></span>
+                <div><p class="filter-kicker">Lớp hiện tại</p><h2>Chọn lớp đang học</h2></div>
+            </div>
+            <div class="filter-fields">
+                <label for="khoi-cu">Khối</label>
+                <select id="khoi-cu" class="khoi-select" data-target="lop-cu" aria-label="Khối hiện tại">
+                    <option value="">-- Chọn khối --</option>
+                    <% khoiList.forEach(khoi => { %><option value="<%= khoi.id_khoi %>"><%= khoi.ten_khoi %></option><% }) %>
+                </select>
+                <label for="lop-cu">Lớp</label>
+                <select id="lop-cu" name="id_lop_cu" class="class-select" required>
+                    <option value="">-- Chọn lớp hiện tại --</option>
+                    <% classList.forEach(item => { %>
+                        <option value="<%= item.id_lop %>" data-khoi="<%= item.id_khoi %>" <%= item.id_lop === selectedSourceClassId ? 'selected' : '' %>><%= item.ten_lop %></option>
+                    <% }) %>
+                </select>
+            </div>
+            <p class="filter-hint">Danh sách bên dưới sẽ hiển thị thiếu nhi của lớp này.</p>
+        </section>
+
+        <section class="filter-card target-card">
+            <div class="filter-card-heading">
+                <span class="filter-icon"><i class="fa-solid fa-location-arrow"></i></span>
+                <div><p class="filter-kicker">Lớp chuyển tới</p><h2>Chọn lớp mới</h2></div>
+            </div>
+            <div class="filter-fields">
+                <label for="khoi-moi">Khối</label>
+                <select id="khoi-moi" class="khoi-select" data-target="lop-moi" aria-label="Khối chuyển tới">
+                    <option value="">-- Chọn khối --</option>
+                    <% khoiList.forEach(khoi => { %><option value="<%= khoi.id_khoi %>"><%= khoi.ten_khoi %></option><% }) %>
+                </select>
+                <label for="lop-moi">Lớp</label>
+                <select id="lop-moi" name="id_lop_moi" class="class-select" required>
+                    <option value="">-- Chọn lớp chuyển tới --</option>
+                    <% classList.forEach(item => { %>
+                        <option value="<%= item.id_lop %>" data-khoi="<%= item.id_khoi %>" <%= item.id_lop === selectedTargetClassId ? 'selected' : '' %>><%= item.ten_lop %></option>
+                    <% }) %>
+                </select>
+            </div>
+            <p class="filter-hint">Có thể chuyển sang lớp thuộc bất kỳ khối nào trong niên khóa.</p>
+        </section>
+    </form>
+
+    <section class="student-panel">
+        <div class="student-panel-header">
+            <div>
+                <p class="filter-kicker">Danh sách thiếu nhi</p>
+                <h2>Chọn các em cần chuyển lớp</h2>
+            </div>
+            <div class="student-count"><strong id="visible-count"><%= students.length %></strong><span>/ <%= students.length %> em</span></div>
+        </div>
+
+        <% if (!selectedSourceClassId) { %>
+            <div class="empty-state"><i class="fa-solid fa-arrow-up-long"></i><h3>Hãy chọn lớp hiện tại</h3><p>Danh sách thiếu nhi sẽ xuất hiện sau khi bạn chọn lớp nguồn.</p></div>
+        <% } else if (!students.length) { %>
+            <div class="empty-state"><i class="fa-solid fa-user-slash"></i><h3>Lớp chưa có thiếu nhi</h3><p>Không có thiếu nhi đang học trong lớp hiện tại.</p></div>
+        <% } else { %>
+            <form method="POST" action="/bdh/chuyen-lop/move" id="move-form">
+                <input type="hidden" name="nien_khoa" value="<%= selectedYearId %>">
+                <input type="hidden" name="id_lop_cu" value="<%= selectedSourceClassId %>">
+                <input type="hidden" name="id_lop_moi" id="target-class-id" value="<%= selectedTargetClassId || '' %>">
+                <div class="student-toolbar">
+                    <label class="search-box" for="student-search"><i class="fa-solid fa-magnifying-glass"></i><input id="student-search" type="search" placeholder="Tìm theo tên hoặc mã thiếu nhi" autocomplete="off"></label>
+                    <label class="select-all"><input type="checkbox" id="select-all"><span>Chọn tất cả đang hiển thị</span></label>
+                    <button class="move-button" type="submit" id="move-button" disabled><i class="fa-solid fa-arrow-right"></i> Chuyển lớp</button>
+                </div>
+                <div class="student-list" id="student-list">
+                    <div class="student-table-header" aria-hidden="true">
+                        <span></span>
+                        <span>MSTN</span>
+                        <span>Tên thánh họ và tên</span>
+                        <span>Ngày sinh</span>
+                        <span>Giới tính</span>
+                    </div>
+                    <% students.forEach(student => { %>
+                        <label class="student-row" data-search="<%= `${student.ho_ten} ${student.mstn || ''}`.toLowerCase() %>">
+                            <input class="student-checkbox" type="checkbox" name="id_tn" value="<%= student.id_tn %>">
+                            <span class="student-checkmark"><i class="fa-solid fa-check"></i></span>
+                            <span class="student-mstn"><%= student.mstn || '-' %></span>
+                            <span class="student-info"><strong><%= student.ho_ten %></strong></span>
+                            <span class="student-birth-date"><%= student.ngay_sinh || '-' %></span>
+                            <span class="student-gender"><%= student.gioi_tinh || '-' %></span>
+                        </label>
+                    <% }) %>
+                </div>
+            </form>
+        <% } %>
+    </section>
+</main>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const sourceClass = document.getElementById('lop-cu');
+        const targetClass = document.getElementById('lop-moi');
+        const targetBlock = document.getElementById('khoi-moi');
+        const sourceBlock = document.getElementById('khoi-cu');
+        const filterForm = document.getElementById('class-filter-form');
+        const targetId = document.getElementById('target-class-id');
+        const moveForm = document.getElementById('move-form');
+        const search = document.getElementById('student-search');
+        const selectAll = document.getElementById('select-all');
+        const moveButton = document.getElementById('move-button');
+        const rows = [...document.querySelectorAll('.student-row')];
+        const checkboxes = [...document.querySelectorAll('.student-checkbox')];
+
+        const filterClasses = (blockSelect, classSelect) => {
+            const blockId = blockSelect.value;
+            [...classSelect.options].forEach(option => {
+                const visible = !option.dataset.khoi || !blockId || option.dataset.khoi === blockId;
+                option.hidden = !visible;
+            });
+            if (classSelect.selectedOptions[0]?.hidden) classSelect.value = '';
+        };
+
+        const syncBlock = (blockSelect, classSelect) => {
+            const selected = classSelect.selectedOptions[0];
+            blockSelect.value = selected?.dataset.khoi || '';
+            filterClasses(blockSelect, classSelect);
+        };
+
+        sourceBlock.addEventListener('change', () => filterClasses(sourceBlock, sourceClass));
+        targetBlock.addEventListener('change', () => filterClasses(targetBlock, targetClass));
+        sourceClass.addEventListener('change', () => filterForm.submit());
+        targetClass.addEventListener('change', () => { targetId.value = targetClass.value; });
+        syncBlock(sourceBlock, sourceClass);
+        syncBlock(targetBlock, targetClass);
+
+        const updateSelection = () => {
+            const visibleRows = rows.filter(row => row.style.display !== 'none');
+            const selectedVisible = visibleRows.filter(row => row.querySelector('input').checked);
+            const selectedTotal = checkboxes.filter(checkbox => checkbox.checked).length;
+            document.getElementById('visible-count').textContent = visibleRows.length;
+            selectAll.checked = visibleRows.length > 0 && selectedVisible.length === visibleRows.length;
+            selectAll.indeterminate = selectedVisible.length > 0 && selectedVisible.length < visibleRows.length;
+            moveButton.disabled = !selectedTotal || !targetClass.value || targetClass.value === sourceClass.value;
+        };
+
+        search?.addEventListener('input', () => {
+            const term = search.value.trim().toLowerCase();
+            rows.forEach(row => { row.style.display = row.dataset.search.includes(term) ? 'grid' : 'none'; });
+            updateSelection();
+        });
+        checkboxes.forEach(checkbox => checkbox.addEventListener('change', updateSelection));
+        selectAll?.addEventListener('change', () => {
+            rows.filter(row => row.style.display !== 'none').forEach(row => { row.querySelector('input').checked = selectAll.checked; });
+            updateSelection();
+        });
+        moveForm?.addEventListener('submit', event => {
+            targetId.value = targetClass.value;
+            if (!targetClass.value || targetClass.value === sourceClass.value) {
+                event.preventDefault();
+                window.alert('Vui lòng chọn một lớp chuyển tới khác lớp hiện tại.');
+            }
+        });
+        updateSelection();
+    });
+</script>

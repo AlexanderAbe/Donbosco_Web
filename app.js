@@ -16,6 +16,7 @@ app.set('trust proxy', 1);
 // Cấu hình cơ bản
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
+app.use('/vendor/html5-qrcode', express.static(path.join(__dirname, 'node_modules', 'html5-qrcode')));
 app.use(express.static(path.join(__dirname, 'public')));
 
 // Sử dụng Session và Flash Middleware
