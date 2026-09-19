@@ -57,7 +57,6 @@
                     <i class="fa-solid <%= attendanceSaved ? 'fa-circle-check' : 'fa-clock' %>"></i>
                     <%= attendanceSaved ? 'Đã lưu' : 'Chưa lưu' %>
                 </span>
-                <a class="attendance-save-button" href="/glv/diem-danh/qr?id_lop=<%= selectedClassId %>&loai_buoi=<%= encodeURIComponent(sessionType) %>&ngay_diem_danh=<%= selectedDate %>"><i class="fa-solid fa-qrcode"></i> Quét QR</a>
                 <button class="attendance-save-button" type="submit" <%= !sessionType || isFutureDate ? 'disabled' : '' %>><i class="fa-solid fa-floppy-disk"></i> Lưu điểm danh</button>
             </div>
 
