@@ -41,5 +41,6 @@ router.post('/ky-luat/save', kyLuatController.saveKyLuat);
 // Điểm danh
 router.get('/diem-danh', diemDanhController.getDiemDanh);
 router.post('/diem-danh/save', diemDanhController.saveDiemDanh);
+router.post('/diem-danh/scan', diemDanhController.scanDiemDanh);
 
 module.exports = router;

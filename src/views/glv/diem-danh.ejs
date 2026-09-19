@@ -19,6 +19,14 @@
                 <input id="attendance-search" type="search" placeholder="Tên hoặc mã số..." autocomplete="off">
             </div>
             <div class="attendance-field">
+                <label for="attendance-class"><i class="fa-solid fa-school"></i> Lớp</label>
+                <select id="attendance-class" name="id_lop" required>
+                    <% classes.forEach(item => { %>
+                        <option value="<%= item.id_lop %>" <%= item.id_lop === selectedClassId ? 'selected' : '' %>><%= item.ten_khoi %> - <%= item.ten_lop %></option>
+                    <% }) %>
+                </select>
+            </div>
+            <div class="attendance-field">
                 <label for="attendance-type"><i class="fa-solid fa-clock"></i> Loại buổi</label>
                 <select id="attendance-type" name="loai_buoi" required>
                     <% if (!sessionTypes.length) { %>
@@ -35,6 +43,25 @@
             </div>
             <button class="attendance-save-button" type="submit"><i class="fa-solid fa-filter"></i> Xem danh sách</button>
         </form>
+
+        <% if (scanMode) { %>
+            <section class="qr-attendance-panel" aria-labelledby="qr-attendance-title">
+                <div class="qr-panel-heading">
+                    <div>
+                        <span class="class-eyebrow"><i class="fa-solid fa-camera"></i> Điểm danh tức thì</span>
+                        <h2 id="qr-attendance-title">Quét mã QR từng thiếu nhi</h2>
+                        <p>Quét xong mã nào, hệ thống sẽ ghi nhận mã đó ngay.</p>
+                    </div>
+                    <button class="attendance-save-button qr-stop-button" id="qr-stop-button" type="button" disabled><i class="fa-solid fa-stop"></i> Dừng camera</button>
+                </div>
+                <div class="qr-scanner-layout">
+                    <div id="qr-reader" class="qr-reader"></div>
+                    <div class="qr-scan-status" id="qr-scan-status"><i class="fa-solid fa-circle-info"></i> Đang khởi tạo camera...</div>
+                </div>
+                <div id="qr-toast" class="qr-toast" role="status" aria-live="polite"></div>
+            </section>
+            <script src="/vendor/html5-qrcode/html5-qrcode.min.js"></script>
+        <% } %>
 
         <form method="POST" action="/glv/diem-danh/save">
             <input type="hidden" name="nien_khoa" value="<%= selectedYearId %>">
@@ -95,10 +122,104 @@
     const type = document.getElementById('attendance-type');
     const date = document.getElementById('attendance-date');
     const filter = document.getElementById('attendance-filter');
+    const classSelect = document.getElementById('attendance-class');
     const targetDays = { 'Lễ Thứ 3': 2, 'Lễ Thứ 5': 4, 'Lễ Chúa Nhật': 0, 'Học Giáo Lý': 0 };
     const smartDate = sessionType => { const current = new Date(); current.setDate(current.getDate() - ((current.getDay() - targetDays[sessionType] + 7) % 7)); return `${current.getFullYear()}-${String(current.getMonth() + 1).padStart(2, '0')}-${String(current.getDate()).padStart(2, '0')}`; };
     type?.addEventListener('change', () => { date.value = smartDate(type.value); filter.submit(); });
     date?.addEventListener('change', () => { filter.submit(); });
+    classSelect?.addEventListener('change', () => { filter.submit(); });
     search?.addEventListener('input', () => { const keyword = normalize(search.value.trim()); document.querySelectorAll('[data-attendance-row]').forEach(row => { row.classList.toggle('search-hidden', Boolean(keyword) && !normalize(row.dataset.search).includes(keyword)); }); });
 })();
 </script>
+
+<% if (scanMode && selectedClassId && sessionType) { %>
+<script>
+(() => {
+    const readerElement = document.getElementById('qr-reader');
+    const statusElement = document.getElementById('qr-scan-status');
+    const stopButton = document.getElementById('qr-stop-button');
+    const toast = document.getElementById('qr-toast');
+    const scanUrl = '/glv/diem-danh/scan';
+    let scanner;
+    let requestInFlight = false;
+    let lastCode = '';
+    let lastScanAt = 0;
+    let toastTimer;
+
+    const showToast = (message, type) => {
+        toast.textContent = message;
+        toast.className = `qr-toast is-visible ${type}`;
+        window.clearTimeout(toastTimer);
+        toastTimer = window.setTimeout(() => { toast.className = 'qr-toast'; }, 2600);
+    };
+
+    const setStatus = (message, isError = false) => {
+        statusElement.innerHTML = `<i class="fa-solid ${isError ? 'fa-circle-exclamation' : 'fa-camera'}"></i> ${message}`;
+        statusElement.classList.toggle('is-error', isError);
+    };
+
+    const sendScan = async decodedText => {
+        const now = Date.now();
+        if (requestInFlight || (decodedText === lastCode && now - lastScanAt < 3500)) return;
+        requestInFlight = true;
+        lastCode = decodedText;
+        lastScanAt = now;
+        setStatus('Đang gửi kết quả quét...');
+
+        try {
+            const response = await fetch(scanUrl, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+                body: JSON.stringify({
+                    qr_value: decodedText,
+                    nien_khoa: '<%= selectedYearId %>',
+                    id_lop: '<%= selectedClassId %>',
+                    loai_buoi: '<%= sessionType %>',
+                    ngay_diem_danh: '<%= selectedDate %>'
+                })
+            });
+            const result = await response.json();
+            if (!response.ok || !result.success) throw new Error(result.message || 'QR không hợp lệ.');
+            showToast(`Đã điểm danh ${result.status}: ${result.student.name}`, 'success');
+            setStatus(`Đã ghi nhận ${result.status}. Mời quét mã tiếp theo.`);
+        } catch (error) {
+            showToast(error.message || 'Quét QR thất bại.', 'error');
+            setStatus('Mã vừa quét chưa được ghi nhận. Mời thử lại.', true);
+        } finally {
+            requestInFlight = false;
+        }
+    };
+
+    const startScanner = async () => {
+        if (!window.Html5Qrcode) {
+            setStatus('Không tải được thư viện quét QR.', true);
+            showToast('Không thể khởi tạo camera.', 'error');
+            return;
+        }
+        scanner = new Html5Qrcode('qr-reader');
+        try {
+            await scanner.start(
+                { facingMode: 'environment' },
+                { fps: 10, qrbox: { width: 250, height: 250 } },
+                sendScan,
+                () => {}
+            );
+            stopButton.disabled = false;
+            setStatus('Camera đang sẵn sàng. Đưa mã QR vào khung quét.');
+        } catch (error) {
+            setStatus('Không thể mở camera. Hãy cấp quyền camera và dùng HTTPS hoặc localhost.', true);
+            showToast('Không thể mở camera.', 'error');
+        }
+    };
+
+    stopButton.addEventListener('click', async () => {
+        if (!scanner) return;
+        await scanner.stop();
+        stopButton.disabled = true;
+        setStatus('Camera đã dừng. Tải lại trang để quét tiếp.');
+    });
+
+    startScanner();
+})();
+</script>
+<% } %>

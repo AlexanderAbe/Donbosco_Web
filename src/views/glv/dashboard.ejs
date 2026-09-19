@@ -10,7 +10,7 @@
 				<p class="header-classes"><strong>Lớp phụ trách:</strong> <%= classes.map(c => `${c.ten_khoi} - ${c.ten_lop}`).join(' | ') %></p>
 			<% } %>
 		</div>
-		<a class="dashboard-action" href="/glv/diem-danh"><i class="fa-solid fa-clipboard-check"></i> Điểm danh ngay</a>
+		<a class="dashboard-action" href="/glv/diem-danh?mode=qr"><i class="fa-solid fa-qrcode"></i> Quét QR điểm danh</a>
 	</header>
 
 	<% if (!classes.length) { %>

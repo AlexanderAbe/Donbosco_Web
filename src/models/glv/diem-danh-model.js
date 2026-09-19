@@ -83,6 +83,63 @@ const DiemDanhModel = {
         } finally {
             client.release();
         }
+    },
+
+    async markAttendanceByQr(idGlv, yearId, classId, studentId, mstn, attendanceDate, sessionType, status = 'Có mặt') {
+        const sessionTypes = ['Lễ Thứ 3', 'Lễ Thứ 5', 'Lễ Chúa Nhật', 'Học Giáo Lý'];
+        const statuses = ['Có mặt', 'Đi sớm'];
+        if (!Number.isInteger(yearId) || !Number.isInteger(classId)
+            || !/^\d{4}-\d{2}-\d{2}$/.test(attendanceDate || '')
+            || !sessionTypes.includes(sessionType) || !statuses.includes(status)) {
+            throw new Error('Thông tin quét điểm danh không hợp lệ.');
+        }
+
+        const client = await pool.connect();
+        try {
+            await client.query('BEGIN');
+
+            const studentResult = await client.query(`
+                SELECT tn.id_tn, tn.mstn,
+                       CONCAT_WS(' ', tn.ten_thanh, tn.ho_va_ten_lot, tn.ten) AS ho_ten
+                FROM PHAN_CONG_GLV pc
+                JOIN PHAN_LOP pl ON pl.id_lop = pc.id_lop
+                    AND pl.id_cau_hinh_nam_hoc = pc.id_cau_hinh_nam_hoc
+                    AND pl.trang_thai = 'Đang học'
+                JOIN THIEU_NHI tn ON tn.id_tn = pl.id_tn
+                WHERE pc.id_glv = $1
+                  AND pc.id_lop = $2
+                  AND pc.id_cau_hinh_nam_hoc = $3
+                  AND (($4::int IS NOT NULL AND tn.id_tn = $4)
+                    OR ($5::text IS NOT NULL AND tn.mstn = $5))
+                LIMIT 1
+            `, [idGlv, classId, yearId, studentId, mstn]);
+
+            if (!studentResult.rows.length) {
+                throw new Error('QR không thuộc thiếu nhi đang học trong lớp này.');
+            }
+
+            const student = studentResult.rows[0];
+            await client.query(`
+                INSERT INTO DIEM_DANH (ngay_diem_danh, loai_buoi, trang_thai, id_lop, id_tn)
+                VALUES ($1, $2::enum_loai_buoi, $3::enum_diem_danh, $4, $5)
+                ON CONFLICT (ngay_diem_danh, loai_buoi, id_tn)
+                DO UPDATE SET trang_thai = EXCLUDED.trang_thai, id_lop = EXCLUDED.id_lop
+            `, [attendanceDate, sessionType, status, classId, student.id_tn]);
+
+            await client.query('CALL sp_tinh_chuyen_can_thang($1, $2, $3)', [
+                student.id_tn,
+                Number(attendanceDate.slice(5, 7)),
+                yearId
+            ]);
+
+            await client.query('COMMIT');
+            return student;
+        } catch (error) {
+            await client.query('ROLLBACK');
+            throw error;
+        } finally {
+            client.release();
+        }
     }
 };
 
