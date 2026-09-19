@@ -8,6 +8,17 @@ const getId = value => {
     return Number.isInteger(id) && id > 0 ? id : null;
 };
 
+const getTodayKey = () => {
+    const today = new Date();
+    return [today.getFullYear(), today.getMonth() + 1, today.getDate()]
+        .map((value, index) => index === 0 ? String(value) : String(value).padStart(2, '0'))
+        .join('-');
+};
+
+const isFutureDate = value => /^\d{4}-\d{2}-\d{2}$/.test(value || '') && value > getTodayKey();
+
+const isTodayDate = value => value === getTodayKey();
+
 const getSmartDate = sessionType => {
     const today = new Date();
     const targetDay = sessionType === 'Lễ Thứ 3' ? 2 : sessionType === 'Lễ Thứ 5' ? 4 : 0;
@@ -93,6 +104,9 @@ const DiemDanhController = {
             return res.render('glv/diem-danh', {
                 title: 'Điểm danh thiếu nhi', selectedYearId, classes,
                 selectedClassId, sessionTypes, sessionType, selectedDate, students,
+                todayKey: getTodayKey(),
+                isFutureDate: isFutureDate(selectedDate),
+                isQrDate: isTodayDate(selectedDate),
                 scanMode: req.query.mode === 'qr',
                 message: req.query.message || null, error: req.query.error || null
             });
@@ -111,6 +125,9 @@ const DiemDanhController = {
         const attendance = Array.isArray(req.body.attendance) ? req.body.attendance : [];
 
         try {
+            if (!isTodayDate(attendanceDate)) {
+                throw new Error('Quét QR chỉ được sử dụng trong đúng ngày điểm danh.');
+            }
             if (!getSessionTypesForDate(attendanceDate).includes(sessionType)) {
                 throw new Error('Loại buổi không phù hợp với ngày đã chọn.');
             }
@@ -147,6 +164,9 @@ const DiemDanhController = {
         const qrPayload = parseQrValue(req.body.qr_value);
 
         try {
+            if (isFutureDate(attendanceDate)) {
+                throw new Error('Không thể điểm danh cho ngày chưa tới.');
+            }
             if (!qrPayload || !getSessionTypesForDate(attendanceDate).includes(sessionType)) {
                 throw new Error('QR, ngày hoặc loại buổi không hợp lệ.');
             }

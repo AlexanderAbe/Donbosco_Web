@@ -14,6 +14,7 @@
         <div class="attendance-empty"><i class="fa-solid fa-triangle-exclamation"></i> Bạn chưa được phân công lớp trong niên khóa này.</div>
     <% } else { %>
         <form class="attendance-toolbar" method="GET" action="/glv/diem-danh" id="attendance-filter">
+            <% if (scanMode) { %><input type="hidden" name="mode" value="qr"><% } %>
             <div class="attendance-field">
                 <label for="attendance-search"><i class="fa-solid fa-magnifying-glass"></i> Tìm kiếm thiếu nhi</label>
                 <input id="attendance-search" type="search" placeholder="Tên hoặc mã số..." autocomplete="off">
@@ -39,9 +40,9 @@
             </div>
             <div class="attendance-field">
                 <label for="attendance-date"><i class="fa-solid fa-calendar-day"></i> Ngày điểm danh</label>
-                <input id="attendance-date" type="date" name="ngay_diem_danh" value="<%= selectedDate %>" required>
+                <input id="attendance-date" type="date" name="ngay_diem_danh" value="<%= selectedDate %>" max="<%= todayKey %>" required>
             </div>
-            <button class="attendance-save-button" type="submit"><i class="fa-solid fa-filter"></i> Xem danh sách</button>
+            <button class="attendance-save-button" type="submit" <%= isFutureDate ? 'disabled' : '' %>><i class="fa-solid fa-filter"></i> Xem danh sách</button>
         </form>
 
         <% if (scanMode) { %>
@@ -52,15 +53,21 @@
                         <h2 id="qr-attendance-title">Quét mã QR từng thiếu nhi</h2>
                         <p>Quét xong mã nào, hệ thống sẽ ghi nhận mã đó ngay.</p>
                     </div>
-                    <button class="attendance-save-button qr-stop-button" id="qr-stop-button" type="button" disabled><i class="fa-solid fa-stop"></i> Dừng camera</button>
+                    <button class="attendance-save-button qr-stop-button" id="qr-stop-button" type="button" disabled <%= !isQrDate ? 'hidden' : '' %>><i class="fa-solid fa-stop"></i> Dừng camera</button>
                 </div>
-                <div class="qr-scanner-layout">
-                    <div id="qr-reader" class="qr-reader"></div>
-                    <div class="qr-scan-status" id="qr-scan-status"><i class="fa-solid fa-circle-info"></i> Đang khởi tạo camera...</div>
-                </div>
+                <% if (isFutureDate) { %>
+                    <div class="attendance-empty"><i class="fa-solid fa-calendar-xmark"></i> Không thể quét QR cho ngày chưa tới.</div>
+                <% } else if (!isQrDate) { %>
+                    <div class="attendance-empty"><i class="fa-solid fa-calendar-xmark"></i> Quét QR chỉ được sử dụng trong đúng ngày hôm nay.</div>
+                <% } else { %>
+                    <div class="qr-scanner-layout">
+                        <div id="qr-reader" class="qr-reader"></div>
+                        <div class="qr-scan-status" id="qr-scan-status"><i class="fa-solid fa-circle-info"></i> Đang khởi tạo camera...</div>
+                    </div>
+                <% } %>
                 <div id="qr-toast" class="qr-toast" role="status" aria-live="polite"></div>
             </section>
-            <script src="/vendor/html5-qrcode/html5-qrcode.min.js"></script>
+            <% if (!isFutureDate && isQrDate) { %><script src="/vendor/html5-qrcode/html5-qrcode.min.js"></script><% } %>
         <% } %>
 
         <form method="POST" action="/glv/diem-danh/save">
@@ -71,7 +78,7 @@
             
             <div class="attendance-summary">
                 <span><i class="fa-solid fa-circle-info"></i> <strong><%= classes.find(item => item.id_lop === selectedClassId)?.ten_lop %></strong> · <%= sessionType || 'Chưa chọn loại buổi' %> · <strong><%= selectedDate %></strong></span>
-                <button class="attendance-save-button" type="submit" <%= !sessionType ? 'disabled' : '' %>><i class="fa-solid fa-floppy-disk"></i> Lưu điểm danh</button>
+                <button class="attendance-save-button" type="submit" <%= !sessionType || isFutureDate ? 'disabled' : '' %>><i class="fa-solid fa-floppy-disk"></i> Lưu điểm danh</button>
             </div>
 
             <% if (!students.length) { %>
@@ -132,7 +139,7 @@
 })();
 </script>
 
-<% if (scanMode && selectedClassId && sessionType) { %>
+<% if (scanMode && selectedClassId && sessionType && isQrDate) { %>
 <script>
 (() => {
     const readerElement = document.getElementById('qr-reader');
