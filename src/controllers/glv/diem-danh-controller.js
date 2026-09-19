@@ -155,8 +155,8 @@ const DiemDanhController = {
         const attendance = Array.isArray(req.body.attendance) ? req.body.attendance : [];
 
         try {
-            if (!isTodayDate(attendanceDate)) {
-                throw new Error('Quét QR chỉ được sử dụng trong đúng ngày điểm danh.');
+            if (isFutureDate(attendanceDate)) {
+                throw new Error('Không thể lưu điểm danh cho ngày chưa tới.');
             }
             if (!getSessionTypesForDate(attendanceDate).includes(sessionType)) {
                 throw new Error('Loại buổi không phù hợp với ngày đã chọn.');
@@ -194,8 +194,8 @@ const DiemDanhController = {
         const qrPayload = parseQrValue(req.body.qr_value);
 
         try {
-            if (isFutureDate(attendanceDate)) {
-                throw new Error('Không thể điểm danh cho ngày chưa tới.');
+            if (!isTodayDate(attendanceDate)) {
+                throw new Error('Quét QR chỉ được sử dụng trong đúng ngày hôm nay.');
             }
             if (!qrPayload || !getSessionTypesForDate(attendanceDate).includes(sessionType)) {
                 throw new Error('QR, ngày hoặc loại buổi không hợp lệ.');
