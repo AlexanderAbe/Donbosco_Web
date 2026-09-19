@@ -2,316 +2,356 @@
    1. GIAO DIỆN TỔNG THỂ
    ========================================== */
 :root {
-    --bg-60-main: #fff5f5;
-    --bg-60-surface: #ffffff;
-    --primary-30: #ef4444;
-    --primary-30-hover: #d01818;
-    --primary-30-light: #fee2e2;
-    --accent-10: #991b1b;
-    --text-main: #334155;
-    --text-muted: #64748b;
-    --sidebar-width: 280px;
-    --header-height: 70px;
-    --success-accent: #22c55e;
-    --warning-accent: #f59e0b;
-    --border-color: #e2e8f0;
+  --bg-60-main: #fff5f5;
+  --bg-60-surface: #ffffff;
+  --primary-30: #ef4444;
+  --primary-30-hover: #d01818;
+  --primary-30-light: #fee2e2;
+  --accent-10: #991b1b;
+  --text-main: #334155;
+  --text-muted: #64748b;
+  --sidebar-width: 280px;
+  --header-height: 70px;
+  --success-accent: #22c55e;
+  --warning-accent: #f59e0b;
+  --border-color: #e2e8f0;
 }
 
 .dashboard-container {
-    padding: 20px 30px;
-    min-height: 100vh;
+  padding: 20px 30px;
+  min-height: 100vh;
 }
 
 .page-header {
-    margin-bottom: 24px;
+  margin-bottom: 24px;
 }
 
 .page-header h1 {
-    font-size: 24px;
-    font-weight: 700;
-    color: var(--text-color, #111827);
-    margin-bottom: 4px;
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--text-color, #111827);
+  margin-bottom: 4px;
 }
 
 .page-header p {
-    font-size: 14px;
-    color: var(--text-muted, #6b7280);
+  font-size: 14px;
+  color: var(--text-muted, #6b7280);
 }
 
 .weight-card,
 .section-card {
-    background: #ffffff84;
-    border-radius: 12px;
-    padding: 24px;
-    margin-bottom: 24px;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
-    border: 1px solid var(--border-color, #e5e7eb);
+  background: #ffffff84;
+  border-radius: 12px;
+  padding: 24px;
+  margin-bottom: 24px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05),
+    0 2px 4px -1px rgba(0, 0, 0, 0.03);
+  border: 1px solid var(--border-color, #e5e7eb);
 }
 
 .weight-card h2,
 .section-card h3 {
-    font-size: 16px;
-    font-weight: 600;
-    color: var(--text-color, #1f2937);
-    margin-bottom: 16px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-color, #1f2937);
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
 .weight-card h2 i,
 .section-card h3 i {
-    color: var(--primary-color, #4f46e5);
+  color: var(--primary-color, #4f46e5);
 }
 
 .section-desc {
-    font-size: 13px;
-    color: var(--text-muted, #6b7280);
-    margin-bottom: 20px;
+  font-size: 13px;
+  color: var(--text-muted, #6b7280);
+  margin-bottom: 20px;
 }
 
 /* ==========================================
    2. FORM & NÚT BẤM
    ========================================== */
 .form-row {
-    display: flex;
-    gap: 20px;
-    flex-wrap: wrap;
-    margin-bottom: 16px;
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
 }
 
 .form-group {
-    flex: 1;
-    min-width: 240px;
+  flex: 1;
+  min-width: 240px;
 }
 
 .form-group label {
-    display: block;
-    margin-bottom: 8px;
-    font-weight: 500;
-    font-size: 13px;
-    color: #374151;
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 500;
+  font-size: 13px;
+  color: #374151;
 }
 
 .form-group input,
 .form-group select {
-    width: 100%;
-    padding: 10px 14px;
-    border: 1px solid #d1d5db;
-    border-radius: 8px;
-    font-size: 14px;
-    background-color: #ffffff;
-    color: #1f2937;
-    transition: all 0.2s ease;
-    box-sizing: border-box;
+  width: 100%;
+  padding: 10px 14px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 14px;
+  background-color: #ffffff;
+  color: #1f2937;
+  transition: all 0.2s ease;
+  box-sizing: border-box;
 }
 
 .form-group input:focus,
 .form-group select:focus {
-    outline: none;
-    border-color: var(--primary-color, #4f46e5);
-    box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.1);
+  outline: none;
+  border-color: var(--primary-color, #4f46e5);
+  box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.1);
 }
 
 .btn-primary-custom {
-    background-color: var(--primary-30);
-    color: white;
-    border: none;
-    padding: 11px 20px;
-    border-radius: 8px;
-    cursor: pointer;
-    font-weight: 600;
-    font-size: 14px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    transition: background-color 0.2s, transform 0.1s;
+  background-color: var(--primary-30);
+  color: white;
+  border: none;
+  padding: 11px 20px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 14px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: background-color 0.2s, transform 0.1s;
 }
 
 .btn-primary-custom:hover {
-    background-color: var(--primary-30-hover);
+  background-color: var(--primary-30-hover);
 }
 
 .btn-primary-custom:active {
-    transform: scale(0.98);
+  transform: scale(0.98);
 }
 
 /* ==========================================
    3. BẢNG DỮ LIỆU
    ========================================== */
 .table-responsive {
-    width: 100%;
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-    border-radius: 8px;
-    border: 1px solid #e5e7eb;
-    background: #fff;
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+  background: #fff;
 }
 
 .custom-table,
 table {
-    width: 100%;
-    border-collapse: collapse;
-    text-align: left;
-    white-space: nowrap;
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+  white-space: nowrap;
 }
 
 .custom-table th,
 .custom-table td,
 table th,
 table td {
-    padding: 12px 16px;
-    font-size: 14px;
+  padding: 12px 16px;
+  font-size: 14px;
 }
 
 .custom-table th,
 table th {
-    font-weight: 600;
-    color: #374151;
-    background-color: #f9fafb;
-    border-bottom: 2px solid #e5e7eb;
+  font-weight: 600;
+  color: #374151;
+  background-color: #f9fafb;
+  border-bottom: 2px solid #e5e7eb;
 }
 
 .custom-table td,
 table td {
-    color: #4b5563;
-    border-bottom: 1px solid #e5e7eb;
+  color: #4b5563;
+  border-bottom: 1px solid #e5e7eb;
 }
 
 .custom-table tbody tr:last-child td,
 table tbody tr:last-child td {
-    border-bottom: none;
+  border-bottom: none;
 }
 
 .custom-table tr:hover,
 table tr:hover {
-    background-color: #f9fafb;
+  background-color: #f9fafb;
 }
 
 .text-center {
-    text-align: center;
-    color: #9ca3af;
-    padding: 24px !important;
+  text-align: center;
+  color: #9ca3af;
+  padding: 24px !important;
 }
 
 /* ==========================================
    4. RESPONSIVE (TỐI ƯU CHO ĐIỆN THOẠI)
    ========================================== */
 @media (max-width: 768px) {
-    .dashboard-container {
-        padding: 12px 14px;
-    }
+  .dashboard-container {
+    padding: 12px 14px;
+    /* Tránh bị tai thỏ che khi xoay ngang */
+    padding-left: max(14px, env(safe-area-inset-left));
+    padding-right: max(14px, env(safe-area-inset-right));
+  }
 
-    .weight-card,
-    .section-card {
-        padding: 14px;
-        margin-bottom: 14px;
-        border-radius: 10px;
-    }
+  .weight-card,
+  .section-card {
+    padding: 14px;
+    margin-bottom: 14px;
+    border-radius: 10px;
+  }
 
-    .page-header h1 {
-        font-size: 20px;
-    }
+  .page-header h1 {
+    font-size: 20px;
+  }
+  .page-header p {
+    font-size: 13px;
+  }
 
-    .page-header p {
-        font-size: 13px;
-    }
+  /* ---------- FORM ---------- */
 
-    /* Thu hẹp khoảng cách và thu gọn form trên mobile */
-    .form-row {
-        display: grid;
-        grid-template-columns: repeat(2, minmax(0, 1fr)); /* Chia 2 cột để form ngắn lại */
-        gap: 10px;
-        margin-bottom: 10px;
-    }
+  /* auto-fit: đủ chỗ thì 2-3 cột, chật thì tự về 1 cột.
+       Không cần ép repeat(2) rồi lại override :first-of-type nữa. */
+  .form-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 10px;
+    margin-bottom: 10px;
+  }
 
-    /* Dòng đầu tiên (Niên khóa, Số lượng bài KT, STT khối) cho hiển thị 1 cột hoặc tùy chỉnh linh hoạt */
-    .weight-card form .form-row:first-of-type {
-        grid-template-columns: 1fr;
-    }
+  /* Giữ riêng dòng đầu 1 cột nếu bạn thực sự muốn.
+       Có thể xóa rule này để nó tự co giãn. */
+  .weight-card form .form-row:first-of-type {
+    grid-template-columns: 1fr;
+  }
 
-    .form-group {
-        min-width: unset !important;
-        flex: unset !important;
-    }
+  .form-group {
+    min-width: 0; /* KHÔNG dùng unset: unset = auto = vẫn tràn */
+    flex: 0 1 auto;
+  }
 
-    .form-group label {
-        margin-bottom: 4px;
-        font-size: 12px;
-    }
+  .form-group label {
+    display: block;
+    margin-bottom: 4px;
+    font-size: 12px;
+  }
 
-    .form-group input,
-    .form-group select {
-        padding: 8px 10px;
-        font-size: 13px;
-        border-radius: 6px;
-    }
+  .form-group input,
+  .form-group select {
+    width: 100%;
+    box-sizing: border-box;
+    min-height: 42px; /* vùng chạm thoải mái */
+    padding: 10px 12px;
+    font-size: 16px; /* < 16px sẽ khiến iOS tự zoom khi focus */
+    border-radius: 6px;
+  }
 
-    .btn-primary-custom {
-        width: 100%;
-        padding: 10px;
-        margin-top: 4px;
-        font-size: 13px;
-    }
+  .btn-primary-custom {
+    width: 100%;
+    box-sizing: border-box;
+    min-height: 44px;
+    padding: 12px;
+    margin-top: 4px;
+    font-size: 15px;
+  }
 
-    /* --- Tối ưu hóa hiển thị bảng lịch sử dạng Card trên Mobile --- */
-    .table-responsive {
-        overflow-x: visible;
-        border: none;
-        background: transparent;
-        box-shadow: none;
-    }
+  /* ---------- BẢNG LỊCH SỬ DẠNG CARD ---------- */
 
-    .custom-table thead {
-        display: none; /* Ẩn tiêu đề ngang */
-    }
+  .table-responsive {
+    overflow-x: visible;
+    border: none;
+    background: transparent;
+    box-shadow: none;
+  }
 
-    .custom-table,
-    .custom-table tbody,
-    .custom-table tr,
-    .custom-table td {
-        display: block;
-        width: 100%;
-    }
+  .custom-table thead {
+    display: none;
+  }
 
-    .custom-table tr {
-        background: #ffffff;
-        border: 1px solid #e5e7eb;
-        border-radius: 12px;
-        padding: 14px;
-        margin-bottom: 12px;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
-    }
+  .custom-table,
+  .custom-table tbody,
+  .custom-table tr,
+  .custom-table td {
+    display: block;
+    width: 100%;
+  }
 
-    .custom-table td {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 7px 0;
-        border-bottom: 1px solid #f3f4f6;
-        font-size: 13px;
-        text-align: right;
-        white-space: normal;
-    }
+  .custom-table tr {
+    box-sizing: border-box;
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    padding: 14px;
+    margin-bottom: 12px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+  }
 
-    .custom-table td:last-child {
-        border-bottom: none;
-        padding-bottom: 0;
-    }
+  .custom-table tr:last-child {
+    margin-bottom: 0;
+  }
 
-    .custom-table td:first-child {
-        padding-top: 0;
-    }
+  .custom-table td {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    padding: 8px 0;
+    border-bottom: 1px solid #f3f4f6;
+    font-size: 14px;
+    text-align: right;
+    white-space: normal;
+    word-break: break-word; /* mã lớp / tên môn dài không phá layout */
+  }
 
-    /* Tự động lấy nhãn từ data-label để hiển thị rõ ràng bên trái mỗi dòng dữ liệu */
-    .custom-table td::before {
-        content: attr(data-label);
-        font-weight: 500;
-        color: #6b7280;
-        font-size: 13px;
-        text-align: left;
-        margin-right: 12px;
-        flex-shrink: 0;
-    }
+  .custom-table td:first-child {
+    padding-top: 0;
+  }
+
+  .custom-table td:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+  }
+
+  /* Ô rỗng thì ẩn hẳn, tránh để lại dòng trống trong card */
+  .custom-table td:empty {
+    display: none;
+  }
+
+  /* CHỈ sinh nhãn khi ô thực sự có data-label */
+  .custom-table td[data-label]::before {
+    content: attr(data-label);
+    flex: 0 0 auto;
+    max-width: 45%;
+    font-weight: 500;
+    color: #6b7280;
+    font-size: 13px;
+    text-align: left;
+    word-break: break-word;
+  }
+
+  /* Ô chứa nút Sửa/Xóa: cho nút dàn đều và đủ lớn để bấm */
+  .custom-table td.td-actions {
+    justify-content: flex-end;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .custom-table td.td-actions .btn,
+  .custom-table td.td-actions button {
+    min-height: 36px;
+    padding: 6px 12px;
+  }
 }

@@ -1,147 +1,144 @@
 :root {
-    --bg-60-main: #fff5f5;
-    --bg-60-surface: #ffffff;
-    --primary-30: #ef4444;
-    --primary-30-hover: #d01818;
-    --primary-30-light: #fee2e2;
-    --accent-10: #991b1b;
-    --text-main: #334155;
-    --text-muted: #64748b;
-    --sidebar-width: 280px;
-    --header-height: 70px;
-    --success-accent: #22c55e;
-    --warning-accent: #f59e0b;
-    --border-color: #e2e8f0;
+  --bg-60-main: #fff5f5;
+  --bg-60-surface: #ffffff;
+  --primary-30: #ef4444;
+  --primary-30-hover: #d01818;
+  --primary-30-light: #fee2e2;
+  --accent-10: #991b1b;
+  --text-main: #334155;
+  --text-muted: #64748b;
+  --sidebar-width: 280px;
+  --header-height: 70px;
+  --success-accent: #22c55e;
+  --warning-accent: #f59e0b;
+  --border-color: #e2e8f0;
 }
 
 /* --- RESET & GLOBAL --- */
 * {
-    box-sizing: border-box;
+  box-sizing: border-box;
 }
 
 body {
-    background-color: var(--bg-60-main);
-    color: var(--text-main);
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    margin: 0;
-    padding: 0;
-    overflow-x: hidden;
+  background-color: var(--bg-60-main);
+  color: var(--text-main);
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
 }
 
 /* --- MAIN CONTAINER (Tự động né Header & Sidebar trên Desktop) --- */
 .main-container {
-    padding: 2rem;
-    margin-left: var(--sidebar-width);
-    margin-top: var(--header-height);
-    transition: margin-left 0.3s ease;
-    width: calc(100% - var(--sidebar-width));
+  padding: 2rem;
+  padding-left: max(2rem, env(safe-area-inset-left));
+  padding-right: max(2rem, env(safe-area-inset-right));
+  margin-left: var(--sidebar-width);
+  margin-top: var(--header-height);
+  transition: margin-left 0.3s ease;
+  width: calc(100% - var(--sidebar-width));
 }
 
 /* --- TIÊU ĐỀ & BỘ LỌC (FILTER) --- */
-.main-container h2, 
+.main-container h2,
 .dashboard-header-title {
-    font-size: 1.25rem;
-    font-weight: 700;
-    color: var(--text-main);
-    margin-bottom: 1rem;
-    display: flex;
-    align-items: center;
-    gap: 8px;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--text-main);
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
 .input-group {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    padding-bottom: 1.25rem;
-    max-width: 400px;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding-bottom: 1.25rem;
+  max-width: 400px;
 }
 
 /* --- HỆ THỐNG THẺ THỐNG KÊ (KPI STATS GRID) --- */
-.stat-grid, 
+.stat-grid,
 .row.stats-row {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 16px;
-    margin-bottom: 1.5rem;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin-bottom: 1.5rem;
 }
 
 .row:has(.card):not(.stat-grid):not(.stats-row) {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0; /* Giữ nguyên hệ thống lưới col-md-6 của Bootstrap */
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0;
 }
 
-.stat-info h6{
-    display: flex;
-    font-size: 0.78rem;
-    flex-direction: column;
-    justify-content: center;
+.stat-info h6 {
+  display: flex;
+  font-size: 0.78rem;
+  flex-direction: column;
+  justify-content: center;
 }
-.stat-info h4{
-    display: flex;
-    font-size: 1.75rem;
-    font-weight: 700;
-    color: var(--text-main);
-    flex-direction: column;
-    justify-content: center;
+.stat-info h4 {
+  display: flex;
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--text-main);
+  flex-direction: column;
+  justify-content: center;
 }
-/* --- CARD THÔNG THƯỜNG (Giữ nguyên mặc định, không bị ảnh hưởng) --- */
+
+/* --- CARD THÔNG THƯỜNG --- */
 .card {
-    background: var(--bg-60-surface);
-    border: 1px solid var(--border-color);
-    border-radius: 12px;
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
-    margin-bottom: 0 !important;
-    padding: 16px 20px;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+  background: var(--bg-60-surface);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  margin-bottom: 0 !important;
+  padding: 16px 20px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
 }
 
 .card:hover {
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
 }
-
 
 /* ==========================================================
    CHỈNH SÁCH RIÊNG CHO CÁC THẺ TRONG STAT GRID
    ========================================================== */
-
-/* Biến thẻ card trong stat grid thành flex column */
 .stat-grid .card,
 .row.stats-row .card {
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
 }
 
-/* 1. Chữ chú thích nằm ở trên, nhỏ lại và mờ hơn */
 .stat-grid .card .card-title,
 .row.stats-row .card .card-title,
 .stat-grid .card h6,
 .stat-grid .card .title {
-    font-size: 0.78rem !important;
-    font-weight: 600;
-    color: var(--text-muted) !important;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    margin-bottom: 10px !important;
+  font-size: 0.78rem !important;
+  font-weight: 600;
+  color: var(--text-muted) !important;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 10px !important;
 }
 
-/* 2. Khung chứa Icon và Số nằm ngang ở bên dưới */
 .stat-grid .card .d-flex.align-items-center,
 .row.stats-row .card .d-flex.align-items-center,
 .stat-grid .card .card-body-content {
-    display: flex;
-    align-items: center;
-    gap: 14px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
 }
 
-/* 3. Kích thước Icon & Con số to đậm (chỉ áp dụng trong stat grid) */
 .stat-grid .card i,
 .row.stats-row .card i,
 .stat-grid .card .icon {
-    font-size: 1.75rem !important;
-    line-height: 1;
+  font-size: 1.75rem !important;
+  line-height: 1;
 }
 
 .stat-grid .card .card-value,
@@ -150,522 +147,560 @@ body {
 .stat-grid .card h3,
 .stat-grid .card h4,
 .stat-grid .card span {
-    font-size: 1.75rem !important;
-    font-weight: 700 !important;
-    color: var(--text-main) !important;
-    margin: 0 !important;
-    line-height: 1;
+  font-size: 1.75rem !important;
+  font-weight: 700 !important;
+  color: var(--text-main) !important;
+  margin: 0 !important;
+  line-height: 1;
 }
 
-
-/* --- TABLE STYLING --- */
+/* --- TABLE STYLING (mặc định, dùng cho các bảng khác ngoài 2 cột custom) --- */
 .table-responsive {
-    width: 100%;
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-    background: var(--bg-60-surface);
-    border-radius: 12px;
-    border: 1px solid var(--border-color);
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.02);
-    margin-top: 1rem;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+  scrollbar-color: var(--primary-30) #f1f5f9;
+}
+
+.table-responsive::-webkit-scrollbar {
+  height: 6px;
+}
+.table-responsive::-webkit-scrollbar-track {
+  background: #f1f5f9;
+  border-radius: 4px;
+}
+.table-responsive::-webkit-scrollbar-thumb {
+  background: var(--primary-30);
+  border-radius: 4px;
+}
+
+.table-responsive table,
+.table-responsive .table {
+  white-space: nowrap;
 }
 
 .table {
-    width: 100%;
-    margin-bottom: 0;
-    border-collapse: collapse;
-    white-space: nowrap;
+  width: 100%;
+  margin-bottom: 0;
+  border-collapse: collapse;
+  white-space: nowrap;
 }
 
 .table thead {
-    background-color: var(--primary-30-light);
-    color: var(--accent-10);
+  background-color: var(--primary-30-light);
+  color: var(--accent-10);
 }
 
 .table th {
-    font-weight: 600;
-    text-transform: uppercase;
-    font-size: 0.82rem;
-    padding: 12px 16px;
-    border-bottom: 1px solid var(--border-color);
-    letter-spacing: 0.5px;
+  font-weight: 600;
+  text-transform: uppercase;
+  font-size: 0.82rem;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border-color);
+  letter-spacing: 0.5px;
 }
 
 .table td {
-    padding: 12px 16px;
-    vertical-align: middle;
-    font-size: 0.92rem;
-    border-bottom: 1px solid var(--border-color);
+  padding: 12px 16px;
+  vertical-align: middle;
+  font-size: 0.92rem;
+  border-bottom: 1px solid var(--border-color);
 }
 
 .table tbody tr:hover {
-    background-color: #fafafa;
+  background-color: #fafafa;
 }
 
 /* --- FORM & FILTER --- */
-.form-control, .form-select {
-    width: 100%;
-    padding: 0.55rem 0.75rem;
-    font-size: 0.95rem;
-    border: 1px solid var(--border-color);
-    border-radius: 8px;
-    background-color: var(--bg-60-surface);
+.form-control,
+.form-select {
+  width: 100%;
+  padding: 0.55rem 0.75rem;
+  font-size: 0.95rem;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  background-color: var(--bg-60-surface);
 }
 
-.form-control:focus, .form-select:focus {
-    border-color: var(--primary-30);
-    box-shadow: 0 0 0 0.2rem var(--primary-30-light);
-    outline: none;
+.form-control:focus,
+.form-select:focus {
+  border-color: var(--primary-30);
+  box-shadow: 0 0 0 0.2rem var(--primary-30-light);
+  outline: none;
 }
 
 /* --- BADGE CUSTOMIZATION --- */
-.badge.bg-danger { background-color: var(--primary-30) !important; }
-.badge.bg-success { background-color: var(--success-accent) !important; }
-.badge.bg-warning { background-color: var(--warning-accent) !important; color: #fff; }
-
+.badge.bg-danger {
+  background-color: var(--primary-30) !important;
+}
+.badge.bg-success {
+  background-color: var(--success-accent) !important;
+}
+.badge.bg-warning {
+  background-color: var(--warning-accent) !important;
+  color: #fff;
+}
 
 /* ==========================================================
    RESPONSIVE DESIGN (TỐI ƯU HÓA CHO ĐIỆN THOẠI & TABLET)
    ========================================================== */
 
 @media (max-width: 1024px) {
-    .stat-grid, 
-    .row.stats-row,
-    .row:has(.card) {
-        grid-template-columns: repeat(2, 1fr);
-    }
+  .stat-grid,
+  .row.stats-row,
+  .row:has(.card) {
+    grid-template-columns: repeat(2, 1fr);
+  }
 
-    .main-container {
-        margin-left: 0 !important;
-        width: 100% !important;
-        padding: 1rem;
-        margin-top: 60px;
-    }
-}
-
-@media (max-width: 576px) {
-    .stat-grid, 
-    .row.stats-row,
-    .row:has(.card) {
-        grid-template-columns: 1fr;
-    }
-
-    .main-container {
-        padding: 0.75rem;
-    }
-
-    .input-group {
-        max-width: 100%;
-    }
-
-    h2, .h2 {
-        font-size: 1.35rem;
-    }
-    
-    h3, .h3 {
-        font-size: 1.15rem;
-    }
+  .main-container {
+    margin-left: 0 !important;
+    width: 100% !important;
+    padding: 1rem;
+    margin-top: 60px;
+  }
 }
 
 /* --- TỐI ƯU HEADER & BỘ LỌC NIÊN KHÓA --- */
 .form-inline {
-    width: auto;
+  width: auto;
 }
 
 /* ==========================================================
    TỐI ƯU HÓA BỘ LỌC NIÊN KHÓA & NÚT ÁP DỤNG MỚI
    ========================================================== */
-
-/* 1. Đồng bộ form lọc niên khóa và nút bấm thành một hàng mượt mà */
 #formNienKhoa {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    flex-wrap: nowrap;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: nowrap;
+  margin-bottom: 16px;
 }
 
-/* 2. Gom nhóm input-group niên khóa để bo góc đẹp mắt */
 .input-group-nien-khoa {
-    display: flex;
-    align-items: center;
-    background: var(--bg-60-surface);
-    border: 1px solid var(--border-color);
-    border-radius: 8px;
-    overflow: hidden;
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02);
-    margin-bottom: 0 !important; /* Loại bỏ margin thừa để thẳng hàng với nút */
+  display: flex;
+  align-items: center;
+  background: var(--bg-60-surface);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02);
+  margin-bottom: 0 !important;
 }
 
 .input-group-nien-khoa .input-group-text {
-    background-color: var(--primary-30-light);
-    color: var(--accent-10);
-    border: none;
-    padding: 0.55rem 0.85rem;
-    font-size: 0.95rem;
+  background-color: var(--primary-30-light);
+  color: var(--accent-10);
+  border: none;
+  padding: 0.6rem 1rem;
+  font-size: 0.95rem;
 }
 
 .input-group-nien-khoa select.form-control {
-    border: none !important;
-    box-shadow: none !important;
-    background: transparent;
-    padding-right: 2rem;
-    cursor: pointer;
-    font-weight: 500;
-    color: var(--text-main);
+  border: none !important;
+  box-shadow: none !important;
+  background: transparent;
+  padding-right: 2rem;
+  cursor: pointer;
+  font-weight: 500;
+  color: var(--text-main);
 }
 
-/* 3. Tùy chỉnh nút "Áp dụng" cho đồng bộ chiều cao với ô select */
 #formNienKhoa .btn-primary {
-    background-color: var(--primary-30);
-    border-color: var(--primary-30);
-    padding: 0.55rem 1rem;
-    font-weight: 600;
-    border-radius: 8px;
-    white-space: nowrap;
-    transition: background-color 0.2s ease, transform 0.1s ease;
+  background-color: var(--primary-30);
+  border-color: var(--primary-30);
+  padding: 0.55rem 1rem;
+  font-weight: 600;
+  border-radius: 8px;
+  white-space: nowrap;
+  transition: background-color 0.2s ease, transform 0.1s ease;
 }
 
 #formNienKhoa .btn-primary:hover {
-    background-color: var(--primary-30-hover);
-    border-color: var(--primary-30-hover);
+  background-color: var(--primary-30-hover);
+  border-color: var(--primary-30-hover);
 }
 
 #formNienKhoa .btn-primary:active {
-    transform: scale(0.97);
+  transform: scale(0.97);
 }
 
-/* 4. Responsive riêng cho bộ lọc niên khóa trên điện thoại (< 576px) */
-@media (max-width: 576px) {
-    /* Đưa thanh tiêu đề và cụm bộ lọc xuống dòng, căn full chiều ngang cho dễ thao tác */
-    .d-flex.justify-content-between.align-items-center.mb-4 {
-        flex-direction: column !important;
-        align-items: flex-start !important;
-        gap: 12px !important;
-    }
-
-    #formNienKhoa {
-        width: 100% !important;
-        display: flex;
-        gap: 8px;
-        flex-wrap: wrap;
-    }
-
-    .input-group-nien-khoa {
-        flex: 1; /* Ô select tự co giãn chiếm phần lớn không gian */
-        min-width: 0;
-    }
-
-    #btnOpenModal {
-        flex-shrink: 0; /* Nút áp dụng giữ nguyên kích thước vừa đủ chữ */
-        padding: 0.55rem 1rem;
-    }
-
-    #formNienKhoa .input-group-nien-khoa {
-        width: 100%;
-    }
-
-    #formNienKhoa #btnOpenModal {
-        width: 100%;
-        margin: 0;
-    }
+/* Cảnh báo "Khi đổi niên khóa..." tách rõ khỏi thanh lọc và khỏi card bên dưới */
+.alert {
+  margin-top: 4px;
+  margin-bottom: 20px;
 }
 
-/* --- ÉP MODAL RA CHÍNH GIỮA MÀN HÌNH TUYỆT ĐỐI --- */
+.stat-grid,
+.row.stats-row {
+  margin-top: 4px;
+}
 
-/* 1. Lớp nền mờ phủ toàn màn hình */
+/* --- ÉP MODAL RA CHÍNH GIỮA MÀN HÌNH --- */
 .modal-backdrop {
-    position: fixed !important;
-    top: 0 !important;
-    left: 0 !important;
-    width: 100vw !important;
-    height: 100vh !important;
-    background-color: rgba(0, 0, 0, 0.5) !important;
-    z-index: 1050 !important;
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  background-color: rgba(0, 0, 0, 0.5) !important;
+  z-index: 1050 !important;
 }
 
-/* 2. Khung chứa modal phủ kín màn hình để định tâm */
 .modal.fade {
-    position: fixed !important;
-    top: 0 !important;
-    left: 0 !important;
-    width: 100vw !important;
-    height: 100vh !important;
-    z-index: 1055 !important;
-    display: none; /* Mặc định ẩn */
-    overflow-x: hidden;
-    overflow-y: auto;
-}
-
-/* Khi modal mở, Bootstrap thêm class .show, ta dùng nó để bật flex canh giữa */
-.modal.fade.show {
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-}
-
-/* 3. Khung hộp thoại chính (Modal Dialog) */
-.modal-dialog {
-    position: relative !important;
-    width: 100% !important;
-    max-width: 500px !important; /* Độ rộng của bảng thông báo */
-    margin: auto !important;
-    transform: none !important; /* Xóa bỏ hiệu ứng dịch chuyển mặc định của Bootstrap */
-}
-
-/* 4. Giao diện bên trong modal */
-.modal-content {
-    background-color: var(--bg-60-surface, #ffffff);
-    border: 1px solid var(--border-color, #e2e8f0);
-    border-radius: 12px !important;
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15) !important;
-    overflow: hidden;
-}
-
-.modal-header, .modal-footer {
-    padding: 1rem 1.25rem !important;
-}
-
-.modal-body {
-    padding: 1.5rem 1.25rem !important;
-    font-size: 1rem;
-    color: var(--text-main, #334155);
-}
-
-/* ==========================================================
-   CSS TÙY CHỈNH RIÊNG CHO MODAL XÁC NHẬN (ĐỒNG BỘ GIAO DIỆN)
-   ========================================================== */
-
-/* 1. Lớp nền mờ phủ toàn màn hình */
-.modal-backdrop {
-    position: fixed !important;
-    top: 0 !important;
-    left: 0 !important;
-    width: 100vw !important;
-    height: 100vh !important;
-    background-color: rgba(0, 0, 0, 0.5) !important;
-    z-index: 1050 !important;
-}
-
-/* 2. Khung chứa modal phủ kín màn hình để định tâm chính xác */
-.modal.fade {
-    position: fixed !important;
-    top: 0 !important;
-    left: 0 !important;
-    width: 100vw !important;
-    height: 100vh !important;
-    z-index: 1055 !important;
-    display: none;
-    overflow-x: hidden;
-    overflow-y: auto;
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  z-index: 1055 !important;
+  display: none;
+  overflow-x: hidden;
+  overflow-y: auto;
 }
 
 .modal.fade.show {
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
 }
 
-/* 3. Khung hộp thoại chính */
 .modal-dialog {
-    position: relative !important;
-    width: 100% !important;
-    max-width: 480px !important;
-    margin: auto !important;
-    transform: none !important;
+  position: relative !important;
+  width: 100% !important;
+  max-width: 480px !important;
+  margin: auto !important;
+  transform: none !important;
+  padding: 0 12px;
 }
 
-/* 4. Thẻ chứa nội dung Modal (Bo góc, bóng đổ) */
 .modal-content {
-    background-color: var(--bg-60-surface, #ffffff) !important;
-    border: 1px solid var(--border-color, #e2e8f0) !important;
-    border-radius: 14px !important;
-    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15) !important;
-    overflow: hidden;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif !important;
+  background-color: var(--bg-60-surface, #ffffff) !important;
+  border: 1px solid var(--border-color, #e2e8f0) !important;
+  border-radius: 14px !important;
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15) !important;
+  overflow: hidden;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif !important;
+  max-height: calc(100vh - 24px);
+  max-height: calc(100dvh - 24px);
+  display: flex;
+  flex-direction: column;
 }
 
-/* 5. Header của Modal */
 .modal-header {
-    background-color: #f8fafc !important;
-    border-bottom: 1px solid var(--border-color, #e2e8f0) !important;
-    padding: 1.15rem 1.25rem !important;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
+  background-color: #f8fafc !important;
+  border-bottom: 1px solid var(--border-color, #e2e8f0) !important;
+  padding: 1.15rem 1.25rem !important;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 }
 
 .modal-title {
-    font-size: 1.05rem !important;
-    font-weight: 700 !important;
-    color: var(--text-main, #334155) !important;
-    margin: 0 !important;
-    display: flex;
-    align-items: center;
+  font-size: 1.05rem !important;
+  font-weight: 700 !important;
+  color: var(--text-main, #334155) !important;
+  margin: 0 !important;
+  display: flex;
+  align-items: center;
 }
 
-/* Nút tắt (X) ở góc trên */
 .modal-header .btn-close {
-    background: transparent url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%23334155'%3e%3cpath d='M.293.293a1 1 0 0 1 1.414 0L8 6.586 14.293.293a1 1 0 1 1 1.414 1.414L9.414 8l6.293 6.293a1 1 0 0 1-1.414 1.414L8 9.414l-6.293 6.293a1 1 0 0 1-1.414-1.414L6.586 8 .293 1.707a1 1 0 0 1 0-1.414z'/%3e%3c/svg%3e") center/1em auto no-repeat !important;
-    border: none !important;
-    opacity: 0.7;
-    width: 1.5em;
-    height: 1.5em;
-    cursor: pointer;
+  background: transparent
+    url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%23334155'%3e%3cpath d='M.293.293a1 1 0 0 1 1.414 0L8 6.586 14.293.293a1 1 0 1 1 1.414 1.414L9.414 8l6.293 6.293a1 1 0 0 1-1.414 1.414L8 9.414l-6.293 6.293a1 1 0 0 1-1.414-1.414L6.586 8 .293 1.707a1 1 0 0 1 0-1.414z'/%3e%3c/svg%3e")
+    center/1em auto no-repeat !important;
+  border: none !important;
+  opacity: 0.7;
+  width: 1.5em;
+  height: 1.5em;
+  cursor: pointer;
 }
 .modal-header .btn-close:hover {
-    opacity: 1;
+  opacity: 1;
 }
 
-/* 6. Phần thân Modal (Nội dung chữ) */
 .modal-body {
-    padding: 1.75rem 1.25rem !important;
-    font-size: 0.98rem !important;
-    color: var(--text-main, #334155) !important;
-    text-align: center !important;
-    line-height: 1.5;
+  padding: 1.75rem 1.25rem !important;
+  font-size: 0.98rem !important;
+  color: var(--text-main, #334155) !important;
+  text-align: center !important;
+  line-height: 1.5;
+  overflow-y: auto;
 }
 
 .modal-body strong#selectedNienKhoaText {
-    color: var(--primary-30, #ef4444) !important;
-    font-size: 1.15rem !important;
-    font-weight: 700 !important;
-    display: inline-block;
-    margin-top: 6px;
+  color: var(--primary-30, #ef4444) !important;
+  font-size: 1.15rem !important;
+  font-weight: 700 !important;
+  display: inline-block;
+  margin-top: 6px;
 }
 
-/* 7. Footer của Modal (Chứa nút Hủy & Xác nhận) */
 .modal-footer {
-    background-color: #f8fafc !important;
-    border-top: 1px solid var(--border-color, #e2e8f0) !important;
-    padding: 1rem 1.25rem !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    gap: 10px !important;
+  background-color: #f8fafc !important;
+  border-top: 1px solid var(--border-color, #e2e8f0) !important;
+  padding: 1rem 1.25rem !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 10px !important;
 }
 
-/* Nút bấm trong Modal Footer */
 .modal-footer .btn {
-    padding: 0.5rem 1.25rem !important;
-    font-size: 0.9rem !important;
-    font-weight: 600 !important;
-    border-radius: 8px !important;
-    cursor: pointer;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 6px;
-    transition: all 0.2s ease;
+  padding: 0.5rem 1.25rem !important;
+  font-size: 0.9rem !important;
+  font-weight: 600 !important;
+  border-radius: 8px !important;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  transition: all 0.2s ease;
 }
 
-/* Nút Hủy (Secondary) */
 .modal-footer .btn-secondary {
-    background-color: #e2e8f0 !important;
-    border: 1px solid #cbd5e1 !important;
-    color: #475569 !important;
+  background-color: #e2e8f0 !important;
+  border: 1px solid #cbd5e1 !important;
+  color: #475569 !important;
 }
 .modal-footer .btn-secondary:hover {
-    background-color: #cbd5e1 !important;
+  background-color: #cbd5e1 !important;
 }
 
-/* Nút Xác nhận (Primary - dùng tông màu chủ đạo của bạn) */
 .modal-footer .btn-primary {
-    background-color: var(--primary-30, #ef4444) !important;
-    border: 1px solid var(--primary-30, #ef4444) !important;
-    color: #ffffff !important;
+  background-color: var(--primary-30, #ef4444) !important;
+  border: 1px solid var(--primary-30, #ef4444) !important;
+  color: #ffffff !important;
 }
 .modal-footer .btn-primary:hover {
-    background-color: var(--primary-30-hover, #d01818) !important;
-    border-color: var(--primary-30-hover, #d01818) !important;
+  background-color: var(--primary-30-hover, #d01818) !important;
+  border-color: var(--primary-30-hover, #d01818) !important;
 }
 
-/* --- TỐI ƯU RIÊNG CHO ĐIỆN THOẠI (< 576px) --- */
-@media (max-width: 576px) {
-    /* Đưa thanh tiêu đề và bộ lọc niên khóa thành dạng dọc để không bị bóp méo */
-    .d-flex.justify-content-between.align-items-center.mb-4 {
-        flex-direction: column !important;
-        align-items: flex-start !important;
-        gap: 12px !important;
-    }
-
-    /* Form chọn niên khóa tự động tràn hết chiều ngang điện thoại cho dễ bấm */
-    .form-inline, 
-    .input-group-nien-khoa {
-        width: 100% !important;
-    }
-
-    .input-group-nien-khoa select.form-control {
-        width: 100% !important;
-    }
-
-    /* Thu nhỏ kích thước chữ tiêu đề và bảng cho vừa màn hình nhỏ */
-    h2, .h2 {
-        font-size: 1.2rem !important;
-    }
-
-    .card {
-        padding: 12px 14px !important;
-    }
-
-    .table th, .table td {
-        padding: 10px 12px !important;
-        font-size: 0.85rem !important;
-    }
-}
-
-/* --- TÙY CHỈNH CHIA ĐÔI 2 CỘT BẢNG --- */
+/* ==========================================================
+   2 CỘT "PHÂN CÔNG TRƯỞNG KHỐI" & "NHÂN SỰ THEO LỚP"
+   Giữ nguyên phong cách gốc: nằm ngang, card bo góc/đổ bóng,
+   chỉ xếp chồng dọc khi thực sự là điện thoại (< 768px)
+   ========================================================== */
 .custom-row-split {
-    display: flex;
-    gap: 20px;
-    width: 100%;
-    margin-bottom: 1.5rem;
+  display: flex;
+  gap: 20px;
+  width: 100%;
+  margin-bottom: 1.5rem;
+  align-items: flex-start;
 }
 
 .custom-col {
-    flex: 1;
-    min-width: 0; /* Giúp bảng không bị tràn flex item */
+  flex: 1;
+  min-width: 0;
 }
 
-/* Tối ưu cho điện thoại và máy tính bảng nhỏ: Tự động xếp dọc 100% */
-@media (max-width: 992px) {
-    .custom-row-split {
-        flex-direction: column;
-        gap: 16px;
-    }
+.custom-col .card {
+  padding: 16px 20px;
+  border-radius: 12px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+  border: 1px solid var(--border-color);
+  background: var(--bg-60-surface);
+}
+
+.custom-col .card h4 {
+  font-size: 1.1rem;
+  margin-bottom: 8px;
+}
+
+.custom-col .table-responsive {
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  box-shadow: none;
+  margin-top: 8px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+  scrollbar-color: var(--primary-30) #f1f5f9;
+}
+
+.custom-col .table-responsive::-webkit-scrollbar {
+  height: 5px;
+}
+.custom-col .table-responsive::-webkit-scrollbar-track {
+  background: #f1f5f9;
+  border-radius: 4px;
+}
+.custom-col .table-responsive::-webkit-scrollbar-thumb {
+  background: var(--primary-30);
+  border-radius: 4px;
+}
+
+.custom-col .table th,
+.custom-col .table td {
+  padding: 12px 16px;
+  font-size: 0.85rem;
+}
+
+.custom-col .table tbody tr:hover {
+  background-color: #fafafa;
+}
+
+/* Chỉ xếp chồng dọc khi thực sự là điện thoại */
+/* Mở rộng phạm vi áp dụng padding mobile lên tới 768px 
+   (thay vì chỉ tới 576px), để không bị "khoảng trống" thiếu padding */
+@media (max-width: 768px) {
+  .main-container {
+    padding: 0.75rem;
+    padding-left: max(0.75rem, env(safe-area-inset-left));
+    padding-right: max(0.75rem, env(safe-area-inset-right));
+  }
+}
+
+/* ==========================================================
+   FIX CUỐI CÙNG: ép 2 card luôn xếp chồng dọc trên mobile
+   Đặt cuối file + dùng !important để thắng mọi rule cũ
+   ========================================================== */
+@media (max-width: 768px) {
+  .custom-row-split {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 16px !important;
+  }
+
+  .custom-row-split .custom-col {
+    width: 100% !important;
+    flex: 1 1 100% !important;
+    max-width: 100% !important;
+  }
 }
 
 /* --- SỬA TRIỆT ĐỂ KIỂU DÁNG BADGE PILL --- */
 .table td .badge {
-    color: #ffffff !important;
-    background-color: var(--primary-30) !important;
-    border-radius: 50rem !important;
-    padding: 0.4em 0.85em !important;
-    font-size: 0.8rem !important;
-    font-weight: 600 !important;
-    display: inline-flex !important;
-    align-items: center;
-    gap: 4px;
+  color: #ffffff !important;
+  background-color: var(--primary-30) !important;
+  border-radius: 50rem !important;
+  padding: 0.4em 0.85em !important;
+  font-size: 0.8rem !important;
+  font-weight: 600 !important;
+  display: inline-flex !important;
+  align-items: center;
+  gap: 4px;
 }
 
 .table td .badge.bg-success {
-    background-color: var(--success-accent) !important;
+  background-color: var(--success-accent) !important;
 }
 
 /* --- CĂN CHỈNH THẲNG HÀNG TIÊU ĐỀ VÀ NỘI DUNG BẢNG --- */
-/* Cột 1 (Lớp): Canh trái */
 .table th:nth-child(1),
 .table td:nth-child(1) {
-    text-align: left;
+  text-align: left;
 }
 
-/* Cột 2 (Khối): Canh trái */
 .table th:nth-child(2),
 .table td:nth-child(2) {
-    text-align: left;
+  text-align: left;
 }
 
-/* Cột 3 (Số GLV): Canh giữa hoặc canh phải tùy ý, ở đây chọn canh giữa cho đẹp badge */
 .table th:nth-child(3),
 .table td:nth-child(3) {
-    text-align: center;
+  text-align: center;
+}
+
+/* ==========================================================
+   CHỐNG iOS AUTO-ZOOM
+   ========================================================== */
+.form-control,
+.form-select,
+select,
+input,
+textarea {
+  font-size: 16px !important;
+}
+
+/* ==========================================================
+   RESPONSIVE CHUNG CHO TOÀN TRANG (không đụng vào 2 cột custom ở trên)
+   ========================================================== */
+@media (max-width: 576px) {
+  .stat-grid,
+  .row.stats-row,
+  .row:has(.card) {
+    grid-template-columns: 1fr;
+  }
+
+  .main-container {
+    padding: 0.75rem;
+    padding-left: max(0.75rem, env(safe-area-inset-left));
+    padding-right: max(0.75rem, env(safe-area-inset-right));
+  }
+
+  .input-group {
+    max-width: 100%;
+  }
+
+  h2,
+  .h2 {
+    font-size: 1.2rem !important;
+  }
+  h3,
+  .h3 {
+    font-size: 1.15rem;
+  }
+
+  .card {
+    padding: 12px 14px !important;
+  }
+
+  .d-flex.justify-content-between.align-items-center.mb-4 {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 12px !important;
+  }
+
+  .form-inline,
+  .input-group-nien-khoa {
+    width: 100% !important;
+  }
+
+  .input-group-nien-khoa select.form-control {
+    width: 100% !important;
+  }
+
+  #formNienKhoa {
+    width: 100% !important;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  #formNienKhoa .input-group-nien-khoa {
+    flex: 1 1 100%;
+    min-width: 0;
+  }
+
+  #formNienKhoa #btnOpenModal {
+    flex: 1 1 100%;
+    width: 100%;
+    margin: 0;
+  }
+}
+
+/* ==========================================================
+   RIÊNG CHO MÀN HÌNH RẤT HẸP: iPhone SE/XS/mini (~360–390px)
+   ========================================================== */
+@media (max-width: 390px) {
+  .stat-info h4 {
+    font-size: 1.4rem !important;
+  }
+
+  .stat-grid .card i,
+  .row.stats-row .card i,
+  .stat-grid .card .icon {
+    font-size: 1.4rem !important;
+  }
+
+  .modal-footer {
+    flex-direction: column !important;
+  }
+
+  .modal-footer .btn {
+    width: 100%;
+  }
 }
