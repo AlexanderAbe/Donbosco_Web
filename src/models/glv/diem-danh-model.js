@@ -48,17 +48,6 @@ const DiemDanhModel = {
                     id_tn: Number(item.id_tn),
                     trang_thai: item.trang_thai
                 }));
-            const markedIds = validAttendance.map(item => item.id_tn);
-            await client.query(`
-                DELETE FROM DIEM_DANH
-                WHERE ngay_diem_danh = $1
-                  AND loai_buoi = $2::enum_loai_buoi
-                  AND id_lop = $3
-                  AND id_tn = ANY($4::integer[])
-            `, [attendanceDate, sessionType, classId,
-                students.rows
-                    .map(row => row.id_tn)
-                    .filter(idTn => !markedIds.includes(idTn))]);
             if (validAttendance.length) {
                 await client.query(`
                     INSERT INTO DIEM_DANH (ngay_diem_danh, loai_buoi, trang_thai, id_lop, id_tn)
@@ -68,6 +57,22 @@ const DiemDanhModel = {
                     DO UPDATE SET trang_thai = EXCLUDED.trang_thai, id_lop = EXCLUDED.id_lop
                 `, [attendanceDate, sessionType, classId, JSON.stringify(validAttendance)]);
             }
+
+                        await client.query(`
+                                INSERT INTO DIEM_DANH (ngay_diem_danh, loai_buoi, trang_thai, id_lop, id_tn)
+                                SELECT $1, $2::enum_loai_buoi, 'Vắng không phép'::enum_diem_danh, $3, pl.id_tn
+                                FROM PHAN_LOP pl
+                                WHERE pl.id_lop = $3
+                                    AND pl.id_cau_hinh_nam_hoc = $4
+                                    AND pl.trang_thai = 'Đang học'
+                                    AND NOT EXISTS (
+                                            SELECT 1
+                                            FROM DIEM_DANH dd
+                                            WHERE dd.ngay_diem_danh = $1
+                                                AND dd.loai_buoi = $2::enum_loai_buoi
+                                                AND dd.id_tn = pl.id_tn
+                                    )
+                        `, [attendanceDate, sessionType, classId, yearId]);
 
             const month = Number(attendanceDate.slice(5, 7));
             for (const row of students.rows) {

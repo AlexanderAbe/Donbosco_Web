@@ -16,6 +16,9 @@
 .attendance-field input, .attendance-field select { width: 100%; box-sizing: border-box; padding: 10px 11px; border: 1px solid #dbe5f0; border-radius: 7px; background: #fff; color: #1f2937; }
 .attendance-summary { display: flex; justify-content: space-between; gap: 14px; align-items: center; margin-bottom: 14px; color: #64748b; }
 .attendance-summary strong { color: #1f2937; }
+.score-save-status { display: inline-flex; align-items: center; gap: 6px; font-weight: 700; white-space: nowrap; }
+.score-save-status.is-saved { color: #15803d; }
+.score-save-status.is-unsaved { color: #b45309; }
 .attendance-table-wrap { overflow-x: auto; background: #fff; border: 1px solid #dbe5f0; border-radius: 8px; box-shadow: 0 10px 26px rgba(30, 64, 175, .07); }
 .attendance-table { width: 100%; min-width: 700px; border-collapse: collapse; }
 .attendance-table th, .attendance-table td { padding: 12px 14px; border-bottom: 1px solid #edf2f7; text-align: left; }

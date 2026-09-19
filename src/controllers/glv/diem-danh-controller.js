@@ -79,6 +79,37 @@ const getQrAttendanceStatus = (attendanceDate, sessionType) => {
 };
 
 const DiemDanhController = {
+    async getQrDiemDanh(req, res) {
+        try {
+            const idGlv = req.session.user.id_glv;
+            const years = await BaseGlvModel.getAcademicYears(idGlv);
+            const { selectedYearId } = getCurrentYear(years, req.session);
+            const classes = selectedYearId ? await BaseGlvModel.getAssignedClasses(idGlv, selectedYearId) : [];
+            const requestedClass = getId(req.query.id_lop);
+            const selectedClassId = classes.some(item => item.id_lop === requestedClass)
+                ? requestedClass
+                : classes[0]?.id_lop;
+            const selectedDate = /^\d{4}-\d{2}-\d{2}$/.test(req.query.ngay_diem_danh || '')
+                ? req.query.ngay_diem_danh
+                : getTodayKey();
+            const sessionTypes = getSessionTypesForDate(selectedDate);
+            const sessionType = sessionTypes.includes(req.query.loai_buoi)
+                ? req.query.loai_buoi
+                : sessionTypes[0] || '';
+
+            return res.render('glv/diem-danh-qr', {
+                title: 'Quét QR điểm danh', selectedYearId, classes,
+                selectedClassId, sessionTypes, sessionType, selectedDate,
+                todayKey: getTodayKey(),
+                isFutureDate: isFutureDate(selectedDate),
+                isQrDate: isTodayDate(selectedDate)
+            });
+        } catch (error) {
+            console.error('Lỗi tải trang quét QR GLV:', error);
+            return res.status(500).send('Lỗi server khi tải trang quét QR.');
+        }
+    },
+
     async getDiemDanh(req, res) {
         try {
             const idGlv = req.session.user.id_glv;
@@ -107,7 +138,6 @@ const DiemDanhController = {
                 todayKey: getTodayKey(),
                 isFutureDate: isFutureDate(selectedDate),
                 isQrDate: isTodayDate(selectedDate),
-                scanMode: req.query.mode === 'qr',
                 message: req.query.message || null, error: req.query.error || null
             });
         } catch (error) {
