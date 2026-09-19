@@ -1,0 +1,219 @@
+.class-transfer-page {
+    max-width: 1320px;
+    min-height: 100vh;
+    margin: 0 auto;
+    padding: 34px 26px 48px;
+    color: var(--text-main);
+    background: var(--bg-60-main);
+}
+
+.class-transfer-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: end;
+    gap: 24px;
+    margin-bottom: 24px;
+}
+
+.eyebrow,
+.filter-kicker {
+    margin: 0 0 6px;
+    color: #0f766e;
+    font-size: 0.76rem;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.class-transfer-header h1 {
+    margin: 0 0 7px;
+    font-size: clamp(1.65rem, 3vw, 2.35rem);
+    line-height: 1.1;
+}
+
+.class-transfer-header > div > p:last-child {
+    margin: 0;
+    color: var(--text-muted);
+}
+
+.current-year-badge {
+    display: grid;
+    gap: 6px;
+    min-width: 190px;
+    padding: 11px 14px;
+    border: 1px solid #99f6e4;
+    border-radius: 8px;
+    background: #f0fdfa;
+    color: #115e59;
+}
+
+.current-year-badge span,
+.filter-fields label {
+    color: var(--text-muted);
+    font-size: 0.76rem;
+    font-weight: 700;
+}
+
+.current-year-badge strong {
+    color: #0f766e;
+    font-size: 0.98rem;
+}
+
+select,
+.search-box input {
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    background: var(--bg-60-surface);
+    color: var(--text-main);
+    font: inherit;
+}
+
+select {
+    min-height: 42px;
+    padding: 0 12px;
+}
+
+.notice {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    margin-bottom: 16px;
+    padding: 12px 14px;
+    border: 1px solid transparent;
+    border-radius: 8px;
+    font-size: 0.88rem;
+}
+
+.notice-success { background: #ecfdf5; border-color: #a7f3d0; color: #047857; }
+.notice-error { background: #fef2f2; border-color: #fecaca; color: #b91c1c; }
+
+.class-filter-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 18px;
+    margin-bottom: 20px;
+}
+
+.filter-card,
+.student-panel {
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    background: var(--bg-60-surface);
+    box-shadow: 0 4px 16px rgba(15, 23, 42, 0.05);
+}
+
+.filter-card { padding: 20px; }
+.source-card { border-top: 4px solid #0f766e; }
+.target-card { border-top: 4px solid #ea580c; }
+
+.filter-card-heading,
+.student-panel-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.filter-icon {
+    display: grid;
+    width: 38px;
+    height: 38px;
+    place-items: center;
+    border-radius: 50%;
+    background: #ccfbf1;
+    color: #0f766e;
+}
+
+.target-card .filter-icon { background: #ffedd5; color: #c2410c; }
+
+.filter-card h2,
+.student-panel h2 {
+    margin: 0;
+    font-size: 1.06rem;
+}
+
+.filter-fields {
+    display: grid;
+    grid-template-columns: 88px minmax(0, 1fr);
+    align-items: center;
+    gap: 10px 12px;
+    margin-top: 18px;
+}
+
+.filter-hint {
+    margin: 16px 0 0;
+    color: var(--text-muted);
+    font-size: 0.8rem;
+}
+
+.student-panel { overflow: hidden; }
+.student-panel-header { justify-content: space-between; padding: 20px 22px; border-bottom: 1px solid var(--border-color); }
+.student-count { color: var(--text-muted); font-size: 0.8rem; }
+.student-count strong { color: var(--text-main); font-size: 1.3rem; }
+
+.student-toolbar {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 16px 22px;
+    border-bottom: 1px solid var(--border-color);
+    background: rgba(248, 250, 252, 0.7);
+}
+
+.search-box { position: relative; flex: 1; min-width: 220px; }
+.search-box i { position: absolute; top: 13px; left: 13px; color: var(--text-muted); }
+.search-box input { width: 100%; box-sizing: border-box; padding: 11px 12px 11px 36px; }
+.select-all { display: inline-flex; align-items: center; gap: 7px; color: var(--text-muted); font-size: 0.82rem; white-space: nowrap; }
+input[type='checkbox'] { accent-color: #0f766e; }
+
+.move-button {
+    min-height: 42px;
+    padding: 0 16px;
+    border: 0;
+    border-radius: 8px;
+    background: #0f766e;
+    color: #fff;
+    font: inherit;
+    font-weight: 700;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+.move-button:disabled { background: #cbd5e1; cursor: not-allowed; }
+.student-list { padding: 6px 22px 14px; }
+.student-table-header,
+.student-row { display: grid; grid-template-columns: 20px minmax(100px, 0.8fr) minmax(220px, 2fr) minmax(110px, 1fr) minmax(90px, 0.8fr); align-items: center; gap: 12px; }
+.student-table-header { padding: 10px 0 8px; color: var(--text-muted); font-size: 0.72rem; font-weight: 800; letter-spacing: 0.04em; text-transform: uppercase; }
+.student-row { padding: 13px 0; border-bottom: 1px solid #e2e8f0; cursor: pointer; }
+.student-row:last-child { border-bottom: 0; }
+.student-row > input { position: absolute; opacity: 0; pointer-events: none; }
+.student-checkmark { display: grid; width: 19px; height: 19px; place-items: center; border: 1px solid #cbd5e1; border-radius: 5px; color: transparent; font-size: 0.7rem; }
+.student-row:has(input:checked) { background: #f0fdfa; }
+.student-row:has(input:checked) .student-checkmark { border-color: #0f766e; background: #0f766e; color: #fff; }
+.student-info { min-width: 0; }
+.student-info strong { display: block; overflow-wrap: anywhere; white-space: normal; }
+.student-info strong { font-size: 0.92rem; }
+.student-mstn,
+.student-birth-date,
+.student-gender { color: var(--text-muted); font-size: 0.82rem; }
+
+.empty-state { padding: 46px 20px; text-align: center; color: var(--text-muted); }
+.empty-state i { margin-bottom: 12px; color: #0f766e; font-size: 1.8rem; }
+.empty-state h3 { margin: 0 0 5px; color: var(--text-main); font-size: 1rem; }
+.empty-state p { margin: 0; font-size: 0.84rem; }
+
+@media (max-width: 760px) {
+    .class-transfer-page { padding: 24px 16px 36px; }
+    .class-transfer-header { align-items: stretch; flex-direction: column; }
+    .current-year-badge { width: 100%; box-sizing: border-box; }
+    .class-filter-grid { grid-template-columns: 1fr; }
+    .student-toolbar { align-items: stretch; flex-direction: column; }
+    .search-box { width: 100%; }
+    .move-button { width: 100%; }
+    .select-all { white-space: normal; }
+    .student-table-header { display: none; }
+    .student-row { grid-template-columns: 20px 22px minmax(0, 1fr); gap: 10px; }
+    .student-mstn { grid-column: 3; grid-row: 1; }
+    .student-info { grid-column: 3; grid-row: 2; }
+    .student-birth-date { grid-column: 3; grid-row: 3; }
+    .student-gender { grid-column: 3; grid-row: 4; }
+}

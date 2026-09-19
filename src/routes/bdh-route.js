@@ -11,6 +11,7 @@ const weightController = require('../controllers/bdh/weight-controller');
 const settingsController = require('../controllers/bdh/settings-controller');
 const BangDiemController = require('../controllers/bdh/bang-diem-controller');
 const ChuyenGiaoController = require('../controllers/bdh/chuyen-giao-controller');
+const ChuyenLopController = require('../controllers/bdh/chuyen-lop-controller');
 
 const upload = multer({
 	storage: multer.memoryStorage(),
@@ -75,5 +76,7 @@ router.get('/chuyen-giao', ChuyenGiaoController.getPage);
 router.post('/chuyen-giao/lock', ChuyenGiaoController.lockYear);
 router.post('/chuyen-giao/transfer', ChuyenGiaoController.transferYear);
 router.get('/chuyen-giao/export-awards', ChuyenGiaoController.exportAwards);
+router.get('/chuyen-lop', ChuyenLopController.getPage);
+router.post('/chuyen-lop/move', ChuyenLopController.moveStudents);
 
 module.exports = router;
