@@ -1,13 +1,13 @@
-const session = require('express-session');
-const pgSession = require('connect-pg-simple')(session);
-const { Pool } = require('pg');
+const session = require("express-session");
+const pgSession = require("connect-pg-simple")(session);
+const { Pool } = require("pg");
 
 // Tạo một pool kết nối riêng cho session sử dụng biến môi trường DATABASE_URL
 const pool = new Pool({
-    connectionString: process.env.DATABASE_URL,
-    ssl: {
-        rejectUnauthorized: false // Cần thiết khi kết nối với Supabase qua Cloud
-    }
+  connectionString: process.env.DATABASE_URL,
+  ssl: {
+    rejectUnauthorized: false, // Cần thiết khi kết nối với Supabase qua Cloud
+  },
 });
 
 module.exports = session({

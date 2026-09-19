@@ -245,14 +245,19 @@
 }
 
 /* ==========================================================
-   TỐI ƯU HÓA CHO ĐIỆN THOẠI VÀ MÁY TÍNH BẢNG NHỎ
+   TỐI ƯU HÓA RESPONSIVE CHO CÁC THIẾT BỊ
    ========================================================== */
 
-@media (max-width: 768px) {
+/* 1. Màn hình Tablet (Dưới 1024px) */
+@media (max-width: 1024px) {
   .bang-diem-page {
-    padding: 0 10px;
+    padding: 0 16px; /* Thêm lề an toàn để nội dung không sát mép màn hình iPad */
   }
+  /* Bảng vẫn giữ nguyên dạng table và cuộn ngang nhờ .table-scroll */
+}
 
+/* 2. Màn hình Tablet nhỏ & Mobile ngang (Dưới 768px) */
+@media (max-width: 768px) {
   .bang-diem-header {
     flex-direction: column;
     align-items: stretch;
@@ -268,7 +273,7 @@
     align-items: stretch;
     gap: 12px;
     background: #fcfcfd;
-    padding: 14px;
+    padding: 16px;
     border-radius: 8px;
     border: 1px solid var(--score-line);
   }
@@ -278,6 +283,7 @@
     flex-direction: column;
     gap: 8px;
     width: 100%;
+    margin-top: 4px;
   }
 
   .summary-meta .export-score-button {
@@ -287,24 +293,17 @@
   }
 
   .lop-section {
-    margin-left: 0; /* Bỏ thụt lề trên mobile để tối đa hóa không gian */
+    margin-left: 0; /* Bỏ thụt lề để có thêm không gian hiển thị bảng */
   }
 }
 
+/* 3. Màn hình Mobile dọc (Dưới 650px) - Chuyển Table thành danh sách Card */
 @media (max-width: 650px) {
   .table-scroll {
-    overflow: visible;
+    overflow: visible; /* Tắt cuộn ngang */
   }
 
-  .score-table {
-    min-width: 0;
-    display: block;
-  }
-
-  .score-table thead {
-    display: none;
-  }
-
+  .score-table,
   .score-table tbody,
   .score-table tr,
   .score-table td {
@@ -313,65 +312,82 @@
     box-sizing: border-box;
   }
 
+  .score-table thead {
+    display: none; /* Ẩn tiêu đề cột */
+  }
+
   .score-table tr {
-    margin-bottom: 12px;
-    padding: 12px;
+    margin-bottom: 16px;
+    padding: 16px;
     border: 1px solid var(--score-line);
-    border-radius: 8px;
+    border-radius: 12px; /* Bo góc tròn trịa hơn cho giao diện mobile */
     background: #fff;
-    box-shadow: 0 1px 3px rgba(16, 24, 40, 0.04);
+    box-shadow: 0 2px 8px rgba(16, 24, 40, 0.05); /* Đổ bóng nhẹ tạo chiều sâu */
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  /* Hiệu ứng chạm/hover trên mobile */
+  .score-table tr:hover,
+  .score-table tr:active {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(16, 24, 40, 0.1);
   }
 
   .score-table td {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 6px 0;
+    padding: 10px 0; /* Tăng chiều cao để dễ bấm ngón tay (Touch Target) */
     border: none;
-    border-bottom: 1px dashed #f2f4f7;
+    border-bottom: 1px dashed var(--score-line);
     text-align: right;
     white-space: normal;
   }
 
   .score-table td:last-child {
     border-bottom: none;
+    padding-bottom: 0;
   }
 
-  /* Tự động gán nhãn thông tin dựa vào data-label truyền từ EJS */
+  /* Gán nhãn thông tin từ thuộc tính data-label */
   .score-table td::before {
     content: attr(data-label);
     color: var(--score-muted);
-    font-size: 0.8rem;
-    font-weight: 600;
+    font-size: 0.85rem;
+    font-weight: 500;
     text-align: left;
-    margin-right: 12px;
+    margin-right: 16px;
+    flex-shrink: 0; /* Tránh việc nhãn bị ép nhỏ lại khi số liệu dài */
   }
 
-  /* Định dạng nổi bật riêng cho STT */
+  /* UI nổi bật cho Số thứ tự (Badge nhỏ ở góc) */
   .score-table td[data-label="STT"] {
+    display: inline-flex;
+    width: auto;
     font-size: 0.75rem;
     color: var(--score-muted);
-    background: #f9fafb;
-    padding: 4px 8px;
-    border-radius: 4px;
-    margin-bottom: 6px;
+    background: #f2f4f7;
+    padding: 4px 10px;
+    border-radius: 20px;
+    margin-bottom: 8px;
+    border-bottom: none;
   }
   .score-table td[data-label="STT"]::before {
-    content: "Số thứ tự";
+    content: "#"; /* Đổi nhãn thành # cho gọn */
+    margin-right: 4px;
   }
 
-  /* Định dạng nổi bật cho tên học sinh (to hơn, có gạch chân nhẹ tách biệt) */
-  .score-table .student-name {
-    font-size: 0.98rem;
+  /* Tối ưu Tên học sinh thành Tiêu đề của Card */
+  .score-table td.student-name {
+    font-size: 1.1rem;
     font-weight: 700;
     color: var(--score-ink);
-    text-align: right;
-    padding: 8px 0;
-    border-bottom: 1px solid var(--score-line) !important;
-    margin-bottom: 4px;
+    padding: 0 0 12px 0;
+    margin-bottom: 8px;
+    border-bottom: 2px solid var(--score-red-soft);
+    justify-content: flex-start; /* Căn trái toàn bộ tên */
   }
-  .score-table .student-name::before {
-    content: "Họ và tên";
-    font-size: 0.85rem;
+  .score-table td.student-name::before {
+    display: none; /* Ẩn chữ 'Họ và tên' vì giao diện đã tự định hình đây là tên người */
   }
 }
