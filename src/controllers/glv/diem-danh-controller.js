@@ -40,6 +40,14 @@ const getSessionTypesForDate = value => {
     return [];
 };
 
+const getAutomaticQrSessionType = sessionTypes => {
+    if (!sessionTypes.length) return '';
+    if (!sessionTypes.includes('Học Giáo Lý')) return sessionTypes[0];
+
+    const now = new Date();
+    return now.getHours() >= 9 ? 'Học Giáo Lý' : 'Lễ Chúa Nhật';
+};
+
 const parseQrValue = value => {
     const rawValue = String(value || '').trim();
     if (!rawValue) return null;
@@ -89,13 +97,9 @@ const DiemDanhController = {
             const selectedClassId = classes.some(item => item.id_lop === requestedClass)
                 ? requestedClass
                 : classes[0]?.id_lop;
-            const selectedDate = /^\d{4}-\d{2}-\d{2}$/.test(req.query.ngay_diem_danh || '')
-                ? req.query.ngay_diem_danh
-                : getTodayKey();
+            const selectedDate = getTodayKey();
             const sessionTypes = getSessionTypesForDate(selectedDate);
-            const sessionType = sessionTypes.includes(req.query.loai_buoi)
-                ? req.query.loai_buoi
-                : sessionTypes[0] || '';
+            const sessionType = getAutomaticQrSessionType(sessionTypes);
 
             return res.render('glv/diem-danh-qr', {
                 title: 'Quét QR điểm danh', selectedYearId, classes,

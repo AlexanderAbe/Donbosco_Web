@@ -83,7 +83,14 @@ const KiemTraController = {
 
             await logAction(req, `Lưu điểm kiểm tra thành công cho Lớp ID: ${classId} (Bài kiểm tra số: ${examNumber}, Ngày: ${ngayKiemTra || 'Không có'}, Niên khóa ID: ${yearId})`, 'Thành công');
 
-            return res.redirect(`/glv/kiem-tra?nien_khoa=${yearId}&id_lop=${classId}&bai_kiem_tra=${examNumber}&message=Đã lưu điểm kiểm tra.`);
+            const query = new URLSearchParams({
+                nien_khoa: yearId,
+                id_lop: classId,
+                bai_kiem_tra: examNumber,
+                ngay_kiem_tra: ngayKiemTra || '',
+                message: 'Đã lưu điểm kiểm tra.'
+            });
+            return res.redirect(`/glv/kiem-tra?${query.toString()}`);
         } catch (error) {
             console.error('Lỗi lưu điểm kiểm tra GLV:', error);
             const errMessage = error.message || 'Không thể lưu điểm kiểm tra.';
@@ -94,6 +101,7 @@ const KiemTraController = {
                 nien_khoa: req.body.nien_khoa || '',
                 id_lop: req.body.id_lop || '',
                 bai_kiem_tra: req.body.bai_kiem_tra || '',
+                ngay_kiem_tra: ngayKiemTra || '',
                 error: errMessage
             });
             return res.redirect(`/glv/kiem-tra?${query.toString()}`);

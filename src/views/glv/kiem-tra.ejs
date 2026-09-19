@@ -29,7 +29,7 @@
 
             <div class="test-field">
                 <label for="test-date"><i class="fa-solid fa-calendar-days"></i> Ngày kiểm tra</label>
-                <input id="test-date" type="date" name="ngay_kiem_tra" value="<%= selectedDate ?? '' %>">
+                <input id="test-date" type="date" name="ngay_kiem_tra" value="<%= selectedDate ?? '' %>" onchange="document.getElementById('score-exam-date').value = this.value">
             </div>
         </form>
 
@@ -37,6 +37,7 @@
             <input type="hidden" name="nien_khoa" value="<%= selectedYearId %>">
             <input type="hidden" name="id_lop" value="<%= selectedClassId %>">
             <input type="hidden" name="bai_kiem_tra" value="<%= selectedExam %>">
+            <input id="score-exam-date" type="hidden" name="ngay_kiem_tra" value="<%= selectedDate ?? '' %>">
             
             <div class="test-summary">
                 <span><i class="fa-solid fa-circle-info"></i> <strong><%= classes.find(item => item.id_lop === selectedClassId)?.ten_lop %></strong> · Bài kiểm tra <strong><%= selectedExam %></strong></span>
