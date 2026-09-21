@@ -33,10 +33,16 @@ const KiemTraController = {
             // Lấy ngày kiểm tra từ học sinh đầu tiên (nếu có dữ liệu) để hiển thị lên input date
             let selectedDate = '';
             if (students.length > 0 && students[0].ngay_kiem_tra) {
-                // Định dạng ngày sang YYYY-MM-DD để hiển thị chuẩn trong input[type="date"]
-                const d = new Date(students[0].ngay_kiem_tra);
-                if (!isNaN(d.getTime())) {
-                    selectedDate = d.toISOString().split('T')[0];
+                const examDate = students[0].ngay_kiem_tra;
+                if (typeof examDate === 'string') {
+                    // PostgreSQL thường trả kiểu date dưới dạng chuỗi YYYY-MM-DD.
+                    selectedDate = examDate.slice(0, 10);
+                } else if (examDate instanceof Date && !Number.isNaN(examDate.getTime())) {
+                    // Không dùng toISOString() vì nó chuyển ngày qua UTC và có thể lùi một ngày.
+                    const year = examDate.getFullYear();
+                    const month = String(examDate.getMonth() + 1).padStart(2, '0');
+                    const day = String(examDate.getDate()).padStart(2, '0');
+                    selectedDate = `${year}-${month}-${day}`;
                 }
             }
 
