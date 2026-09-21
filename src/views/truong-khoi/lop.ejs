@@ -13,9 +13,57 @@
     <% if (!classes.length) { %>
         <div class="tk-empty"><i class="fa-solid fa-people-roof"></i><h2>Chưa có lớp trong khối</h2><p>Niên khóa này chưa có lớp hoặc bạn chưa được phân công khối.</p></div>
     <% } else { %>
+        <div class="class-filter-bar">
+            <div class="class-filter-field class-search-field">
+                <label for="student-search"><i class="fa-solid fa-magnifying-glass"></i> Tìm thiếu nhi</label>
+                <input id="student-search" type="search" placeholder="Nhập tên hoặc mã số..." autocomplete="off">
+            </div>
+            <div class="class-filter-field">
+                <label for="class-filter"><i class="fa-solid fa-filter"></i> Lọc theo lớp</label>
+                <select id="class-filter">
+                    <option value="all">Tất cả lớp</option>
+                    <% classes.forEach(classItem => { %>
+                        <option value="<%= classItem.id_lop %>"><%= classItem.ten_khoi %> - <%= classItem.ten_lop %></option>
+                    <% }) %>
+                </select>
+            </div>
+        </div>
+        <div class="class-filter-empty" id="class-filter-empty" hidden>
+            <i class="fa-solid fa-user-slash"></i>
+            Không tìm thấy thiếu nhi phù hợp.
+        </div>
+        <section class="class-panel all-students-panel" id="all-students-panel">
+            <div class="class-panel-header">
+                <div><p class="class-label">Toàn khối</p><h2><i class="fa-solid fa-users"></i> Tất cả thiếu nhi</h2></div>
+                <span class="student-count"><%= allStudents.length %> thiếu nhi</span>
+            </div>
+            <div class="table-scroll">
+                <table>
+                    <thead><tr><th>STT</th><th>Mã số</th><th>Họ và tên</th><th>Lớp</th><th>Ngày sinh</th><th>Giới tính</th><th>Trạng thái</th><th>Thao tác</th></tr></thead>
+                    <tbody>
+                        <% allStudents.forEach((student, index) => { %>
+                            <tr data-student-row data-search="<%= `${student._fullName || ''} ${student.mstn || ''}`.toLowerCase() %>">
+                                <td><%= index + 1 %></td>
+                                <td><%= student.mstn || '-' %></td>
+                                <td><strong><%= student._fullName %></strong></td>
+                                <td><%= student.ten_khoi %> - <%= student.ten_lop %></td>
+                                <td><%= student._dobDisplay %></td>
+                                <td><%= student.gioi_tinh || '-' %></td>
+                                <td><span class="status <%= student.trang_thai === 'Đang học' ? 'is-active' : 'is-inactive' %>"><%= student.trang_thai %></span></td>
+                                <td class="actions">
+                                    <button type="button" class="action-button detail-button" data-id="<%= student.id_tn %>"><i class="fa-solid fa-eye"></i> Chi tiết</button>
+                                    <button type="button" class="action-button status-button" data-id="<%= student.id_tn %>" data-status="<%= student.trang_thai %>"><i class="fa-solid fa-rotate"></i> Đổi trạng thái</button>
+                                    <button type="button" class="action-button transfer-button" data-id="<%= student.id_tn %>" data-class="<%= student.id_lop %>"><i class="fa-solid fa-arrow-right-arrow-left"></i> Chuyển lớp</button>
+                                </td>
+                            </tr>
+                        <% }) %>
+                    </tbody>
+                </table>
+            </div>
+        </section>
         <div class="class-grid">
             <% classes.forEach(classItem => { %>
-                <section class="class-panel">
+                <section class="class-panel" data-class-panel data-class-id="<%= classItem.id_lop %>">
                     <div class="class-panel-header">
                         <div><p class="class-label"><%= classItem.ten_khoi %></p><h2><i class="fa-solid fa-chalkboard"></i> <%= classItem.ten_lop %></h2></div>
                         <span class="student-count"><%= classItem.student_count %> thiếu nhi</span>
@@ -28,7 +76,7 @@
                                 <thead><tr><th>STT</th><th>Mã số</th><th>Họ và tên</th><th>Ngày sinh</th><th>Giới tính</th><th>Trạng thái</th><th>Thao tác</th></tr></thead>
                                 <tbody>
                                     <% classItem.students.forEach((student, index) => { %>
-                                        <tr>
+                                        <tr data-student-row data-search="<%= `${student._fullName || ''} ${student.mstn || ''}`.toLowerCase() %>">
                                             <td><%= index + 1 %></td>
                                             <td><%= student.mstn || '-' %></td>
                                             <td><strong><%= student._fullName %></strong></td>
@@ -227,5 +275,50 @@
         }
         window.location.reload();
     });
+
+    const studentSearch = document.getElementById('student-search');
+    const classFilter = document.getElementById('class-filter');
+    const classPanels = document.querySelectorAll('[data-class-panel]');
+    const allStudentsPanel = document.getElementById('all-students-panel');
+    const classGrid = document.querySelector('.class-grid');
+    const filterEmpty = document.getElementById('class-filter-empty');
+    const normalizeSearch = value => String(value || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+
+    const updateClassFilter = () => {
+        const keyword = normalizeSearch(studentSearch?.value.trim());
+        const selectedClass = classFilter?.value || 'all';
+        let visibleStudents = 0;
+
+        const showAll = selectedClass === 'all';
+        if (allStudentsPanel) allStudentsPanel.hidden = !showAll;
+        if (classGrid) classGrid.hidden = showAll;
+
+        if (showAll) {
+            allStudentsPanel?.querySelectorAll('[data-student-row]').forEach(row => {
+                const matchesSearch = !keyword || normalizeSearch(row.dataset.search).includes(keyword);
+                row.hidden = !matchesSearch;
+                if (matchesSearch) visibleStudents += 1;
+            });
+        }
+
+        classPanels.forEach(panel => {
+            const matchesClass = selectedClass === 'all' || panel.dataset.classId === selectedClass;
+            let panelStudents = 0;
+
+            panel.querySelectorAll('[data-student-row]').forEach(row => {
+                const matchesSearch = !keyword || normalizeSearch(row.dataset.search).includes(keyword);
+                row.hidden = !matchesSearch;
+                if (matchesSearch) panelStudents += 1;
+            });
+
+            panel.hidden = showAll || !matchesClass || (Boolean(keyword) && panelStudents === 0);
+            if (!showAll && matchesClass) visibleStudents += panelStudents;
+        });
+
+        if (filterEmpty) filterEmpty.hidden = visibleStudents > 0;
+    };
+
+    studentSearch?.addEventListener('input', updateClassFilter);
+    classFilter?.addEventListener('change', updateClassFilter);
 })();
 </script>

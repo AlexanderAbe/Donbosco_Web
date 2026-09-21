@@ -13,6 +13,16 @@ const sortByStudentName = (items = []) => [...items].sort((a, b) => {
     return hoA.localeCompare(hoB, 'vi');
 });
 
+const compareStudentNames = (a, b) => {
+    const nameA = (a.ten || '').trim().toLowerCase();
+    const nameB = (b.ten || '').trim().toLowerCase();
+    if (nameA !== nameB) return nameA.localeCompare(nameB, 'vi');
+
+    const hoA = (a.ho_va_ten_lot || '').trim().toLowerCase();
+    const hoB = (b.ho_va_ten_lot || '').trim().toLowerCase();
+    return hoA.localeCompare(hoB, 'vi');
+};
+
 const formatDateToVietnam = (value) => {
     if (!value) return '-';
 
@@ -40,13 +50,23 @@ const TruongKhoiLopController = {
             const classes = selectedYearId
                 ? await LopModel.getClasses(req.session.user.id_glv, selectedYearId)
                 : [];
+            const normalizedClasses = normalizeClasses(classes);
+            const allStudents = normalizedClasses
+                .flatMap(classItem => classItem.students.map(student => ({
+                    ...student,
+                    id_lop: classItem.id_lop,
+                    ten_lop: classItem.ten_lop,
+                    ten_khoi: classItem.ten_khoi
+                })))
+                .sort(compareStudentNames);
 
             return res.render('truong-khoi/lop', {
                 ...getTruongKhoiBaseData(req, 'Quản lý lớp học'),
                 title: 'Quản lý lớp học',
                 years,
                 selectedYearId,
-                classes: normalizeClasses(classes),
+                classes: normalizedClasses,
+                allStudents,
                 error: req.query.error || null
             });
         } catch (error) {
