@@ -19,13 +19,13 @@
         </div>
     <% } else { %>
         <form class="tk-filter" method="GET" action="/truong-khoi/kiem-tra">
-            <label for="exam-filter"><i class="fa-solid fa-filter"></i> Bài kiểm tra</label>
-            <select id="exam-filter" name="bai_kiem_tra" onchange="this.form.submit()">
-                <option value="">Tất cả bài kiểm tra</option>
+            <span class="tk-filter-label"><i class="fa-solid fa-filter"></i> Bài kiểm tra</span>
+            <div class="tk-filter-buttons" aria-label="Lọc theo bài kiểm tra">
+                <button class="tk-filter-button <%= selectedExam === null ? 'is-active' : '' %>" type="submit" name="bai_kiem_tra" value="">Tất cả</button>
                 <% examNumbers.forEach(number => { %>
-                    <option value="<%= number %>" <%= number === selectedExam ? 'selected' : '' %>>Bài kiểm tra <%= number %></option>
+                    <button class="tk-filter-button <%= number === selectedExam ? 'is-active' : '' %>" type="submit" name="bai_kiem_tra" value="<%= number %>">Bài <%= number %></button>
                 <% }) %>
-            </select>
+            </div>
         </form>
         <% if (!scores.length) { %>
             <div class="tk-empty">

@@ -46,20 +46,40 @@
     margin-bottom: 16px;
 }
 
-.tk-filter label {
+.tk-filter-label {
     color: var(--text-muted);
     font-size: 0.9rem;
     font-weight: 600;
+    white-space: nowrap;
 }
 
-.tk-filter select {
-    min-width: 190px;
-    padding: 9px 12px;
+.tk-filter-buttons {
+    display: flex;
+    gap: 10px;
+    overflow-x: auto;
+    padding-bottom: 4px;
+    scrollbar-width: thin;
+}
+
+.tk-filter-button {
+    flex-shrink: 0;
+    padding: 9px 13px;
     border: 1px solid var(--border-color);
-    border-radius: 7px;
+    border-radius: 999px;
     background: var(--bg-60-surface);
     color: var(--text-main);
+    cursor: pointer;
     font: inherit;
+    font-size: 0.85rem;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.tk-filter-button.is-active {
+    border-color: transparent;
+    background: linear-gradient(135deg, #1d4ed8, #0ea5e9);
+    color: #fff;
+    box-shadow: 0 8px 18px rgba(14, 165, 233, 0.2);
 }
 
 .tk-search {
@@ -167,8 +187,8 @@
         gap: 6px;
     }
 
-    .tk-filter select {
-        width: 100%;
+    .tk-filter-buttons {
+        min-width: 0;
     }
 
     .tk-search {

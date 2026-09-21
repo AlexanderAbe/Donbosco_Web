@@ -19,13 +19,13 @@
         </div>
     <% } else { %>
         <form class="tk-filter" method="GET" action="/truong-khoi/ky-luat">
-            <label for="month-filter"><i class="fa-solid fa-filter"></i> Tháng</label>
-            <select id="month-filter" name="thang" onchange="this.form.submit()">
-                <option value="">Tất cả tháng</option>
+            <span class="tk-filter-label"><i class="fa-solid fa-filter"></i> Tháng</span>
+            <div class="tk-filter-buttons" aria-label="Lọc theo tháng">
+                <button class="tk-filter-button <%= selectedMonth === null ? 'is-active' : '' %>" type="submit" name="thang" value="">Tất cả</button>
                 <% for (let month = 1; month <= 12; month += 1) { %>
-                    <option value="<%= month %>" <%= month === selectedMonth ? 'selected' : '' %>>Tháng <%= month %></option>
+                    <button class="tk-filter-button <%= month === selectedMonth ? 'is-active' : '' %>" type="submit" name="thang" value="<%= month %>">Tháng <%= month %></button>
                 <% } %>
-            </select>
+            </div>
         </form>
         <% if (!discipline.length) { %>
             <div class="tk-empty">

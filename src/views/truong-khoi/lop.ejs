@@ -18,14 +18,14 @@
                 <label for="student-search"><i class="fa-solid fa-magnifying-glass"></i> Tìm thiếu nhi</label>
                 <input id="student-search" type="search" placeholder="Nhập tên hoặc mã số..." autocomplete="off">
             </div>
-            <div class="class-filter-field">
-                <label for="class-filter"><i class="fa-solid fa-filter"></i> Lọc theo lớp</label>
-                <select id="class-filter">
-                    <option value="all">Tất cả lớp</option>
+            <div class="class-filter-field class-buttons-field">
+                <span class="class-filter-label"><i class="fa-solid fa-filter"></i> Lọc theo lớp</span>
+                <div class="class-filter-buttons" aria-label="Lọc theo lớp">
+                    <button class="class-filter-button is-active" type="button" data-class-filter="all">Tất cả</button>
                     <% classes.forEach(classItem => { %>
-                        <option value="<%= classItem.id_lop %>"><%= classItem.ten_khoi %> - <%= classItem.ten_lop %></option>
+                        <button class="class-filter-button" type="button" data-class-filter="<%= classItem.id_lop %>"><%= classItem.ten_khoi %> - <%= classItem.ten_lop %></button>
                     <% }) %>
-                </select>
+                </div>
             </div>
         </div>
         <div class="class-filter-empty" id="class-filter-empty" hidden>
@@ -277,7 +277,7 @@
     });
 
     const studentSearch = document.getElementById('student-search');
-    const classFilter = document.getElementById('class-filter');
+    const classFilterButtons = document.querySelectorAll('[data-class-filter]');
     const classPanels = document.querySelectorAll('[data-class-panel]');
     const allStudentsPanel = document.getElementById('all-students-panel');
     const classGrid = document.querySelector('.class-grid');
@@ -286,7 +286,7 @@
 
     const updateClassFilter = () => {
         const keyword = normalizeSearch(studentSearch?.value.trim());
-        const selectedClass = classFilter?.value || 'all';
+        const selectedClass = document.querySelector('[data-class-filter].is-active')?.dataset.classFilter || 'all';
         let visibleStudents = 0;
 
         const showAll = selectedClass === 'all';
@@ -319,6 +319,11 @@
     };
 
     studentSearch?.addEventListener('input', updateClassFilter);
-    classFilter?.addEventListener('change', updateClassFilter);
+    classFilterButtons.forEach(button => button.addEventListener('click', () => {
+        classFilterButtons.forEach(item => item.classList.toggle('is-active', item === button));
+        updateClassFilter();
+    }));
+
+    updateClassFilter();
 })();
 </script>
