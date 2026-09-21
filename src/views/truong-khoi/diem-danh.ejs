@@ -30,8 +30,8 @@
             <div class="date-filter-bar" aria-label="Bộ lọc ngày điểm danh">
                 <button class="date-filter is-active" data-filter="all" type="button">Tất cả</button>
                 <% dateGroups.forEach((group) => { %>
-                    <button class="date-filter" data-filter="<%= group.dateKey %>" type="button">
-                        <%= group.label %>
+                    <button class="date-filter" data-filter="<%= group.filterKey %>" type="button">
+                        <%= group.label %> · <%= group.sessionType || 'Buổi học' %>
                     </button>
                 <% }) %>
             </div>
@@ -40,13 +40,13 @@
         <section class="attendance-shell">
             <div class="list-panel">
                 <% dateGroups.forEach((group) => { %>
-                    <section class="session-group" data-date="<%= group.dateKey %>">
+                    <section class="session-group" data-filter-key="<%= group.filterKey %>" data-date="<%= group.dateKey %>" data-session="<%= group.sessionType || 'Buổi học' %>">
                         <header class="session-group-header">
                             <div>
                                 <p class="session-date"><%= group.label %></p>
                                 <p class="session-meta"><%= group.items.length %> thiếu nhi</p>
                             </div>
-                            <span class="session-tag"><%= group.items[0]?.loai_buoi || 'Buổi học' %></span>
+                            <span class="session-tag"><%= group.sessionType || group.items[0]?.loai_buoi || 'Buổi học' %></span>
                         </header>
 
                         <div class="attendance-card-list">
@@ -85,13 +85,13 @@
         const filterButtons = document.querySelectorAll('.date-filter');
         const groups = document.querySelectorAll('.session-group');
 
-        const updateFilters = (selectedDate) => {
+        const updateFilters = (selectedFilterKey) => {
             filterButtons.forEach((button) => {
-                button.classList.toggle('is-active', button.dataset.filter === selectedDate);
+                button.classList.toggle('is-active', button.dataset.filter === selectedFilterKey);
             });
 
             groups.forEach((group) => {
-                const shouldShow = selectedDate === 'all' || group.dataset.date === selectedDate;
+                const shouldShow = selectedFilterKey === 'all' || group.dataset.filterKey === selectedFilterKey;
                 group.style.display = shouldShow ? 'block' : 'none';
             });
         };
