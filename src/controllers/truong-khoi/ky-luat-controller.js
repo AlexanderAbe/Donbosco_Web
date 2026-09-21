@@ -26,8 +26,12 @@ const KyLuatController = {
             const allDiscipline = selectedYearId
                 ? await KyLuatModel.getPageData(req.session.user.id_glv, selectedYearId)
                 : [];
+            const monthNumbers = [...new Set(allDiscipline
+                .map(item => Number(item.thang))
+                .filter(month => Number.isInteger(month) && month >= 1 && month <= 12))]
+                .sort((a, b) => a - b);
             const requestedMonth = Number.parseInt(req.query.thang, 10);
-            const selectedMonth = Number.isInteger(requestedMonth) && requestedMonth >= 1 && requestedMonth <= 12
+            const selectedMonth = monthNumbers.includes(requestedMonth)
                 ? requestedMonth
                 : null;
             const discipline = selectedMonth === null
@@ -39,6 +43,7 @@ const KyLuatController = {
                 title: 'Điểm kỷ luật',
                 layout: 'layouts/truong-khoi-layout',
                 selectedYearId,
+                monthNumbers,
                 selectedMonth,
                 hasData: allDiscipline.length > 0,
                 discipline: normalizeDiscipline(discipline)

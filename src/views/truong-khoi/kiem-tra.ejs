@@ -19,7 +19,6 @@
         </div>
     <% } else { %>
         <form class="tk-filter" method="GET" action="/truong-khoi/kiem-tra">
-            <span class="tk-filter-label"><i class="fa-solid fa-filter"></i> Bài kiểm tra</span>
             <div class="tk-filter-buttons" aria-label="Lọc theo bài kiểm tra">
                 <button class="tk-filter-button <%= selectedExam === null ? 'is-active' : '' %>" type="submit" name="bai_kiem_tra" value="">Tất cả</button>
                 <% examNumbers.forEach(number => { %>

@@ -53,6 +53,10 @@
   display: grid;
   gap: 24px;
 }
+.class-grid[hidden],
+.class-panel[hidden] {
+  display: none !important;
+}
 .class-filter-bar {
   display: flex;
   align-items: end;
