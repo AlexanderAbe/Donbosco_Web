@@ -34,7 +34,7 @@
         </div>
         <section class="class-panel all-students-panel" id="all-students-panel">
             <div class="class-panel-header">
-                <div><p class="class-label">Toàn khối</p><h2><i class="fa-solid fa-users"></i> Tất cả thiếu nhi</h2></div>
+                <div><p class="class-label"><%= classItem.ten_khoi %></p><h2><i class="fa-solid fa-users"></i> Tất cả thiếu nhi</h2></div>
                 <span class="student-count"><%= allStudents.length %> thiếu nhi</span>
             </div>
             <div class="table-scroll">
@@ -46,7 +46,7 @@
                                 <td><%= index + 1 %></td>
                                 <td><%= student.mstn || '-' %></td>
                                 <td><strong><%= student._fullName %></strong></td>
-                                <td><%= student.ten_khoi %> - <%= student.ten_lop %></td>
+                                <td><%= student.ten_lop %></td>
                                 <td><%= student._dobDisplay %></td>
                                 <td><%= student.gioi_tinh || '-' %></td>
                                 <td><span class="status <%= student.trang_thai === 'Đang học' ? 'is-active' : 'is-inactive' %>"><%= student.trang_thai %></span></td>
