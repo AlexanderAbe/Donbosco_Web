@@ -23,15 +23,24 @@ const KyLuatController = {
         try {
             const years = await LopModel.getAcademicYears(req.session.user.id_glv);
             const { selectedYearId } = getCurrentYear(years, req.session);
-            const discipline = selectedYearId
+            const allDiscipline = selectedYearId
                 ? await KyLuatModel.getPageData(req.session.user.id_glv, selectedYearId)
                 : [];
+            const requestedMonth = Number.parseInt(req.query.thang, 10);
+            const selectedMonth = Number.isInteger(requestedMonth) && requestedMonth >= 1 && requestedMonth <= 12
+                ? requestedMonth
+                : null;
+            const discipline = selectedMonth === null
+                ? allDiscipline
+                : allDiscipline.filter(item => Number(item.thang) === selectedMonth);
 
             return res.render('truong-khoi/ky-luat', {
                 ...getTruongKhoiBaseData(req, 'Điểm kỷ luật'),
                 title: 'Điểm kỷ luật',
                 layout: 'layouts/truong-khoi-layout',
                 selectedYearId,
+                selectedMonth,
+                hasData: allDiscipline.length > 0,
                 discipline: normalizeDiscipline(discipline)
             });
         } catch (error) {

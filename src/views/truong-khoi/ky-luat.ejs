@@ -5,18 +5,36 @@
     <header class="tk-class-header">
         <div>
             <p class="eyebrow"><i class="fa-solid fa-scale-balanced"></i> Theo dõi kỷ luật</p>
+            <label for="discipline-search"><i class="fa-solid fa-magnifying-glass"></i> Tìm thiếu nhi</label>
+            <input id="discipline-search" class="tk-search" type="search" placeholder="Nhập tên hoặc mã số..." autocomplete="off">
             <h1>Điểm kỷ luật toàn khối</h1>
         </div>
     </header>
 
-    <% if (!discipline || !discipline.length) { %>
+    <% if (!hasData) { %>
         <div class="tk-empty">
             <i class="fa-solid fa-file-circle-question"></i>
             <h2>Chưa có điểm kỷ luật</h2>
             <p>Niên khóa này chưa có dữ liệu trong khối.</p>
         </div>
     <% } else { %>
-        <div class="class-panel">
+        <form class="tk-filter" method="GET" action="/truong-khoi/ky-luat">
+            <label for="month-filter"><i class="fa-solid fa-filter"></i> Tháng</label>
+            <select id="month-filter" name="thang" onchange="this.form.submit()">
+                <option value="">Tất cả tháng</option>
+                <% for (let month = 1; month <= 12; month += 1) { %>
+                    <option value="<%= month %>" <%= month === selectedMonth ? 'selected' : '' %>>Tháng <%= month %></option>
+                <% } %>
+            </select>
+        </form>
+        <% if (!discipline.length) { %>
+            <div class="tk-empty">
+                <i class="fa-solid fa-filter-circle-xmark"></i>
+                <h2>Không có kết quả phù hợp</h2>
+                <p>Tháng đang chọn chưa có dữ liệu điểm kỷ luật.</p>
+            </div>
+        <% } else { %>
+            <div class="class-panel">
             <div class="table-scroll">
                 <table>
                     <thead>
@@ -31,7 +49,7 @@
                     </thead>
                     <tbody>
                         <% discipline.forEach((item, index) => { %>
-                            <tr>
+                            <tr data-discipline-row data-search="<%= `${item._fullName || ''} ${item.mstn || ''}`.toLowerCase() %>">
                                 <td><%= index + 1 %></td>
                                 <td><%= item.mstn || '-' %></td>
                                 <td>
@@ -47,6 +65,31 @@
                     </tbody>
                 </table>
             </div>
-        </div>
+            </div>
+            <div class="tk-no-results" id="discipline-no-results" hidden>
+                <i class="fa-solid fa-user-slash"></i>
+                Không tìm thấy thiếu nhi phù hợp.
+            </div>
+        <% } %>
     <% } %>
 </main>
+
+<script>
+(() => {
+    const search = document.getElementById('discipline-search');
+    const rows = document.querySelectorAll('[data-discipline-row]');
+    const empty = document.getElementById('discipline-no-results');
+    const normalize = value => String(value || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+
+    search?.addEventListener('input', () => {
+        const keyword = normalize(search.value.trim());
+        let visibleCount = 0;
+        rows.forEach(row => {
+            const visible = !keyword || normalize(row.dataset.search).includes(keyword);
+            row.hidden = !visible;
+            if (visible) visibleCount += 1;
+        });
+        if (empty) empty.hidden = visibleCount > 0;
+    });
+})();
+</script>

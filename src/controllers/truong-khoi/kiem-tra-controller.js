@@ -23,15 +23,25 @@ const KiemTraController = {
         try {
             const years = await LopModel.getAcademicYears(req.session.user.id_glv);
             const { selectedYearId } = getCurrentYear(years, req.session);
-            const scores = selectedYearId
+            const allScores = selectedYearId
                 ? await KiemTraModel.getPageData(req.session.user.id_glv, selectedYearId)
                 : [];
+            const examNumbers = [...new Set(allScores.map(item => Number(item.stt_bai_ktra)).filter(Number.isInteger))]
+                .sort((a, b) => a - b);
+            const requestedExam = Number.parseInt(req.query.bai_kiem_tra, 10);
+            const selectedExam = examNumbers.includes(requestedExam) ? requestedExam : null;
+            const scores = selectedExam === null
+                ? allScores
+                : allScores.filter(item => Number(item.stt_bai_ktra) === selectedExam);
 
             return res.render('truong-khoi/kiem-tra', {
                 ...getTruongKhoiBaseData(req, 'Điểm kiểm tra'),
                 title: 'Quản lý kiểm tra',
                 layout: 'layouts/truong-khoi-layout',
                 selectedYearId,
+                examNumbers,
+                selectedExam,
+                hasData: allScores.length > 0,
                 scores: normalizeScores(scores)
             });
         } catch (error) {

@@ -95,10 +95,30 @@ const PhanCongModel = {
     },
 
     async removeGlv(idPhanCong, idCauHinhNamHoc) {
-        await pool.query(`
-            DELETE FROM PHAN_CONG_GLV
-            WHERE id_phan_cong_glv = $1 AND id_cau_hinh_nam_hoc = $2
-        `, [idPhanCong, idCauHinhNamHoc]);
+        const client = await pool.connect();
+        try {
+            await client.query('BEGIN');
+
+            const { rows } = await client.query(`
+                DELETE FROM PHAN_CONG_GLV
+                WHERE id_phan_cong_glv = $1 AND id_cau_hinh_nam_hoc = $2
+                RETURNING id_glv
+            `, [idPhanCong, idCauHinhNamHoc]);
+
+            if (rows.length) {
+                await client.query(`
+                    DELETE FROM PHAN_CONG_TRUONG_KHOI
+                    WHERE id_glv = $1 AND id_cau_hinh_nam_hoc = $2
+                `, [rows[0].id_glv, idCauHinhNamHoc]);
+            }
+
+            await client.query('COMMIT');
+        } catch (error) {
+            await client.query('ROLLBACK');
+            throw error;
+        } finally {
+            client.release();
+        }
     },
 
     async assignTruongKhoi(idGlv, idKhoi, idCauHinhNamHoc) {

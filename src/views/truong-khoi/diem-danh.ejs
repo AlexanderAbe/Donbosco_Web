@@ -27,6 +27,10 @@
         %>
 
         <section class="attendance-summary-wrap">
+            <div class="tk-search-wrap">
+                <label for="attendance-search"><i class="fa-solid fa-magnifying-glass"></i> Tìm thiếu nhi</label>
+                <input id="attendance-search" class="tk-search" type="search" placeholder="Nhập tên hoặc mã số..." autocomplete="off">
+            </div>
             <div class="date-filter-bar" aria-label="Bộ lọc ngày điểm danh">
                 <button class="date-filter is-active" data-filter="all" type="button">Tất cả</button>
                 <% dateGroups.forEach((group) => { %>
@@ -53,7 +57,7 @@
                             <% group.items.forEach((item) => {
                                 const badge = statusMeta[item._status] || { label: item._status || 'Chưa xác định', className: 'is-unknown', icon: 'fa-circle-question' };
                             %>
-                                <article class="attendance-card">
+                                <article class="attendance-card" data-attendance-card data-search="<%= `${item._fullName || ''} ${item.mstn || ''}`.toLowerCase() %>">
                                     <div class="card-top">
                                         <div class="student-head">
                                             <p class="student-name"><%= item._fullName %></p>
@@ -77,6 +81,10 @@
             </div>
 
         </section>
+        <div class="tk-no-results" id="attendance-no-results" hidden>
+            <i class="fa-solid fa-user-slash"></i>
+            Không tìm thấy thiếu nhi phù hợp.
+        </div>
     <% } %>
 </main>
 
@@ -84,22 +92,40 @@
     document.addEventListener('DOMContentLoaded', function () {
         const filterButtons = document.querySelectorAll('.date-filter');
         const groups = document.querySelectorAll('.session-group');
+        const search = document.getElementById('attendance-search');
+        const empty = document.getElementById('attendance-no-results');
+        const normalize = value => String(value || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+        let selectedFilterKey = 'all';
 
-        const updateFilters = (selectedFilterKey) => {
+        const updateFilters = () => {
+            const keyword = normalize(search?.value.trim());
+            let visibleCards = 0;
             filterButtons.forEach((button) => {
                 button.classList.toggle('is-active', button.dataset.filter === selectedFilterKey);
             });
 
             groups.forEach((group) => {
-                const shouldShow = selectedFilterKey === 'all' || group.dataset.filterKey === selectedFilterKey;
+                const matchesDate = selectedFilterKey === 'all' || group.dataset.filterKey === selectedFilterKey;
+                let groupCards = 0;
+                group.querySelectorAll('[data-attendance-card]').forEach((card) => {
+                    const matchesSearch = !keyword || normalize(card.dataset.search).includes(keyword);
+                    card.hidden = !matchesSearch;
+                    if (matchesSearch) groupCards += 1;
+                });
+                const shouldShow = matchesDate && groupCards > 0;
                 group.style.display = shouldShow ? 'block' : 'none';
+                if (matchesDate) visibleCards += groupCards;
             });
+            if (empty) empty.hidden = visibleCards > 0;
         };
 
         filterButtons.forEach((button) => {
             button.addEventListener('click', function () {
-                updateFilters(this.dataset.filter);
+                selectedFilterKey = this.dataset.filter;
+                updateFilters();
             });
         });
+
+        search?.addEventListener('input', updateFilters);
     });
 </script>
