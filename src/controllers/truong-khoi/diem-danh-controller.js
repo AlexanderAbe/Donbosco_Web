@@ -61,20 +61,29 @@ const buildAttendanceReport = (attendance = []) => {
 
     const summaryRows = [...summaryMap.values()].sort((a, b) => new Date(b.dateKey) - new Date(a.dateKey));
 
+    const sessionOrder = ['Lễ Thứ 3', 'Lễ Thứ 5', 'Lễ Chúa Nhật', 'Học Giáo Lý'];
     const groupsByDate = new Map();
     normalized.forEach((item) => {
-        if (!groupsByDate.has(item._dateKey)) {
-            groupsByDate.set(item._dateKey, {
+        const sessionType = item.loai_buoi || 'Chưa xác định';
+        const groupKey = `${item._dateKey}|${sessionType}`;
+        if (!groupsByDate.has(groupKey)) {
+            groupsByDate.set(groupKey, {
                 dateKey: item._dateKey,
+                filterKey: groupKey,
                 label: item._dateGroupLabel,
+                sessionType,
                 items: []
             });
         }
 
-        groupsByDate.get(item._dateKey).items.push(item);
+        groupsByDate.get(groupKey).items.push(item);
     });
 
-    const dateGroups = [...groupsByDate.values()].sort((a, b) => new Date(b.dateKey) - new Date(a.dateKey));
+    const dateGroups = [...groupsByDate.values()].sort((a, b) => {
+        const dateDiff = new Date(b.dateKey) - new Date(a.dateKey);
+        if (dateDiff !== 0) return dateDiff;
+        return (sessionOrder.indexOf(a.sessionType) - sessionOrder.indexOf(b.sessionType) + sessionOrder.length) % sessionOrder.length;
+    });
 
     const stats = {
         total: normalized.length,
