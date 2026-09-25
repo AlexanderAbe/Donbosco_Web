@@ -252,6 +252,30 @@
   margin-top: 3px;
 }
 
+.tn-modal .detail-tabs {
+  display: flex;
+  gap: 4px;
+  padding: 0 20px;
+  border-bottom: 1px solid #e2e8f0;
+  background: #fff;
+}
+
+.tn-modal .detail-tab {
+  border: 0;
+  border-bottom: 2px solid transparent;
+  background: transparent;
+  color: #64748b;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 12px 10px 10px;
+}
+
+.tn-modal .detail-tab.is-active {
+  border-bottom-color: #be123c;
+  color: #be123c;
+}
+
 .tn-modal .modal-close {
   border: 0;
   border-radius: 50%;
@@ -305,6 +329,20 @@
 .tn-modal .detail-grid strong {
   color: #1e293b;
   font-size: 13px;
+}
+
+.tn-modal .detail-grid small {
+  color: #64748b;
+  font-size: 11px;
+}
+
+.tn-modal .detail-panel {
+  display: none;
+}
+
+.tn-modal .detail-panel.is-active {
+  display: grid;
+  gap: 16px;
 }
 
 .tn-modal .history-list {

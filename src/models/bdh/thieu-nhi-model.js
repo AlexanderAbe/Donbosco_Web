@@ -118,7 +118,19 @@ const ThieuNhiModel = {
 
         if (!studentResult.rows.length) return null;
 
-        const [classHistory, scores] = await Promise.all([
+        const [parents, sacraments, classHistory, scores] = await Promise.all([
+            pool.query(`
+                SELECT ten_ph, sdt, moi_quan_he
+                FROM PHU_HUYNH
+                WHERE id_tn = $1
+                ORDER BY id_phu_huynh ASC
+            `, [idTn]),
+            pool.query(`
+                SELECT loai_bi_tich, TO_CHAR(ngay_lanh_nhan, 'YYYY-MM-DD') AS ngay_lanh_nhan
+                FROM BI_TICH
+                WHERE id_tn = $1
+                ORDER BY ngay_lanh_nhan ASC NULLS LAST, id_bi_tich ASC
+            `, [idTn]),
             pool.query(`
                 SELECT c.nien_khoa, l.ten_lop, k.ten_khoi, pl.trang_thai
                 FROM PHAN_LOP pl
@@ -146,6 +158,8 @@ const ThieuNhiModel = {
 
         return {
             student: studentResult.rows[0],
+            parents: parents.rows,
+            sacraments: sacraments.rows,
             classHistory: classHistory.rows,
             scores: scores.rows,
             selectedYearId: yearId

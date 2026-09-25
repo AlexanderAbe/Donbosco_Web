@@ -118,6 +118,10 @@
             </div>
             <button type="button" class="modal-close">×</button>
         </div>
+        <div class="detail-tabs" role="tablist" aria-label="Nội dung hồ sơ">
+            <button type="button" class="detail-tab is-active" role="tab" aria-selected="true" aria-controls="detail-basic" data-tab="detail-basic">Thông tin cơ bản</button>
+            <button type="button" class="detail-tab" role="tab" aria-selected="false" aria-controls="detail-history" data-tab="detail-history">Lịch sử lớp học và điểm</button>
+        </div>
         <div class="modal-body" id="student-detail">
             <div class="loading">Đang tải dữ liệu...</div>
         </div>
@@ -260,6 +264,21 @@
         }
         return value;
     };
+
+    document.querySelectorAll('.detail-tab').forEach(tab => {
+        tab.addEventListener('click', () => {
+            document.querySelectorAll('.detail-tab').forEach(item => {
+                const isActive = item === tab;
+                item.classList.toggle('is-active', isActive);
+                item.setAttribute('aria-selected', String(isActive));
+            });
+            document.querySelectorAll('.detail-panel').forEach(panel => {
+                panel.hidden = panel.id !== tab.dataset.tab;
+                panel.classList.toggle('is-active', panel.id === tab.dataset.tab);
+            });
+        });
+    });
+
     document.querySelectorAll('.view-student').forEach(button => {
         button.addEventListener('click', async () => {
             modalDetail.classList.add('is-open');
@@ -279,22 +298,36 @@
                     historyByYear.set(item.nien_khoa, { ...history, ...item });
                 });
                 const yearHistory = [...historyByYear.values()];
+                const parents = data.parents || [];
+                const sacraments = data.sacraments || [];
                 
                 detail.innerHTML = `
-                    <div class="detail-section">
-                        <h3>Thông tin cơ bản</h3>
-                        <div class="detail-grid">
-                            <div><span>Họ và tên</span><strong>${s.ho_ten || '-'}</strong></div>
-                            <div><span>Thánh danh</span><strong>${s.ten_thanh || '-'}</strong></div>
-                            <div><span>Ngày sinh</span><strong>${date(s.ngay_sinh)}</strong></div>
-                            <div><span>Giới tính</span><strong>${s.gioi_tinh || '-'}</strong></div>
-                            <div><span>Mã thiếu nhi</span><strong>${s.mstn || '-'}</strong></div>
-                            <div><span>Địa chỉ</span><strong>${s.dia_chi || '-'}</strong></div>
+                    <div class="detail-panel is-active" id="detail-basic" role="tabpanel">
+                        <div class="detail-section">
+                            <h3>Thông tin cơ bản</h3>
+                            <div class="detail-grid">
+                                <div><span>Họ và tên</span><strong>${s.ho_ten || '-'}</strong></div>
+                                <div><span>Thánh danh</span><strong>${s.ten_thanh || '-'}</strong></div>
+                                <div><span>Ngày sinh</span><strong>${date(s.ngay_sinh)}</strong></div>
+                                <div><span>Giới tính</span><strong>${s.gioi_tinh || '-'}</strong></div>
+                                <div><span>Mã thiếu nhi</span><strong>${s.mstn || '-'}</strong></div>
+                                <div><span>Địa chỉ</span><strong>${s.dia_chi || '-'}</strong></div>
+                            </div>
+                        </div>
+                        <div class="detail-section">
+                            <h3>Phụ huynh</h3>
+                            ${parents.length ? `<div class="detail-grid">${parents.map(parent => `<div><span>${parent.moi_quan_he || 'Mối quan hệ'}</span><strong>${parent.ten_ph || '-'}</strong><small>${parent.sdt || 'Chưa có số điện thoại'}</small></div>`).join('')}</div>` : '<p class="muted">Chưa có thông tin phụ huynh.</p>'}
+                        </div>
+                        <div class="detail-section">
+                            <h3>Bí tích</h3>
+                            ${sacraments.length ? `<div class="detail-grid">${sacraments.map(sacrament => `<div><span>${sacrament.loai_bi_tich || 'Bí tích'}</span><strong>${date(sacrament.ngay_lanh_nhan)}</strong></div>`).join('')}</div>` : '<p class="muted">Chưa có thông tin bí tích.</p>'}
                         </div>
                     </div>
-                    <div class="detail-section">
-                        <h3>Lịch sử lớp học và điểm</h3>
-                        ${yearHistory.length ? `<div class="score-table"><table><thead><tr><th>Niên khóa</th><th>Lớp</th><th>Học tập</th><th>Chuyên cần</th><th>Kỷ luật</th><th>Tổng</th></tr></thead><tbody>${yearHistory.map(item => `<tr><td>${item.nien_khoa || '-'}</td><td>${item.ten_khoi && item.ten_lop ? `${item.ten_khoi} - ${item.ten_lop}` : item.ten_lop || item.ten_khoi || '-'}</td><td>${item.diem_hoc_tap ?? '-'}</td><td>${item.diem_chuyen_can ?? '-'}</td><td>${item.diem_ky_luat ?? '-'}</td><td>${item.diem_tong ?? '-'}</td></tr>`).join('')}</tbody></table></div>` : '<p class="muted">Chưa có dữ liệu.</p>'}
+                    <div class="detail-panel" id="detail-history" role="tabpanel" hidden>
+                        <div class="detail-section">
+                            <h3>Lịch sử lớp học và điểm</h3>
+                            ${yearHistory.length ? `<div class="score-table"><table><thead><tr><th>Niên khóa</th><th>Lớp</th><th>Học tập</th><th>Chuyên cần</th><th>Kỷ luật</th><th>Tổng</th></tr></thead><tbody>${yearHistory.map(item => `<tr><td>${item.nien_khoa || '-'}</td><td>${item.ten_khoi && item.ten_lop ? `${item.ten_khoi} - ${item.ten_lop}` : item.ten_lop || item.ten_khoi || '-'}</td><td>${item.diem_hoc_tap ?? '-'}</td><td>${item.diem_chuyen_can ?? '-'}</td><td>${item.diem_ky_luat ?? '-'}</td><td>${item.diem_tong ?? '-'}</td></tr>`).join('')}</tbody></table></div>` : '<p class="muted">Chưa có dữ liệu.</p>'}
+                        </div>
                     </div>
                 `;
             } catch (error) {
