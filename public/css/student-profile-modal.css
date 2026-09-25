@@ -1,5 +1,26 @@
 .student-profile-modal {
+  --profile-accent: #c92323;
+  --profile-accent-strong: #a91d1d;
+  --profile-accent-soft: #fff1f2;
+  --profile-header-start: #fff7f7;
+  --profile-header-border: #fee2e2;
   color: #1e293b;
+}
+
+.student-profile-modal.student-modal {
+  --profile-accent: #2563eb;
+  --profile-accent-strong: #1d4ed8;
+  --profile-accent-soft: #e7efff;
+  --profile-header-start: #eff6ff;
+  --profile-header-border: #bfdbfe;
+}
+
+.student-profile-modal.tk-modal {
+  --profile-accent: #b45309;
+  --profile-accent-strong: #92400e;
+  --profile-accent-soft: #fffbeb;
+  --profile-header-start: #fffbeb;
+  --profile-header-border: #fde68a;
 }
 
 .student-profile-modal[open] {
@@ -60,12 +81,12 @@
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  background: linear-gradient(135deg, #fff7f7, #fff 70%);
-  border-bottom: 1px solid #fee2e2;
+  background: linear-gradient(135deg, var(--profile-header-start), #fff 70%);
+  border-bottom: 1px solid var(--profile-header-border);
 }
 
 .student-profile-modal .modal-header span {
-  color: #be123c;
+  color: var(--profile-accent-strong);
   font-size: 11px;
   font-weight: 700;
   letter-spacing: 0.08em;
@@ -82,8 +103,8 @@
 .student-profile-modal .modal-close {
   border: 0;
   border-radius: 50%;
-  background: #fff1f2;
-  color: #9f1239;
+  background: var(--profile-accent-soft);
+  color: var(--profile-accent-strong);
   cursor: pointer;
   font-size: 22px;
   height: 32px;
@@ -111,8 +132,8 @@
 }
 
 .student-profile-modal .detail-tab.is-active {
-  border-bottom-color: #be123c;
-  color: #be123c;
+  border-bottom-color: var(--profile-accent);
+  color: var(--profile-accent-strong);
 }
 
 .student-profile-modal .modal-body {
@@ -220,8 +241,8 @@
 }
 
 .student-profile-modal .add-row {
-  background: #fef2f2;
-  color: #be123c;
+  background: var(--profile-accent-soft);
+  color: var(--profile-accent-strong);
   font-weight: 700;
 }
 
@@ -244,8 +265,13 @@
 
 .student-profile-modal .modal-footer .modal-button.primary,
 .student-profile-modal .modal-footer .primary-button {
-  background: #c92323;
+  background: var(--profile-accent);
   color: #fff;
+}
+
+.student-profile-modal .modal-footer .modal-button.primary:hover,
+.student-profile-modal .modal-footer .primary-button:hover {
+  background: var(--profile-accent-strong);
 }
 
 .student-profile-modal .modal-footer .modal-button.secondary,
