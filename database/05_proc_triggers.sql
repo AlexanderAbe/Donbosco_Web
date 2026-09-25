@@ -229,6 +229,7 @@ BEGIN
         SELECT 1 FROM PHAN_LOP 
         WHERE id_tn = NEW.id_tn 
           AND id_cau_hinh_nam_hoc = NEW.id_cau_hinh_nam_hoc 
+            AND id_phan_lop IS DISTINCT FROM NEW.id_phan_lop
           AND id_lop <> COALESCE(NEW.id_lop, -1)
     ) THEN
         RAISE EXCEPTION 'Thiếu nhi có ID % đã được xếp vào một lớp khác trong cùng một năm học!', NEW.id_tn;

@@ -1,5 +1,6 @@
 <link rel="stylesheet" href="/css/reset.css">
 <link rel="stylesheet" href="/css/truong-khoi/truong-khoi-lop.css">
+<div class="tk-toast" id="tk-toast" role="status" aria-live="polite" hidden></div>
 <div id="page-data" data-year="<%= selectedYearId || '' %>" data-classes='<%- JSON.stringify(classes.map(item => ({ id_lop: item.id_lop, ten_lop: item.ten_lop }))) %>' style="display:none;"></div>
 <main class="tk-class-page">
     <header class="tk-class-header">
@@ -149,6 +150,13 @@
     
     const createModal = document.getElementById('create-student-modal');
     const createForm = document.getElementById('create-student-form');
+    const toast = document.getElementById('tk-toast');
+
+    const showToast = message => {
+        toast.innerHTML = `<i class="fa-solid fa-circle-check"></i><span>${esc(message)}</span>`;
+        toast.hidden = false;
+        window.setTimeout(() => { toast.hidden = true; }, 2600);
+    };
 
     document.querySelectorAll('[data-close]').forEach(button => button.addEventListener('click', () => close(button.dataset.close)));
     document.getElementById('open-create-student')?.addEventListener('click', () => createModal.showModal());
@@ -273,7 +281,9 @@
             document.getElementById('transfer-error').textContent = resData.error; 
             return; 
         }
-        window.location.reload();
+        close('transfer-modal');
+        showToast('Chuyển lớp thành công.');
+        window.setTimeout(() => window.location.reload(), 900);
     });
 
     const studentSearch = document.getElementById('student-search');
