@@ -259,9 +259,9 @@
             const s = data.student;
             document.getElementById('detail-title').textContent = fullName(s);
             
-            const parentsHtml = data.parents && data.parents.length 
-                ? data.parents.map(p => `<p><strong>${esc(p.ten_ph || 'Phụ huynh')}</strong> (${esc(p.moi_quan_he || 'Không rõ')}) · SĐT: ${esc(p.sdt || 'Chưa có')}</p>`).join('') 
-                : '<p>Chưa có thông tin phụ huynh.</p>';
+            const parentsHtml = data.parents && data.parents.length
+                ? `<div class="detail-grid">${data.parents.map(parent => `<div><span>${esc(parent.moi_quan_he || 'Mối quan hệ')}</span><strong>${esc(parent.ten_ph || '-')}</strong><small>${esc(parent.sdt || 'Chưa có số điện thoại')}</small></div>`).join('')}</div>`
+                : '<p class="muted">Chưa có thông tin phụ huynh.</p>';
             const sacramentsHtml = data.sacraments && data.sacraments.length
                 ? `<div class="detail-grid">${data.sacraments.map(item => `<div><span>${esc(item.loai_bi_tich || 'Bí tích')}</span><strong>${esc(formatDateVN(item.ngay_lanh_nhan) || 'Chưa cập nhật')}</strong></div>`).join('')}</div>`
                 : '<p>Chưa có thông tin bí tích.</p>';
@@ -274,18 +274,26 @@
             }
 
             content.innerHTML = `
-                <div class="detail-grid">
-                    <div><span>Mã số</span><strong>${esc(s.mstn || '-')}</strong></div>
-                    <div><span>Ngày sinh</span><strong>${esc(detailDob)}</strong></div>
-                    <div><span>Giới tính</span><strong>${esc(s.gioi_tinh || '-')}</strong></div>
-                    <div><span>Lớp</span><strong>${esc(`${s.ten_khoi} - ${s.ten_lop}`)}</strong></div>
-                    <div><span>Địa chỉ</span><strong>${esc(s.dia_chi || '-')}</strong></div>
-                    <div><span>Trạng thái</span><strong>${esc(s.trang_thai || '-')}</strong></div>
-                </div>
-                <h3>Thông tin phụ huynh</h3>
-                ${parentsHtml}
+                <section class="detail-section">
+                    <h3>Thông tin cơ bản</h3>
+                    <div class="detail-grid">
+                        <div><span>Mã số thiếu nhi</span><strong>${esc(s.mstn || '-')}</strong></div>
+                        <div><span>Ngày sinh</span><strong>${esc(detailDob)}</strong></div>
+                        <div><span>Giới tính</span><strong>${esc(s.gioi_tinh || '-')}</strong></div>
+                        <div><span>Lớp</span><strong>${esc(`${s.ten_khoi} - ${s.ten_lop}`)}</strong></div>
+                        <div><span>Địa chỉ</span><strong>${esc(s.dia_chi || '-')}</strong></div>
+                        <div><span>Trạng thái</span><strong>${esc(s.trang_thai || '-')}</strong></div>
+                    </div>
+                </section>
+                <section class="detail-section">
+                    <h3>Phụ huynh</h3>
+                    ${parentsHtml}
+                </section>
+                <section class="detail-section">
+                    <h3>Bí tích</h3>
+                    ${sacramentsHtml}
+                </section>
             `;
-            content.innerHTML += `<section class="detail-section"><h3>Bí tích</h3>${sacramentsHtml}</section>`;
         } catch (error) { 
             content.textContent = error.message || 'Không thể tải thông tin.'; 
         }
