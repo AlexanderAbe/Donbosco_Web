@@ -155,6 +155,11 @@
     const close = id => document.getElementById(id).close();
     const esc = value => String(value ?? '').replace(/[&<>'"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[c]));
     const fullName = student => [student.ten_thanh, student.ho_va_ten_lot, student.ten].filter(Boolean).join(' ');
+    const formatDateVN = value => {
+        if (!value) return '';
+        const parts = String(value).slice(0, 10).split('-');
+        return parts.length === 3 ? `${parts[2]}/${parts[1]}/${parts[0]}` : '';
+    };
     const modal = document.getElementById('detail-modal');
     const detailContent = document.getElementById('detail-content');
     const editButton = document.getElementById('modal-edit');
@@ -257,6 +262,9 @@
             const parentsHtml = data.parents && data.parents.length 
                 ? data.parents.map(p => `<p><strong>${esc(p.ten_ph || 'Phụ huynh')}</strong> (${esc(p.moi_quan_he || 'Không rõ')}) · SĐT: ${esc(p.sdt || 'Chưa có')}</p>`).join('') 
                 : '<p>Chưa có thông tin phụ huynh.</p>';
+            const sacramentsHtml = data.sacraments && data.sacraments.length
+                ? `<div class="detail-grid">${data.sacraments.map(item => `<div><span>${esc(item.loai_bi_tich || 'Bí tích')}</span><strong>${esc(formatDateVN(item.ngay_lanh_nhan) || 'Chưa cập nhật')}</strong></div>`).join('')}</div>`
+                : '<p>Chưa có thông tin bí tích.</p>';
 
             // Nếu bạn cũng muốn phần Modal chi tiết hiển thị ngày sinh theo dạng DD/MM/YYYY, có thể đổi ở đây luôn:
             let detailDob = '-';
@@ -277,6 +285,7 @@
                 <h3>Thông tin phụ huynh</h3>
                 ${parentsHtml}
             `;
+            content.innerHTML += `<section class="detail-section"><h3>Bí tích</h3>${sacramentsHtml}</section>`;
         } catch (error) { 
             content.textContent = error.message || 'Không thể tải thông tin.'; 
         }
