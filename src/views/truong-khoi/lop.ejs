@@ -1,5 +1,6 @@
 <link rel="stylesheet" href="/css/reset.css">
 <link rel="stylesheet" href="/css/truong-khoi/truong-khoi-lop.css">
+<link rel="stylesheet" href="/css/student-profile-modal.css">
 <div class="tk-toast" id="tk-toast" role="status" aria-live="polite" hidden></div>
 <div id="page-data" data-year="<%= selectedYearId || '' %>" data-classes='<%- JSON.stringify(classes.map(item => ({ id_lop: item.id_lop, ten_lop: item.ten_lop }))) %>' style="display:none;"></div>
 <main class="tk-class-page">
@@ -172,6 +173,7 @@
     };
 
     document.querySelectorAll('[data-close]').forEach(button => button.addEventListener('click', () => close(button.dataset.close)));
+    modal.querySelectorAll('.modal-close, .modal-cancel').forEach(button => button.addEventListener('click', () => modal.close()));
     document.getElementById('open-create-student')?.addEventListener('click', () => createModal.showModal());
 
     const renderEdit = data => {

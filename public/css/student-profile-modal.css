@@ -1,0 +1,279 @@
+.student-profile-modal {
+  color: #1e293b;
+}
+
+.student-profile-modal[open] {
+  display: block;
+}
+
+.student-profile-modal dialog {
+  color: #1e293b;
+}
+
+.student-profile-modal:not(dialog) {
+  display: none;
+  position: fixed;
+  inset: 0;
+  align-items: center;
+  justify-content: center;
+  background: rgba(15, 23, 42, 0.58);
+  backdrop-filter: blur(3px);
+  padding: 20px;
+  z-index: 1400;
+}
+
+.student-profile-modal:not(dialog).is-open {
+  display: flex;
+}
+
+.student-profile-modal:not(dialog) .modal-dialog,
+.student-profile-modal[open] {
+  width: min(100%, 760px);
+  max-height: calc(100vh - 40px);
+  overflow-y: auto;
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  box-shadow: 0 24px 70px rgba(15, 23, 42, 0.28);
+}
+
+.student-profile-modal[open] {
+  position: fixed;
+  inset: 0;
+  height: fit-content;
+  margin: auto;
+  padding: 0;
+}
+
+.student-profile-modal::backdrop {
+  background: rgba(15, 23, 42, 0.58);
+  backdrop-filter: blur(3px);
+}
+
+.student-profile-modal .modal-header,
+.student-profile-modal .modal-body,
+.student-profile-modal .modal-footer {
+  padding: 16px 20px;
+}
+
+.student-profile-modal .modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  background: linear-gradient(135deg, #fff7f7, #fff 70%);
+  border-bottom: 1px solid #fee2e2;
+}
+
+.student-profile-modal .modal-header span {
+  color: #be123c;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.student-profile-modal h2 {
+  color: #1e293b;
+  font-size: 20px;
+  font-weight: 700;
+  margin: 3px 0 0;
+}
+
+.student-profile-modal .modal-close {
+  border: 0;
+  border-radius: 50%;
+  background: #fff1f2;
+  color: #9f1239;
+  cursor: pointer;
+  font-size: 22px;
+  height: 32px;
+  width: 32px;
+  line-height: 1;
+}
+
+.student-profile-modal .detail-tabs {
+  display: flex;
+  gap: 4px;
+  padding: 0 20px;
+  border-bottom: 1px solid #e2e8f0;
+  background: #fff;
+}
+
+.student-profile-modal .detail-tab {
+  border: 0;
+  border-bottom: 2px solid transparent;
+  background: transparent;
+  color: #64748b;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 12px 10px 10px;
+}
+
+.student-profile-modal .detail-tab.is-active {
+  border-bottom-color: #be123c;
+  color: #be123c;
+}
+
+.student-profile-modal .modal-body {
+  display: grid;
+  gap: 16px;
+  overflow-y: auto;
+}
+
+.student-profile-modal .detail-panel {
+  display: none;
+}
+
+.student-profile-modal .detail-panel.is-active {
+  display: grid;
+  gap: 16px;
+}
+
+.student-profile-modal .detail-section {
+  border: 1px solid #e2e8f0;
+  border-radius: 9px;
+  padding: 14px;
+}
+
+.student-profile-modal .detail-section h3 {
+  color: #1e293b;
+  font-size: 14px;
+  font-weight: 700;
+  margin: 0 0 11px;
+}
+
+.student-profile-modal .detail-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 9px;
+}
+
+.student-profile-modal .detail-grid > div,
+.student-profile-modal .detail-field {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  background: #f8fafc;
+  border-radius: 7px;
+  padding: 9px 10px;
+}
+
+.student-profile-modal .detail-grid span,
+.student-profile-modal .detail-field span {
+  color: #64748b;
+  font-size: 11px;
+}
+
+.student-profile-modal .detail-grid strong,
+.student-profile-modal .detail-field strong {
+  color: #1e293b;
+  font-size: 13px;
+}
+
+.student-profile-modal .detail-grid small {
+  color: #64748b;
+  font-size: 11px;
+}
+
+.student-profile-modal .detail-form {
+  display: grid;
+  gap: 16px;
+}
+
+.student-profile-modal .detail-form input,
+.student-profile-modal .detail-form select {
+  width: 100%;
+  box-sizing: border-box;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  padding: 8px 9px;
+  background: #fff;
+}
+
+.student-profile-modal .repeat-row {
+  display: grid;
+  grid-template-columns: 1fr 1.3fr 1fr auto;
+  gap: 8px;
+  align-items: end;
+  margin-bottom: 8px;
+}
+
+.student-profile-modal .repeat-row label {
+  display: grid;
+  gap: 4px;
+  color: #64748b;
+  font-size: 11px;
+}
+
+.student-profile-modal .repeat-row button,
+.student-profile-modal .add-row {
+  border: 0;
+  border-radius: 6px;
+  cursor: pointer;
+  padding: 8px 10px;
+}
+
+.student-profile-modal .repeat-row button {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.student-profile-modal .add-row {
+  background: #fef2f2;
+  color: #be123c;
+  font-weight: 700;
+}
+
+.student-profile-modal .modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 10px;
+  border-top: 1px solid #e2e8f0;
+}
+
+.student-profile-modal .modal-footer .modal-button,
+.student-profile-modal .modal-footer .secondary-button,
+.student-profile-modal .modal-footer .btn-secondary {
+  border: 0;
+  border-radius: 6px;
+  cursor: pointer;
+  padding: 8px 16px;
+}
+
+.student-profile-modal .modal-footer .modal-button.primary,
+.student-profile-modal .modal-footer .primary-button {
+  background: #c92323;
+  color: #fff;
+}
+
+.student-profile-modal .modal-footer .modal-button.secondary,
+.student-profile-modal .modal-footer .secondary-button,
+.student-profile-modal .modal-footer .btn-secondary {
+  background: #e2e8f0;
+  color: #334155;
+}
+
+@media (max-width: 700px) {
+  .student-profile-modal:not(dialog) {
+    padding: 12px;
+  }
+
+  .student-profile-modal:not(dialog) .modal-dialog,
+  .student-profile-modal[open] {
+    max-height: calc(100vh - 24px);
+  }
+
+  .student-profile-modal .detail-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .student-profile-modal .repeat-row {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .student-profile-modal .repeat-row button {
+    grid-column: 2;
+  }
+}

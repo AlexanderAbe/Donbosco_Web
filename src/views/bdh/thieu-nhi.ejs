@@ -1,5 +1,6 @@
 <link rel="stylesheet" href="/css/reset.css">
 <link rel="stylesheet" href="/css/bdh/bdh-thieu-nhi.css">
+<link rel="stylesheet" href="/css/student-profile-modal.css">
 
 <div class="tn-page">
     <div class="page-toolbar">
@@ -189,6 +190,10 @@
         modalImport.classList.remove('is-open');
         modalImport.setAttribute('aria-hidden', 'true');
     };
+
+    modalDetail.querySelectorAll('.modal-close, .modal-cancel').forEach(button => {
+        button.addEventListener('click', closeAllModals);
+    });
 
     // Mở Modal Import
     btnOpenImport.addEventListener('click', () => {
