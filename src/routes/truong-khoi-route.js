@@ -21,6 +21,7 @@ router.get('/dashboard/sacraments/students', dashboardController.getSacramentStu
 router.get('/lop', lopController.getLop);
 router.post('/lop/create', lopController.createStudent);
 router.get('/lop/:id/detail', lopController.getStudentDetail);
+router.post('/lop/:id/update', lopController.updateStudent);
 router.post('/lop/:id/status', lopController.updateStudentStatus);
 router.post('/lop/:id/transfer', lopController.transferStudent);
 router.get('/phan-cong-glv', phanCongGlvController.getPage);

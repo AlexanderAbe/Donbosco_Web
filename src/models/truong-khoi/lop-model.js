@@ -117,6 +117,68 @@ const LopModel = {
         return { student: rows[0], parents: parents.rows, sacraments: sacraments.rows };
     },
 
+    async updateStudent(idGlv, idTn, yearId, data) {
+        const client = await pool.connect();
+        try {
+            await client.query('BEGIN');
+            const access = await client.query(`
+                SELECT pl.id_phan_lop
+                FROM PHAN_LOP pl
+                JOIN LOP_HOC l ON l.id_lop = pl.id_lop
+                    AND l.id_cau_hinh_nam_hoc = pl.id_cau_hinh_nam_hoc
+                JOIN PHAN_CONG_TRUONG_KHOI tk ON tk.id_khoi = l.id_khoi
+                    AND tk.id_cau_hinh_nam_hoc = pl.id_cau_hinh_nam_hoc
+                WHERE pl.id_tn = $1
+                  AND pl.id_cau_hinh_nam_hoc = $2
+                  AND tk.id_glv = $3
+                LIMIT 1
+            `, [idTn, yearId, idGlv]);
+            if (!access.rows.length) throw new Error('Bạn không có quyền sửa học sinh này.');
+            if (!String(data.ten || '').trim()) throw new Error('Tên thiếu nhi không được để trống.');
+            if (!['Nam', 'Nữ'].includes(data.gioi_tinh)) throw new Error('Giới tính thiếu nhi không hợp lệ.');
+
+            await client.query(`
+                UPDATE THIEU_NHI
+                SET ten_thanh = $1, ho_va_ten_lot = $2, ten = $3,
+                    gioi_tinh = $4, ngay_sinh = $5, dia_chi = $6
+                WHERE id_tn = $7
+            `, [data.ten_thanh || null, data.ho_va_ten_lot || null, String(data.ten).trim(),
+                data.gioi_tinh, data.ngay_sinh || null, data.dia_chi || null, idTn]);
+
+            const statuses = ['Đang học', 'Chuyển xứ', 'Nghỉ học'];
+            if (!statuses.includes(data.trang_thai)) throw new Error('Trạng thái thiếu nhi không hợp lệ.');
+            await client.query('UPDATE PHAN_LOP SET trang_thai = $1 WHERE id_phan_lop = $2', [data.trang_thai, access.rows[0].id_phan_lop]);
+
+            await client.query('DELETE FROM PHU_HUYNH WHERE id_tn = $1', [idTn]);
+            for (const parent of Array.isArray(data.phu_huynh) ? data.phu_huynh : []) {
+                if (String(parent.ten_ph || '').trim() || String(parent.sdt || '').trim()) {
+                    await client.query(`
+                        INSERT INTO PHU_HUYNH (sdt, id_tn, ten_ph, moi_quan_he)
+                        VALUES ($1, $2, $3, $4)
+                    `, [parent.sdt || null, idTn, parent.ten_ph || null, parent.moi_quan_he || null]);
+                }
+            }
+
+            await client.query('DELETE FROM BI_TICH WHERE id_tn = $1', [idTn]);
+            for (const sacrament of Array.isArray(data.bi_tich) ? data.bi_tich : []) {
+                if (sacrament.loai_bi_tich && sacrament.ngay_lanh_nhan) {
+                    await client.query(`
+                        INSERT INTO BI_TICH (loai_bi_tich, ngay_lanh_nhan, id_tn)
+                        VALUES ($1, $2, $3)
+                    `, [sacrament.loai_bi_tich, sacrament.ngay_lanh_nhan, idTn]);
+                }
+            }
+
+            await client.query('COMMIT');
+            return { message: 'Đã cập nhật thông tin thiếu nhi.' };
+        } catch (error) {
+            await client.query('ROLLBACK');
+            throw error;
+        } finally {
+            client.release();
+        }
+    },
+
     async updateStatus(idGlv, idTn, yearId, status) {
         const statuses = ['Đang học', 'Chuyển xứ', 'Nghỉ học'];
         if (!statuses.includes(status)) throw new Error('Trạng thái thiếu nhi không hợp lệ.');

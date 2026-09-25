@@ -163,6 +163,22 @@ const TruongKhoiLopController = {
         }
     },
 
+    async updateStudent(req, res) {
+        const idTn = Number.parseInt(req.params.id, 10);
+        const yearId = Number.parseInt(req.body.yearId, 10);
+        if (!idTn || !yearId) return res.status(400).json({ error: 'Thông tin học sinh không hợp lệ.' });
+
+        try {
+            const result = await LopModel.updateStudent(req.session.user.id_glv, idTn, yearId, req.body);
+            await logAction(req, `Cập nhật thông tin thiếu nhi thành công (ID: ${idTn})`, 'Thành công');
+            return res.json({ success: true, ...result });
+        } catch (error) {
+            console.error('Lỗi cập nhật thông tin thiếu nhi Trưởng Khối:', error);
+            await logAction(req, `Cập nhật thông tin thiếu nhi thất bại (ID: ${idTn}): ${error.message}`, 'Thất bại');
+            return res.status(400).json({ error: error.message || 'Không thể cập nhật thông tin.' });
+        }
+    },
+
     async updateStudentStatus(req, res) {
         try {
             const result = await LopModel.updateStatus(req.session.user.id_glv, Number.parseInt(req.params.id, 10), Number.parseInt(req.body.yearId, 10), req.body.trang_thai);

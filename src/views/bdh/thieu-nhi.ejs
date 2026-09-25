@@ -108,28 +108,16 @@
 </section>
 </div>
 
-<!-- Modal Chi Tiết Thiếu Nhi -->
-<div class="tn-modal" id="student-modal" aria-hidden="true">
-    <div class="modal-dialog" role="dialog" aria-modal="true">
-        <div class="modal-header">
-            <div>
-                <span>Hồ sơ thiếu nhi</span>
-                <h2>Chi tiết học sinh</h2>
-            </div>
-            <button type="button" class="modal-close">×</button>
-        </div>
-        <div class="detail-tabs" role="tablist" aria-label="Nội dung hồ sơ">
-            <button type="button" class="detail-tab is-active" role="tab" aria-selected="true" aria-controls="detail-basic" data-tab="detail-basic">Thông tin cơ bản</button>
-            <button type="button" class="detail-tab" role="tab" aria-selected="false" aria-controls="detail-history" data-tab="detail-history">Lịch sử lớp học và điểm</button>
-        </div>
-        <div class="modal-body" id="student-detail">
-            <div class="loading">Đang tải dữ liệu...</div>
-        </div>
-        <div class="modal-footer">
-            <button type="button" class="btn btn-secondary modal-close">Đóng</button>
-        </div>
-    </div>
-</div>
+<%- include('../partials/student-profile-modal', {
+    modalClass: 'tn-modal',
+    modalId: 'student-modal',
+    bodyId: 'student-detail',
+    titleId: 'student-modal-title',
+    showHistory: true,
+    allowEdit: true,
+    closeClass: 'btn btn-secondary',
+    cancelId: 'student-modal-cancel'
+}) %>
 
 <!-- Modal Import Excel -->
 <div class="tn-modal" id="import-modal" aria-hidden="true">
@@ -186,6 +174,10 @@
     // --- XỬ LÝ MODAL CHI TIẾT ---
     const modalDetail = document.getElementById('student-modal');
     const detail = document.getElementById('student-detail');
+    const editButton = document.getElementById('modal-edit');
+    const saveButton = document.getElementById('modal-save');
+    let currentStudentId = null;
+    let currentStudentData = null;
     
     // --- XỬ LÝ MODAL IMPORT ---
     const modalImport = document.getElementById('import-modal');
@@ -264,6 +256,32 @@
         }
         return value;
     };
+    const dateInput = value => value ? String(value).slice(0, 10) : '';
+    const formRow = (label, value, name, type = 'text') => `<label class="detail-field"><span>${label}</span><input name="${name}" type="${type}" value="${String(value ?? '').replace(/[&<>'"]/g, character => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[character]))}"></label>`;
+
+    const renderEdit = data => {
+        const s = data.student;
+        detail.innerHTML = `<form class="detail-form" id="student-edit-form">
+            <section class="detail-section"><h3>Thông tin cơ bản</h3><div class="detail-grid">
+                <div class="detail-field"><span>Mã số thiếu nhi</span><strong>${s.mstn || '-'}</strong></div>
+                ${formRow('Thánh danh', s.ten_thanh, 'ten_thanh')}${formRow('Họ và tên lót', s.ho_va_ten_lot, 'ho_va_ten_lot')}${formRow('Tên', s.ten, 'ten')}${formRow('Ngày sinh', dateInput(s.ngay_sinh), 'ngay_sinh', 'date')}
+                <label class="detail-field"><span>Giới tính</span><select name="gioi_tinh"><option ${s.gioi_tinh === 'Nam' ? 'selected' : ''}>Nam</option><option ${s.gioi_tinh === 'Nữ' ? 'selected' : ''}>Nữ</option></select></label>${formRow('Địa chỉ', s.dia_chi, 'dia_chi')}
+                <label class="detail-field"><span>Trạng thái</span><select name="trang_thai"><option ${s.trang_thai === 'Đang học' ? 'selected' : ''}>Đang học</option><option ${s.trang_thai === 'Chuyển xứ' ? 'selected' : ''}>Chuyển xứ</option><option ${s.trang_thai === 'Nghỉ học' ? 'selected' : ''}>Nghỉ học</option></select></label>
+            </div></section>
+            <section class="detail-section"><h3>Phụ huynh</h3><div id="edit-parents-list">${data.parents.map(parent => `<div class="repeat-row parent-row">${formRow('Họ tên', parent.ten_ph, 'ten_ph')}${formRow('Quan hệ', parent.moi_quan_he, 'moi_quan_he')}${formRow('SĐT', parent.sdt, 'sdt')}<button type="button" data-remove>Xóa</button></div>`).join('')}</div><button class="add-row" type="button" data-add="parent">Thêm phụ huynh</button></section>
+            <section class="detail-section"><h3>Bí tích</h3><div id="edit-sacraments-list">${data.sacraments.map(item => `<div class="repeat-row sacrament-row"><label>Loại bí tích<select name="loai_bi_tich"><option ${item.loai_bi_tich === 'Rửa tội' ? 'selected' : ''}>Rửa tội</option><option ${item.loai_bi_tich === 'Xưng tội & Rước lễ' ? 'selected' : ''}>Xưng tội & Rước lễ</option><option ${item.loai_bi_tich === 'Thêm sức' ? 'selected' : ''}>Thêm sức</option></select></label>${formRow('Ngày lãnh nhận', dateInput(item.ngay_lanh_nhan), 'ngay_lanh_nhan', 'date')}<button type="button" data-remove>Xóa</button></div>`).join('')}</div><button class="add-row" type="button" data-add="sacrament">Thêm bí tích</button></section>
+        </form>`;
+        detail.querySelectorAll('[data-remove]').forEach(button => button.addEventListener('click', () => button.parentElement.remove()));
+        detail.querySelectorAll('[data-add]').forEach(button => button.addEventListener('click', () => {
+            const parent = button.dataset.add === 'parent';
+            const container = document.getElementById(parent ? 'edit-parents-list' : 'edit-sacraments-list');
+            const template = parent
+                ? `<div class="repeat-row parent-row">${formRow('Họ tên', '', 'ten_ph')}${formRow('Quan hệ', '', 'moi_quan_he')}${formRow('SĐT', '', 'sdt')}<button type="button" data-remove>Xóa</button></div>`
+                : `<div class="repeat-row sacrament-row"><label>Loại bí tích<select name="loai_bi_tich"><option>Rửa tội</option><option>Xưng tội & Rước lễ</option><option>Thêm sức</option></select></label>${formRow('Ngày lãnh nhận', '', 'ngay_lanh_nhan', 'date')}<button type="button" data-remove>Xóa</button></div>`;
+            container.insertAdjacentHTML('beforeend', template);
+            container.lastElementChild.querySelector('[data-remove]').addEventListener('click', event => event.currentTarget.parentElement.remove());
+        }));
+    };
 
     document.querySelectorAll('.detail-tab').forEach(tab => {
         tab.addEventListener('click', () => {
@@ -281,6 +299,9 @@
 
     document.querySelectorAll('.view-student').forEach(button => {
         button.addEventListener('click', async () => {
+            currentStudentId = button.dataset.id;
+            editButton.hidden = false;
+            saveButton.hidden = true;
             modalDetail.classList.add('is-open');
             modalDetail.setAttribute('aria-hidden', 'false');
             detail.innerHTML = '<div class="loading">Đang tải dữ liệu...</div>';
@@ -288,6 +309,7 @@
                 const response = await fetch(`/bdh/thieu-nhi/${button.dataset.id}/detail?nien_khoa=<%= selectedYearId %>`);
                 if (!response.ok) throw new Error();
                 const data = await response.json();
+                currentStudentData = data;
                 const s = data.student;
                 const historyByYear = new Map();
                 data.classHistory.forEach(item => {
@@ -334,6 +356,27 @@
                 detail.innerHTML = '<p class="error-message">Không thể tải thông tin chi tiết.</p>';
             }
         });
+    });
+
+    editButton.addEventListener('click', () => {
+        renderEdit(currentStudentData);
+        editButton.hidden = true;
+        saveButton.hidden = false;
+    });
+
+    saveButton.addEventListener('click', async () => {
+        const form = document.getElementById('student-edit-form');
+        const payload = Object.fromEntries(new FormData(form));
+        payload.yearId = '<%= selectedYearId %>';
+        payload.phu_huynh = [...detail.querySelectorAll('.parent-row')].map(item => Object.fromEntries([...item.querySelectorAll('input')].map(input => [input.name, input.value])));
+        payload.bi_tich = [...detail.querySelectorAll('.sacrament-row')].map(item => Object.fromEntries([...item.querySelectorAll('input, select')].map(input => [input.name, input.value])));
+        const response = await fetch(`/bdh/thieu-nhi/${currentStudentId}/update`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+        if (!response.ok) {
+            const result = await response.json();
+            alert(result.error || 'Không thể lưu thông tin.');
+            return;
+        }
+        location.reload();
     });
 
     // --- LỌC KHỐI - LỚP ---

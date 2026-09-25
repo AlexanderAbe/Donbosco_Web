@@ -63,18 +63,17 @@
     <% } %>
 </main>
 
-<dialog class="student-modal" id="student-modal">
-    <div class="modal-header">
-        <div><span><i class="fa-solid id-card"></i> Hồ sơ thiếu nhi</span><h2 id="modal-title">Chi tiết</h2></div>
-        <button class="modal-close" type="button" aria-label="Đóng">&times;</button>
-    </div>
-    <div class="modal-body" id="modal-body"><p>Đang tải dữ liệu...</p></div>
-    <div class="modal-footer">
-        <button class="modal-button secondary" id="modal-cancel" type="button">Đóng</button>
-        <button class="modal-button primary" id="modal-edit" type="button"><i class="fa-solid fa-pen-to-square"></i> Sửa thông tin</button>
-        <button class="modal-button primary" id="modal-save" type="button" hidden><i class="fa-solid fa-floppy-disk"></i> Lưu thay đổi</button>
-    </div>
-</dialog>
+<%- include('../partials/student-profile-modal', {
+    modalClass: 'student-modal',
+    modalId: 'student-modal',
+    bodyId: 'modal-body',
+    titleId: 'modal-title',
+    modalElement: 'dialog',
+    showHistory: false,
+    allowEdit: true,
+    closeClass: 'modal-button secondary',
+    cancelId: 'modal-cancel'
+}) %>
 
 <dialog class="student-modal status-modal" id="status-modal">
     <div class="modal-header">

@@ -160,6 +160,21 @@ const ThieuNhiController = {
       res.status(500).json({ error: error.message });
     }
   },
+  async updateStudent(req, res) {
+    const idTn = getPositiveInt(req.params.id);
+    const yearId = getPositiveInt(req.body.yearId);
+    if (!idTn || !yearId) return res.status(400).json({ error: "Thông tin học sinh không hợp lệ." });
+
+    try {
+      const result = await ThieuNhiModel.updateStudent(idTn, yearId, req.body);
+      await logAction(req, `Cập nhật thông tin thiếu nhi thành công (ID: ${idTn})`, "Thành công");
+      return res.json({ success: true, ...result });
+    } catch (error) {
+      console.error("Lỗi cập nhật thông tin thiếu nhi:", error);
+      await logAction(req, `Cập nhật thông tin thiếu nhi thất bại (ID: ${idTn}): ${error.message}`, "Thất bại");
+      return res.status(400).json({ error: error.message || "Không thể cập nhật thông tin." });
+    }
+  },
   async importExcel(req, res) {
     try {
       // 1. Kiểm tra file upload từ Multer

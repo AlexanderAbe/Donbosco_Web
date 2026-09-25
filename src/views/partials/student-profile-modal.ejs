@@ -1,0 +1,44 @@
+<% const isDialog = typeof modalElement !== 'undefined' && modalElement === 'dialog'; %>
+<% const displayHistory = typeof showHistory !== 'undefined' && showHistory; %>
+<% const canEdit = typeof allowEdit !== 'undefined' && allowEdit; %>
+<% const displayFooter = typeof showFooter === 'undefined' || showFooter !== false; %>
+<% const modalEyebrow = typeof eyebrow === 'undefined' ? 'Hồ sơ thiếu nhi' : eyebrow; %>
+<% const modalTitle = typeof title === 'undefined' ? 'Chi tiết học sinh' : title; %>
+<% const modalCloseClass = typeof closeClass === 'undefined' ? 'btn btn-secondary' : closeClass; %>
+<% if (isDialog) { %>
+<dialog class="<%= modalClass %> student-profile-modal" id="<%= modalId %>">
+<% } else { %>
+<div class="<%= modalClass %> student-profile-modal" id="<%= modalId %>" aria-hidden="true">
+    <div class="modal-dialog" role="dialog" aria-modal="true">
+<% } %>
+        <div class="modal-header modal-heading">
+            <div>
+                <span><%= modalEyebrow %></span>
+                <h2 id="<%= titleId %>"><%= modalTitle %></h2>
+            </div>
+            <button type="button" class="modal-close close-button" aria-label="Đóng"<%= isDialog ? ` data-close="${modalId}"` : '' %>>&times;</button>
+        </div>
+        <% if (displayHistory) { %>
+            <div class="detail-tabs" role="tablist" aria-label="Nội dung hồ sơ">
+                <button type="button" class="detail-tab is-active" role="tab" aria-selected="true" aria-controls="detail-basic" data-tab="detail-basic">Thông tin cơ bản</button>
+                <button type="button" class="detail-tab" role="tab" aria-selected="false" aria-controls="detail-history" data-tab="detail-history">Lịch sử lớp học và điểm</button>
+            </div>
+        <% } %>
+        <div class="modal-body modal-content" id="<%= bodyId %>">
+            <div class="loading">Đang tải dữ liệu...</div>
+        </div>
+        <% if (displayFooter) { %>
+            <div class="modal-footer">
+            <% if (canEdit) { %>
+                    <button class="modal-button primary primary-button" id="modal-edit" type="button">Sửa thông tin</button>
+                    <button class="modal-button primary primary-button" id="modal-save" type="button" hidden>Lưu thay đổi</button>
+                <% } %>
+                <button type="button" class="<%= modalCloseClass %> modal-cancel" id="<%= typeof cancelId === 'undefined' ? '' : cancelId %>"<%= isDialog ? ` data-close="${modalId}"` : '' %>>Đóng</button>
+            </div>
+        <% } %>
+<% if (isDialog) { %>
+</dialog>
+<% } else { %>
+    </div>
+</div>
+<% } %>
