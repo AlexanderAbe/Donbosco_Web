@@ -140,16 +140,20 @@ const LopModel = {
         const { rows } = await pool.query(`
             UPDATE PHAN_LOP pl
             SET id_lop = $1
-            FROM PHAN_CONG_TRUONG_KHOI tk
-            JOIN LOP_HOC source_class ON source_class.id_lop = pl.id_lop
-                AND source_class.id_cau_hinh_nam_hoc = pl.id_cau_hinh_nam_hoc
-            JOIN LOP_HOC target_class ON target_class.id_lop = $1
-                AND target_class.id_cau_hinh_nam_hoc = pl.id_cau_hinh_nam_hoc
-                AND target_class.id_khoi = tk.id_khoi
             WHERE pl.id_tn = $2
               AND pl.id_cau_hinh_nam_hoc = $3
-              AND tk.id_glv = $4
-              AND tk.id_cau_hinh_nam_hoc = pl.id_cau_hinh_nam_hoc
+              AND EXISTS (
+                  SELECT 1
+                  FROM PHAN_CONG_TRUONG_KHOI tk
+                  JOIN LOP_HOC source_class ON source_class.id_khoi = tk.id_khoi
+                      AND source_class.id_cau_hinh_nam_hoc = tk.id_cau_hinh_nam_hoc
+                  JOIN LOP_HOC target_class ON target_class.id_lop = $1
+                      AND target_class.id_cau_hinh_nam_hoc = $3
+                      AND target_class.id_khoi = tk.id_khoi
+                  WHERE tk.id_glv = $4
+                    AND tk.id_cau_hinh_nam_hoc = $3
+                    AND source_class.id_lop = pl.id_lop
+              )
             RETURNING pl.id_lop
         `, [targetClassId, idTn, yearId, idGlv]);
         if (!rows.length) throw new Error('Không thể chuyển thiếu nhi sang lớp đã chọn.');
