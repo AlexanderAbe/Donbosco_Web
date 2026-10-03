@@ -13,7 +13,15 @@ const BangDiemModel = {
                 realtime.diem_chuyen_can,
                 realtime.diem_ky_luat,
                 realtime.diem_tong,
-                realtime.tinh_trang,
+                CASE
+                    WHEN pl.trang_thai <> 'Đang học' THEN realtime.tinh_trang
+                    WHEN realtime.diem_tong >= 5
+                        AND realtime.diem_hoc_tap >= 5
+                        AND realtime.diem_chuyen_can >= 5
+                        AND realtime.diem_ky_luat >= 5
+                        THEN 'Lên lớp'
+                    ELSE 'Ở lại lớp'
+                END AS tinh_trang,
                 pl.trang_thai AS trang_thai_phan_lop,
                 realtime.id_lop,
                 tk.id_tong_ket_nam_hoc,
