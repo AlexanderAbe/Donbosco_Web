@@ -25,7 +25,7 @@ const BangDiemModel = {
                 pl.trang_thai AS trang_thai_phan_lop,
                 realtime.id_lop,
                 tk.id_tong_ket_nam_hoc,
-                (tk.id_tong_ket_nam_hoc IS NOT NULL) AS has_summary,
+                (tk.tinh_trang IS NOT NULL) AS has_summary,
                 lop.ten_lop,
                 khoi.ten_khoi,
                 khoi.stt
@@ -63,6 +63,7 @@ const BangDiemModel = {
                 AND pc.id_cau_hinh_nam_hoc = tk.id_cau_hinh_nam_hoc
             WHERE tk.id_tn = $1
               AND tk.id_cau_hinh_nam_hoc = $2
+                            AND tk.tinh_trang IS NOT NULL
               AND EXISTS (
                 SELECT 1 FROM PHAN_LOP pl
                 WHERE pl.id_tn = tk.id_tn
