@@ -27,6 +27,16 @@
     gap: 6px;
 }
 
+.pagination-info {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.pagination-summary {
+    margin: 0;
+}
+
 .pagination-size-control {
     display: flex;
     align-items: center;
@@ -88,6 +98,10 @@
         align-items: stretch;
         flex-direction: column;
         gap: 10px;
+    }
+
+    .pagination-info {
+        justify-content: center;
     }
 
     .pagination-summary {

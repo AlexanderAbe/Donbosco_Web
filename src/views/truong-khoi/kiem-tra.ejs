@@ -20,7 +20,6 @@
     <% } else { %>
         <div class="tk-filter">
             <div class="tk-filter-buttons" aria-label="Lọc theo bài kiểm tra">
-                <button class="tk-filter-button <%= selectedExam === null ? 'is-active' : '' %>" type="button" data-exam-filter="all">Tất cả</button>
                 <% examNumbers.forEach(number => { %>
                     <button class="tk-filter-button <%= number === selectedExam ? 'is-active' : '' %>" type="button" data-exam-filter="<%= number %>">Bài <%= number %></button>
                 <% }) %>
@@ -105,7 +104,9 @@
 
     search.addEventListener('input', applyFilters);
     buttons.forEach(button => button.addEventListener('click', () => {
-        selectedExam = button.dataset.examFilter;
+        selectedExam = selectedExam === button.dataset.examFilter
+            ? 'all'
+            : button.dataset.examFilter;
         applyFilters();
     }));
     applyFilters();

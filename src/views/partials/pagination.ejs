@@ -16,15 +16,17 @@
     data-pagination-config="<%= JSON.stringify(paginationConfig) %>"
     aria-label="Phân trang"
     hidden>
-    <p class="pagination-summary" aria-live="polite">
-        Hiển thị <span data-pagination-start>0</span> - <span data-pagination-end>0</span>
-        của <span data-pagination-total><%= paginationConfig.totalItems %></span> kết quả
-    </p>
+    <div class="pagination-info">
+        <p class="pagination-summary" aria-live="polite">
+            Hiển thị <span data-pagination-start>0</span> - <span data-pagination-end>0</span>
+            của <span data-pagination-total><%= paginationConfig.totalItems %></span> kết quả
+        </p>
+        <label class="pagination-size-control">
+            Dòng mỗi trang
+            <select data-pagination-size aria-label="Số dòng mỗi trang"></select>
+        </label>
+    </div>
     <div class="pagination-desktop" data-pagination-desktop></div>
-    <label class="pagination-size-control">
-        Dòng mỗi trang
-        <select data-pagination-size aria-label="Số dòng mỗi trang"></select>
-    </label>
     <div class="pagination-mobile">
         <button type="button" class="pagination-previous" data-pagination-previous>
             <span aria-hidden="true">←</span> Trước

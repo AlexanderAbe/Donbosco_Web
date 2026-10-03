@@ -24,7 +24,7 @@ const BaseGlvModel = {
             WHERE pc.id_glv = $1
               AND pc.id_cau_hinh_nam_hoc = $2
             GROUP BY l.id_lop, l.ten_lop, k.ten_khoi, k.stt
-            ORDER BY k.stt, l.ten_lop
+            ORDER BY l.ten_lop
         `, [idGlv, yearId]);
 
         for (const classItem of rows) {

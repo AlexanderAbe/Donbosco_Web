@@ -20,7 +20,6 @@
     <% } else { %>
         <div class="tk-filter">
             <div class="tk-filter-buttons" aria-label="Lọc theo tháng">
-                <button class="tk-filter-button <%= selectedMonth === null ? 'is-active' : '' %>" type="button" data-month-filter="all">Tất cả</button>
                 <% monthNumbers.forEach(month => { %>
                     <button class="tk-filter-button <%= month === selectedMonth ? 'is-active' : '' %>" type="button" data-month-filter="<%= month %>">Tháng <%= month %></button>
                 <% }) %>
@@ -110,7 +109,9 @@
 
     search.addEventListener('input', applyFilters);
     buttons.forEach(button => button.addEventListener('click', () => {
-        selectedMonth = button.dataset.monthFilter;
+        selectedMonth = selectedMonth === button.dataset.monthFilter
+            ? 'all'
+            : button.dataset.monthFilter;
         applyFilters();
     }));
     applyFilters();

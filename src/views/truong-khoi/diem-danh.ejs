@@ -32,7 +32,6 @@
                 <input id="attendance-search" class="tk-search" type="search" placeholder="Nhập tên hoặc mã số..." autocomplete="off">
             </div>
             <div class="date-filter-bar" aria-label="Bộ lọc ngày điểm danh">
-                <button class="date-filter is-active" data-filter="all" type="button">Tất cả</button>
                 <% dateGroups.forEach((group) => { %>
                     <button class="date-filter" data-filter="<%= group.filterKey %>" type="button">
                         <%= group.label %> · <%= group.sessionType || 'Buổi học' %>
@@ -110,7 +109,10 @@
             const keyword = normalize(search?.value.trim());
             let visibleCards = 0;
             filterButtons.forEach((button) => {
-                button.classList.toggle('is-active', button.dataset.filter === selectedFilterKey);
+                button.classList.toggle(
+                    'is-active',
+                    selectedFilterKey !== 'all' && button.dataset.filter === selectedFilterKey
+                );
             });
 
             groups.forEach((group) => {
@@ -134,7 +136,9 @@
 
         filterButtons.forEach((button) => {
             button.addEventListener('click', function () {
-                selectedFilterKey = this.dataset.filter;
+                selectedFilterKey = selectedFilterKey === this.dataset.filter
+                    ? 'all'
+                    : this.dataset.filter;
                 updateFilters();
             });
         });
