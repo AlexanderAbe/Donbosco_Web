@@ -30,7 +30,7 @@ const KiemTraController = {
                 ? await KiemTraModel.getExamStudents(idGlv, selectedYearId, selectedClassId, selectedExam)
                 : [];
 
-            // Lấy ngày kiểm tra từ học sinh đầu tiên (nếu có dữ liệu) để hiển thị lên input date
+            // Lấy ngày kiểm tra từ thiếu nhi đầu tiên (nếu có dữ liệu) để hiển thị lên input date
             let selectedDate = '';
             if (students.length > 0 && students[0].ngay_kiem_tra) {
                 const examDate = students[0].ngay_kiem_tra;

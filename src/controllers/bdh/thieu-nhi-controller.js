@@ -163,7 +163,7 @@ const ThieuNhiController = {
   async updateStudent(req, res) {
     const idTn = getPositiveInt(req.params.id);
     const yearId = getPositiveInt(req.body.yearId);
-    if (!idTn || !yearId) return res.status(400).json({ error: "Thông tin học sinh không hợp lệ." });
+    if (!idTn || !yearId) return res.status(400).json({ error: "Thông tin thiếu nhi không hợp lệ." });
 
     try {
       const result = await ThieuNhiModel.updateStudent(idTn, yearId, req.body);

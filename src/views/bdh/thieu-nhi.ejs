@@ -96,15 +96,13 @@
                 </tbody>
             </table>
         </div>
-        <div class="pagination">
-            <% if (page > 1) { %>
-                <a href="?page=<%= page - 1 %>&<%= queryString %>">Trước</a>
-            <% } %>
-            <span>Trang <%= page %> / <%= totalPages %></span>
-            <% if (page < totalPages) { %>
-                <a href="?page=<%= page + 1 %>&<%= queryString %>">Sau</a>
-            <% } %>
-        </div>
+        <%- include('../partials/pagination', {
+            mode: 'server',
+            currentPage: page,
+            totalPages,
+            totalItems: total,
+            pageSize: limit
+        }) %>
     <% } %>
 </section>
 </div>
@@ -249,7 +247,7 @@
         }
     });
 
-    // --- XỬ LÝ XEM CHI TIẾT HỌC SINH ---
+    // --- XỬ LÝ XEM CHI TIẾT Thiếu nhi ---
     const date = value => {
         if (!value) return 'Chưa cập nhật';
         const rawString = value instanceof Date ? value.toISOString() : String(value);

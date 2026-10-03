@@ -159,8 +159,11 @@
         };
 
         search?.addEventListener('input', () => {
-            const term = search.value.trim().toLowerCase();
-            rows.forEach(row => { row.style.display = row.dataset.search.includes(term) ? 'grid' : 'none'; });
+            const term = search.value.trim().normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLocaleLowerCase('vi');
+            rows.forEach(row => {
+                const name = row.dataset.search.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLocaleLowerCase('vi');
+                row.style.display = name.includes(term) ? 'grid' : 'none';
+            });
             updateSelection();
         });
         checkboxes.forEach(checkbox => checkbox.addEventListener('change', updateSelection));

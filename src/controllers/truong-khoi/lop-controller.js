@@ -166,7 +166,7 @@ const TruongKhoiLopController = {
     async updateStudent(req, res) {
         const idTn = Number.parseInt(req.params.id, 10);
         const yearId = Number.parseInt(req.body.yearId, 10);
-        if (!idTn || !yearId) return res.status(400).json({ error: 'Thông tin học sinh không hợp lệ.' });
+        if (!idTn || !yearId) return res.status(400).json({ error: 'Thông tin thiếu nhi không hợp lệ.' });
 
         try {
             const result = await LopModel.updateStudent(req.session.user.id_glv, idTn, yearId, req.body);

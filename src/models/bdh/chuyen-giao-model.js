@@ -63,7 +63,7 @@ const NamHocMoiModel = {
         }
     },
 
-    // 5. Lấy danh sách học sinh chi tiết của từng lớp từ View đã cấu hình
+    // 5. Lấy danh sách thiếu nhi chi tiết của từng lớp từ View đã cấu hình
     async getHocSinhTheoLop(id_lop, id_cau_hinh) {
         try {
             const query = `
@@ -75,7 +75,7 @@ const NamHocMoiModel = {
             const result = await pool.query(query, [id_lop, id_cau_hinh]);
             return result.rows;
         } catch (error) {
-            console.error('❌ Lỗi lấy danh sách học sinh theo lớp:', error);
+            console.error('❌ Lỗi lấy danh sách thiếu nhi theo lớp:', error);
             return [];
         }
     },

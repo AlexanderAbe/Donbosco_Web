@@ -5,7 +5,7 @@
 	<div class="transfer-header">
 		<p class="eyebrow">Tổng kết và chuyển lớp</p>
 		<h1><i class="fa-solid fa-arrow-right-arrow-left"></i> Chuyển giao niên khóa</h1>
-		<p>Khóa niên khóa, in bằng khen và chuyển học sinh lên lớp hoặc ở lại lớp sang niên khóa mới.</p>
+		<p>Khóa niên khóa, in bằng khen và chuyển thiếu nhi lên lớp hoặc ở lại lớp sang niên khóa mới.</p>
 	</div>
 
 	<section class="transfer-card">
@@ -39,7 +39,7 @@
 	</section>
 
 	<section class="transfer-card">
-			<div class="card-heading"><span class="step-number">2</span><div><h2>Chuyển học sinh sang niên khóa mới</h2><p>Học sinh lên lớp sẽ lên khối kế tiếp; học sinh ở lại lớp sẽ học lại khối.</p></div></div>
+			<div class="card-heading"><span class="step-number">2</span><div><h2>Chuyển thiếu nhi sang niên khóa mới</h2><p>Thiếu nhi lên lớp sẽ lên khối kế tiếp; thiếu nhi ở lại lớp sẽ học lại khối.</p></div></div>
 		<form method="POST" action="/bdh/chuyen-giao/transfer" class="transfer-form" id="transfer-form" data-can-transfer="<%= hasSummary && Boolean(oldYear?.is_locked) %>" data-old-year="<%= oldYear?.nien_khoa || '' %>">
 			<input type="hidden" name="nien_khoa_cu" value="<%= selectedOldId || '' %>">
 			<label for="nien-khoa-moi">Niên khóa mới</label>
@@ -49,7 +49,7 @@
 					<% if (year.id_cau_hinh_nam_hoc !== selectedOldId && !year.is_locked) { %><option value="<%= year.id_cau_hinh_nam_hoc %>" <%= year.id_cau_hinh_nam_hoc === selectedNewId ? 'selected' : '' %>><%= year.nien_khoa %></option><% } %>
 				<% }) %>
 			</select>
-			<button class="action-button primary" id="transfer-button" type="submit" <%= !hasSummary || !oldYear?.is_locked || !selectedNewId ? 'disabled' : '' %>><i class="fa-solid fa-arrow-right"></i> Chuyển giao học sinh</button>
+			<button class="action-button primary" id="transfer-button" type="submit" <%= !hasSummary || !oldYear?.is_locked || !selectedNewId ? 'disabled' : '' %>><i class="fa-solid fa-arrow-right"></i> Chuyển giao thiếu nhi</button>
 			<% if (hasSummary && !oldYear?.is_locked) { %><small class="transfer-hint">Hãy khóa niên khóa cũ trước khi chuyển giao.</small><% } %>
 		</form>
 	</section>
@@ -127,7 +127,7 @@
 		event.preventDefault();
 		openConfirmationModal(
 			'Xác nhận chuyển giao',
-			`Bạn đang chuyển giao học sinh từ niên khóa ${oldYear} sang niên khóa ${newYear}. Học sinh lên lớp sẽ lên khối tiếp theo, học sinh ở lại lớp sẽ ở lại khối. Bạn có chắc chắn muốn tiếp tục không?`,
+			`Bạn đang chuyển giao thiếu nhi từ niên khóa ${oldYear} sang niên khóa ${newYear}. Thiếu nhi lên lớp sẽ lên khối tiếp theo, thiếu nhi ở lại lớp sẽ ở lại khối. Bạn có chắc chắn muốn tiếp tục không?`,
 			transferForm
 		);
 	});

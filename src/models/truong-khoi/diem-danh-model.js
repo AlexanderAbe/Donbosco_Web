@@ -20,7 +20,8 @@ const DiemDanhModel = {
 					AND l2.id_cau_hinh_nam_hoc = tk.id_cau_hinh_nam_hoc
 				WHERE tk.id_glv = $1 AND tk.id_cau_hinh_nam_hoc = $2
 			)
-			ORDER BY dd.ngay_diem_danh DESC, dd.loai_buoi, k.stt, l.ten_lop, tn.ten
+			ORDER BY dd.ngay_diem_danh DESC, dd.loai_buoi, k.stt, l.ten_lop,
+			         tn.ten, tn.ho_va_ten_lot, tn.ten_thanh
 		`, [idTruongKhoi, yearId]);
 		return rows;
 	}

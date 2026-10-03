@@ -3,7 +3,7 @@
 <% const canEdit = typeof allowEdit !== 'undefined' && allowEdit; %>
 <% const displayFooter = typeof showFooter === 'undefined' || showFooter !== false; %>
 <% const modalEyebrow = typeof eyebrow === 'undefined' ? 'Hồ sơ thiếu nhi' : eyebrow; %>
-<% const modalTitle = typeof title === 'undefined' ? 'Chi tiết học sinh' : title; %>
+<% const modalTitle = typeof title === 'undefined' ? 'Chi tiết thiếu nhi' : title; %>
 <% const modalCloseClass = typeof closeClass === 'undefined' ? 'btn btn-secondary' : closeClass; %>
 <% if (isDialog) { %>
 <dialog class="<%= modalClass %> student-profile-modal" id="<%= modalId %>">

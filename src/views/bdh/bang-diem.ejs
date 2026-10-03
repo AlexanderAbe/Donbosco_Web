@@ -6,7 +6,7 @@
         <div>
             <p class="eyebrow">Tổng kết cuối năm</p>
             <h1><i class="fa-solid fa-file-lines"></i> Bảng điểm tổng kết</h1>
-            <p class="page-description">Danh sách điểm chi tiết được sắp xếp theo khối, lớp và tên học sinh.</p>
+            <p class="page-description">Danh sách điểm chi tiết được sắp xếp theo khối, lớp và tên thiếu nhi.</p>
         </div>
         <form method="GET" action="/bdh/bang-diem" class="year-filter">
             <label for="nien-khoa">Niên khóa</label>
@@ -30,7 +30,7 @@
         <div class="summary-meta" style="background: #fff; padding: 16px; border: 1px solid var(--score-line); border-radius: 8px; margin-bottom: 20px;">
             <div>
                 <span><i class="fa-solid fa-calendar-check"></i> Niên khóa <strong><%= selectedYear.nien_khoa %></strong></span>
-                <span style="margin-left: 16px;"><i class="fa-solid fa-users"></i> <strong><%= summary ? summary.length : 0 %></strong> học sinh</span>
+                <span style="margin-left: 16px;"><i class="fa-solid fa-users"></i> <strong><%= studentCount %></strong> Thiếu nhi</span>
             </div>
             
             <div style="display: flex; gap: 10px; align-items: center;">

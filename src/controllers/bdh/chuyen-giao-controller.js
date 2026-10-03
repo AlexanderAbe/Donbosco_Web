@@ -94,9 +94,9 @@ const ChuyenGiaoController = {
             await client.query('CALL sp_chuyen_giao_nien_khoa($1, $2)', [oldYearId, newYearId]);
             await client.query('COMMIT');
 
-            await logAction(req, `Chuyển giao học sinh thành công từ niên khóa ${oldYear.nien_khoa} sang ${newYear.nien_khoa}`, 'Thành công');
+            await logAction(req, `Chuyển giao thiếu nhi thành công từ niên khóa ${oldYear.nien_khoa} sang ${newYear.nien_khoa}`, 'Thành công');
 
-            return res.redirect(`/bdh/chuyen-giao?nien_khoa_cu=${oldYearId}&nien_khoa_moi=${newYearId}&message=Đã chuyển giao học sinh thành công.`);
+            return res.redirect(`/bdh/chuyen-giao?nien_khoa_cu=${oldYearId}&nien_khoa_moi=${newYearId}&message=Đã chuyển giao thiếu nhi thành công.`);
         } catch (error) {
             if (transactionStarted) await client.query('ROLLBACK');
             console.error('❌ Lỗi chuyển giao niên khóa:', error);
@@ -126,8 +126,8 @@ const ChuyenGiaoController = {
 
             const students = await NamHocMoiModel.getAwardStudents(yearId);
             if (students.length === 0) {
-                await logAction(req, `Xuất bằng khen thất bại: Không có học sinh đủ điều kiện nhận bằng khen niên khóa ${year.nien_khoa}`, 'Thất bại');
-                return res.status(404).send('Không có học sinh lên lớp đủ điều kiện nhận bằng khen.');
+                await logAction(req, `Xuất bằng khen thất bại: Không có thiếu nhi đủ điều kiện nhận bằng khen niên khóa ${year.nien_khoa}`, 'Thất bại');
+                return res.status(404).send('Không có thiếu nhi lên lớp đủ điều kiện nhận bằng khen.');
             }
 
             const doc = new PDFDocument({ size: 'A4', layout: 'landscape', margin: 0 });

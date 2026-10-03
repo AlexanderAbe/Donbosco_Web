@@ -60,7 +60,7 @@ const DanhSachLopModel = {
                 LIMIT 1
             `, [idTn, yearId, idGlv]);
             if (!access.rows.length) {
-                const error = new Error('Bạn không có quyền sửa học sinh này.');
+                const error = new Error('Bạn không có quyền sửa thiếu nhi này.');
                 error.code = 'FORBIDDEN';
                 throw error;
             }
@@ -129,7 +129,7 @@ const DanhSachLopModel = {
             RETURNING pl.trang_thai
         `, [status, idTn, yearId, idGlv]);
         if (!rows.length) {
-            const error = new Error('Bạn không có quyền cập nhật học sinh này.');
+            const error = new Error('Bạn không có quyền cập nhật thiếu nhi này.');
             error.code = 'FORBIDDEN';
             throw error;
         }

@@ -30,10 +30,6 @@ const KiemTraController = {
                 .sort((a, b) => a - b);
             const requestedExam = Number.parseInt(req.query.bai_kiem_tra, 10);
             const selectedExam = examNumbers.includes(requestedExam) ? requestedExam : null;
-            const scores = selectedExam === null
-                ? allScores
-                : allScores.filter(item => Number(item.stt_bai_ktra) === selectedExam);
-
             return res.render('truong-khoi/kiem-tra', {
                 ...getTruongKhoiBaseData(req, 'Điểm kiểm tra'),
                 title: 'Quản lý kiểm tra',
@@ -42,7 +38,7 @@ const KiemTraController = {
                 examNumbers,
                 selectedExam,
                 hasData: allScores.length > 0,
-                scores: normalizeScores(scores)
+                scores: normalizeScores(allScores)
             });
         } catch (error) {
             console.error('Lỗi tải trang kiểm tra:', error);

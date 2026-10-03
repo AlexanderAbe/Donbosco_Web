@@ -88,7 +88,7 @@ const BangDiemModel = {
             LIMIT 1
         `, [idTn, yearId, idGlv]);
         if (!access.rows.length) {
-            const error = new Error('Chỉ được sửa kết quả của học sinh thuộc lớp bạn phụ trách.');
+            const error = new Error('Chỉ được sửa kết quả của thiếu nhi thuộc lớp bạn phụ trách.');
             error.code = 'FORBIDDEN';
             throw error;
         }

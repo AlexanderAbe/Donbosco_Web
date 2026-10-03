@@ -156,7 +156,7 @@ SELECT
     tn.ho_va_ten_lot,
     tn.ten,
 
-    -- Học sinh đang học lấy kết quả tổng kết; trạng thái khác lấy trạng thái phân lớp.
+    -- Thiếu nhi đang học lấy kết quả tổng kết; trạng thái khác lấy trạng thái phân lớp.
     CASE
         WHEN pl.trang_thai = 'Đang học'::enum_trang_thai_tn
             THEN COALESCE(tk.tinh_trang::TEXT, pl.trang_thai::TEXT)

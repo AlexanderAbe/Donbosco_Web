@@ -133,7 +133,7 @@ const LopModel = {
                   AND tk.id_glv = $3
                 LIMIT 1
             `, [idTn, yearId, idGlv]);
-            if (!access.rows.length) throw new Error('Bạn không có quyền sửa học sinh này.');
+            if (!access.rows.length) throw new Error('Bạn không có quyền sửa thiếu nhi này.');
             if (!String(data.ten || '').trim()) throw new Error('Tên thiếu nhi không được để trống.');
             if (!['Nam', 'Nữ'].includes(data.gioi_tinh)) throw new Error('Giới tính thiếu nhi không hợp lệ.');
 

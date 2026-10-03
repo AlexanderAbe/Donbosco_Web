@@ -99,3 +99,7 @@ button, input, select, textarea {
 * {
     -ms-overflow-style: none;
 }
+/* Shared client-side list filtering visibility state. */
+.search-hidden {
+    display: none !important;
+}

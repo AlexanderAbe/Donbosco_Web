@@ -406,7 +406,7 @@ DECLARE
     v_diem_tong DECIMAL(4,2);
     v_id_khung INT;
 BEGIN
-    -- 1. Lấy thông tin tổng kết hiện tại của học sinh dựa trên ID
+    -- 1. Lấy thông tin tổng kết hiện tại của thiếu nhi dựa trên ID
     SELECT * INTO r_tk
     FROM TONG_KET_NAM_HOC
     WHERE id_tong_ket_nam_hoc = p_id_tong_ket;

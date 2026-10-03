@@ -12,6 +12,15 @@ const BangDiemModel = {
 		return rows;
 	},
 
+	async getStudentCountByYear(yearId) {
+		const { rows } = await pool.query(`
+			SELECT COUNT(DISTINCT id_tn)::int AS student_count
+			FROM PHAN_LOP
+			WHERE id_cau_hinh_nam_hoc = $1
+		`, [yearId]);
+		return rows[0].student_count;
+	},
+
 	async hasSummaryByYear(yearId) {
 		const { rows } = await pool.query(`
 			SELECT EXISTS (

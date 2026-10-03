@@ -36,8 +36,8 @@ const BangDiemController = {
         const result = req.body.ket_qua;
 
         if (!idTn || !yearId) {
-            await logAction(req, `Cập nhật kết quả tổng kết thất bại: Thông tin học sinh hoặc niên khóa không hợp lệ (ID TN: ${req.params.id})`, 'Thất bại');
-            return res.status(400).json({ error: 'Thông tin học sinh không hợp lệ.' });
+            await logAction(req, `Cập nhật kết quả tổng kết thất bại: Thông tin thiếu nhi hoặc niên khóa không hợp lệ (ID TN: ${req.params.id})`, 'Thất bại');
+            return res.status(400).json({ error: 'Thông tin thiếu nhi không hợp lệ.' });
         }
 
         try {

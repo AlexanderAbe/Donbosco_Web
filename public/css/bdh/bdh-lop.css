@@ -96,6 +96,21 @@
     border-bottom: 1px solid #e2e8f0;
 }
 
+.lop-page .class-list-search {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 14px 20px 0;
+}
+
+.lop-page .class-list-search label {
+    white-space: nowrap;
+}
+
+.lop-page .class-list-search input {
+    max-width: 360px;
+}
+
 .lop-page .section-header h2 {
     color: #1e293b;
     font-size: 16px;

@@ -34,7 +34,7 @@
             <i class="fa-solid fa-user-slash"></i>
             Không tìm thấy thiếu nhi phù hợp.
         </div>
-        <section class="class-panel all-students-panel" id="all-students-panel">
+        <section class="class-panel all-students-panel" id="all-students-panel" data-pagination-group data-pagination-visible="true">
             <div class="class-panel-header">
                 <div><p class="class-label">Danh sách toàn khối</p><h2><i class="fa-solid fa-users"></i> Tất cả thiếu nhi</h2></div>
                 <span class="student-count"><%= allStudents.length %> thiếu nhi</span>
@@ -65,7 +65,7 @@
         </section>
         <div class="class-grid">
             <% classes.forEach(classItem => { %>
-                <section class="class-panel" data-class-panel data-class-id="<%= classItem.id_lop %>">
+                <section class="class-panel" data-class-panel data-pagination-group data-pagination-visible="false" data-class-id="<%= classItem.id_lop %>">
                     <div class="class-panel-header">
                         <div><p class="class-label"><%= classItem.ten_khoi %></p><h2><i class="fa-solid fa-chalkboard"></i> <%= classItem.ten_lop %></h2></div>
                         <span class="student-count"><%= classItem.student_count %> thiếu nhi</span>
@@ -99,6 +99,15 @@
                 </section>
             <% }) %>
         </div>
+        <%- include('../partials/pagination', {
+            mode: 'client',
+            currentPage: 1,
+            totalPages: Math.max(Math.ceil(allStudents.length / 25), 1),
+            totalItems: allStudents.length,
+            pageSize: 25,
+            rows: '[data-student-row]',
+            groups: '[data-pagination-group]'
+        }) %>
     <% } %>
 </main>
 
@@ -383,35 +392,40 @@
     const updateClassFilter = () => {
         const keyword = normalizeSearch(studentSearch?.value.trim());
         const selectedClass = document.querySelector('[data-class-filter].is-active')?.dataset.classFilter || 'all';
-        let visibleStudents = 0;
-
         const showAll = selectedClass === 'all';
-        if (allStudentsPanel) allStudentsPanel.hidden = !showAll;
+        const activePanel = showAll
+            ? allStudentsPanel
+            : [...classPanels].find(panel => panel.dataset.classId === selectedClass);
+        if (allStudentsPanel) {
+            allStudentsPanel.dataset.paginationVisible = String(showAll);
+            allStudentsPanel.hidden = !showAll;
+        }
         if (classGrid) classGrid.hidden = showAll;
 
-        if (showAll) {
-            allStudentsPanel?.querySelectorAll('[data-student-row]').forEach(row => {
-                const matchesSearch = !keyword || normalizeSearch(row.dataset.search).includes(keyword);
-                row.hidden = !matchesSearch;
-                if (matchesSearch) visibleStudents += 1;
-            });
-        }
+        allStudentsPanel?.querySelectorAll('[data-student-row]').forEach(row => {
+            const matchesSearch = !keyword || normalizeSearch(row.dataset.search).includes(keyword);
+            row.classList.toggle('pagination-filter-hidden', !matchesSearch);
+        });
 
         classPanels.forEach(panel => {
             const matchesClass = selectedClass === 'all' || panel.dataset.classId === selectedClass;
-            let panelStudents = 0;
+            panel.dataset.paginationVisible = String(!showAll && matchesClass);
 
             panel.querySelectorAll('[data-student-row]').forEach(row => {
                 const matchesSearch = !keyword || normalizeSearch(row.dataset.search).includes(keyword);
-                row.hidden = !matchesSearch;
-                if (matchesSearch) panelStudents += 1;
+                row.classList.toggle('pagination-filter-hidden', !matchesSearch);
             });
 
-            panel.hidden = showAll || !matchesClass || (Boolean(keyword) && panelStudents === 0);
-            if (!showAll && matchesClass) visibleStudents += panelStudents;
+            panel.hidden = showAll || !matchesClass;
         });
 
-        if (filterEmpty) filterEmpty.hidden = visibleStudents > 0;
+        const visibleStudents = [...(activePanel?.querySelectorAll('[data-student-row]') || [])]
+            .filter(row => !row.classList.contains('pagination-filter-hidden')).length;
+        if (filterEmpty) {
+            filterEmpty.hidden = visibleStudents > 0;
+            filterEmpty.classList.toggle('pagination-filter-hidden', visibleStudents > 0);
+        }
+        document.dispatchEvent(new Event('pagination:refresh'));
     };
 
     studentSearch?.addEventListener('input', updateClassFilter);

@@ -29,7 +29,7 @@
 	<section class="section-card">
 		<div class="section-header">
 			<h2>Danh sách lớp<% if (selectedYearId) { %> - <%= years.find(year => year.id_cau_hinh_nam_hoc === selectedYearId)?.nien_khoa %><% } %></h2>
-			<span><%= lopList.length %> lớp</span>
+			<span><span data-search-count><%= lopList.length %></span> lớp</span>
 		</div>
 
 		<% if (!selectedYearId) { %>
@@ -37,19 +37,23 @@
 		<% } else if (!lopList.length) { %>
 			<div class="empty-state">Niên khóa này chưa có lớp nào.</div>
 		<% } else { %>
+			<div class="class-list-search">
+				<label for="class-search">Tìm lớp</label>
+				<input id="class-search" type="search" data-table-search="[data-class-row]" data-search-empty="#class-search-empty" data-search-count="[data-search-count]" placeholder="Nhập tên lớp hoặc khối..." autocomplete="off">
+			</div>
 			<div class="table-wrap">
 				<table>
 					<thead>
 						<tr>
 							<th>Tên lớp</th>
 							<th>Khối</th>
-							<th>Số học sinh</th>
+							<th>Số thiếu nhi </th>
 							<th>Thao tác</th>
 						</tr>
 					</thead>
 					<tbody>
 						<% lopList.forEach(lop => { %>
-							<tr>
+							<tr data-class-row data-search="<%= `${lop.ten_lop || ''} ${lop.ten_khoi || ''}`.toLowerCase() %>">
 								<td><strong><%= lop.ten_lop %></strong></td>
 								<td><%= lop.ten_khoi || 'Chưa phân khối' %></td>
 								<td><%= lop.student_count || 0 %></td>
@@ -69,6 +73,7 @@
 					</tbody>
 				</table>
 			</div>
+			<div class="empty-state search-hidden" id="class-search-empty">Không tìm thấy lớp phù hợp.</div>
 		<% } %>
 	</section>
 </div>
@@ -96,7 +101,7 @@
 					</div>
 					<div class="field-group">
 						<label for="class-year">Niên khóa</label>
-						<select id="class-year" name="id_cau_hinh_nam_hoc" required>
+						<select id="class-year" name="id_cau_hinh_nam_hoc" data-selected-year="<%= selectedYearId || '' %>" required>
 							<% years.forEach(year => { %>
 								<option value="<%= year.id_cau_hinh_nam_hoc %>" <%= year.id_cau_hinh_nam_hoc === selectedYearId ? 'selected' : '' %>>
 									<%= year.nien_khoa %>
@@ -113,6 +118,8 @@
 		</div>
 	</div>
 </div>
+
+<script src="/js/table-search.js" defer></script>
 
 <script>
 	(() => {
@@ -135,7 +142,7 @@
 			classId.value = '';
 			className.value = '';
 			classKhoi.selectedIndex = 0;
-			classYear.value = '<%= selectedYearId || '' %>';
+			classYear.value = classYear.dataset.selectedYear;
 			modal.classList.add('is-open');
 			modal.setAttribute('aria-hidden', 'false');
 			className.focus();

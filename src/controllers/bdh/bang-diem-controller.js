@@ -82,13 +82,17 @@ const BangDiemController = {
             const summary = selectedYearId
                 ? await BangDiemModel.getSummaryByYear(selectedYearId)
                 : [];
+            const studentCount = selectedYearId
+                ? await BangDiemModel.getStudentCountByYear(selectedYearId)
+                : 0;
 
             return res.render('bdh/bang-diem', {
                 ...getBdhBaseData(req, 'Bảng điểm tổng kết'),
                 academicYears,
                 selectedYearId,
                 selectedYear,
-                summary
+                summary,
+                studentCount
             });
         } catch (error) {
             console.error('❌ Lỗi tải bảng điểm tổng kết:', error);
@@ -264,7 +268,7 @@ const BangDiemController = {
                 });
 
                 doc.font('Roboto').fontSize(8).fillColor('#667085')
-                    .text(`Tổng số: ${group.students.length} học sinh`, PDF_LEFT, 800);
+                    .text(`Tổng số: ${group.students.length} thiếu nhi`, PDF_LEFT, 800);
             });
 
             doc.end();

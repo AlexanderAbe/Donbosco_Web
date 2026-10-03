@@ -16,7 +16,7 @@
         <form class="test-toolbar" method="GET" action="/glv/kiem-tra">
             <div class="test-field">
                 <label for="student-search"><i class="fa-solid fa-magnifying-glass"></i> Tìm kiếm thiếu nhi</label>
-                <input id="student-search" type="search" placeholder="Tên hoặc mã số..." autocomplete="off">
+                <input id="student-search" type="search" data-table-search="[data-student-row]" data-search-empty="#student-search-empty" placeholder="Tên hoặc mã số..." autocomplete="off">
             </div>
             <div class="test-field">
                 <label for="test-number"><i class="fa-solid fa-pen-to-square"></i> Bài kiểm tra</label>
@@ -79,19 +79,9 @@
                     </table>
                 </div>
             <% } %>
+            <div class="empty-state search-hidden" id="student-search-empty">Không tìm thấy thiếu nhi phù hợp.</div>
         </form>
     <% } %>
 </main>
 
-<script>
-(() => {
-    const search = document.getElementById('student-search');
-    const normalize = value => String(value || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
-    search?.addEventListener('input', () => {
-        const keyword = normalize(search.value.trim());
-        document.querySelectorAll('[data-student-row]').forEach(row => {
-            row.classList.toggle('search-hidden', Boolean(keyword) && !normalize(row.dataset.search).includes(keyword));
-        });
-    });
-})();
-</script>
+<script src="/js/table-search.js" defer></script>

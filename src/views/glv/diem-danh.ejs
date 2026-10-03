@@ -16,7 +16,7 @@
         <form class="attendance-toolbar" method="GET" action="/glv/diem-danh" id="attendance-filter">
             <div class="attendance-field">
                 <label for="attendance-search"><i class="fa-solid fa-magnifying-glass"></i> Tìm kiếm thiếu nhi</label>
-                <input id="attendance-search" type="search" placeholder="Tên hoặc mã số..." autocomplete="off">
+                <input id="attendance-search" type="search" data-table-search="[data-attendance-row]" data-search-empty="#attendance-search-empty" placeholder="Tên hoặc mã số..." autocomplete="off">
             </div>
             <div class="attendance-field">
                 <label for="attendance-class"><i class="fa-solid fa-school"></i> Lớp</label>
@@ -97,14 +97,15 @@
                     </table>
                 </div>
             <% } %>
+            <div class="attendance-empty search-hidden" id="attendance-search-empty">Không tìm thấy thiếu nhi phù hợp.</div>
         </form>
     <% } %>
 </main>
 
+<script src="/js/table-search.js" defer></script>
+
 <script>
 (() => {
-    const search = document.getElementById('attendance-search');
-    const normalize = value => String(value || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
     const type = document.getElementById('attendance-type');
     const date = document.getElementById('attendance-date');
     const filter = document.getElementById('attendance-filter');
@@ -114,7 +115,5 @@
     type?.addEventListener('change', () => { date.value = smartDate(type.value); filter.submit(); });
     date?.addEventListener('change', () => { filter.submit(); });
     classSelect?.addEventListener('change', () => { filter.submit(); });
-    search?.addEventListener('input', () => { const keyword = normalize(search.value.trim()); document.querySelectorAll('[data-attendance-row]').forEach(row => { row.classList.toggle('search-hidden', Boolean(keyword) && !normalize(row.dataset.search).includes(keyword)); }); });
 })();
 </script>
-

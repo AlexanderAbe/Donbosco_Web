@@ -1,0 +1,41 @@
+<%
+    const paginationConfig = {
+        mode: typeof mode === 'undefined' ? 'server' : mode,
+        currentPage: typeof currentPage === 'undefined' ? 1 : Number(currentPage) || 1,
+        totalPages: Math.max(typeof totalPages === 'undefined' ? 1 : Number(totalPages) || 1, 1),
+        totalItems: Math.max(typeof totalItems === 'undefined' ? 0 : Number(totalItems) || 0, 0),
+        pageSize: Math.max(typeof pageSize === 'undefined' ? 20 : Number(pageSize) || 20, 1),
+        rows: typeof rows === 'undefined' ? '' : rows,
+        groups: typeof groups === 'undefined' ? '' : groups
+    };
+%>
+<link rel="stylesheet" href="/css/pagination.css">
+<nav
+    class="shared-pagination"
+    data-pagination
+    data-pagination-config="<%= JSON.stringify(paginationConfig) %>"
+    aria-label="Phân trang"
+    hidden>
+    <p class="pagination-summary" aria-live="polite">
+        Hiển thị <span data-pagination-start>0</span> - <span data-pagination-end>0</span>
+        của <span data-pagination-total><%= paginationConfig.totalItems %></span> kết quả
+    </p>
+    <div class="pagination-desktop" data-pagination-desktop></div>
+    <label class="pagination-size-control">
+        Dòng mỗi trang
+        <select data-pagination-size aria-label="Số dòng mỗi trang"></select>
+    </label>
+    <div class="pagination-mobile">
+        <button type="button" class="pagination-previous" data-pagination-previous>
+            <span aria-hidden="true">←</span> Trước
+        </button>
+        <label class="pagination-current">
+            Trang <input type="number" min="1" value="<%= paginationConfig.currentPage %>" data-pagination-page-input aria-label="Số trang hiện tại">
+            / <span data-pagination-pages><%= paginationConfig.totalPages %></span>
+        </label>
+        <button type="button" class="pagination-next" data-pagination-next>
+            Sau <span aria-hidden="true">→</span>
+        </button>
+    </div>
+</nav>
+<script src="/js/pagination.js" defer></script>

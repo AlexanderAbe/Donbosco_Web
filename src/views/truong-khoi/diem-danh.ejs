@@ -44,7 +44,7 @@
         <section class="attendance-shell">
             <div class="list-panel">
                 <% dateGroups.forEach((group) => { %>
-                    <section class="session-group" data-filter-key="<%= group.filterKey %>" data-date="<%= group.dateKey %>" data-session="<%= group.sessionType || 'Buổi học' %>">
+                    <section class="session-group" data-pagination-group data-pagination-visible="true" data-filter-key="<%= group.filterKey %>" data-date="<%= group.dateKey %>" data-session="<%= group.sessionType || 'Buổi học' %>">
                         <header class="session-group-header">
                             <div>
                                 <p class="session-date"><%= group.label %></p>
@@ -81,6 +81,15 @@
             </div>
 
         </section>
+        <%- include('../partials/pagination', {
+            mode: 'client',
+            currentPage: 1,
+            totalPages: Math.max(Math.ceil(attendance.length / 25), 1),
+            totalItems: attendance.length,
+            pageSize: 25,
+            rows: '[data-attendance-card]',
+            groups: '[data-pagination-group]'
+        }) %>
         <div class="tk-no-results" id="attendance-no-results" hidden>
             <i class="fa-solid fa-user-slash"></i>
             Không tìm thấy thiếu nhi phù hợp.
@@ -94,7 +103,7 @@
         const groups = document.querySelectorAll('.session-group');
         const search = document.getElementById('attendance-search');
         const empty = document.getElementById('attendance-no-results');
-        const normalize = value => String(value || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+        const normalize = value => String(value || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLocaleLowerCase('vi').trim().replace(/\s+/g, ' ');
         let selectedFilterKey = 'all';
 
         const updateFilters = () => {
@@ -106,17 +115,21 @@
 
             groups.forEach((group) => {
                 const matchesDate = selectedFilterKey === 'all' || group.dataset.filterKey === selectedFilterKey;
+                group.dataset.paginationVisible = String(matchesDate);
                 let groupCards = 0;
                 group.querySelectorAll('[data-attendance-card]').forEach((card) => {
                     const matchesSearch = !keyword || normalize(card.dataset.search).includes(keyword);
                     card.hidden = !matchesSearch;
+                    card.classList.toggle('pagination-filter-hidden', !matchesSearch);
                     if (matchesSearch) groupCards += 1;
                 });
                 const shouldShow = matchesDate && groupCards > 0;
-                group.style.display = shouldShow ? 'block' : 'none';
+                group.hidden = !shouldShow;
+                group.classList.toggle('pagination-filter-hidden', !shouldShow);
                 if (matchesDate) visibleCards += groupCards;
             });
             if (empty) empty.hidden = visibleCards > 0;
+            document.dispatchEvent(new Event('pagination:refresh'));
         };
 
         filterButtons.forEach((button) => {

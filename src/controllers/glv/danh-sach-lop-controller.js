@@ -33,10 +33,10 @@ const DanhSachLopController = {
         try {
             const idTn = getId(req.params.id);
             const yearId = getId(req.query.nien_khoa);
-            if (!idTn || !yearId) return res.status(400).json({ error: 'Thông tin học sinh không hợp lệ.' });
+            if (!idTn || !yearId) return res.status(400).json({ error: 'Thông tin thiếu nhi không hợp lệ.' });
 
             const detail = await DanhSachLopModel.getStudentDetail(req.session.user.id_glv, idTn, yearId);
-            if (!detail) return res.status(404).json({ error: 'Không tìm thấy học sinh trong lớp được phân công.' });
+            if (!detail) return res.status(404).json({ error: 'Không tìm thấy thiếu nhi trong lớp được phân công.' });
 
             // Xử lý chuẩn hóa ngày sinh để tránh lệch múi giờ UTC (UTC+7 ở VN)
             if (detail.ngay_sinh) {
@@ -53,8 +53,8 @@ const DanhSachLopController = {
 
             return res.json(detail);
         } catch (error) {
-            console.error('Lỗi lấy chi tiết học sinh GLV:', error);
-            return res.status(500).json({ error: 'Không thể tải thông tin học sinh.' });
+            console.error('Lỗi lấy chi tiết thiếu nhi GLV:', error);
+            return res.status(500).json({ error: 'Không thể tải thông tin thiếu nhi.' });
         }
     },
 
@@ -63,8 +63,8 @@ const DanhSachLopController = {
         const yearId = getId(req.body.yearId);
 
         if (!idTn || !yearId) {
-            await logAction(req, `Cập nhật thông tin học sinh thất bại: Thông tin học sinh hoặc niên khóa không hợp lệ (ID TN: ${req.params.id})`, 'Thất bại');
-            return res.status(400).json({ error: 'Thông tin học sinh không hợp lệ.' });
+            await logAction(req, `Cập nhật thông tin thiếu nhi thất bại: Thông tin thiếu nhi hoặc niên khóa không hợp lệ (ID TN: ${req.params.id})`, 'Thất bại');
+            return res.status(400).json({ error: 'Thông tin thiếu nhi không hợp lệ.' });
         }
 
         try {
@@ -75,14 +75,14 @@ const DanhSachLopController = {
                 req.body
             );
 
-            await logAction(req, `Cập nhật thông tin học sinh thành công cho Thiếu nhi ID: ${idTn} (Niên khóa ID: ${yearId})`, 'Thành công');
+            await logAction(req, `Cập nhật thông tin thiếu nhi thành công cho Thiếu nhi ID: ${idTn} (Niên khóa ID: ${yearId})`, 'Thành công');
             return res.json({ success: true, ...updated });
         } catch (error) {
-            console.error('Lỗi cập nhật học sinh GLV:', error);
+            console.error('Lỗi cập nhật thiếu nhi GLV:', error);
             const status = error.code === 'FORBIDDEN' ? 403 : 400;
             const errMessage = error.message || 'Không thể cập nhật thông tin.';
 
-            await logAction(req, `Cập nhật thông tin học sinh thất bại cho Thiếu nhi ID: ${idTn}: ${errMessage}`, 'Thất bại');
+            await logAction(req, `Cập nhật thông tin thiếu nhi thất bại cho Thiếu nhi ID: ${idTn}: ${errMessage}`, 'Thất bại');
             return res.status(status).json({ error: errMessage });
         }
     },
@@ -93,8 +93,8 @@ const DanhSachLopController = {
         const trangThai = req.body.trang_thai;
 
         if (!idTn || !yearId) {
-            await logAction(req, `Cập nhật trạng thái học sinh thất bại: Thông tin học sinh hoặc niên khóa không hợp lệ (ID TN: ${req.params.id})`, 'Thất bại');
-            return res.status(400).json({ error: 'Thông tin học sinh không hợp lệ.' });
+            await logAction(req, `Cập nhật trạng thái thiếu nhi thất bại: Thông tin thiếu nhi hoặc niên khóa không hợp lệ (ID TN: ${req.params.id})`, 'Thất bại');
+            return res.status(400).json({ error: 'Thông tin thiếu nhi không hợp lệ.' });
         }
 
         try {
@@ -105,14 +105,14 @@ const DanhSachLopController = {
                 trangThai
             );
 
-            await logAction(req, `Cập nhật trạng thái học sinh thành công cho Thiếu nhi ID: ${idTn} (Niên khóa ID: ${yearId}, Trạng thái mới: ${trangThai})`, 'Thành công');
+            await logAction(req, `Cập nhật trạng thái thiếu nhi thành công cho Thiếu nhi ID: ${idTn} (Niên khóa ID: ${yearId}, Trạng thái mới: ${trangThai})`, 'Thành công');
             return res.json({ success: true, ...result });
         } catch (error) {
-            console.error('Lỗi cập nhật trạng thái học sinh GLV:', error);
+            console.error('Lỗi cập nhật trạng thái thiếu nhi GLV:', error);
             const status = error.code === 'FORBIDDEN' ? 403 : 400;
             const errMessage = error.message || 'Không thể cập nhật trạng thái.';
 
-            await logAction(req, `Cập nhật trạng thái học sinh thất bại cho Thiếu nhi ID: ${idTn}: ${errMessage}`, 'Thất bại');
+            await logAction(req, `Cập nhật trạng thái thiếu nhi thất bại cho Thiếu nhi ID: ${idTn}: ${errMessage}`, 'Thất bại');
             return res.status(status).json({ error: errMessage });
         }
     }

@@ -10,7 +10,7 @@
         <h1>Bảng điểm thiếu nhi</h1>
         <p>Điểm số được cập nhật tính tới thời điểm hiện tại.</p>
         <label class="class-search" for="score-student-search"><i class="fa-solid fa-magnifying-glass"></i> Tìm kiếm thiếu nhi
-            <input id="score-student-search" type="search" placeholder="Tên hoặc mã số..." autocomplete="off">
+            <input id="score-student-search" type="search" data-table-search="[data-score-row]" data-search-groups="[data-score-card]" data-search-empty="#score-student-search-empty" placeholder="Tên hoặc mã số..." autocomplete="off">
         </label>
     </header>
 
@@ -57,25 +57,14 @@
                 <% if (index === scores.length - 1) { %></tbody></table></div></section><% } %>
             <% }) %>
         </div>
+        <div class="empty-state search-hidden" id="score-student-search-empty">Không tìm thấy thiếu nhi phù hợp.</div>
     <% } %>
 </main>
 
+<script src="/js/table-search.js" defer></script>
+
 <script>
 (() => {
-    const search = document.getElementById('score-student-search');
-    const normalize = value => String(value || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
-    search?.addEventListener('input', () => {
-        const keyword = normalize(search.value.trim());
-        document.querySelectorAll('[data-score-card]').forEach(card => {
-            const rows = [...card.querySelectorAll('[data-score-row]')];
-            const visibleRows = rows.filter(row => {
-                const visible = !keyword || normalize(row.dataset.search).includes(keyword);
-                row.classList.toggle('search-hidden', !visible);
-                return visible;
-            });
-            card.classList.toggle('search-hidden', visibleRows.length === 0);
-        });
-    });
     const yearId = '<%= selectedYearId %>';
     document.querySelectorAll('[data-result-save]').forEach(button => {
         button.addEventListener('click', async () => {

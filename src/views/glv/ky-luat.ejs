@@ -16,7 +16,7 @@
         <form class="discipline-toolbar" method="GET" action="/glv/ky-luat">
             <div class="discipline-field">
                 <label for="discipline-search"><i class="fa-solid fa-magnifying-glass"></i> Tìm kiếm thiếu nhi</label>
-                <input id="discipline-search" type="search" placeholder="Tên hoặc mã số..." autocomplete="off">
+                <input id="discipline-search" type="search" data-table-search="[data-discipline-row]" data-search-empty="#discipline-search-empty" placeholder="Tên hoặc mã số..." autocomplete="off">
             </div>
             <div class="discipline-field">
                 <label for="discipline-month"><i class="fa-solid fa-calendar-days"></i> Tháng</label>
@@ -73,19 +73,9 @@
                     </table>
                 </div>
             <% } %>
+            <div class="discipline-empty search-hidden" id="discipline-search-empty">Không tìm thấy thiếu nhi phù hợp.</div>
         </form>
     <% } %>
 </main>
 
-<script>
-(() => {
-    const search = document.getElementById('discipline-search');
-    const normalize = value => String(value || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
-    search?.addEventListener('input', () => {
-        const keyword = normalize(search.value.trim());
-        document.querySelectorAll('[data-discipline-row]').forEach(row => {
-            row.classList.toggle('search-hidden', Boolean(keyword) && !normalize(row.dataset.search).includes(keyword));
-        });
-    });
-})();
-</script>
+<script src="/js/table-search.js" defer></script>

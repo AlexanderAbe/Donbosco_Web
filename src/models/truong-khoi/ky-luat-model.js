@@ -18,7 +18,7 @@ const KyLuatModel = {
 				  WHERE tk.id_glv = $1 AND tk.id_khoi = l.id_khoi
 					AND tk.id_cau_hinh_nam_hoc = $2
 			  )
-			ORDER BY k.stt, l.ten_lop, tn.ten, dkl.thang
+			ORDER BY k.stt, l.ten_lop, tn.ten, tn.ho_va_ten_lot, tn.ten_thanh, dkl.thang
 		`, [idTruongKhoi, yearId]);
 		return rows;
 	}

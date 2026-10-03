@@ -1,7 +1,7 @@
 <link rel="stylesheet" href="/css/reset.css">
 <link rel="stylesheet" href="/css/truong-khoi/truong-khoi-kiem-tra.css">
 
-<main class="tk-class-page">
+<main class="tk-class-page" data-selected-exam="<%= selectedExam === null ? 'all' : String(selectedExam) %>">
     <header class="tk-class-header">
         <div>
             <p class="eyebrow"><i class="fa-solid fa-clipboard-check"></i> Kết quả học tập</p>
@@ -18,14 +18,14 @@
             <p>Niên khóa này chưa có dữ liệu điểm trong khối.</p>
         </div>
     <% } else { %>
-        <form class="tk-filter" method="GET" action="/truong-khoi/kiem-tra">
+        <div class="tk-filter">
             <div class="tk-filter-buttons" aria-label="Lọc theo bài kiểm tra">
-                <button class="tk-filter-button <%= selectedExam === null ? 'is-active' : '' %>" type="submit" name="bai_kiem_tra" value="">Tất cả</button>
+                <button class="tk-filter-button <%= selectedExam === null ? 'is-active' : '' %>" type="button" data-exam-filter="all">Tất cả</button>
                 <% examNumbers.forEach(number => { %>
-                    <button class="tk-filter-button <%= number === selectedExam ? 'is-active' : '' %>" type="submit" name="bai_kiem_tra" value="<%= number %>">Bài <%= number %></button>
+                    <button class="tk-filter-button <%= number === selectedExam ? 'is-active' : '' %>" type="button" data-exam-filter="<%= number %>">Bài <%= number %></button>
                 <% }) %>
             </div>
-        </form>
+        </div>
         <% if (!scores.length) { %>
             <div class="tk-empty">
                 <i class="fa-solid fa-filter-circle-xmark"></i>
@@ -48,7 +48,7 @@
                     </thead>
                     <tbody>
                         <% scores.forEach((item, index) => { %>
-                            <tr data-score-row data-search="<%= `${item._fullName || ''} ${item.mstn || ''}`.toLowerCase() %>">
+                            <tr data-score-row data-exam-number="<%= item.stt_bai_ktra %>" data-search="<%= `${item._fullName || ''} ${item.mstn || ''}`.toLowerCase() %>">
                                 <td><%= index + 1 %></td>
                                 <td><%= item.mstn || '-' %></td>
                                 <td>
@@ -65,10 +65,15 @@
                 </table>
             </div>
             </div>
-            <div class="tk-no-results" id="score-no-results" hidden>
-                <i class="fa-solid fa-user-slash"></i>
-                Không tìm thấy thiếu nhi phù hợp.
-            </div>
+            <%- include('../partials/pagination', {
+                mode: 'client',
+                currentPage: 1,
+                totalPages: Math.max(Math.ceil(scores.length / 25), 1),
+                totalItems: scores.length,
+                pageSize: 25,
+                rows: '[data-score-row]'
+            }) %>
+            <div class="tk-no-results" id="score-no-results" hidden><i class="fa-solid fa-user-slash"></i> Không tìm thấy kết quả phù hợp.</div>
         <% } %>
     <% } %>
 </main>
@@ -76,19 +81,33 @@
 <script>
 (() => {
     const search = document.getElementById('score-search');
-    const rows = document.querySelectorAll('[data-score-row]');
+    const rows = [...document.querySelectorAll('[data-score-row]')];
+    const buttons = [...document.querySelectorAll('[data-exam-filter]')];
     const empty = document.getElementById('score-no-results');
-    const normalize = value => String(value || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+    const normalize = value => String(value || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLocaleLowerCase('vi').trim().replace(/\s+/g, ' ');
+    let selectedExam = document.querySelector('.tk-class-page').dataset.selectedExam;
 
-    search?.addEventListener('input', () => {
-        const keyword = normalize(search.value.trim());
+    const applyFilters = () => {
+        const keyword = normalize(search.value);
         let visibleCount = 0;
         rows.forEach(row => {
-            const visible = !keyword || normalize(row.dataset.search).includes(keyword);
-            row.hidden = !visible;
-            if (visible) visibleCount += 1;
+            const matchesExam = selectedExam === 'all' || row.dataset.examNumber === selectedExam;
+            const matchesSearch = !keyword || normalize(row.dataset.search).includes(keyword);
+            const hidden = !matchesExam || !matchesSearch;
+            row.hidden = hidden;
+            row.classList.toggle('pagination-filter-hidden', hidden);
+            if (!row.hidden) visibleCount += 1;
         });
-        if (empty) empty.hidden = visibleCount > 0;
-    });
+        buttons.forEach(button => button.classList.toggle('is-active', button.dataset.examFilter === selectedExam));
+        empty.hidden = visibleCount > 0;
+        document.dispatchEvent(new Event('pagination:refresh'));
+    };
+
+    search.addEventListener('input', applyFilters);
+    buttons.forEach(button => button.addEventListener('click', () => {
+        selectedExam = button.dataset.examFilter;
+        applyFilters();
+    }));
+    applyFilters();
 })();
 </script>

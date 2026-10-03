@@ -10,7 +10,11 @@ const sortByStudentName = (items = []) => [...items].sort((a, b) => {
 
     const hoA = (a.ho_va_ten_lot || '').trim().toLowerCase();
     const hoB = (b.ho_va_ten_lot || '').trim().toLowerCase();
-    return hoA.localeCompare(hoB, 'vi');
+    const hoComparison = hoA.localeCompare(hoB, 'vi');
+    if (hoComparison !== 0) return hoComparison;
+
+    return (a.ten_thanh || '').trim().toLowerCase()
+        .localeCompare((b.ten_thanh || '').trim().toLowerCase(), 'vi');
 });
 
 const normalizeDiscipline = (discipline = []) => sortByStudentName(discipline).map((item) => ({
@@ -34,10 +38,6 @@ const KyLuatController = {
             const selectedMonth = monthNumbers.includes(requestedMonth)
                 ? requestedMonth
                 : null;
-            const discipline = selectedMonth === null
-                ? allDiscipline
-                : allDiscipline.filter(item => Number(item.thang) === selectedMonth);
-
             return res.render('truong-khoi/ky-luat', {
                 ...getTruongKhoiBaseData(req, 'Điểm kỷ luật'),
                 title: 'Điểm kỷ luật',
@@ -46,7 +46,7 @@ const KyLuatController = {
                 monthNumbers,
                 selectedMonth,
                 hasData: allDiscipline.length > 0,
-                discipline: normalizeDiscipline(discipline)
+                discipline: normalizeDiscipline(allDiscipline)
             });
         } catch (error) {
             console.error('Lỗi tải trang kỷ luật:', error);

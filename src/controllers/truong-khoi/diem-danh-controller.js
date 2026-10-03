@@ -36,7 +36,11 @@ const buildAttendanceReport = (attendance = []) => {
 
             const hoA = (a.ho_va_ten_lot || '').trim().toLowerCase();
             const hoB = (b.ho_va_ten_lot || '').trim().toLowerCase();
-            return hoA.localeCompare(hoB, 'vi');
+            const hoComparison = hoA.localeCompare(hoB, 'vi');
+            if (hoComparison !== 0) return hoComparison;
+
+            return (a.ten_thanh || '').trim().toLowerCase()
+                .localeCompare((b.ten_thanh || '').trim().toLowerCase(), 'vi');
         });
 
     const summaryMap = new Map();
