@@ -15,6 +15,19 @@ const BangDiemModel = {
                 realtime.diem_tong,
                 CASE
                     WHEN pl.trang_thai <> 'Đang học' THEN realtime.tinh_trang
+                                        WHEN NOT EXISTS (
+                                                SELECT 1 FROM DIEM_HOC_TAP dht
+                                                WHERE dht.id_tn = realtime.id_tn
+                                                    AND dht.id_cau_hinh_nam_hoc = realtime.id_cau_hinh_nam_hoc
+                                        ) AND NOT EXISTS (
+                                                SELECT 1 FROM DIEM_CHUYEN_CAN dhc
+                                                WHERE dhc.id_tn = realtime.id_tn
+                                                    AND dhc.id_cau_hinh_nam_hoc = realtime.id_cau_hinh_nam_hoc
+                                        ) AND NOT EXISTS (
+                                                SELECT 1 FROM DIEM_KY_LUAT dkl
+                                                WHERE dkl.id_tn = realtime.id_tn
+                                                    AND dkl.id_cau_hinh_nam_hoc = realtime.id_cau_hinh_nam_hoc
+                                        ) THEN realtime.tinh_trang
                     WHEN realtime.diem_tong >= 5
                         AND realtime.diem_hoc_tap >= 5
                         AND realtime.diem_chuyen_can >= 5

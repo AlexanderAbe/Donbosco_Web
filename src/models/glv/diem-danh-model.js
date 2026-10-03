@@ -81,6 +81,11 @@ const DiemDanhModel = {
                     [row.id_tn, month, yearId]
                 );
             }
+            await client.query(`
+                UPDATE TONG_KET_NAM_HOC
+                SET tinh_trang = NULL
+                WHERE id_lop = $1 AND id_cau_hinh_nam_hoc = $2
+            `, [classId, yearId]);
             await client.query('COMMIT');
         } catch (error) {
             await client.query('ROLLBACK');
@@ -136,6 +141,11 @@ const DiemDanhModel = {
                 Number(attendanceDate.slice(5, 7)),
                 yearId
             ]);
+            await client.query(`
+                UPDATE TONG_KET_NAM_HOC
+                SET tinh_trang = NULL
+                WHERE id_tn = $1 AND id_lop = $2 AND id_cau_hinh_nam_hoc = $3
+            `, [student.id_tn, classId, yearId]);
 
             await client.query('COMMIT');
             return student;

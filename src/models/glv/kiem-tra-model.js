@@ -75,6 +75,11 @@ const KiemTraModel = {
                         diem_so = EXCLUDED.diem_so,
                         ngay_kiem_tra = EXCLUDED.ngay_kiem_tra
                 `, [examNumber, parsedDate, yearId, JSON.stringify(validScores)]);
+                await client.query(`
+                    UPDATE TONG_KET_NAM_HOC
+                    SET tinh_trang = NULL
+                    WHERE id_lop = $1 AND id_cau_hinh_nam_hoc = $2
+                `, [classId, yearId]);
             }
             await client.query('COMMIT');
         } catch (error) {
