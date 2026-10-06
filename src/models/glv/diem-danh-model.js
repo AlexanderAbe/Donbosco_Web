@@ -1,4 +1,5 @@
 const pool = require('../../../config/database');
+const { sortStudentsByName } = require('../../utils/student-sorter');
 
 const DiemDanhModel = {
     async getAttendanceStudents(idGlv, yearId, classId, attendanceDate, sessionType) {
@@ -20,7 +21,70 @@ const DiemDanhModel = {
               AND pc.id_lop = $3
             ORDER BY tn.ten, tn.ho_va_ten_lot, tn.ten_thanh
         `, [idGlv, yearId, classId, attendanceDate || '', sessionType]);
-        return rows;
+        return sortStudentsByName(rows);
+    },
+
+    async getMonthlyAttendanceForPrint(idGlv, yearId, classId, calendarYear, month) {
+        const assigned = await pool.query(`
+            SELECT lop.ten_lop
+            FROM PHAN_CONG_GLV pc
+            JOIN LOP_HOC lop ON lop.id_lop = pc.id_lop
+            WHERE pc.id_glv = $1
+              AND pc.id_cau_hinh_nam_hoc = $2
+              AND pc.id_lop = $3
+            LIMIT 1
+        `, [idGlv, yearId, classId]);
+        if (!assigned.rows.length) {
+            const error = new Error('Bạn không có quyền xem điểm danh của lớp này.');
+            error.code = 'FORBIDDEN';
+            throw error;
+        }
+
+        const { rows } = await pool.query(`
+            SELECT tn.id_tn, tn.mstn, tn.ten_thanh, tn.ho_va_ten_lot, tn.ten,
+                   TO_CHAR(dd.ngay_diem_danh, 'YYYY-MM-DD') AS ngay_diem_danh,
+                   dd.loai_buoi, dd.trang_thai
+            FROM PHAN_LOP pl
+            JOIN THIEU_NHI tn ON tn.id_tn = pl.id_tn
+            LEFT JOIN DIEM_DANH dd
+                ON dd.id_tn = pl.id_tn
+                AND dd.id_lop = pl.id_lop
+                AND dd.ngay_diem_danh >= make_date($3, $4, 1)
+                AND dd.ngay_diem_danh < (make_date($3, $4, 1) + INTERVAL '1 month')
+                AND dd.loai_buoi IN (
+                    'Lễ Thứ 3'::enum_loai_buoi,
+                    'Lễ Thứ 5'::enum_loai_buoi,
+                    'Lễ Chúa Nhật'::enum_loai_buoi,
+                    'Học Giáo Lý'::enum_loai_buoi
+                )
+                AND EXTRACT(DOW FROM dd.ngay_diem_danh) IN (0, 2, 4)
+            WHERE pl.id_lop = $2
+              AND pl.id_cau_hinh_nam_hoc = $1
+              AND pl.trang_thai = 'Đang học'
+            ORDER BY tn.ten, tn.ho_va_ten_lot, tn.ten_thanh, dd.ngay_diem_danh, dd.loai_buoi
+        `, [yearId, classId, calendarYear, month]);
+
+        const studentsById = new Map();
+        for (const row of rows) {
+            if (!studentsById.has(row.id_tn)) {
+                studentsById.set(row.id_tn, {
+                    id_tn: row.id_tn,
+                    mstn: row.mstn,
+                    ten_thanh: row.ten_thanh,
+                    ho_va_ten_lot: row.ho_va_ten_lot,
+                    ten: row.ten,
+                    attendance: {}
+                });
+            }
+            if (row.ngay_diem_danh) {
+                const date = String(row.ngay_diem_danh).slice(0, 10);
+                studentsById.get(row.id_tn).attendance[`${date}|${row.loai_buoi}`] = row.trang_thai;
+            }
+        }
+        return {
+            className: assigned.rows[0].ten_lop,
+            students: sortStudentsByName([...studentsById.values()])
+        };
     },
 
     async saveAttendance(idGlv, yearId, classId, attendanceDate, sessionType, attendance) {

@@ -13,7 +13,7 @@ const KiemTraController = {
         try {
             const idGlv = req.session.user.id_glv;
             const years = await BaseGlvModel.getAcademicYears(idGlv);
-            const { selectedYearId } = getCurrentYear(years, req.session);
+            const { selectedYearId, selectedYear } = getCurrentYear(years, req.session);
             const classes = selectedYearId
                 ? await BaseGlvModel.getAssignedClasses(idGlv, selectedYearId)
                 : [];
@@ -49,6 +49,7 @@ const KiemTraController = {
             return res.render('glv/kiem-tra', {
                 title: 'Nhập điểm kiểm tra',
                 selectedYearId,
+                academicYear: selectedYear?.nien_khoa || '',
                 classes,
                 selectedClassId,
                 examCount,
@@ -61,6 +62,51 @@ const KiemTraController = {
         } catch (error) {
             console.error('Lỗi tải trang nhập điểm GLV:', error);
             return res.status(500).send('Lỗi server khi tải trang nhập điểm.');
+        }
+    },
+
+    async getExamScoresForPrint(req, res) {
+        const idGlv = req.session.user?.id_glv;
+        const classId = getId(req.body?.id_lop);
+        const fromExam = getId(req.body?.bai_tu);
+        const toExam = getId(req.body?.bai_den);
+        if (!classId || !fromExam || !toExam || fromExam > toExam) {
+            return res.status(400).json({
+                error: 'Khoảng bài kiểm tra không hợp lệ.'
+            });
+        }
+
+        try {
+            const years = await BaseGlvModel.getAcademicYears(idGlv);
+            const { selectedYearId, selectedYear } = getCurrentYear(years, req.session);
+            if (!selectedYearId) {
+                return res.status(400).json({ error: 'Không xác định được niên khóa để in điểm kiểm tra.' });
+            }
+
+            const examData = await KiemTraModel.getExamScoresForPrint(
+                idGlv,
+                selectedYearId,
+                classId,
+                fromExam,
+                toExam
+            );
+            return res.json({
+                className: examData.className,
+                academicYear: selectedYear?.nien_khoa || '',
+                fromExam,
+                toExam,
+                students: examData.students
+            });
+        } catch (error) {
+            console.error('Lỗi tải dữ liệu in điểm kiểm tra GLV:', error);
+            const status = error.code === 'FORBIDDEN' ? 403
+                : error.code === 'INVALID_EXAM_RANGE' ? 400
+                    : 500;
+            return res.status(status).json({
+                error: status === 403 || status === 400
+                    ? error.message
+                    : 'Lỗi máy chủ khi tải dữ liệu in điểm kiểm tra.'
+            });
         }
     },
 

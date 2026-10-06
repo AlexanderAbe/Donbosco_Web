@@ -1,4 +1,5 @@
 const pool = require('../../../config/database');
+const { sortStudentsByName } = require('../../utils/student-sorter');
 
 const KiemTraModel = {
     async getExamCount(yearId) {
@@ -29,7 +30,73 @@ const KiemTraModel = {
               AND pc.id_lop = $3
             ORDER BY tn.ten, tn.ho_va_ten_lot, tn.ten_thanh
         `, [idGlv, yearId, classId, examNumber]);
-        return rows;
+        return sortStudentsByName(rows);
+    },
+
+    async getExamScoresForPrint(idGlv, yearId, classId, fromExam, toExam) {
+        const assigned = await pool.query(`
+            SELECT lop.ten_lop
+            FROM PHAN_CONG_GLV pc
+            JOIN LOP_HOC lop ON lop.id_lop = pc.id_lop
+            WHERE pc.id_glv = $1
+              AND pc.id_cau_hinh_nam_hoc = $2
+              AND pc.id_lop = $3
+            LIMIT 1
+        `, [idGlv, yearId, classId]);
+        if (!assigned.rows.length) {
+            const error = new Error('Bạn không có quyền xem điểm kiểm tra của lớp này.');
+            error.code = 'FORBIDDEN';
+            throw error;
+        }
+
+        const examCount = await this.getExamCount(yearId);
+        if (fromExam < 1 || fromExam > toExam || toExam > examCount) {
+            const error = new Error('Khoảng bài kiểm tra không hợp lệ.');
+            error.code = 'INVALID_EXAM_RANGE';
+            throw error;
+        }
+
+        const { rows } = await pool.query(`
+            SELECT tn.id_tn, tn.mstn, tn.ten_thanh, tn.ho_va_ten_lot, tn.ten,
+                   pl.trang_thai, dht.stt_bai_ktra, dht.diem_so,
+                   TO_CHAR(dht.ngay_kiem_tra, 'YYYY-MM-DD') AS ngay_kiem_tra,
+                   (dht.id_hoc_tap IS NOT NULL) AS da_luu
+            FROM PHAN_LOP pl
+            JOIN THIEU_NHI tn ON tn.id_tn = pl.id_tn
+            LEFT JOIN DIEM_HOC_TAP dht
+                ON dht.id_tn = pl.id_tn
+                AND dht.id_cau_hinh_nam_hoc = pl.id_cau_hinh_nam_hoc
+                AND dht.stt_bai_ktra BETWEEN $3 AND $4
+            WHERE pl.id_lop = $1
+              AND pl.id_cau_hinh_nam_hoc = $2
+            ORDER BY tn.ten, tn.ho_va_ten_lot, tn.ten_thanh, dht.stt_bai_ktra
+        `, [classId, yearId, fromExam, toExam]);
+
+        const studentsById = new Map();
+        for (const row of rows) {
+            if (!studentsById.has(row.id_tn)) {
+                studentsById.set(row.id_tn, {
+                    id_tn: row.id_tn,
+                    mstn: row.mstn,
+                    ten_thanh: row.ten_thanh,
+                    ho_va_ten_lot: row.ho_va_ten_lot,
+                    ten: row.ten,
+                    trang_thai: row.trang_thai,
+                    scores: {}
+                });
+            }
+            if (row.da_luu) {
+                studentsById.get(row.id_tn).scores[row.stt_bai_ktra] = {
+                    diem_so: row.diem_so,
+                    ngay_kiem_tra: row.ngay_kiem_tra
+                };
+            }
+        }
+
+        return {
+            className: assigned.rows[0].ten_lop,
+            students: sortStudentsByName([...studentsById.values()])
+        };
     },
 
     async saveExamScores(idGlv, yearId, classId, examNumber, scores, ngayKiemTra) {

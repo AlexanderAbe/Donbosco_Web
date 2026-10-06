@@ -28,19 +28,23 @@ router.post('/danh-sach-lop/:id/status', danhSachLopController.updateStudentStat
 
 // Bảng điểm
 router.get('/bang-diem', bangDiemController.getBangDiem);
+router.post('/bang-diem/print-history', bangDiemController.getStudentPrintHistories);
 router.post('/bang-diem/:id/update-result', bangDiemController.updateResult);
 
 // Kiểm tra
 router.get('/kiem-tra', kiemTraController.getKiemTra);
+router.post('/kiem-tra/print-data', kiemTraController.getExamScoresForPrint);
 router.post('/kiem-tra/save', kiemTraController.saveKiemTra);
 
 // Kỷ luật
 router.get('/ky-luat', kyLuatController.getKyLuat);
+router.post('/ky-luat/print-data', kyLuatController.getDisciplineScoresForPrint);
 router.post('/ky-luat/save', kyLuatController.saveKyLuat);
 
 // Điểm danh
 router.get('/diem-danh', diemDanhController.getDiemDanh);
 router.get('/diem-danh/qr', diemDanhController.getQrDiemDanh);
+router.post('/diem-danh/print-data', diemDanhController.getMonthlyAttendanceForPrint);
 router.post('/diem-danh/save', diemDanhController.saveDiemDanh);
 router.post('/diem-danh/scan', diemDanhController.scanDiemDanh);
 

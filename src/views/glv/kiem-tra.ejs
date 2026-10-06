@@ -45,6 +45,15 @@
                     <i class="fa-solid <%= students.length && students.every(student => student.da_luu) ? 'fa-circle-check' : 'fa-clock' %>"></i> 
                     <%= students.length && students.every(student => student.da_luu) ? 'Đã lưu' : 'Chưa lưu' %>
                 </span>
+                <button
+                    class="print-score-button"
+                    type="button"
+                    id="open-exam-print"
+                    data-class-id="<%= selectedClassId || '' %>"
+                    data-exam-count="<%= examCount %>"
+                    <%= !selectedClassId || !students.length ? 'disabled' : '' %>>
+                    <i class="fa-solid fa-print"></i> In điểm kiểm tra
+                </button>
                 <button class="save-score-button" type="submit"><i class="fa-solid fa-floppy-disk"></i> Lưu điểm</button>
             </div>
 
@@ -81,7 +90,202 @@
             <% } %>
             <div class="empty-state search-hidden" id="student-search-empty">Không tìm thấy thiếu nhi phù hợp.</div>
         </form>
+
+        <dialog class="exam-print-modal" id="exam-print-modal" aria-labelledby="exam-print-modal-title">
+            <div class="exam-print-modal-heading">
+                <div>
+                    <span class="class-eyebrow">Điểm kiểm tra</span>
+                    <h2 id="exam-print-modal-title">In điểm kiểm tra</h2>
+                </div>
+                <button class="exam-print-modal-close" type="button" data-close-exam-print aria-label="Đóng">&times;</button>
+            </div>
+            <div class="exam-print-modal-content">
+                <label for="exam-print-from">Chọn khoảng bài kiểm tra cần in</label>
+                <div class="exam-print-range">
+                    <select id="exam-print-from" aria-label="Bắt đầu từ bài kiểm tra">
+                        <% for (let number = 1; number <= examCount; number += 1) { %>
+                            <option value="<%= number %>" <%= number === selectedExam ? 'selected' : '' %>>Từ bài <%= number %></option>
+                        <% } %>
+                    </select>
+                    <select id="exam-print-to" aria-label="Kết thúc đến bài kiểm tra">
+                        <% for (let number = 1; number <= examCount; number += 1) { %>
+                            <option value="<%= number %>" <%= number === examCount ? 'selected' : '' %>>Đến bài <%= number %></option>
+                        <% } %>
+                    </select>
+                </div>
+                <p id="exam-print-range-hint">Chọn khoảng cần in trong số bài kiểm tra của niên khóa.</p>
+            </div>
+            <div class="exam-print-modal-actions">
+                <button class="exam-print-modal-cancel" type="button" data-close-exam-print>Hủy</button>
+                <button class="exam-print-modal-confirm" type="button" id="confirm-exam-print">
+                    <i class="fa-solid fa-print"></i> Xác nhận in
+                </button>
+            </div>
+        </dialog>
     <% } %>
 </main>
 
 <script src="/js/table-search.js" defer></script>
+<script>
+(() => {
+    const openButton = document.getElementById('open-exam-print');
+    const printModal = document.getElementById('exam-print-modal');
+    const fromSelect = document.getElementById('exam-print-from');
+    const toSelect = document.getElementById('exam-print-to');
+    const confirmButton = document.getElementById('confirm-exam-print');
+    const rangeHint = document.getElementById('exam-print-range-hint');
+    if (!openButton || !printModal || !fromSelect || !toSelect || !confirmButton) return;
+
+    const updateExamRange = (changedSelect) => {
+        const fromExam = Number(fromSelect.value);
+        const toExam = Number(toSelect.value);
+        if (toExam < fromExam) {
+            if (changedSelect === fromSelect) {
+                toSelect.value = fromSelect.value;
+            } else {
+                fromSelect.value = toSelect.value;
+            }
+        }
+        const selectedFrom = Number(fromSelect.value);
+        const selectedTo = Number(toSelect.value);
+        [...toSelect.options].forEach(option => {
+            const examNumber = Number(option.value);
+            option.disabled = examNumber < selectedFrom;
+        });
+        [...fromSelect.options].forEach(option => {
+            option.disabled = Number(option.value) > selectedTo;
+        });
+        rangeHint.textContent = `Đã chọn ${selectedTo - selectedFrom + 1} bài; niên khóa có ${Number(openButton.dataset.examCount)} bài kiểm tra.`;
+    };
+
+    fromSelect.addEventListener('change', () => updateExamRange(fromSelect));
+    toSelect.addEventListener('change', () => updateExamRange(toSelect));
+    updateExamRange(fromSelect);
+
+    printModal.querySelectorAll('[data-close-exam-print]').forEach(button => {
+        button.addEventListener('click', () => printModal.close());
+    });
+    openButton.addEventListener('click', () => printModal.showModal());
+
+    const appendCell = (document, row, text, tagName = 'td') => {
+        const cell = document.createElement(tagName);
+        cell.textContent = text;
+        row.appendChild(cell);
+        return cell;
+    };
+
+    const buildPrintDocument = (printWindow, data) => {
+        const printDocument = printWindow.document;
+        printDocument.title = 'Bảng điểm kiểm tra';
+        printDocument.body.className = 'exam-print-body';
+        const stylesheet = printDocument.createElement('link');
+        stylesheet.rel = 'stylesheet';
+        stylesheet.href = '/css/glv/glv-kiem-tra.css';
+
+        const main = printDocument.createElement('main');
+        main.className = 'exam-print-document';
+        const parish = printDocument.createElement('p');
+        parish.className = 'exam-print-parish';
+        parish.append('Giáo xứ Tân Thái Sơn');
+        parish.appendChild(printDocument.createElement('br'));
+        parish.append('Xứ đoàn Don Bosco');
+        main.appendChild(parish);
+
+        const title = printDocument.createElement('h1');
+        title.textContent = `BẢNG ĐIỂM KIỂM TRA · ${data.className.toLocaleUpperCase('vi')} · NIÊN KHÓA ${data.academicYear}`;
+        main.appendChild(title);
+
+        const table = printDocument.createElement('table');
+        table.className = 'exam-print-table';
+        const header = printDocument.createElement('thead');
+        const dateRow = printDocument.createElement('tr');
+        const examRow = printDocument.createElement('tr');
+        ['STT', 'Mã số', 'Tên thánh', 'Họ và tên lót', 'Tên']
+            .forEach(label => {
+                const cell = appendCell(printDocument, dateRow, label, 'th');
+                cell.rowSpan = 2;
+            });
+        for (let exam = data.fromExam; exam <= data.toExam; exam += 1) {
+            const examDate = data.students
+                .map(student => student.scores[exam]?.ngay_kiem_tra)
+                .find(Boolean);
+            const dateLabel = examDate
+                ? `${examDate.slice(8, 10)}/${examDate.slice(5, 7)}/${examDate.slice(0, 4)}`
+                : 'Chưa có ngày';
+            appendCell(printDocument, dateRow, dateLabel, 'th');
+            appendCell(printDocument, examRow, `Bài ${exam}`, 'th');
+        }
+        header.appendChild(dateRow);
+        header.appendChild(examRow);
+        table.appendChild(header);
+
+        const body = printDocument.createElement('tbody');
+        data.students.forEach((student, index) => {
+            const row = printDocument.createElement('tr');
+            appendCell(printDocument, row, String(index + 1));
+            appendCell(printDocument, row, student.mstn || '-');
+            appendCell(printDocument, row, student.ten_thanh || '');
+            appendCell(printDocument, row, student.ho_va_ten_lot || '');
+            appendCell(printDocument, row, student.ten || '');
+            for (let exam = data.fromExam; exam <= data.toExam; exam += 1) {
+                appendCell(printDocument, row, student.scores[exam]?.diem_so == null
+                    ? ''
+                    : String(student.scores[exam].diem_so));
+            }
+            body.appendChild(row);
+        });
+        table.appendChild(body);
+        main.appendChild(table);
+        printDocument.body.appendChild(main);
+
+        stylesheet.addEventListener('load', () => {
+            printDocument.fonts.ready.then(() => {
+                printWindow.focus();
+                printWindow.print();
+            });
+        }, { once: true });
+        stylesheet.addEventListener('error', () => {
+            window.alert('Không tải được kiểu in điểm kiểm tra. Vui lòng thử lại.');
+            printWindow.close();
+        }, { once: true });
+        printDocument.head.appendChild(stylesheet);
+    };
+
+    confirmButton.addEventListener('click', async () => {
+        const classId = Number(openButton.dataset.classId);
+        const fromExam = Number(fromSelect.value);
+        const toExam = Number(toSelect.value);
+        if (!Number.isInteger(classId) || classId < 1
+            || !Number.isInteger(fromExam) || !Number.isInteger(toExam)
+            || fromExam < 1 || toExam < fromExam
+            || toExam > Number(openButton.dataset.examCount)) {
+            window.alert('Vui lòng chọn khoảng bài kiểm tra hợp lệ.');
+            return;
+        }
+
+        const printWindow = window.open('', '_blank');
+        if (!printWindow) {
+            window.alert('Trình duyệt đã chặn cửa sổ in. Vui lòng cho phép cửa sổ bật lên rồi thử lại.');
+            return;
+        }
+
+        printModal.close();
+        confirmButton.disabled = true;
+        try {
+            const response = await fetch('/glv/kiem-tra/print-data', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ id_lop: classId, bai_tu: fromExam, bai_den: toExam })
+            });
+            const data = await response.json();
+            if (!response.ok) throw new Error(data.error || 'Không thể tải dữ liệu điểm kiểm tra.');
+            buildPrintDocument(printWindow, data);
+        } catch (error) {
+            printWindow.close();
+            window.alert(error.message || 'Không thể chuẩn bị bảng điểm kiểm tra để in.');
+        } finally {
+            confirmButton.disabled = false;
+        }
+    });
+})();
+</script>

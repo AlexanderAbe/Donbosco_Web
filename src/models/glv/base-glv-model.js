@@ -1,4 +1,5 @@
 const pool = require('../../../config/database');
+const { sortStudentsByName } = require('../../utils/student-sorter');
 
 const BaseGlvModel = {
     async getAcademicYears(idGlv) {
@@ -37,7 +38,7 @@ const BaseGlvModel = {
                   AND pl.id_cau_hinh_nam_hoc = $2
                 ORDER BY tn.ten, tn.ho_va_ten_lot, tn.ten_thanh
             `, [classItem.id_lop, yearId]);
-            classItem.students = result.rows;
+            classItem.students = sortStudentsByName(result.rows);
         }
         return rows;
     }

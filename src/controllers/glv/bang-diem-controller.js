@@ -2,6 +2,7 @@ const BaseGlvModel = require('../../models/glv/base-glv-model');
 const BangDiemModel = require('../../models/glv/bang-diem-model');
 const { logAction } = require('../../utils/logger');
 const { getCurrentYear } = require('../../utils/current-year-helper');
+const { compareStudentNames } = require('../../utils/student-sorter');
 
 const getId = value => {
     const id = Number.parseInt(value, 10);
@@ -13,19 +14,67 @@ const BangDiemController = {
         try {
             const idGlv = req.session.user.id_glv;
             const years = await BaseGlvModel.getAcademicYears(idGlv);
-            const { selectedYearId } = getCurrentYear(years, req.session);
+            const { selectedYearId, selectedYear } = getCurrentYear(years, req.session);
             const scores = selectedYearId
                 ? await BangDiemModel.getRealtimeScores(idGlv, selectedYearId)
                 : [];
+            const classOrder = new Map();
+            for (const score of scores) {
+                if (!classOrder.has(score.id_lop)) classOrder.set(score.id_lop, classOrder.size);
+            }
+            scores.sort((a, b) => (
+                classOrder.get(a.id_lop) - classOrder.get(b.id_lop)
+                || compareStudentNames(a, b)
+            ));
 
             return res.render('glv/bang-diem', {
                 title: 'Bảng điểm thiếu nhi',
                 selectedYearId,
+                academicYear: selectedYear?.nien_khoa || '',
                 scores
             });
         } catch (error) {
             console.error('Lỗi tải bảng điểm GLV:', error);
             return res.status(500).send('Lỗi server khi tải bảng điểm.');
+        }
+    },
+
+    async getStudentPrintHistories(req, res) {
+        const idGlv = req.session.user?.id_glv;
+        const requestedStudents = req.body?.students;
+        if (
+            !Array.isArray(requestedStudents) ||
+            !requestedStudents.length ||
+            requestedStudents.some(student => !student || !getId(student.id_tn) || !getId(student.id_lop))
+        ) {
+            return res.status(400).json({ error: 'Vui lòng chọn ít nhất một thiếu nhi hợp lệ.' });
+        }
+
+        const students = [...new Map(requestedStudents.map(student => {
+            const id_tn = getId(student.id_tn);
+            const id_lop = getId(student.id_lop);
+            return [`${id_tn}:${id_lop}`, { id_tn, id_lop }];
+        })).values()];
+
+        try {
+            const years = await BaseGlvModel.getAcademicYears(idGlv);
+            const { selectedYearId } = getCurrentYear(years, req.session);
+            if (!selectedYearId) {
+                return res.status(400).json({ error: 'Không tìm thấy niên khóa hiện tại.' });
+            }
+
+            const histories = await BangDiemModel.getStudentPrintHistories(
+                idGlv,
+                selectedYearId,
+                students
+            );
+            if (histories.length !== students.length) {
+                return res.status(403).json({ error: 'Một số thiếu nhi không thuộc lớp bạn được phân công.' });
+            }
+            return res.json({ students: histories });
+        } catch (error) {
+            console.error('Lỗi tải lịch sử in bảng điểm cá nhân GLV:', error);
+            return res.status(500).json({ error: 'Lỗi máy chủ khi tải lịch sử bảng điểm cá nhân.' });
         }
     },
 

@@ -150,6 +150,46 @@ const DiemDanhController = {
         }
     },
 
+    async getMonthlyAttendanceForPrint(req, res) {
+        const idGlv = req.session.user?.id_glv;
+        const classId = getId(req.body?.id_lop);
+        const month = getId(req.body?.thang);
+        if (!classId || !month || month > 12) {
+            return res.status(400).json({ error: 'Lớp hoặc tháng điểm danh không hợp lệ.' });
+        }
+
+        try {
+            const years = await BaseGlvModel.getAcademicYears(idGlv);
+            const { selectedYearId, selectedYear } = getCurrentYear(years, req.session);
+            const academicYear = /^(\d{4})-(\d{4})$/.exec(selectedYear?.nien_khoa || '');
+            if (!selectedYearId || !academicYear) {
+                return res.status(400).json({ error: 'Không xác định được niên khóa để in điểm danh.' });
+            }
+
+            const calendarYear = Number(month >= 9 ? academicYear[1] : academicYear[2]);
+            const attendanceData = await DiemDanhModel.getMonthlyAttendanceForPrint(
+                idGlv,
+                selectedYearId,
+                classId,
+                calendarYear,
+                month
+            );
+            return res.json({
+                className: attendanceData.className,
+                month,
+                calendarYear,
+                academicYear: selectedYear.nien_khoa,
+                students: attendanceData.students
+            });
+        } catch (error) {
+            console.error('Lỗi tải dữ liệu in điểm danh GLV:', error);
+            const status = error.code === 'FORBIDDEN' ? 403 : 500;
+            return res.status(status).json({
+                error: status === 403 ? error.message : 'Lỗi máy chủ khi tải dữ liệu in điểm danh.'
+            });
+        }
+    },
+
     async saveDiemDanh(req, res) {
         const idGlv = req.session.user?.id_glv;
         const yearId = getId(req.body.nien_khoa);

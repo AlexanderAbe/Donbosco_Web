@@ -13,7 +13,7 @@ const KyLuatController = {
         try {
             const idGlv = req.session.user.id_glv;
             const years = await BaseGlvModel.getAcademicYears(idGlv);
-            const { selectedYearId } = getCurrentYear(years, req.session);
+            const { selectedYearId, selectedYear } = getCurrentYear(years, req.session);
             const classes = selectedYearId
                 ? await BaseGlvModel.getAssignedClasses(idGlv, selectedYearId)
                 : [];
@@ -30,6 +30,7 @@ const KyLuatController = {
             return res.render('glv/ky-luat', {
                 title: 'Nhập điểm kỷ luật',
                 selectedYearId,
+                academicYear: selectedYear?.nien_khoa || '',
                 classes,
                 selectedClassId,
                 selectedMonth,
@@ -40,6 +41,50 @@ const KyLuatController = {
         } catch (error) {
             console.error('Lỗi tải trang nhập điểm kỷ luật GLV:', error);
             return res.status(500).send('Lỗi server khi tải trang nhập điểm kỷ luật.');
+        }
+    },
+
+    async getDisciplineScoresForPrint(req, res) {
+        const idGlv = req.session.user?.id_glv;
+        const classId = getId(req.body?.id_lop);
+        if (!classId) {
+            return res.status(400).json({ error: 'Lớp cần in không hợp lệ.' });
+        }
+
+        try {
+            const years = await BaseGlvModel.getAcademicYears(idGlv);
+            const { selectedYearId, selectedYear } = getCurrentYear(years, req.session);
+            const academicYear = /^(\d{4})-(\d{4})$/.exec(selectedYear?.nien_khoa || '');
+            if (!selectedYearId || !academicYear) {
+                return res.status(400).json({ error: 'Không xác định được niên khóa để in điểm kỷ luật.' });
+            }
+
+            const disciplineData = await KyLuatModel.getDisciplineScoresForPrint(
+                idGlv,
+                selectedYearId,
+                classId
+            );
+            return res.json({
+                className: disciplineData.className,
+                academicYear: selectedYear.nien_khoa,
+                months: [
+                    ...Array.from({ length: 4 }, (_, index) => ({
+                        month: index + 9,
+                        year: Number(academicYear[1])
+                    })),
+                    ...Array.from({ length: 8 }, (_, index) => ({
+                        month: index + 1,
+                        year: Number(academicYear[2])
+                    }))
+                ],
+                students: disciplineData.students
+            });
+        } catch (error) {
+            console.error('Lỗi tải dữ liệu in điểm kỷ luật GLV:', error);
+            const status = error.code === 'FORBIDDEN' ? 403 : 500;
+            return res.status(status).json({
+                error: status === 403 ? error.message : 'Lỗi máy chủ khi tải dữ liệu in điểm kỷ luật.'
+            });
         }
     },
 
