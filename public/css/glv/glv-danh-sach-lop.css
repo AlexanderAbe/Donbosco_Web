@@ -80,10 +80,59 @@
 @media (max-width: 700px) {
     .class-page { padding: 24px 14px; }
     .class-card-header { align-items: flex-start; flex-direction: column; }
-    .student-table th, .student-table td { padding: 10px 8px; }
-    .student-table th:nth-child(2), .student-table td:nth-child(2) { display: none; }
+    .table-wrap { overflow: visible; }
+    .student-table { display: block; }
+    .student-table thead { display: none; }
+    .student-table tbody { display: grid; gap: 10px; }
+    .student-table tr {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 10px 12px;
+        margin: 0 10px 10px;
+        padding: 12px;
+        border: 1px solid var(--class-line);
+        border-radius: 8px;
+        background: #fff;
+    }
+    .student-table td {
+        display: block;
+        min-width: 0;
+        padding: 0;
+        border: 0;
+        overflow-wrap: anywhere;
+    }
+    .student-table td::before {
+        display: block;
+        margin-bottom: 3px;
+        color: var(--class-muted);
+        content: attr(data-label);
+        font-size: .7rem;
+        font-weight: 700;
+        letter-spacing: .03em;
+        text-transform: uppercase;
+    }
+    .student-table td:first-child { grid-column: 1 / -1; }
+    .student-table td:first-child strong { overflow-wrap: anywhere; }
+    .student-table td.student-status { grid-column: 1 / -1; }
+    .student-table td.student-actions {
+        display: grid;
+        grid-column: 1 / -1;
+        gap: 8px;
+    }
+    .student-table td.student-actions::before { display: none; }
+    .student-actions .detail-button,
+    .student-actions .status-button {
+        width: 100%;
+        min-width: 0;
+        min-height: 42px;
+        margin: 0;
+        padding: 9px 10px;
+        white-space: normal;
+        line-height: 1.25;
+        text-align: center;
+        overflow-wrap: anywhere;
+    }
     .detail-grid { grid-template-columns: 1fr; }
     .repeat-row { grid-template-columns: 1fr 1fr; }
     .repeat-row button { grid-column: 2; }
-    .student-actions { flex-direction: column; }
 }

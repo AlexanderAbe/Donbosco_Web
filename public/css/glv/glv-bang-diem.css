@@ -438,6 +438,10 @@
     margin: 0;
 }
 
+.score-print-watermark {
+    display: none;
+}
+
 .score-print-page {
     width: 100%;
 }
@@ -695,9 +699,27 @@
     .score-print-document {
         width: 100%;
         padding: 0;
+        position: relative;
+        isolation: isolate;
+    }
+
+    .score-print-watermark {
+        position: fixed;
+        z-index: 1;
+        display: block;
+        top: 50%;
+        left: 50%;
+        width: 90mm;
+        height: 90mm;
+        margin: -45mm 0 0 -45mm;
+        object-fit: contain;
+        opacity: .2;
+        pointer-events: none;
     }
 
     .score-print-page {
+        position: relative;
+        z-index: 2;
         break-after: page;
         page-break-after: always;
     }

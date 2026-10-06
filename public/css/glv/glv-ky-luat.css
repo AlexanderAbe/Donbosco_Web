@@ -257,6 +257,9 @@
 .discipline-print-body {
   margin: 0;
 }
+.discipline-print-watermark {
+  display: none;
+}
 .discipline-print-document {
   color: #111827;
   font-family: Arial, sans-serif;
@@ -396,6 +399,27 @@
 
   .discipline-print-document {
     width: 100%;
+    position: relative;
+    isolation: isolate;
+  }
+
+  .discipline-print-watermark {
+    position: fixed;
+    z-index: 1;
+    display: block;
+    top: 50%;
+    left: 50%;
+    width: 90mm;
+    height: 90mm;
+    margin: -45mm 0 0 -45mm;
+    object-fit: contain;
+    opacity: .2;
+    pointer-events: none;
+  }
+
+  .discipline-print-document > :not(.discipline-print-watermark) {
+    position: relative;
+    z-index: 2;
   }
 
   .discipline-print-table thead {

@@ -83,10 +83,12 @@
 
 .export-score-button {
   margin-left: auto;
+  border: 0;
   padding: 9px 13px;
   border-radius: 6px;
   color: #fff;
   background: var(--score-red);
+  font-family: inherit;
   font-size: 0.88rem;
   font-weight: 700;
   text-decoration: none;
@@ -94,6 +96,7 @@
   align-items: center;
   gap: 6px;
   box-sizing: border-box;
+  cursor: pointer;
 }
 
 .export-score-button i {
@@ -389,5 +392,121 @@
   }
   .score-table td.student-name::before {
     display: none; /* Ẩn chữ 'Họ và tên' vì giao diện đã tự định hình đây là tên người */
+  }
+}
+
+.score-print-document {
+  display: none;
+}
+
+.score-print-watermark {
+  display: none;
+}
+
+@media print {
+  @page {
+    size: A4 portrait;
+    margin: 12mm;
+  }
+
+  body * {
+    visibility: hidden;
+  }
+
+  .score-print-document,
+  .score-print-document * {
+    visibility: visible;
+  }
+
+  .score-print-document {
+    position: absolute;
+    top: 0;
+    left: 0;
+    display: block;
+    width: 100%;
+    color: #111;
+    font-family: Arial, sans-serif;
+    isolation: isolate;
+  }
+
+  .score-print-watermark {
+    position: fixed;
+    z-index: 1;
+    display: block;
+    top: 50%;
+    left: 50%;
+    width: 90mm;
+    height: 90mm;
+    margin: -45mm 0 0 -45mm;
+    object-fit: contain;
+    opacity: .2;
+    pointer-events: none;
+  }
+
+  .score-print-class {
+    position: relative;
+    z-index: 2;
+    break-after: page;
+    page-break-after: always;
+  }
+
+  .score-print-class:last-child {
+    break-after: auto;
+    page-break-after: auto;
+  }
+
+  .score-print-parish {
+    margin: 0 0 14px;
+    font-size: 9pt;
+    font-weight: 700;
+    line-height: 1.45;
+  }
+
+  .score-print-class h1 {
+    margin: 0 0 8px;
+    font-size: 13pt;
+    text-align: center;
+  }
+
+  .score-print-class h2 {
+    margin: 0 0 14px;
+    font-size: 10pt;
+    text-align: center;
+  }
+
+  .score-print-table {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+    font-size: 7pt;
+  }
+
+  .score-print-table th,
+  .score-print-table td {
+    border: 1px solid #333;
+    padding: 4px 3px;
+    overflow-wrap: anywhere;
+    text-align: center;
+  }
+
+  .score-print-table th {
+    background: #eee !important;
+    font-weight: 700;
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+  }
+
+  .score-print-table thead {
+    display: table-header-group;
+  }
+
+  .score-print-table tr {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  .score-print-count {
+    margin: 8px 0 0;
+    font-size: 8pt;
   }
 }

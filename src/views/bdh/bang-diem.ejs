@@ -42,11 +42,11 @@
                     </button>
                 </form>
 
-                <!-- Nút xuất PDF (Chỉ hiển thị hoặc mờ đi nếu đã có summary) -->
+                <!-- Nút in bảng điểm -->
                 <% if (summary && summary.length > 0) { %>
-                    <a class="export-score-button" href="/bdh/bang-diem/export?nien_khoa=<%= selectedYearId %>" target="_blank">
-                        <i class="fa-solid fa-file-pdf"></i> Xuất bảng điểm A4
-                    </a>
+                    <button class="export-score-button print-score-button" type="button" id="print-score-button">
+                        <i class="fa-solid fa-print"></i> In bảng điểm A4
+                    </button>
                 <% } %>
             </div>
         </div>
@@ -101,4 +101,64 @@
             <% }) %>
         <% } %>
     <% } %>
+
+    <% if (selectedYear && summary && summary.length > 0) { %>
+        <% const printGroups = []; %>
+        <% summary.forEach(student => { %>
+            <% let group = printGroups.find(item => item.idLop === student.id_lop); %>
+            <% if (!group) { %>
+                <% group = { idLop: student.id_lop, tenLop: student.ten_lop, tenKhoi: student.ten_khoi, students: [] }; %>
+                <% printGroups.push(group); %>
+            <% } %>
+            <% group.students.push(student); %>
+        <% }) %>
+
+        <div class="score-print-document">
+            <img class="score-print-watermark" src="/imgs/Logo.png" alt="" aria-hidden="true">
+            <% printGroups.forEach(group => { %>
+                <section class="score-print-class">
+                    <p class="score-print-parish">GIÁO XỨ TÂN THÁI SƠN<br>Xứ đoàn Don Bosco<br>Niên khóa: <%= selectedYear.nien_khoa %></p>
+                    <h1>BẢNG ĐIỂM TỔNG KẾT NĂM HỌC</h1>
+                    <h2>Khối: <%= group.tenKhoi %> - Lớp: <%= group.tenLop %></h2>
+                    <table class="score-print-table">
+                        <thead>
+                            <tr>
+                                <th>STT</th>
+                                <th>MSTN</th>
+                                <th>Tên thánh</th>
+                                <th>Họ và tên lót</th>
+                                <th>Tên</th>
+                                <th>Học tập</th>
+                                <th>Chuyên cần</th>
+                                <th>Kỷ luật</th>
+                                <th>Tổng</th>
+                                <th>Xếp loại</th>
+                                <th>Tình trạng</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <% group.students.forEach((student, index) => { %>
+                                <tr>
+                                    <td><%= index + 1 %></td>
+                                    <td><%= student.mstn || '' %></td>
+                                    <td><%= student.ten_thanh || '' %></td>
+                                    <td><%= student.ho_va_ten_lot || '' %></td>
+                                    <td><%= student.ten || '' %></td>
+                                    <td><%= student.diem_hoc_tap ?? '' %></td>
+                                    <td><%= student.diem_chuyen_can ?? '' %></td>
+                                    <td><%= student.diem_ky_luat ?? '' %></td>
+                                    <td><%= student.diem_tong ?? '' %></td>
+                                    <td><%= student.ten_xep_loai || '' %></td>
+                                    <td><%= student.trang_thai_tn === 'Đang học' ? (student.tinh_trang || '') : (student.trang_thai_tn || '') %></td>
+                                </tr>
+                            <% }) %>
+                        </tbody>
+                    </table>
+                    <p class="score-print-count">Tổng số: <%= group.students.length %> thiếu nhi</p>
+                </section>
+            <% }) %>
+        </div>
+    <% } %>
 </div>
+
+<script src="/js/bdh/bdh-bang-diem.js" defer></script>
