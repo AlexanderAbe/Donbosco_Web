@@ -1,4 +1,124 @@
 (() => {
+    const scoreForm = document.getElementById('discipline-score-form');
+    const saveStatus = document.getElementById('discipline-save-status');
+    const saveStatusText = document.getElementById('discipline-save-status-text');
+
+    if (scoreForm && saveStatus && saveStatusText) {
+        const pendingSaves = new Map();
+        const saveTimers = new Map();
+
+        const setStatus = (text, saved) => {
+            saveStatus.classList.toggle('saved', saved);
+            saveStatus.classList.toggle('unsaved', !saved);
+            saveStatus.querySelector('i').className = `fa-solid ${saved ? 'fa-circle-check' : 'fa-clock'}`;
+            saveStatusText.textContent = text;
+        };
+
+        const persistScore = input => {
+            const row = input.closest('[data-student-id]');
+            const studentId = row?.dataset.studentId;
+            const rawScore = input.value.trim();
+            if (!studentId || rawScore === '') return Promise.resolve();
+
+            const score = Number(rawScore);
+            if (!Number.isFinite(score) || score < 0 || score > 10) {
+                setStatus('Điểm phải từ 0 đến 10', false);
+                return Promise.reject(new Error('Điểm kỷ luật phải nằm trong khoảng từ 0 đến 10.'));
+            }
+
+            const previousSave = pendingSaves.get(studentId) || Promise.resolve();
+            setStatus('Đang lưu...', false);
+            let currentSave;
+            currentSave = previousSave.catch(() => {}).then(async () => {
+                const body = new URLSearchParams({
+                    nien_khoa: scoreForm.dataset.yearId,
+                    id_lop: scoreForm.dataset.classId,
+                    thang: scoreForm.dataset.month,
+                    id_tn: studentId,
+                    diem: rawScore
+                });
+                const response = await fetch(scoreForm.dataset.saveUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body
+                });
+                const result = await response.json();
+                if (!response.ok || !result.success) {
+                    throw new Error(result.message || 'Không thể lưu điểm kỷ luật.');
+                }
+            }).then(() => {
+                if (pendingSaves.get(studentId) === currentSave) setStatus('Đã lưu thay đổi', true);
+            }).catch(error => {
+                if (pendingSaves.get(studentId) === currentSave) {
+                    setStatus(error.message || 'Lỗi lưu điểm kỷ luật', false);
+                }
+                throw error;
+            }).finally(() => {
+                if (pendingSaves.get(studentId) === currentSave) pendingSaves.delete(studentId);
+            });
+            pendingSaves.set(studentId, currentSave);
+            return currentSave;
+        };
+
+        scoreForm.querySelectorAll('.discipline-input').forEach(input => {
+            const scheduleSave = () => {
+                const previousTimer = saveTimers.get(input);
+                if (previousTimer) clearTimeout(previousTimer);
+                saveTimers.set(input, setTimeout(() => {
+                    saveTimers.delete(input);
+                    persistScore(input).catch(() => {});
+                }, 400));
+            };
+            input.addEventListener('input', scheduleSave);
+            input.addEventListener('change', () => {
+                const timer = saveTimers.get(input);
+                if (timer) clearTimeout(timer);
+                saveTimers.delete(input);
+                persistScore(input).catch(() => {});
+            });
+            input.addEventListener('blur', () => {
+                const timer = saveTimers.get(input);
+                if (!timer) return;
+                clearTimeout(timer);
+                saveTimers.delete(input);
+                persistScore(input).catch(() => {});
+            });
+        });
+
+        const flushAndWaitForSaves = async () => {
+            for (const [input, timer] of saveTimers) {
+                clearTimeout(timer);
+                saveTimers.delete(input);
+                persistScore(input).catch(() => {});
+            }
+            while (saveTimers.size || pendingSaves.size) {
+                for (const [input, timer] of saveTimers) {
+                    clearTimeout(timer);
+                    saveTimers.delete(input);
+                    persistScore(input).catch(() => {});
+                }
+                await Promise.all([...pendingSaves.values()]);
+            }
+        };
+
+        const monthSelector = document.getElementById('discipline-month');
+        monthSelector?.addEventListener('change', async () => {
+            try {
+                await flushAndWaitForSaves();
+                monthSelector.form.submit();
+            } catch (error) {
+                setStatus(error.message || 'Không thể lưu điểm trước khi chuyển tháng.', false);
+            }
+        });
+
+        scoreForm.addEventListener('submit', event => {
+            event.preventDefault();
+            flushAndWaitForSaves().then(() => {
+                scoreForm.submit();
+            }).catch(() => {});
+        });
+    }
+
     const openButton = document.getElementById('print-discipline-year');
     const printModal = document.getElementById('discipline-print-modal');
     const confirmButton = document.getElementById('confirm-discipline-print');

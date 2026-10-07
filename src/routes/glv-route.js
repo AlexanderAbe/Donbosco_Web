@@ -35,17 +35,21 @@ router.post('/bang-diem/:id/update-result', bangDiemController.updateResult);
 router.get('/kiem-tra', kiemTraController.getKiemTra);
 router.post('/kiem-tra/print-data', kiemTraController.getExamScoresForPrint);
 router.post('/kiem-tra/save', kiemTraController.saveKiemTra);
+router.post('/kiem-tra/entry-save', kiemTraController.saveExamScoreEntry);
 
 // Kỷ luật
 router.get('/ky-luat', kyLuatController.getKyLuat);
 router.post('/ky-luat/print-data', kyLuatController.getDisciplineScoresForPrint);
 router.post('/ky-luat/save', kyLuatController.saveKyLuat);
+router.post('/ky-luat/entry-save', kyLuatController.saveDisciplineScoreEntry);
 
 // Điểm danh
 router.get('/diem-danh', diemDanhController.getDiemDanh);
 router.get('/diem-danh/qr', diemDanhController.getQrDiemDanh);
 router.post('/diem-danh/print-data', diemDanhController.getMonthlyAttendanceForPrint);
 router.post('/diem-danh/save', diemDanhController.saveDiemDanh);
+router.post('/diem-danh/qr/save', diemDanhController.saveQrDiemDanh);
+router.post('/diem-danh/entry-save', diemDanhController.saveAttendanceEntry);
 router.post('/diem-danh/scan', diemDanhController.scanDiemDanh);
 
 module.exports = router;

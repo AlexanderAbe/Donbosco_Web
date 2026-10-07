@@ -1,12 +1,15 @@
 document.addEventListener('DOMContentLoaded', function() {
+    // 1. Xử lý đóng/mở Sidebar chung cho mọi loại giao diện (trên mobile/tablet)
     const menuToggleBtn = document.getElementById('menuToggleBtn');
-    const closeSidebarBtn = document.getElementById('closeSidebarBtn');
-    const bdhSidebar = document.getElementById('bdhSidebar');
     const sidebarOverlay = document.getElementById('sidebarOverlay');
+    
+    // Tìm bất kỳ sidebar nào có mặt trên trang (tkSidebar, glvSidebar, bdhSidebar, adminSidebar)
+    const sidebar = document.querySelector('.tk-sidebar, .glv-sidebar, .bdh-sidebar, .admin-sidebar');
+    const closeSidebarBtn = document.getElementById('closeSidebarBtn');
 
     function toggleSidebar() {
-        if (bdhSidebar && sidebarOverlay) {
-            bdhSidebar.classList.toggle('open');
+        if (sidebar && sidebarOverlay) {
+            sidebar.classList.toggle('open');
             sidebarOverlay.classList.toggle('show');
         }
     }
@@ -21,12 +24,4 @@ document.addEventListener('DOMContentLoaded', function() {
         sidebarOverlay.addEventListener('click', toggleSidebar);
     }
 
-    // Xử lý hiệu ứng Accordion menu con
-    const dropdownToggles = document.querySelectorAll('.dropdown-toggle');
-    dropdownToggles.forEach(toggle => {
-        toggle.addEventListener('click', function() {
-            const parentItem = this.parentElement;
-            parentItem.classList.toggle('active');
-        });
-    });
 });

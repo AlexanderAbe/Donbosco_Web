@@ -78,7 +78,7 @@ const KyLuatModel = {
         };
     },
 
-    async saveDisciplineScores(idGlv, yearId, classId, month, scores) {
+    async saveDisciplineScores(idGlv, yearId, classId, month, scores, fillMissing = true) {
         const client = await pool.connect();
         try {
             await client.query('BEGIN');
@@ -86,7 +86,11 @@ const KyLuatModel = {
                 SELECT 1 FROM PHAN_CONG_GLV
                 WHERE id_glv = $1 AND id_lop = $2 AND id_cau_hinh_nam_hoc = $3
             `, [idGlv, classId, yearId]);
-            if (!assigned.rows.length) throw new Error('Bạn không có quyền nhập điểm cho lớp này.');
+            if (!assigned.rows.length) {
+                const error = new Error('Bạn không có quyền nhập điểm cho lớp này.');
+                error.code = 'FORBIDDEN';
+                throw error;
+            }
 
             const studentResult = await client.query(`
                 SELECT id_tn FROM PHAN_LOP
@@ -95,10 +99,11 @@ const KyLuatModel = {
             const allowedIds = new Set(studentResult.rows.map(row => String(row.id_tn)));
 
             const validScores = [];
-            for (const item of scores) {
+            for (const item of (fillMissing ? [] : scores)) {
                 if (!allowedIds.has(String(item.id_tn))) continue;
                 const rawScore = String(item.diem ?? '').trim();
-                const score = rawScore === '' ? 0 : Number(rawScore);
+                if (rawScore === '') continue;
+                const score = Number(rawScore);
                 if (!Number.isFinite(score) || score < 0 || score > 10) {
                     throw new Error('Điểm kỷ luật phải nằm trong khoảng từ 0 đến 10.');
                 }
@@ -112,6 +117,25 @@ const KyLuatModel = {
                     ON CONFLICT (id_tn, id_cau_hinh_nam_hoc, thang)
                     DO UPDATE SET diem = EXCLUDED.diem
                 `, [month, yearId, JSON.stringify(validScores)]);
+            }
+            if (fillMissing) {
+                await client.query(`
+                    INSERT INTO DIEM_KY_LUAT (thang, diem, id_tn, id_cau_hinh_nam_hoc)
+                    SELECT $1, 0, pl.id_tn, $2
+                    FROM PHAN_LOP pl
+                    WHERE pl.id_lop = $3
+                      AND pl.id_cau_hinh_nam_hoc = $2
+                      AND NOT EXISTS (
+                          SELECT 1
+                          FROM DIEM_KY_LUAT dkl
+                          WHERE dkl.id_tn = pl.id_tn
+                            AND dkl.id_cau_hinh_nam_hoc = pl.id_cau_hinh_nam_hoc
+                            AND dkl.thang = $1
+                      )
+                    ON CONFLICT (id_tn, id_cau_hinh_nam_hoc, thang) DO NOTHING
+                `, [month, yearId, classId]);
+            }
+            if (validScores.length || fillMissing) {
                 await client.query(`
                     UPDATE TONG_KET_NAM_HOC
                     SET tinh_trang = NULL

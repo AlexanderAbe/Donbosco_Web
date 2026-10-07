@@ -20,7 +20,7 @@
             </div>
             <div class="test-field">
                 <label for="test-number"><i class="fa-solid fa-pen-to-square"></i> Bài kiểm tra</label>
-                <select id="test-number" name="bai_kiem_tra" onchange="this.form.submit()">
+                <select id="test-number" name="bai_kiem_tra">
                     <% for (let number = 1; number <= examCount; number += 1) { %>
                         <option value="<%= number %>" <%= number === selectedExam ? 'selected' : '' %>>Bài kiểm tra <%= number %></option>
                     <% } %>
@@ -33,7 +33,11 @@
             </div>
         </form>
 
-        <form method="POST" action="/glv/kiem-tra/save" id="score-form">
+        <form method="POST" action="/glv/kiem-tra/save" id="score-form"
+            data-save-url="/glv/kiem-tra/entry-save"
+            data-year-id="<%= selectedYearId %>"
+            data-class-id="<%= selectedClassId %>"
+            data-exam-number="<%= selectedExam %>">
             <input type="hidden" name="nien_khoa" value="<%= selectedYearId %>">
             <input type="hidden" name="id_lop" value="<%= selectedClassId %>">
             <input type="hidden" name="bai_kiem_tra" value="<%= selectedExam %>">
@@ -41,9 +45,9 @@
             
             <div class="test-summary">
                 <span><i class="fa-solid fa-circle-info"></i> <strong><%= classes.find(item => item.id_lop === selectedClassId)?.ten_lop %></strong> · Bài kiểm tra <strong><%= selectedExam %></strong></span>
-                <span class="score-save-status <%= students.length && students.every(student => student.da_luu) ? 'is-saved' : 'is-unsaved' %>">
-                    <i class="fa-solid <%= students.length && students.every(student => student.da_luu) ? 'fa-circle-check' : 'fa-clock' %>"></i> 
-                    <%= students.length && students.every(student => student.da_luu) ? 'Đã lưu' : 'Chưa lưu' %>
+                <span class="score-save-status <%= students.length && students.every(student => student.da_luu) ? 'is-saved' : 'is-unsaved' %>" id="score-save-status">
+                    <i class="fa-solid <%= students.length && students.every(student => student.da_luu) ? 'fa-circle-check' : 'fa-clock' %>"></i>
+                    <span id="score-save-status-text"><%= students.length && students.every(student => student.da_luu) ? 'Đã lưu' : 'Chưa lưu' %></span>
                 </span>
                 <button
                     class="print-score-button"
@@ -73,7 +77,7 @@
                         </thead>
                         <tbody>
                             <% students.forEach((student, index) => { %>
-                                <tr data-student-row data-search="<%= `${student.mstn || ''} ${student.ten_thanh || ''} ${student.ho_va_ten_lot || ''} ${student.ten || ''}`.toLowerCase() %>">
+                                <tr data-student-row data-student-id="<%= student.id_tn %>" data-search="<%= `${student.mstn || ''} ${student.ten_thanh || ''} ${student.ho_va_ten_lot || ''} ${student.ten || ''}`.toLowerCase() %>">
                                     <td><%= index + 1 %></td>
                                     <td><%= student.mstn || '-' %></td>
                                     <td><strong><%= [student.ten_thanh, student.ho_va_ten_lot, student.ten].filter(Boolean).join(' ') %></strong></td>
@@ -90,6 +94,15 @@
             <% } %>
             <div class="empty-state search-hidden" id="student-search-empty">Không tìm thấy thiếu nhi phù hợp.</div>
         </form>
+
+        <%- include('../partials/pagination', {
+            mode: 'client',
+            currentPage: 1,
+            totalPages: Math.max(Math.ceil(students.length / 25), 1),
+            totalItems: students.length,
+            pageSize: 25,
+            rows: '[data-student-row]'
+        }) %>
 
         <dialog class="exam-print-modal" id="exam-print-modal" aria-labelledby="exam-print-modal-title">
             <div class="exam-print-modal-heading">

@@ -87,10 +87,10 @@ const DiemDanhModel = {
         };
     },
 
-    async saveAttendance(idGlv, yearId, classId, attendanceDate, sessionType, attendance) {
+    async saveAttendance(idGlv, yearId, classId, attendanceDate, sessionType, attendance, unmarkedStatus = 'Có mặt') {
         const sessionTypes = ['Lễ Thứ 3', 'Lễ Thứ 5', 'Lễ Chúa Nhật', 'Học Giáo Lý'];
         const statuses = ['Có mặt', 'Đi sớm', 'Vắng phép', 'Vắng không phép'];
-        if (!Number.isInteger(yearId) || !Number.isInteger(classId) || !/^\d{4}-\d{2}-\d{2}$/.test(attendanceDate || '') || !sessionTypes.includes(sessionType)) {
+        if (!Number.isInteger(yearId) || !Number.isInteger(classId) || !/^\d{4}-\d{2}-\d{2}$/.test(attendanceDate || '') || !sessionTypes.includes(sessionType) || !statuses.includes(unmarkedStatus)) {
             throw new Error('Thông tin điểm danh không hợp lệ.');
         }
         const client = await pool.connect();
@@ -124,7 +124,7 @@ const DiemDanhModel = {
 
                         await client.query(`
                                 INSERT INTO DIEM_DANH (ngay_diem_danh, loai_buoi, trang_thai, id_lop, id_tn)
-                                SELECT $1, $2::enum_loai_buoi, 'Vắng không phép'::enum_diem_danh, $3, pl.id_tn
+                                SELECT $1, $2::enum_loai_buoi, $5::enum_diem_danh, $3, pl.id_tn
                                 FROM PHAN_LOP pl
                                 WHERE pl.id_lop = $3
                                     AND pl.id_cau_hinh_nam_hoc = $4
@@ -136,7 +136,7 @@ const DiemDanhModel = {
                                                 AND dd.loai_buoi = $2::enum_loai_buoi
                                                 AND dd.id_tn = pl.id_tn
                                     )
-                        `, [attendanceDate, sessionType, classId, yearId]);
+                        `, [attendanceDate, sessionType, classId, yearId, unmarkedStatus]);
 
             const month = Number(attendanceDate.slice(5, 7));
             for (const row of students.rows) {
@@ -150,6 +150,59 @@ const DiemDanhModel = {
                 SET tinh_trang = NULL
                 WHERE id_lop = $1 AND id_cau_hinh_nam_hoc = $2
             `, [classId, yearId]);
+            await client.query('COMMIT');
+        } catch (error) {
+            await client.query('ROLLBACK');
+            throw error;
+        } finally {
+            client.release();
+        }
+    },
+
+    async saveStudentAttendance(idGlv, yearId, classId, studentId, attendanceDate, sessionType, status) {
+        const sessionTypes = ['Lễ Thứ 3', 'Lễ Thứ 5', 'Lễ Chúa Nhật', 'Học Giáo Lý'];
+        const statuses = ['Có mặt', 'Đi sớm', 'Vắng phép', 'Vắng không phép'];
+        if (!Number.isInteger(idGlv) || !Number.isInteger(yearId) || !Number.isInteger(classId)
+            || !Number.isInteger(studentId) || !/^\d{4}-\d{2}-\d{2}$/.test(attendanceDate || '')
+            || !sessionTypes.includes(sessionType) || !statuses.includes(status)) {
+            throw new Error('Thông tin điểm danh không hợp lệ.');
+        }
+
+        const client = await pool.connect();
+        try {
+            await client.query('BEGIN');
+            const assignedStudent = await client.query(`
+                SELECT pl.id_tn
+                FROM PHAN_CONG_GLV pc
+                JOIN PHAN_LOP pl ON pl.id_lop = pc.id_lop
+                    AND pl.id_cau_hinh_nam_hoc = pc.id_cau_hinh_nam_hoc
+                    AND pl.trang_thai = 'Đang học'
+                WHERE pc.id_glv = $1
+                  AND pc.id_lop = $2
+                  AND pc.id_cau_hinh_nam_hoc = $3
+                  AND pl.id_tn = $4
+                LIMIT 1
+            `, [idGlv, classId, yearId, studentId]);
+            if (!assignedStudent.rows.length) {
+                const error = new Error('Bạn không có quyền điểm danh thiếu nhi này.');
+                error.code = 'FORBIDDEN';
+                throw error;
+            }
+
+            await client.query(`
+                INSERT INTO DIEM_DANH (ngay_diem_danh, loai_buoi, trang_thai, id_lop, id_tn)
+                VALUES ($1, $2::enum_loai_buoi, $3::enum_diem_danh, $4, $5)
+                ON CONFLICT (ngay_diem_danh, loai_buoi, id_tn)
+                DO UPDATE SET trang_thai = EXCLUDED.trang_thai, id_lop = EXCLUDED.id_lop
+            `, [attendanceDate, sessionType, status, classId, studentId]);
+            await client.query('CALL sp_tinh_chuyen_can_thang($1, $2, $3)', [
+                studentId, Number(attendanceDate.slice(5, 7)), yearId
+            ]);
+            await client.query(`
+                UPDATE TONG_KET_NAM_HOC
+                SET tinh_trang = NULL
+                WHERE id_tn = $1 AND id_lop = $2 AND id_cau_hinh_nam_hoc = $3
+            `, [studentId, classId, yearId]);
             await client.query('COMMIT');
         } catch (error) {
             await client.query('ROLLBACK');

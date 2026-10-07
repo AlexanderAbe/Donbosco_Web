@@ -20,7 +20,7 @@
             </div>
             <div class="discipline-field">
                 <label for="discipline-month"><i class="fa-solid fa-calendar-days"></i> Tháng</label>
-                <select id="discipline-month" name="thang" onchange="this.form.submit()">
+                <select id="discipline-month" name="thang">
                     <% for (let month = 1; month <= 12; month += 1) { %>
                         <option value="<%= month %>" <%= month === selectedMonth ? 'selected' : '' %>>Tháng <%= month %></option>
                     <% } %>
@@ -28,16 +28,20 @@
             </div>
         </form>
 
-        <form method="POST" action="/glv/ky-luat/save">
+        <form method="POST" action="/glv/ky-luat/save" id="discipline-score-form"
+            data-save-url="/glv/ky-luat/entry-save"
+            data-year-id="<%= selectedYearId %>"
+            data-class-id="<%= selectedClassId %>"
+            data-month="<%= selectedMonth %>">
             <input type="hidden" name="nien_khoa" value="<%= selectedYearId %>">
             <input type="hidden" name="id_lop" value="<%= selectedClassId %>">
             <input type="hidden" name="thang" value="<%= selectedMonth %>">
             
             <div class="discipline-summary">
                 <span><i class="fa-solid fa-circle-info"></i> <strong><%= classes.find(item => item.id_lop === selectedClassId)?.ten_lop %></strong> · Tháng <strong><%= selectedMonth %></strong></span>
-                <span class="discipline-save-status <%= students.length && students.every(student => student.da_luu) ? 'saved' : 'unsaved' %>">
+                <span class="discipline-save-status <%= students.length && students.every(student => student.da_luu) ? 'saved' : 'unsaved' %>" id="discipline-save-status">
                     <i class="fa-solid <%= students.length && students.every(student => student.da_luu) ? 'fa-circle-check' : 'fa-clock' %>"></i>
-                    <%= students.length && students.every(student => student.da_luu) ? 'Đã lưu' : 'Chưa lưu' %>
+                    <span id="discipline-save-status-text"><%= students.length && students.every(student => student.da_luu) ? 'Đã lưu' : 'Chưa lưu' %></span>
                 </span>
                 <button
                     class="discipline-print-button"
@@ -66,7 +70,7 @@
                         </thead>
                         <tbody>
                             <% students.forEach((student, index) => { %>
-                                <tr data-discipline-row data-search="<%= `${student.mstn || ''} ${student.ten_thanh || ''} ${student.ho_va_ten_lot || ''} ${student.ten || ''}`.toLowerCase() %>">
+                                <tr data-discipline-row data-student-id="<%= student.id_tn %>" data-search="<%= `${student.mstn || ''} ${student.ten_thanh || ''} ${student.ho_va_ten_lot || ''} ${student.ten || ''}`.toLowerCase() %>">
                                     <td><%= index + 1 %></td>
                                     <td><%= student.mstn || '-' %></td>
                                     <td><strong><%= [student.ten_thanh, student.ho_va_ten_lot, student.ten].filter(Boolean).join(' ') %></strong></td>
@@ -83,6 +87,15 @@
             <% } %>
             <div class="discipline-empty search-hidden" id="discipline-search-empty">Không tìm thấy thiếu nhi phù hợp.</div>
         </form>
+
+        <%- include('../partials/pagination', {
+            mode: 'client',
+            currentPage: 1,
+            totalPages: Math.max(Math.ceil(students.length / 25), 1),
+            totalItems: students.length,
+            pageSize: 25,
+            rows: '[data-discipline-row]'
+        }) %>
 
         <dialog class="discipline-print-modal" id="discipline-print-modal" aria-labelledby="discipline-print-modal-title">
             <div class="discipline-print-modal-heading">

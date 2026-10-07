@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Truy cập bị từ chối - Don Bosco Xứ Đoàn</title>
+    <!-- Nhúng file CSS đã build từ Tailwind CLI -->
+    <link rel="stylesheet" href="/css/output.css">
+    <!-- FontAwesome cho Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<!-- Khóa cứng layout bằng Inline CSS chống tràn tuyệt đối -->
+<body style="background-color: #f1f5f9; font-family: ui-sans-serif, system-ui, sans-serif; margin: 0; min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 1rem;">
+
+    <!-- Thẻ Main cố định chiều rộng chuẩn Centered Card -->
+    <main style="width: 100%; max-width: 28rem; margin-left: auto; margin-right: auto;">
+        
+        <section style="background-color: #ffffff; border-radius: 1.5rem; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.05); border: 1px solid rgba(241, 245, 249, 1); padding: 2.5rem; text-align: center;">
+            
+            <!-- Khu vực Header tích hợp Logo Xứ Đoàn Don Bosco -->
+            <header style="margin-bottom: 1.5rem; display: flex; flex-direction: column; align-items: center; gap: 1rem;">
+                <!-- Logo Xứ Đoàn -->
+                <div style="display: flex; align-items: center; justify-content: center;">
+                    <img src="/imgs/logo.png" alt="Logo Xứ Đoàn Don Bosco" style="height: 48px; width: auto; object-fit: contain;" onerror="this.style.display='none'; document.getElementById('fallback-logo').style.display='flex';">
+                    
+                    <!-- Fallback nếu chưa có file ảnh logo: Dùng Badge chữ viết tắt sang trọng -->
+                    <div id="fallback-logo" style="display: none; width: 3rem; height: 3rem; background-color: #2563eb; color: #ffffff; font-weight: bold; border-radius: 0.875rem; align-items: center; justify-content: center; font-size: 1.125rem; box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.2);">
+                        DB
+                    </div>
+                </div>
+
+                <!-- Huy hiệu (Badge) cảnh báo phân quyền nhỏ gọn đi kèm logo -->
+                <div style="display: inline-flex; align-items: center; gap: 0.375rem; background-color: #fef3c7; color: #d97706; padding: 0.25rem 0.75rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 600; border: 1px solid rgba(254, 243, 199, 0.8);">
+                    <i class="fa-solid fa-shield-halved"></i> Cần chuyển đổi vai trò
+                </div>
+            </header>
+
+            <!-- Tiêu đề chính -->
+            <h1 style="font-size: 1.25rem; font-weight: 700; letter-spacing: -0.025em; color: #0f172a; margin-bottom: 0.75rem; margin-top: 0;">
+                Hạn chế quyền truy cập
+            </h1>
+            
+            <!-- Nội dung thông báo chi tiết -->
+            <p style="color: #475569; font-size: 0.875rem; line-height: 1.5; margin-bottom: 2rem; margin-top: 0;">
+                Bạn đang thao tác với tư cách là <span style="font-weight: 600; color: #0f172a; text-transform: uppercase; background-color: #f1f5f9; padding: 0.25rem 0.625rem; border-radius: 0.5rem; border: 1px solid #e2e8f0; display: inline-block; margin: 0.125rem 0;"><%= user.active_role %></span> nên không có quyền truy cập trực tiếp đường dẫn này. Vui lòng sử dụng tính năng chuyển đổi vai trò trên hệ thống.
+            </p>
+
+            <!-- Nút bấm hành động (CTA Button) -->
+            <nav style="display: flex; flex-direction: column; gap: 0.75rem;">
+                <a href="/auth/switch-role/glv" style="width: 100%; background-color: #2563eb; color: #ffffff; font-weight: 500; padding-top: 0.75rem; padding-bottom: 0.75rem; padding-left: 1.25rem; padding-right: 1.25rem; border-radius: 1rem; transition: all 0.2s; font-size: 0.875rem; display: flex; align-items: center; justify-content: center; gap: 0.625rem; box-shadow: 0 10px 15px -3px rgba(37, 99, 235, 0.2); text-decoration: none; box-sizing: border-box;">
+                    <i class="fa-solid fa-arrow-left"></i> Quay về giao diện chính
+                </a>
+            </nav>
+
+            <!-- Phần chân trang (Footer) -->
+            <footer style="margin-top: 2rem; padding-top: 1.5rem; border-top: 1px solid #f1f5f9;">
+                <p style="font-size: 0.75rem; color: #94a3b8; font-weight: 500; letter-spacing: 0.025em; margin: 0;">
+                    Hệ thống quản lý nội bộ • Xứ Đoàn Don Bosco
+                </p>
+            </footer>
+
+        </section>
+    </main>
+
+</body>
+</html>

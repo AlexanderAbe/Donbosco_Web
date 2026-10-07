@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="/css/reset.css">
     <link rel="stylesheet" href="/css//truong-khoi/truong-khoi-layout.css">
+    <link rel="stylesheet" href="/css/sidebar-navigation.css">
 </head>
 <body>
 
@@ -34,18 +35,20 @@
 
  <!-- SIDEBAR DỌC -->
 <aside class="tk-sidebar" id="tkSidebar">
+    <nav class="sidebar-main" aria-label="Điều hướng chính">
+        <p class="sidebar-section-title">DANH MỤC CHÍNH</p>
     
     <!-- Phần Menu chính (có thể cuộn nếu danh sách dài) -->
-    <ul class="sidebar-menu">
+        <ul class="sidebar-menu">
         <!-- Mục đơn: Tổng quan -->
         <li class="menu-item">
-            <a href="/truong-khoi/dashboard" class="menu-link">
+            <a href="/truong-khoi/dashboard" class="menu-link" data-active-exact="/truong-khoi/dashboard">
                 <span><i class="fa-solid fa-chart-pie"></i> Tổng quan khối</span>
             </a>
         </li>
 
         <!-- Mục lớn có Sub-menu 1: Quản lý lớp -->
-        <li class="menu-item">
+        <li class="menu-item" data-active-prefixes="/truong-khoi/lop /truong-khoi/phan-cong-glv">
             <button class="dropdown-toggle" type="button">
                 <span><i class="fa-solid fa-school"></i> Quản lý Lớp học</span>
                 <span class="arrow-icon"><i class="fa-solid fa-chevron-right"></i></span>
@@ -53,11 +56,11 @@
             <ul class="submenu">
                 <li><a href="/truong-khoi/lop">Danh sách lớp</a></li>
                 <li><a href="/truong-khoi/phan-cong-glv">Phân công Giáo lý viên</a></li>
-            </ul>
+                </ul>
         </li>
 
         <!-- Mục lớn có Sub-menu 2: Kiểm duyệt & Báo cáo -->
-        <li class="menu-item">
+        <li class="menu-item" data-active-prefixes="/truong-khoi/kiem-tra /truong-khoi/diem-danh /truong-khoi/ky-luat">
             <button class="dropdown-toggle" type="button">
                 <span><i class="fa-solid fa-clipboard-check"></i> Báo cáo</span>
                 <span class="arrow-icon"><i class="fa-solid fa-chevron-right"></i></span>
@@ -69,6 +72,7 @@
             </ul>
         </li>
     </ul>
+    </nav>
 
     <%- include('../partials/sidebar-footer') %>
 </aside>
@@ -85,6 +89,7 @@
         <%- include('../partials/footer') %>
 
     <!-- Nhúng file JavaScript riêng -->
-    <script src="/js/truong-khoi/truong-khoi-layout.js" defer></script>
+    <script src="/js/layouts/sidebar-navigation.js" defer></script>
+    <script src="/js/layouts/truong-khoi-layout.js" defer></script>
 </body>
 </html>

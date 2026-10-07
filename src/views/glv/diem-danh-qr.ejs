@@ -67,7 +67,7 @@
             <div id="qr-toast" class="qr-toast" role="status" aria-live="polite"></div>
         </section>
 
-        <form method="POST" action="/glv/diem-danh/save" class="attendance-summary">
+        <form method="POST" action="/glv/diem-danh/qr/save" class="attendance-summary">
             <input type="hidden" name="nien_khoa" value="<%= selectedYearId %>">
             <input type="hidden" name="id_lop" value="<%= selectedClassId %>">
             <input type="hidden" name="loai_buoi" value="<%= sessionType %>">

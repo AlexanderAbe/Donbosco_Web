@@ -1,12 +1,12 @@
 document.addEventListener('DOMContentLoaded', function() {
     const menuToggleBtn = document.getElementById('menuToggleBtn');
     const closeSidebarBtn = document.getElementById('closeSidebarBtn');
-    const adminSidebar = document.getElementById('adminSidebar');
+    const bdhSidebar = document.getElementById('bdhSidebar');
     const sidebarOverlay = document.getElementById('sidebarOverlay');
 
     function toggleSidebar() {
-        if (adminSidebar && sidebarOverlay) {
-            adminSidebar.classList.toggle('open');
+        if (bdhSidebar && sidebarOverlay) {
+            bdhSidebar.classList.toggle('open');
             sidebarOverlay.classList.toggle('show');
         }
     }
@@ -21,12 +21,4 @@ document.addEventListener('DOMContentLoaded', function() {
         sidebarOverlay.addEventListener('click', toggleSidebar);
     }
 
-    // Xử lý hiệu ứng Accordion menu con
-    const dropdownToggles = document.querySelectorAll('.dropdown-toggle');
-    dropdownToggles.forEach(toggle => {
-        toggle.addEventListener('click', function() {
-            const parentItem = this.parentElement;
-            parentItem.classList.toggle('active');
-        });
-    });
 });

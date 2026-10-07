@@ -44,7 +44,12 @@
             <button class="attendance-save-button" type="submit" <%= isFutureDate ? 'disabled' : '' %>><i class="fa-solid fa-filter"></i> Xem danh sách</button>
         </form>
 
-        <form method="POST" action="/glv/diem-danh/save">
+        <form method="POST" action="/glv/diem-danh/save" id="attendance-save-form"
+            data-save-url="/glv/diem-danh/entry-save"
+            data-year-id="<%= selectedYearId %>"
+            data-class-id="<%= selectedClassId %>"
+            data-session-type="<%= sessionType %>"
+            data-attendance-date="<%= selectedDate %>">
             <% const attendanceSaved = students.length > 0 && students.every(student => student.da_luu); %>
             <input type="hidden" name="nien_khoa" value="<%= selectedYearId %>">
             <input type="hidden" name="id_lop" value="<%= selectedClassId %>">
@@ -53,9 +58,9 @@
             
             <div class="attendance-summary">
                 <span><i class="fa-solid fa-circle-info"></i> <strong><%= classes.find(item => item.id_lop === selectedClassId)?.ten_lop %></strong> · <%= sessionType || 'Chưa chọn loại buổi' %> · <strong><%= selectedDate %></strong></span>
-                <span class="score-save-status <%= attendanceSaved ? 'is-saved' : 'is-unsaved' %>">
+                <span class="score-save-status <%= attendanceSaved ? 'is-saved' : 'is-unsaved' %>" id="attendance-save-status">
                     <i class="fa-solid <%= attendanceSaved ? 'fa-circle-check' : 'fa-clock' %>"></i>
-                    <%= attendanceSaved ? 'Đã lưu' : 'Chưa lưu' %>
+                    <span id="attendance-save-status-text"><%= attendanceSaved ? 'Đã lưu' : 'Chưa lưu' %></span>
                 </span>
                 <button class="attendance-print-button" type="button" id="print-monthly-attendance" <%= !selectedClassId || !selectedDate ? 'disabled' : '' %>>
                     <i class="fa-solid fa-print"></i> In điểm danh
@@ -79,7 +84,7 @@
                         </thead>
                         <tbody>
                             <% students.forEach((student, index) => { %>
-                                <tr data-attendance-row data-search="<%= `${student.mstn || ''} ${student.ten_thanh || ''} ${student.ho_va_ten_lot || ''} ${student.ten || ''}`.toLowerCase() %>">
+                                <tr data-attendance-row data-student-id="<%= student.id_tn %>" data-search="<%= `${student.mstn || ''} ${student.ten_thanh || ''} ${student.ho_va_ten_lot || ''} ${student.ten || ''}`.toLowerCase() %>">
                                     <td><%= index + 1 %></td>
                                     <td><%= student.mstn || '-' %></td>
                                     <td><strong><%= [student.ten_thanh, student.ho_va_ten_lot, student.ten].filter(Boolean).join(' ') %></strong></td>
@@ -87,7 +92,7 @@
                                     <td>
                                         <fieldset class="attendance-options">
                                             <legend class="visually-hidden">Trạng thái điểm danh</legend>
-                                            <label><input type="radio" name="attendance[<%= index %>][trang_thai]" value="Có mặt" <%= student.da_luu && student.trang_thai_diem_danh === 'Có mặt' ? 'checked' : '' %>><span>Có mặt</span></label>
+                                            <label><input type="radio" name="attendance[<%= index %>][trang_thai]" value="Có mặt" <%= !student.da_luu || student.trang_thai_diem_danh === 'Có mặt' ? 'checked' : '' %>><span>Có mặt</span></label>
                                             <label><input type="radio" name="attendance[<%= index %>][trang_thai]" value="Đi sớm" <%= student.da_luu && student.trang_thai_diem_danh === 'Đi sớm' ? 'checked' : '' %>><span>Đi sớm</span></label>
                                             <label><input type="radio" name="attendance[<%= index %>][trang_thai]" value="Vắng phép" <%= student.da_luu && student.trang_thai_diem_danh === 'Vắng phép' ? 'checked' : '' %>><span>Vắng phép</span></label>
                                             <label><input type="radio" name="attendance[<%= index %>][trang_thai]" value="Vắng không phép" <%= student.da_luu && student.trang_thai_diem_danh === 'Vắng không phép' ? 'checked' : '' %>><span>Vắng không phép</span></label>
@@ -102,6 +107,15 @@
             <% } %>
             <div class="attendance-empty search-hidden" id="attendance-search-empty">Không tìm thấy thiếu nhi phù hợp.</div>
         </form>
+
+        <%- include('../partials/pagination', {
+            mode: 'client',
+            currentPage: 1,
+            totalPages: Math.max(Math.ceil(students.length / 25), 1),
+            totalItems: students.length,
+            pageSize: 25,
+            rows: '[data-attendance-row]'
+        }) %>
 
         <dialog class="attendance-print-modal" id="attendance-print-modal" aria-labelledby="attendance-print-modal-title">
             <div class="attendance-print-modal-heading">

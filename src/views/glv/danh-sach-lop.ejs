@@ -61,6 +61,15 @@
                 </section>
             <% }) %>
         </div>
+        <%- include('../partials/pagination', {
+            mode: 'client',
+            currentPage: 1,
+            totalPages: Math.max(Math.ceil(classes.reduce((count, classItem) => count + classItem.students.length, 0) / 25), 1),
+            totalItems: classes.reduce((count, classItem) => count + classItem.students.length, 0),
+            pageSize: 25,
+            rows: '[data-class-student-row]',
+            groups: '[data-class-card]'
+        }) %>
         <div class="empty-state search-hidden" id="class-search-empty">Không tìm thấy thiếu nhi phù hợp.</div>
     <% } %>
 </main>

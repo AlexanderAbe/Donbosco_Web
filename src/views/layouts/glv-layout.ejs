@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="/css/reset.css">
     <link rel="stylesheet" href="/css/glv/glv-layout.css">
+    <link rel="stylesheet" href="/css/sidebar-navigation.css">
 </head>
 <body>
 
@@ -34,17 +35,18 @@
 
 <!-- SIDEBAR DỌC -->
 <aside class="glv-sidebar" id="glvSidebar">
-    
-    <ul class="sidebar-menu">
+    <nav class="sidebar-main" aria-label="Điều hướng chính">
+        <p class="sidebar-section-title">DANH MỤC CHÍNH</p>
+        <ul class="sidebar-menu">
         <!-- Mục đơn: Lớp của tôi -->
         <li class="menu-item">
-            <a href="/glv" class="menu-link">
+            <a href="/glv" class="menu-link" data-active-exact="/glv">
                 <span><i class="fa-solid fa-chalkboard-user"></i> Lớp của tôi</span>
             </a>
         </li>
 
         <!-- Mục lớn có Sub-menu 1: Quản lý lớp học -->
-        <li class="menu-item">
+        <li class="menu-item" data-active-prefixes="/glv/danh-sach-lop /glv/bang-diem">
             <button class="dropdown-toggle" type="button">
                 <span><i class="fa-solid fa-school"></i> Quản Lý Lớp Học</span>
                 <span class="arrow-icon"><i class="fa-solid fa-chevron-right"></i></span>
@@ -52,11 +54,11 @@
             <ul class="submenu">
                 <li><a href="/glv/danh-sach-lop">Danh sách thiếu nhi</a></li>
                 <li><a href="/glv/bang-diem">Xem bảng điểm</a></li>
-            </ul>
+                </ul>
         </li>
 
         <!-- Mục lớn có Sub-menu 2: Nhập điểm -->
-        <li class="menu-item">
+        <li class="menu-item" data-active-prefixes="/glv/kiem-tra /glv/diem-danh /glv/ky-luat">
             <button class="dropdown-toggle" type="button">
                 <span><i class="fa-solid fa-pen-to-square"></i> Nhập điểm</span>
                 <span class="arrow-icon"><i class="fa-solid fa-chevron-right"></i></span>
@@ -70,11 +72,12 @@
 
         <!-- Mục đơn ngang hàng: Hồ sơ cá nhân -->
         <li class="menu-item">
-            <a href="/glv/profile" class="menu-link">
+            <a href="/glv/profile" class="menu-link" data-active-exact="/glv/profile">
                 <span><i class="fa-solid fa-user-gear"></i> Hồ sơ cá nhân</span>
             </a>
         </li>
     </ul>
+    </nav>
 
     <%- include('../partials/sidebar-footer') %>
 </aside>
@@ -91,6 +94,7 @@
         <%- include('../partials/footer') %>
 
     <!-- Nhúng file JavaScript riêng -->
-    <script src="/js/glv/glv-layout.js" defer></script>
+    <script src="/js/layouts/sidebar-navigation.js" defer></script>
+    <script src="/js/layouts/glv-layout.js" defer></script>
 </body>
 </html>

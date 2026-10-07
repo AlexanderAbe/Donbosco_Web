@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="/css/reset.css">
     <link rel="stylesheet" href="/css/admin/admin-layout.css">
+    <link rel="stylesheet" href="/css/sidebar-navigation.css">
 </head>
 <body>
 
@@ -34,17 +35,18 @@
 
 <!-- SIDEBAR DỌC -->
 <aside class="admin-sidebar" id="adminSidebar">
-    
-    <ul class="sidebar-menu">
+    <nav class="sidebar-main" aria-label="Điều hướng chính">
+        <p class="sidebar-section-title">DANH MỤC CHÍNH</p>
+        <ul class="sidebar-menu">
         <!-- Mục đơn: Tổng quan -->
         <li class="menu-item">
-            <a href="/admin/dashboard" class="menu-link">
+            <a href="/admin/dashboard" class="menu-link" data-active-exact="/admin/dashboard">
                 <span><i class="fa-solid fa-tachograph-digital"></i> Trang chủ </span>
             </a>
         </li>
 
         <!-- Mục lớn có Sub-menu 1: Quản lý người dùng & phân quyền -->
-        <li class="menu-item">
+        <li class="menu-item" data-active-prefixes="/admin/users /admin/roles">
             <button class="dropdown-toggle" type="button">
                 <span><i class="fa-solid fa-users-gear"></i> Tài khoản</span>
                 <span class="arrow-icon"><i class="fa-solid fa-chevron-right"></i></span>
@@ -52,9 +54,10 @@
             <ul class="submenu">
                 <li><a href="/admin/users">Quản lý người dùng</a></li>
                 <li><a href="/admin/roles">Phân quyền</a></li>
-            </ul>
+                </ul>
         </li>
     </ul>
+    </nav>
 
     <%- include('../partials/sidebar-footer') %>
 </aside>
@@ -70,6 +73,7 @@
         <%- include('../partials/footer') %>
 
     <!-- Nhúng file JavaScript riêng -->
-    <script src="/js/admin/admin-layout.js" defer></script>
+    <script src="/js/layouts/sidebar-navigation.js" defer></script>
+    <script src="/js/layouts/admin-layout.js" defer></script>
 </body>
 </html>

@@ -99,7 +99,7 @@ const KiemTraModel = {
         };
     },
 
-    async saveExamScores(idGlv, yearId, classId, examNumber, scores, ngayKiemTra) {
+    async saveExamScores(idGlv, yearId, classId, examNumber, scores, ngayKiemTra, fillMissing = true) {
         const client = await pool.connect();
         try {
             await client.query('BEGIN');
@@ -107,7 +107,11 @@ const KiemTraModel = {
                 SELECT 1 FROM PHAN_CONG_GLV
                 WHERE id_glv = $1 AND id_lop = $2 AND id_cau_hinh_nam_hoc = $3
             `, [idGlv, classId, yearId]);
-            if (!assigned.rows.length) throw new Error('Bạn không có quyền nhập điểm cho lớp này.');
+            if (!assigned.rows.length) {
+                const error = new Error('Bạn không có quyền nhập điểm cho lớp này.');
+                error.code = 'FORBIDDEN';
+                throw error;
+            }
 
             const examCount = await this.getExamCount(yearId);
             if (examNumber > examCount) throw new Error('Bài kiểm tra không hợp lệ.');
@@ -119,10 +123,11 @@ const KiemTraModel = {
             const allowedIds = new Set(studentIds.rows.map(row => String(row.id_tn)));
 
             const validScores = [];
-            for (const item of scores) {
+            for (const item of (fillMissing ? [] : scores)) {
                 if (!allowedIds.has(String(item.id_tn))) continue;
                 const rawScore = String(item.diem_so ?? '').trim();
-                const score = rawScore === '' ? 0 : Number(rawScore);
+                if (rawScore === '') continue;
+                const score = Number(rawScore);
                 if (!Number.isFinite(score) || score < 0 || score > 10) {
                     throw new Error('Điểm phải nằm trong khoảng từ 0 đến 10.');
                 }
@@ -142,6 +147,25 @@ const KiemTraModel = {
                         diem_so = EXCLUDED.diem_so,
                         ngay_kiem_tra = EXCLUDED.ngay_kiem_tra
                 `, [examNumber, parsedDate, yearId, JSON.stringify(validScores)]);
+            }
+            if (fillMissing) {
+                await client.query(`
+                    INSERT INTO DIEM_HOC_TAP (stt_bai_ktra, diem_so, ngay_kiem_tra, id_tn, id_cau_hinh_nam_hoc)
+                    SELECT $1, 0, $2::date, pl.id_tn, $3
+                    FROM PHAN_LOP pl
+                    WHERE pl.id_lop = $4
+                      AND pl.id_cau_hinh_nam_hoc = $3
+                      AND NOT EXISTS (
+                          SELECT 1
+                          FROM DIEM_HOC_TAP dht
+                          WHERE dht.id_tn = pl.id_tn
+                            AND dht.id_cau_hinh_nam_hoc = pl.id_cau_hinh_nam_hoc
+                            AND dht.stt_bai_ktra = $1
+                      )
+                    ON CONFLICT (id_tn, id_cau_hinh_nam_hoc, stt_bai_ktra) DO NOTHING
+                `, [examNumber, ngayKiemTra || null, yearId, classId]);
+            }
+            if (validScores.length || fillMissing) {
                 await client.query(`
                     UPDATE TONG_KET_NAM_HOC
                     SET tinh_trang = NULL

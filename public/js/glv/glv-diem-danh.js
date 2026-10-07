@@ -1,4 +1,77 @@
 (() => {
+    const form = document.getElementById('attendance-save-form');
+    const saveStatus = document.getElementById('attendance-save-status');
+    const saveStatusText = document.getElementById('attendance-save-status-text');
+    if (!form || !saveStatus || !saveStatusText) return;
+
+    const pendingSaves = new Set();
+    const studentSaves = new Map();
+    let resumeSubmit = false;
+
+    const setStatus = (text, saved) => {
+        saveStatus.classList.toggle('is-saved', saved);
+        saveStatus.classList.toggle('is-unsaved', !saved);
+        saveStatus.querySelector('i').className = `fa-solid ${saved ? 'fa-circle-check' : 'fa-clock'}`;
+        saveStatusText.textContent = text;
+    };
+
+    form.querySelectorAll('.attendance-options input[type="radio"]').forEach(input => {
+        input.addEventListener('change', () => {
+            const row = input.closest('[data-student-id]');
+            if (!row) return;
+            const studentId = row.dataset.studentId;
+            const previousSave = studentSaves.get(studentId) || Promise.resolve();
+            setStatus('Đang lưu...', false);
+
+            let currentSave;
+            currentSave = previousSave.catch(() => {}).then(async () => {
+                const body = new URLSearchParams({
+                    nien_khoa: form.dataset.yearId,
+                    id_lop: form.dataset.classId,
+                    id_tn: studentId,
+                    loai_buoi: form.dataset.sessionType,
+                    ngay_diem_danh: form.dataset.attendanceDate,
+                    trang_thai: input.value
+                });
+                const response = await fetch(form.dataset.saveUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body
+                });
+                const result = await response.json();
+                if (!response.ok || !result.success) {
+                    throw new Error(result.message || 'Không thể lưu điểm danh.');
+                }
+                if (studentSaves.get(studentId) === currentSave) setStatus('Đã lưu thay đổi', true);
+            }).catch(error => {
+                setStatus(error.message || 'Lỗi lưu điểm danh', false);
+            }).finally(() => {
+                pendingSaves.delete(currentSave);
+                if (studentSaves.get(studentId) === currentSave) studentSaves.delete(studentId);
+            });
+
+            studentSaves.set(studentId, currentSave);
+            pendingSaves.add(currentSave);
+        });
+    });
+
+    form.addEventListener('submit', event => {
+        if (resumeSubmit) {
+            resumeSubmit = false;
+            return;
+        }
+        if (!pendingSaves.size) return;
+
+        event.preventDefault();
+        const submitter = event.submitter;
+        Promise.all([...pendingSaves]).then(() => {
+            resumeSubmit = true;
+            form.requestSubmit(submitter || undefined);
+        });
+    });
+})();
+
+(() => {
     const printButton = document.getElementById('print-monthly-attendance');
     const classSelect = document.getElementById('attendance-class');
     const printModal = document.getElementById('attendance-print-modal');

@@ -126,6 +126,37 @@ const KyLuatController = {
             });
             return res.redirect(`/glv/ky-luat?${query.toString()}`);
         }
+    },
+
+    async saveDisciplineScoreEntry(req, res) {
+        const idGlv = req.session.user?.id_glv;
+        const yearId = getId(req.body.nien_khoa);
+        const classId = getId(req.body.id_lop);
+        const month = getId(req.body.thang);
+        const studentId = getId(req.body.id_tn);
+        const rawScore = String(req.body.diem ?? '').trim();
+        const score = Number(rawScore);
+
+        if (!yearId || !classId || !month || month > 12 || !studentId || !rawScore
+            || !Number.isFinite(score) || score < 0 || score > 10) {
+            return res.status(400).json({ success: false, message: 'Thông tin điểm kỷ luật không hợp lệ.' });
+        }
+
+        try {
+            await KyLuatModel.saveDisciplineScores(
+                idGlv, yearId, classId, month, [{ id_tn: studentId, diem: score }], false
+            );
+            return res.json({ success: true });
+        } catch (error) {
+            console.error('Lỗi lưu điểm kỷ luật thiếu nhi:', error);
+            const status = error.code === 'FORBIDDEN' ? 403
+                : error.message === 'Điểm kỷ luật phải nằm trong khoảng từ 0 đến 10.' ? 400
+                    : 500;
+            return res.status(status).json({
+                success: false,
+                message: status === 500 ? 'Không thể lưu điểm kỷ luật.' : error.message
+            });
+        }
     }
 };
 

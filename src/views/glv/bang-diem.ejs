@@ -125,6 +125,15 @@
                 <% if (index === scores.length - 1) { %></tbody></table></div></section><% } %>
             <% }) %>
         </div>
+        <%- include('../partials/pagination', {
+            mode: 'client',
+            currentPage: 1,
+            totalPages: Math.max(Math.ceil(scores.length / 25), 1),
+            totalItems: scores.length,
+            pageSize: 25,
+            rows: '[data-score-row]',
+            groups: '[data-score-card]'
+        }) %>
         <div class="empty-state search-hidden" id="score-student-search-empty">Không tìm thấy thiếu nhi phù hợp.</div>
     <% } %>
 </main>

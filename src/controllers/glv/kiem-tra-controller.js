@@ -158,6 +158,42 @@ const KiemTraController = {
             });
             return res.redirect(`/glv/kiem-tra?${query.toString()}`);
         }
+    },
+
+    async saveExamScoreEntry(req, res) {
+        const idGlv = req.session.user?.id_glv;
+        const yearId = getId(req.body.nien_khoa);
+        const classId = getId(req.body.id_lop);
+        const examNumber = getId(req.body.bai_kiem_tra);
+        const studentId = getId(req.body.id_tn);
+        const rawScore = String(req.body.diem_so ?? '').trim();
+        const score = Number(rawScore);
+        const examDate = req.body.ngay_kiem_tra || null;
+
+        if (!yearId || !classId || !examNumber || !studentId || !rawScore
+            || !Number.isFinite(score) || score < 0 || score > 10
+            || (examDate && !/^\d{4}-\d{2}-\d{2}$/.test(examDate))) {
+            return res.status(400).json({ success: false, message: 'Thông tin điểm kiểm tra không hợp lệ.' });
+        }
+
+        try {
+            await KiemTraModel.saveExamScores(
+                idGlv, yearId, classId, examNumber,
+                [{ id_tn: studentId, diem_so: score }],
+                examDate,
+                false
+            );
+            return res.json({ success: true });
+        } catch (error) {
+            console.error('Lỗi lưu điểm kiểm tra thiếu nhi:', error);
+            const status = error.code === 'FORBIDDEN' ? 403
+                : error.message === 'Điểm phải nằm trong khoảng từ 0 đến 10.' ? 400
+                    : 500;
+            return res.status(status).json({
+                success: false,
+                message: status === 500 ? 'Không thể lưu điểm kiểm tra.' : error.message
+            });
+        }
     }
 };
 

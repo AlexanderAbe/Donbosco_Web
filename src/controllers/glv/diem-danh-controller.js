@@ -190,7 +190,7 @@ const DiemDanhController = {
         }
     },
 
-    async saveDiemDanh(req, res) {
+    async saveDiemDanh(req, res, unmarkedStatus = 'Có mặt') {
         const idGlv = req.session.user?.id_glv;
         const yearId = getId(req.body.nien_khoa);
         const classId = getId(req.body.id_lop);
@@ -206,7 +206,9 @@ const DiemDanhController = {
                 throw new Error('Loại buổi không phù hợp với ngày đã chọn.');
             }
 
-            await DiemDanhModel.saveAttendance(idGlv, yearId, classId, attendanceDate, sessionType, attendance);
+            await DiemDanhModel.saveAttendance(
+                idGlv, yearId, classId, attendanceDate, sessionType, attendance, unmarkedStatus
+            );
 
             await logAction(req, `Lưu điểm danh thành công cho Lớp ID: ${classId} (Ngày: ${attendanceDate}, Buổi: ${sessionType})`, 'Thành công');
 
@@ -226,6 +228,39 @@ const DiemDanhController = {
                 ngay_diem_danh: attendanceDate || '', error: errMessage
             });
             return res.redirect(`/glv/diem-danh?${query.toString()}`);
+        }
+    },
+
+    async saveQrDiemDanh(req, res) {
+        return DiemDanhController.saveDiemDanh(req, res, 'Vắng không phép');
+    },
+
+    async saveAttendanceEntry(req, res) {
+        const idGlv = req.session.user?.id_glv;
+        const yearId = getId(req.body.nien_khoa);
+        const classId = getId(req.body.id_lop);
+        const studentId = getId(req.body.id_tn);
+        const sessionType = req.body.loai_buoi;
+        const attendanceDate = req.body.ngay_diem_danh;
+        const status = req.body.trang_thai;
+
+        try {
+            if (!yearId || !classId || !studentId
+                || isFutureDate(attendanceDate)
+                || !getSessionTypesForDate(attendanceDate).includes(sessionType)) {
+                return res.status(400).json({ success: false, message: 'Thông tin điểm danh không hợp lệ.' });
+            }
+            await DiemDanhModel.saveStudentAttendance(
+                idGlv, yearId, classId, studentId, attendanceDate, sessionType, status
+            );
+            return res.json({ success: true });
+        } catch (error) {
+            console.error('Lỗi lưu điểm danh thiếu nhi:', error);
+            const statusCode = error.code === 'FORBIDDEN' ? 403 : 500;
+            return res.status(statusCode).json({
+                success: false,
+                message: statusCode === 403 ? error.message : 'Không thể lưu điểm danh.'
+            });
         }
     },
 

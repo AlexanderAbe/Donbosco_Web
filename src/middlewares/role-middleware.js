@@ -19,15 +19,10 @@ const checkRole = (requiredRole) => {
         }
 
         // 3. Nếu không khớp, hiển thị thông báo lỗi thân thiện kèm hướng dẫn dùng nút Switch
-        return res.status(403).send(`
-            <div style="font-family: Arial, sans-serif; text-align: center; margin-top: 50px; padding: 20px;">
-                <h2 style="color: #d9534f;">⚠️ Truy cập bị từ chối</h2>
-                <p>Bạn đang đứng ở giao diện <b>${user.active_role.toUpperCase()}</b> nên không có quyền truy cập trang này.</p>
-                <p>Vui lòng bấm nút <b>Switch</b> trên header để chuyển đổi sang đúng giao diện!</p>
-                <br>
-                <a href="/auth/switch-role/glv" style="background: #0275d8; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;">Quay về giao diện GLV</a>
-            </div>
-        `);
+        return res.status(403).render('access-denied', {
+            layout: false,
+            user: user
+        });
     };
 };
 
