@@ -51,14 +51,15 @@
                 const savedScore = savedScores.get(String(studentId)) ?? '';
                 const hasLocalChanges = inputElem && inputElem.value.trim() !== savedScore;
                 savedScores.set(String(studentId), newScore);
+                updateStudentSaved(String(studentId), newScore !== '');
                 if (inputElem && !hasLocalChanges) {
                     inputElem.value = newScore;
-                    updateStudentSaved(studentId, newScore !== '');
                     
                     // Hiệu ứng nháy xanh nhẹ thông báo dữ liệu được đồng bộ từ xa
                     inputElem.classList.add('bg-green-100', 'transition-colors');
                     setTimeout(() => inputElem.classList.remove('bg-green-100'), 1000);
                 }
+                setStatus('Đã đồng bộ', true);
             }
         });
         // ---------------------------------

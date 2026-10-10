@@ -1,4 +1,42 @@
 (() => {
+    // --- TÍCH HỢP WEBSOCKET CHO TRANG BẢNG ĐIỂM ---
+    const scorePage = document.getElementById('score-page');
+    const yearId = scorePage?.dataset.yearId;
+    
+    if (yearId) {
+        const socket = io();
+        
+        // 1. Tham gia vào phòng riêng theo niên khóa
+        socket.emit('join_room', `bang_diem_${yearId}`);
+
+        // 2. Lắng nghe sự kiện cập nhật kết quả từ các máy khác trong hệ thống
+        socket.on('bang_diem_result_updated', (data) => {
+            const { idTn, result } = data;
+            
+            // Tìm hàng (row) của thiếu nhi tương ứng
+            const row = document.querySelector(`tr[data-student-id="${idTn}"]`);
+            if (row) {
+                // Cập nhật giá trị hiển thị ở ô kết quả
+                const cell = row.querySelector('[data-result-cell]');
+                if (cell) {
+                    cell.textContent = result;
+                    cell.classList.remove('is-inactive');
+                    
+                    // Hiệu ứng nháy xanh nhẹ nhận biết dữ liệu thay đổi từ xa
+                    cell.classList.add('bg-green-100', 'transition-colors');
+                    setTimeout(() => cell.classList.remove('bg-green-100'), 1000);
+                }
+
+                // Cập nhật luôn giá trị trong thẻ <select> (nếu ô đó đang không bị focus)
+                const select = row.querySelector('[data-result-select]');
+                if (select && document.activeElement !== select) {
+                    select.value = result;
+                }
+            }
+        });
+    }
+    // ---------------------------------------------
+
     const printModal = document.getElementById('score-print-modal');
     const openPrintButton = document.getElementById('open-score-print');
     if (printModal && openPrintButton) {
@@ -218,7 +256,7 @@
                             .filter(month => disciplineByMonth.has(month))
                             .map(month => {
                                 const calendarYear = Number(month >= 9 ? academicYearMatch[1] : academicYearMatch[2]);
-                                return [`Tháng ${month} - ${calendarYear}`, disciplineByMonth.get(month)];
+                                return [`Tháng ${month}\n${calendarYear}`, disciplineByMonth.get(month)];
                             });
                         appendTable(
                             page,
@@ -353,7 +391,6 @@
         });
     }
 
-    const yearId = document.getElementById('score-page')?.dataset.yearId || '';
     document.querySelectorAll('[data-result-save]').forEach(button => {
         button.addEventListener('click', async () => {
             const studentId = button.dataset.studentId;
@@ -367,6 +404,7 @@
                 });
                 const data = await response.json();
                 if (!response.ok) throw new Error(data.error || 'Không thể cập nhật kết quả.');
+                
                 const cell = button.closest('tr').querySelector('[data-result-cell]');
                 cell.textContent = select.value;
                 cell.classList.remove('is-inactive');

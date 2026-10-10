@@ -9,6 +9,8 @@ const getId = value => {
     return Number.isInteger(id) && id > 0 ? id : null;
 };
 
+const getBangDiemRoom = (yearId) => `bang_diem_${yearId}`;
+
 const BangDiemController = {
     async getBangDiem(req, res) {
         try {
@@ -96,6 +98,17 @@ const BangDiemController = {
                 yearId,
                 result
             );
+
+            // --- BỔ SUNG PHÁT SÓNG WEBSOCKET REAL-TIME ---
+            const io = req.app.get('io');
+            if (io) {
+                io.to(getBangDiemRoom(yearId)).emit('bang_diem_result_updated', {
+                    idTn,
+                    yearId,
+                    result,
+                    updatedData: updated // Truyền thêm dữ liệu trả về nếu cần thiết
+                });
+            }
 
             await logAction(req, `Cập nhật kết quả tổng kết thành công cho Thiếu nhi ID: ${idTn} (Niên khóa ID: ${yearId}, Kết quả: ${result})`, 'Thành công');
             return res.json({ success: true, ...updated });

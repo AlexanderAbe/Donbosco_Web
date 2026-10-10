@@ -12,6 +12,13 @@
     const savedStudents = new Set(studentRows
         .filter(row => row.dataset.saved === 'true')
         .map(row => row.dataset.studentId));
+    const classId = form.dataset.classId;
+    const yearId = form.dataset.yearId;
+    const attendanceDate = form.dataset.attendanceDate;
+    const sessionType = form.dataset.sessionType;
+    const socket = io();
+    socket.emit('join_room', `attendance_${yearId}_${classId}_${attendanceDate}_${encodeURIComponent(sessionType)}`);
+
     const updateStudentSaved = (studentId, saved) => {
         form.querySelectorAll('[data-student-id]').forEach(row => {
             if (row.dataset.studentId === studentId) row.dataset.saved = String(saved);
@@ -26,6 +33,20 @@
         saveStatus.querySelector('i').className = `fa-solid ${isFullySaved ? 'fa-circle-check' : 'fa-clock'}`;
         saveStatusText.textContent = `${text} · Đã lưu ${savedStudents.size}/${totalStudents}`;
     };
+
+    socket.on('attendance_entry_updated', ({ studentId, status, saved }) => {
+        const row = form.querySelector(`[data-student-id="${studentId}"]`);
+        if (!row) return;
+
+        const normalizedStudentId = String(studentId);
+        updateStudentSaved(normalizedStudentId, saved);
+        if (!studentSaves.has(normalizedStudentId) && document.activeElement?.closest('[data-student-id]') !== row) {
+            row.querySelectorAll('.attendance-options input[type="radio"]').forEach(input => {
+                input.checked = input.value === status;
+            });
+        }
+        setStatus('Đã đồng bộ', true);
+    });
 
     form.querySelectorAll('.attendance-options input[type="radio"]').forEach(input => {
         input.addEventListener('change', () => {

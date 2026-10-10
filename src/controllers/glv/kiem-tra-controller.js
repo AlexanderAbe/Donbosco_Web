@@ -15,6 +15,15 @@ const isValidDateKey = value => {
     return date.getFullYear() === year && date.getMonth() === month - 1 && date.getDate() === day;
 };
 
+const getExamRoom = (yearId, classId, examNumber) => `exam_${yearId}_${classId}_${examNumber}`;
+
+const broadcastExamUpdate = (req, yearId, classId, examNumber, data) => {
+    const io = req.app.get('io');
+    if (io) {
+        io.to(getExamRoom(yearId, classId, examNumber)).emit('exam_score_updated', data);
+    }
+};
+
 const KiemTraController = {
     async getKiemTra(req, res) {
         try {
@@ -131,6 +140,11 @@ const KiemTraController = {
                 scores,
                 ngayKiemTra // Truyền thêm ngày kiểm tra vào Model
             );
+            const savedStudents = await KiemTraModel.getExamStudents(idGlv, yearId, classId, examNumber);
+            savedStudents.forEach(student => broadcastExamUpdate(
+                req, yearId, classId, examNumber,
+                { studentId: student.id_tn, score: student.diem_so, saved: student.da_luu }
+            ));
 
             await logAction(req, `Lưu điểm kiểm tra thành công cho Lớp ID: ${classId} (Bài kiểm tra số: ${examNumber}, Ngày: ${ngayKiemTra || 'Không có'}, Niên khóa ID: ${yearId})`, 'Thành công');
 
@@ -182,6 +196,11 @@ const KiemTraController = {
                 examDate,
                 false
             );
+            broadcastExamUpdate(req, yearId, classId, examNumber, {
+                studentId,
+                score: rawScore,
+                saved: rawScore !== ''
+            });
             return res.json({ success: true });
         } catch (error) {
             console.error('Lỗi lưu điểm kiểm tra thiếu nhi:', error);

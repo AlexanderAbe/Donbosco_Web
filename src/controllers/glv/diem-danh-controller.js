@@ -19,6 +19,17 @@ const isFutureDate = value => /^\d{4}-\d{2}-\d{2}$/.test(value || '') && value >
 
 const isTodayDate = value => value === getTodayKey();
 
+const getAttendanceRoom = (yearId, classId, attendanceDate, sessionType) =>
+    `attendance_${yearId}_${classId}_${attendanceDate}_${encodeURIComponent(sessionType)}`;
+
+const broadcastAttendanceUpdate = (req, yearId, classId, attendanceDate, sessionType, data) => {
+    const io = req.app.get('io');
+    if (io) {
+        io.to(getAttendanceRoom(yearId, classId, attendanceDate, sessionType))
+            .emit('attendance_entry_updated', data);
+    }
+};
+
 const getSessionTypesForDate = value => {
     if (!/^\d{4}-\d{2}-\d{2}$/.test(value || '')) return [];
     const [year, month, day] = value.split('-').map(Number);
@@ -198,6 +209,13 @@ const DiemDanhController = {
             await DiemDanhModel.saveAttendance(
                 idGlv, yearId, classId, attendanceDate, sessionType, attendance, unmarkedStatus
             );
+            const savedStudents = await DiemDanhModel.getAttendanceStudents(
+                idGlv, yearId, classId, attendanceDate, sessionType
+            );
+            savedStudents.forEach(student => broadcastAttendanceUpdate(
+                req, yearId, classId, attendanceDate, sessionType,
+                { studentId: student.id_tn, status: student.trang_thai_diem_danh, saved: student.da_luu }
+            ));
 
             await logAction(req, `Lưu điểm danh thành công cho Lớp ID: ${classId} (Ngày: ${attendanceDate}, Buổi: ${sessionType})`, 'Thành công');
 
@@ -242,6 +260,11 @@ const DiemDanhController = {
             await DiemDanhModel.saveStudentAttendance(
                 idGlv, yearId, classId, studentId, attendanceDate, sessionType, status
             );
+            broadcastAttendanceUpdate(req, yearId, classId, attendanceDate, sessionType, {
+                studentId,
+                status,
+                saved: true
+            });
             return res.json({ success: true });
         } catch (error) {
             console.error('Lỗi lưu điểm danh thiếu nhi:', error);
@@ -274,6 +297,11 @@ const DiemDanhController = {
                 idGlv, yearId, classId, qrPayload.studentId, qrPayload.mstn,
                 attendanceDate, sessionType, status
             );
+            broadcastAttendanceUpdate(req, yearId, classId, attendanceDate, sessionType, {
+                studentId: student.id_tn,
+                status,
+                saved: true
+            });
             await logAction(req, `Quét QR điểm danh thành công cho ${student.ho_ten} (Lớp ID: ${classId})`, 'Thành công');
             return res.json({ success: true, status, student: { name: student.ho_ten, mstn: student.mstn } });
         } catch (error) {

@@ -31,6 +31,12 @@
         const savedStudents = new Set(studentRows
             .filter(row => row.dataset.saved === 'true')
             .map(row => row.dataset.studentId));
+        const classId = scoreForm.dataset.classId;
+        const yearId = scoreForm.dataset.yearId;
+        const examNumber = scoreForm.dataset.examNumber;
+        const socket = io();
+        socket.emit('join_room', `exam_${yearId}_${classId}_${examNumber}`);
+
         const updateStudentSaved = (studentId, saved) => {
             scoreForm.querySelectorAll('[data-student-id]').forEach(row => {
                 if (row.dataset.studentId === studentId) row.dataset.saved = String(saved);
@@ -43,9 +49,34 @@
             const isFullySaved = saved && savedStudents.size === totalStudents;
             saveStatus.classList.toggle('is-saved', isFullySaved);
             saveStatus.classList.toggle('is-unsaved', !isFullySaved);
+            saveStatus.classList.remove(
+                'bg-emerald-50', 'text-emerald-700', 'border-emerald-200',
+                'bg-amber-50', 'text-amber-700', 'border-amber-200'
+            );
+            saveStatus.classList.add(
+                ...(isFullySaved
+                    ? ['bg-emerald-50', 'text-emerald-700', 'border-emerald-200']
+                    : ['bg-amber-50', 'text-amber-700', 'border-amber-200'])
+            );
             saveStatus.querySelector('i').className = `fa-solid ${isFullySaved ? 'fa-circle-check' : 'fa-clock'}`;
             saveStatusText.textContent = `${text} · Đã lưu ${savedStudents.size}/${totalStudents}`;
         };
+
+        socket.on('exam_score_updated', ({ studentId, score, saved }) => {
+            const normalizedStudentId = String(studentId);
+            const rows = scoreForm.querySelectorAll(`[data-student-id="${normalizedStudentId}"]`);
+            if (!rows.length) return;
+
+            updateStudentSaved(normalizedStudentId, saved);
+            if (!pendingSaves.has(normalizedStudentId)
+                && ![...saveTimers.keys()].some(input => input.closest('[data-student-id]')?.dataset.studentId === normalizedStudentId)) {
+                rows.forEach(row => {
+                    const input = row.querySelector('.score-input');
+                    if (input && document.activeElement !== input) input.value = score ?? '';
+                });
+            }
+            setStatus('Đã đồng bộ', true);
+        });
 
         const persistScore = input => {
             const row = input.closest('[data-student-id]');
