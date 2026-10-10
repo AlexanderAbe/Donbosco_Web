@@ -5,12 +5,17 @@
 
     if (scoreForm && saveStatus && saveStatusText) {
         const pendingSaves = new Map();
+        const pendingScores = new Map();
         const saveTimers = new Map();
         const studentRows = [...scoreForm.querySelectorAll('[data-student-id][data-saved]')];
         const totalStudents = new Set(studentRows.map(row => row.dataset.studentId)).size;
         const savedStudents = new Set(studentRows
             .filter(row => row.dataset.saved === 'true')
             .map(row => row.dataset.studentId));
+        const savedScores = new Map(studentRows.map(row => [
+            row.dataset.studentId,
+            row.dataset.saved === 'true' ? row.querySelector('.discipline-input')?.value.trim() ?? '' : null
+        ]));
             
         const updateStudentSaved = (studentId, saved) => {
             scoreForm.querySelectorAll('[data-student-id]').forEach(row => {
@@ -43,8 +48,10 @@
             const row = scoreForm.querySelector(`tr[data-student-id="${studentId}"]`);
             if (row) {
                 const inputElem = row.querySelector('.discipline-input');
-                // Chỉ cập nhật nếu ô input đó KHÔNG phải là ô đang được focus (tránh làm gián đoạn khi đang gõ)
-                if (inputElem && document.activeElement !== inputElem) {
+                const savedScore = savedScores.get(String(studentId)) ?? '';
+                const hasLocalChanges = inputElem && inputElem.value.trim() !== savedScore;
+                savedScores.set(String(studentId), newScore);
+                if (inputElem && !hasLocalChanges) {
                     inputElem.value = newScore;
                     updateStudentSaved(studentId, newScore !== '');
                     
@@ -62,10 +69,17 @@
             const rawScore = input.value.trim();
             if (!studentId) return Promise.resolve();
 
-            const score = Number(rawScore);
-            if (!Number.isFinite(score) || score < 0 || score > 10) {
+            const score = rawScore === '' ? null : Number(rawScore);
+            if (score !== null && (!Number.isFinite(score) || score < 0 || score > 10)) {
                 setStatus('Điểm phải từ 0 đến 10', false);
-                return Promise.reject(new Error('Điểm kỷ luật phải nằm trong khoảng từ 0 đến 10.'));
+                const error = new Error('Điểm kỷ luật phải nằm trong khoảng từ 0 đến 10.');
+                window.showAppToast(error.message, 'error');
+                return Promise.reject(error);
+            }
+
+            if ((savedScores.get(studentId) ?? '') === rawScore) return Promise.resolve();
+            if (pendingScores.get(studentId) === rawScore) {
+                return pendingSaves.get(studentId) || Promise.resolve();
             }
 
             const previousSave = pendingSaves.get(studentId) || Promise.resolve();
@@ -88,17 +102,23 @@
                 if (!response.ok || !result.success) {
                     throw new Error(result.message || 'Không thể lưu điểm kỷ luật.');
                 }
+                savedScores.set(studentId, rawScore || null);
                 updateStudentSaved(studentId, rawScore !== '');
             }).then(() => {
                 if (pendingSaves.get(studentId) === currentSave) setStatus('Đã lưu', true);
             }).catch(error => {
                 if (pendingSaves.get(studentId) === currentSave) {
                     setStatus(error.message || 'Lỗi lưu điểm kỷ luật', false);
+                    window.showAppToast(error.message || 'Lỗi lưu điểm kỷ luật', 'error');
                 }
                 throw error;
             }).finally(() => {
-                if (pendingSaves.get(studentId) === currentSave) pendingSaves.delete(studentId);
+                if (pendingSaves.get(studentId) === currentSave) {
+                    pendingSaves.delete(studentId);
+                    pendingScores.delete(studentId);
+                }
             });
+            pendingScores.set(studentId, rawScore);
             pendingSaves.set(studentId, currentSave);
             return currentSave;
         };

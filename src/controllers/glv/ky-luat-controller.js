@@ -162,7 +162,8 @@ const KyLuatController = {
         } catch (error) {
             console.error('Lỗi lưu điểm kỷ luật thiếu nhi:', error);
             const status = error.code === 'FORBIDDEN' ? 403
-                : error.message === 'Điểm kỷ luật phải nằm trong khoảng từ 0 đến 10.' ? 400
+                : error.code === 'DISCIPLINE_ABSENCE'
+                    || error.message === 'Điểm kỷ luật phải nằm trong khoảng từ 0 đến 10.' ? 400
                     : 500;
             return res.status(status).json({
                 success: false,

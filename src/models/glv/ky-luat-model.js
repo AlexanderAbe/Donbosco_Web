@@ -113,6 +113,40 @@ const KyLuatModel = {
                 }
                 validScores.push({ id_tn: Number(item.id_tn), diem: score });
             }
+            const perfectScoreStudentIds = validScores
+                .filter(item => item.diem === 10)
+                .map(item => item.id_tn);
+            if (perfectScoreStudentIds.length) {
+                const absentStudents = await client.query(`
+                    SELECT DISTINCT dd.id_tn
+                    FROM DIEM_DANH dd
+                    JOIN CAU_HINH_NAM_HOC ch ON ch.id_cau_hinh_nam_hoc = $2
+                    WHERE dd.id_tn = ANY($1::int[])
+                      AND dd.id_lop = $3
+                      AND dd.trang_thai IN ('Vắng phép', 'Vắng không phép')
+                      AND dd.ngay_diem_danh >= make_date(
+                          CASE
+                              WHEN $4 >= 9 THEN split_part(ch.nien_khoa, '-', 1)::int
+                              ELSE split_part(ch.nien_khoa, '-', 2)::int
+                          END,
+                          $4,
+                          1
+                      )
+                      AND dd.ngay_diem_danh < make_date(
+                          CASE
+                              WHEN $4 >= 9 THEN split_part(ch.nien_khoa, '-', 1)::int
+                              ELSE split_part(ch.nien_khoa, '-', 2)::int
+                          END,
+                          $4,
+                          1
+                      ) + INTERVAL '1 month'
+                `, [perfectScoreStudentIds, yearId, classId, month]);
+                if (absentStudents.rows.length) {
+                    const error = new Error('Thiếu nhi có buổi vắng nên không được phép đạt 10 điểm kỷ luật!');
+                    error.code = 'DISCIPLINE_ABSENCE';
+                    throw error;
+                }
+            }
             if (validScores.length) {
                 await client.query(`
                     INSERT INTO DIEM_KY_LUAT (thang, diem, id_tn, id_cau_hinh_nam_hoc)
