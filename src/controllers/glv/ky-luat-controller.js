@@ -146,6 +146,18 @@ const KyLuatController = {
             await KyLuatModel.saveDisciplineScores(
                 idGlv, yearId, classId, month, [{ id_tn: studentId, diem: rawScore }], false
             );
+
+            // --- BỔ SUNG WEBSOCKET REAL-TIME Ở ĐÂY ---
+            const io = req.app.get('io');
+            if (io) {
+                // Tạo phòng riêng biệt theo cả Lớp và Tháng để tránh nhầm dữ liệu
+                io.to(`class_${classId}_month_${month}`).emit('discipline_score_updated', {
+                    studentId,
+                    newScore: rawScore
+                });
+            }
+            // ----------------------------------------
+
             return res.json({ success: true });
         } catch (error) {
             console.error('Lỗi lưu điểm kỷ luật thiếu nhi:', error);

@@ -11,6 +11,7 @@
         const savedStudents = new Set(studentRows
             .filter(row => row.dataset.saved === 'true')
             .map(row => row.dataset.studentId));
+            
         const updateStudentSaved = (studentId, saved) => {
             scoreForm.querySelectorAll('[data-student-id]').forEach(row => {
                 if (row.dataset.studentId === studentId) row.dataset.saved = String(saved);
@@ -26,6 +27,34 @@
             saveStatus.querySelector('i').className = `fa-solid ${isFullySaved ? 'fa-circle-check' : 'fa-clock'}`;
             saveStatusText.textContent = `${text} · Đã lưu ${savedStudents.size}/${totalStudents}`;
         };
+
+        // --- TÍCH HỢP WEBSOCKET CLIENT ---
+        const classId = scoreForm.dataset.classId;
+        const month = scoreForm.dataset.month;
+        const socket = io();
+
+        if (classId && month) {
+            socket.emit('join_room', `class_${classId}_month_${month}`);
+        }
+
+        // Lắng nghe sự kiện điểm thay đổi từ server (do người khác hoặc tab khác sửa)
+        socket.on('discipline_score_updated', (data) => {
+            const { studentId, newScore } = data;
+            const row = scoreForm.querySelector(`tr[data-student-id="${studentId}"]`);
+            if (row) {
+                const inputElem = row.querySelector('.discipline-input');
+                // Chỉ cập nhật nếu ô input đó KHÔNG phải là ô đang được focus (tránh làm gián đoạn khi đang gõ)
+                if (inputElem && document.activeElement !== inputElem) {
+                    inputElem.value = newScore;
+                    updateStudentSaved(studentId, newScore !== '');
+                    
+                    // Hiệu ứng nháy xanh nhẹ thông báo dữ liệu được đồng bộ từ xa
+                    inputElem.classList.add('bg-green-100', 'transition-colors');
+                    setTimeout(() => inputElem.classList.remove('bg-green-100'), 1000);
+                }
+            }
+        });
+        // ---------------------------------
 
         const persistScore = input => {
             const row = input.closest('[data-student-id]');
@@ -45,8 +74,8 @@
             currentSave = previousSave.catch(() => {}).then(async () => {
                 const body = new URLSearchParams({
                     nien_khoa: scoreForm.dataset.yearId,
-                    id_lop: scoreForm.dataset.classId,
-                    thang: scoreForm.dataset.month,
+                    id_lop: classId,
+                    thang: month,
                     id_tn: studentId,
                     diem: rawScore
                 });
@@ -199,7 +228,7 @@
         appendCell(printDocument, headerRow, 'Họ và tên lót', 'th');
         appendCell(printDocument, headerRow, 'Tên', 'th');
         data.months.forEach(({ month, year }) => {
-            appendCell(printDocument, headerRow, ` T${month} - ${year}`, 'th');
+            appendCell(printDocument, headerRow, ` T${month}\n${year}`, 'th');
         });
         header.appendChild(headerRow);
         table.appendChild(header);

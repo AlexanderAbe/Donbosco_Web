@@ -1,4 +1,6 @@
 const express = require('express');
+const http = require('http'); // 1. Thêm module http
+const { Server } = require('socket.io'); // 2. Thêm socket.io
 const expressLayouts = require('express-ejs-layouts');
 const path = require('path');
 require('dotenv').config();
@@ -9,9 +11,15 @@ const sessionMiddleware = require('./config/session');
 const flashMiddleware = require('./src/middlewares/flash-middleware');
 
 const app = express();
+const server = http.createServer(app); // 3. Tạo http server từ express
+const io = new Server(server); // 4. Khởi tạo socket.io gắn vào server
+
 const PORT = process.env.PORT || 3000;
 
 app.set('trust proxy', 1);
+
+// Lưu `io` vào app để các controller/routes có thể gọi sử dụng (ví dụ: phát sự kiện cập nhật điểm)
+app.set('io', io);
 
 // Cấu hình cơ bản
 app.use(express.urlencoded({ extended: true }));
@@ -28,6 +36,27 @@ app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'src', 'views'));
 app.use(expressLayouts);
 app.set('layout', 'layouts/glv-layout');
+
+// --- 5. LẮNG NGHE KẾT NỐI WEBSOCKET ---
+io.on('connection', (socket) => {
+    console.log('Một client đã kết nối, ID:', socket.id);
+
+    // Lắng nghe sự kiện client join vào phòng học/tháng cụ thể
+    socket.on('join_room', (roomName) => {
+        socket.join(roomName);
+        console.log(`Socket ${socket.id} đã vào phòng: ${roomName}`);
+    });
+
+    // (Giữ lại phòng cũ nếu các tính năng khác của bạn đang dùng)
+    socket.on('join_class', (classId) => {
+        socket.join(`class_${classId}`);
+        console.log(`Socket ${socket.id} đã vào phòng: class_${classId}`);
+    });
+
+    socket.on('disconnect', () => {
+        console.log('Client đã ngắt kết nối:', socket.id);
+    });
+});
 
 // Routes
 app.use('/auth', require('./src/routes/auth-route'));
@@ -69,7 +98,7 @@ app.get('/', (req, res) => {
     res.redirect('/auth/login');
 });
 
-// Khởi động Server
-app.listen(PORT, () => {
+// --- 6. QUAN TRỌNG: Dùng server.listen thay vì app.listen ---
+server.listen(PORT, () => {
     console.log(`Server running at http://localhost:${PORT} (PID: ${process.pid})`);
 });

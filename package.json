@@ -25,10 +25,12 @@
     "pdfkit": "^0.19.1",
     "pg": "^8.23.0",
     "sitemap": "^9.0.1",
+    "socket.io": "^4.8.4",
     "tailwindcss": "^4.3.3",
     "xlsx": "^0.18.5"
   },
   "allowScripts": {
-    "bcrypt@6.0.0": true
+    "bcrypt@6.0.0": true,
+    "@parcel/watcher@2.5.1": true
   }
 }
