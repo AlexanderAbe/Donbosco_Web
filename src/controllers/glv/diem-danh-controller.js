@@ -2,6 +2,7 @@ const BaseGlvModel = require('../../models/glv/base-glv-model');
 const DiemDanhModel = require('../../models/glv/diem-danh-model');
 const { logAction } = require('../../utils/logger');
 const { getCurrentYear } = require('../../utils/current-year-helper');
+const { broadcastBangDiemRefresh } = require('../../utils/bang-diem-realtime');
 
 const getId = value => {
     const id = Number.parseInt(value, 10);
@@ -209,6 +210,7 @@ const DiemDanhController = {
             await DiemDanhModel.saveAttendance(
                 idGlv, yearId, classId, attendanceDate, sessionType, attendance, unmarkedStatus
             );
+            broadcastBangDiemRefresh(req, yearId);
             const savedStudents = await DiemDanhModel.getAttendanceStudents(
                 idGlv, yearId, classId, attendanceDate, sessionType
             );
@@ -260,6 +262,7 @@ const DiemDanhController = {
             await DiemDanhModel.saveStudentAttendance(
                 idGlv, yearId, classId, studentId, attendanceDate, sessionType, status
             );
+            broadcastBangDiemRefresh(req, yearId);
             broadcastAttendanceUpdate(req, yearId, classId, attendanceDate, sessionType, {
                 studentId,
                 status,
@@ -297,6 +300,7 @@ const DiemDanhController = {
                 idGlv, yearId, classId, qrPayload.studentId, qrPayload.mstn,
                 attendanceDate, sessionType, status
             );
+            broadcastBangDiemRefresh(req, yearId);
             broadcastAttendanceUpdate(req, yearId, classId, attendanceDate, sessionType, {
                 studentId: student.id_tn,
                 status,

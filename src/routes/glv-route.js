@@ -28,6 +28,7 @@ router.post('/danh-sach-lop/:id/status', danhSachLopController.updateStudentStat
 
 // Bảng điểm
 router.get('/bang-diem', bangDiemController.getBangDiem);
+router.get('/bang-diem/realtime-data', bangDiemController.getRealtimeScores);
 router.post('/bang-diem/print-history', bangDiemController.getStudentPrintHistories);
 router.post('/bang-diem/:id/update-result', bangDiemController.updateResult);
 

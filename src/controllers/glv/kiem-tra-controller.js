@@ -2,6 +2,7 @@ const BaseGlvModel = require('../../models/glv/base-glv-model');
 const KiemTraModel = require('../../models/glv/kiem-tra-model');
 const { logAction } = require('../../utils/logger');
 const { getCurrentYear } = require('../../utils/current-year-helper');
+const { broadcastBangDiemRefresh } = require('../../utils/bang-diem-realtime');
 
 const getId = value => {
     const id = Number.parseInt(value, 10);
@@ -140,6 +141,7 @@ const KiemTraController = {
                 scores,
                 ngayKiemTra // Truyền thêm ngày kiểm tra vào Model
             );
+            broadcastBangDiemRefresh(req, yearId);
             const savedStudents = await KiemTraModel.getExamStudents(idGlv, yearId, classId, examNumber);
             savedStudents.forEach(student => broadcastExamUpdate(
                 req, yearId, classId, examNumber,
@@ -196,6 +198,7 @@ const KiemTraController = {
                 examDate,
                 false
             );
+            broadcastBangDiemRefresh(req, yearId);
             broadcastExamUpdate(req, yearId, classId, examNumber, {
                 studentId,
                 score: rawScore,

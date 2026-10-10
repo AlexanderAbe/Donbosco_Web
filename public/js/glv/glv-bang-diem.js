@@ -9,7 +9,67 @@
         // 1. Tham gia vào phòng riêng theo niên khóa
         socket.emit('join_room', `bang_diem_${yearId}`);
 
-        // 2. Lắng nghe sự kiện cập nhật kết quả từ các máy khác trong hệ thống
+        let refreshTimer;
+        let refreshRequest;
+        socket.on('bang_diem_scores_updated', (data) => {
+            if (String(data.yearId) !== String(yearId)) return;
+            window.clearTimeout(refreshTimer);
+            refreshTimer = window.setTimeout(async () => {
+                if (refreshRequest) refreshRequest.abort();
+                refreshRequest = new AbortController();
+                try {
+                    const response = await fetch(
+                        `/glv/bang-diem/realtime-data?yearId=${encodeURIComponent(yearId)}`,
+                        { signal: refreshRequest.signal }
+                    );
+                    const result = await response.json();
+                    if (!response.ok) throw new Error(result.error || 'Không thể cập nhật bảng điểm.');
+
+                    result.scores.forEach(student => {
+                        const row = document.querySelector(
+                            `tr[data-score-row][data-student-id="${student.id_tn}"][data-class-id="${student.id_lop}"]`
+                        );
+                        if (!row) return;
+
+                        const scoreFields = {
+                            learning: student.diem_hoc_tap,
+                            attendance: student.diem_chuyen_can,
+                            discipline: student.diem_ky_luat,
+                            total: student.diem_tong
+                        };
+                        Object.entries(scoreFields).forEach(([field, value]) => {
+                            row.dataset[`${field}Score`] = value ?? '';
+                            const cell = row.querySelector(`[data-score-field="${field}"]`);
+                            if (!cell) return;
+
+                            const displayValue = value ?? '-';
+                            if (field === 'total') {
+                                cell.querySelector('strong').textContent = displayValue;
+                            } else {
+                                cell.textContent = displayValue;
+                            }
+                        });
+
+                        const resultCell = row.querySelector('[data-result-cell]');
+                        if (resultCell) {
+                            resultCell.textContent = student.tinh_trang || '-';
+                            resultCell.classList.toggle(
+                                'is-inactive',
+                                student.tinh_trang !== 'Đang học' && student.tinh_trang !== 'Lên lớp'
+                            );
+                        }
+                        row.classList.add('bg-green-50', 'transition-colors');
+                        window.setTimeout(() => row.classList.remove('bg-green-50'), 1000);
+                    });
+                } catch (error) {
+                    if (error.name !== 'AbortError') {
+                        console.error('Không thể đồng bộ bảng điểm thời gian thực:', error);
+                    }
+                }
+            }, 100);
+        });
+
+        // Lắng nghe sự kiện cập nhật kết quả từ các máy khác trong hệ thống
         socket.on('bang_diem_result_updated', (data) => {
             const { idTn, result } = data;
             

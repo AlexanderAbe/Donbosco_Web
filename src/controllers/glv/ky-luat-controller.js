@@ -2,6 +2,7 @@ const BaseGlvModel = require('../../models/glv/base-glv-model');
 const KyLuatModel = require('../../models/glv/ky-luat-model');
 const { logAction } = require('../../utils/logger');
 const { getCurrentYear } = require('../../utils/current-year-helper');
+const { broadcastBangDiemRefresh } = require('../../utils/bang-diem-realtime');
 
 const getId = value => {
     const id = Number.parseInt(value, 10);
@@ -108,6 +109,7 @@ const KyLuatController = {
                 month,
                 scores
             );
+            broadcastBangDiemRefresh(req, yearId);
 
             await logAction(req, `Lưu điểm kỷ luật thành công cho Lớp ID: ${classId} (Tháng: ${month}, Niên khóa ID: ${yearId})`, 'Thành công');
 
@@ -146,6 +148,7 @@ const KyLuatController = {
             await KyLuatModel.saveDisciplineScores(
                 idGlv, yearId, classId, month, [{ id_tn: studentId, diem: rawScore }], false
             );
+            broadcastBangDiemRefresh(req, yearId);
 
             // --- BỔ SUNG WEBSOCKET REAL-TIME Ở ĐÂY ---
             const io = req.app.get('io');

@@ -121,10 +121,10 @@
                     <td><%= scores.filter(item => item.id_lop === student.id_lop).indexOf(student) + 1 %></td>
                     <td><%= student.mstn || '-' %></td>
                     <td><strong><%= [student.ten_thanh, student.ho_va_ten_lot, student.ten].filter(Boolean).join(' ') %></strong></td>
-                    <td><%= student.diem_hoc_tap ?? '-' %></td>
-                    <td><%= student.diem_chuyen_can ?? '-' %></td>
-                    <td><%= student.diem_ky_luat ?? '-' %></td>
-                    <td><strong><%= student.diem_tong ?? '-' %></strong></td>
+                    <td data-score-field="learning"><%= student.diem_hoc_tap ?? '-' %></td>
+                    <td data-score-field="attendance"><%= student.diem_chuyen_can ?? '-' %></td>
+                    <td data-score-field="discipline"><%= student.diem_ky_luat ?? '-' %></td>
+                    <td data-score-field="total"><strong><%= student.diem_tong ?? '-' %></strong></td>
                     <td class="student-status <%= student.tinh_trang === 'Đang học' || student.tinh_trang === 'Lên lớp' ? '' : 'is-inactive' %>" data-result-cell><%= student.tinh_trang || '-' %></td>
                     <td>
                         <% if (student.has_summary && student.trang_thai_phan_lop === 'Đang học') { %>

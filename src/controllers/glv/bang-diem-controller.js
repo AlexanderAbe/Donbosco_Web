@@ -9,6 +9,18 @@ const getId = value => {
     return Number.isInteger(id) && id > 0 ? id : null;
 };
 
+const sortScores = scores => {
+    const classOrder = new Map();
+    for (const score of scores) {
+        if (!classOrder.has(score.id_lop)) classOrder.set(score.id_lop, classOrder.size);
+    }
+    scores.sort((a, b) => (
+        classOrder.get(a.id_lop) - classOrder.get(b.id_lop)
+        || compareStudentNames(a, b)
+    ));
+    return scores;
+};
+
 const getBangDiemRoom = (yearId) => `bang_diem_${yearId}`;
 
 const BangDiemController = {
@@ -17,17 +29,9 @@ const BangDiemController = {
             const idGlv = req.session.user.id_glv;
             const years = await BaseGlvModel.getAcademicYears(idGlv);
             const { selectedYearId, selectedYear } = getCurrentYear(years, req.session);
-            const scores = selectedYearId
+            const scores = sortScores(selectedYearId
                 ? await BangDiemModel.getRealtimeScores(idGlv, selectedYearId)
-                : [];
-            const classOrder = new Map();
-            for (const score of scores) {
-                if (!classOrder.has(score.id_lop)) classOrder.set(score.id_lop, classOrder.size);
-            }
-            scores.sort((a, b) => (
-                classOrder.get(a.id_lop) - classOrder.get(b.id_lop)
-                || compareStudentNames(a, b)
-            ));
+                : []);
 
             return res.render('glv/bang-diem', {
                 title: 'Bảng điểm thiếu nhi',
@@ -38,6 +42,26 @@ const BangDiemController = {
         } catch (error) {
             console.error('Lỗi tải bảng điểm GLV:', error);
             return res.status(500).send('Lỗi server khi tải bảng điểm.');
+        }
+    },
+
+    async getRealtimeScores(req, res) {
+        const idGlv = req.session.user?.id_glv;
+        const yearId = getId(req.query.yearId);
+        if (!yearId) {
+            return res.status(400).json({ error: 'Niên khóa không hợp lệ.' });
+        }
+
+        try {
+            const years = await BaseGlvModel.getAcademicYears(idGlv);
+            if (!years.some(year => year.id_cau_hinh_nam_hoc === yearId)) {
+                return res.status(404).json({ error: 'Không tìm thấy niên khóa.' });
+            }
+            const scores = sortScores(await BangDiemModel.getRealtimeScores(idGlv, yearId));
+            return res.json({ scores });
+        } catch (error) {
+            console.error('Lỗi tải dữ liệu bảng điểm GLV:', error);
+            return res.status(500).json({ error: 'Lỗi máy chủ khi tải dữ liệu bảng điểm.' });
         }
     },
 
