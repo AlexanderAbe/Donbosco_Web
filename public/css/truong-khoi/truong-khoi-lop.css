@@ -368,6 +368,14 @@ td strong {
   padding: 0;
   box-shadow: 0 20px 60px rgba(15, 23, 42, 0.25);
 }
+.tk-modal[open] {
+  position: fixed;
+  inset: 0;
+  height: fit-content;
+  max-height: calc(100vh - 32px);
+  margin: auto;
+  overflow-y: auto;
+}
 .tk-modal::backdrop {
   background: rgba(15, 23, 42, 0.45);
 }

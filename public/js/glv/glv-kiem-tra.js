@@ -4,21 +4,54 @@
     const saveStatusText = document.getElementById('score-save-status-text');
 
     if (scoreForm && saveStatus && saveStatusText) {
+        const dateInput = document.getElementById('test-date');
+        const hiddenDateInput = scoreForm.querySelector('[name="ngay_kiem_tra"]');
+        const scoreLayouts = [...scoreForm.querySelectorAll('[data-score-layout]')];
+        const desktopLayout = window.matchMedia('(min-width: 768px)');
+        const updateScoreLayout = () => {
+            const hasExamDate = Boolean(dateInput?.value);
+            scoreLayouts.forEach(layout => {
+                const activeLayout = layout.dataset.scoreLayout === (desktopLayout.matches ? 'desktop' : 'mobile');
+                layout.querySelectorAll('input').forEach(input => {
+                    input.disabled = !activeLayout || !hasExamDate;
+                });
+            });
+        };
+        updateScoreLayout();
+        desktopLayout.addEventListener('change', updateScoreLayout);
+        dateInput?.addEventListener('change', () => {
+            hiddenDateInput.value = dateInput.value;
+            updateScoreLayout();
+        });
+
         const pendingSaves = new Map();
         const saveTimers = new Map();
+        const studentRows = [...scoreForm.querySelectorAll('[data-student-id][data-saved]')];
+        const totalStudents = new Set(studentRows.map(row => row.dataset.studentId)).size;
+        const savedStudents = new Set(studentRows
+            .filter(row => row.dataset.saved === 'true')
+            .map(row => row.dataset.studentId));
+        const updateStudentSaved = (studentId, saved) => {
+            scoreForm.querySelectorAll('[data-student-id]').forEach(row => {
+                if (row.dataset.studentId === studentId) row.dataset.saved = String(saved);
+            });
+            if (saved) savedStudents.add(studentId);
+            else savedStudents.delete(studentId);
+        };
 
         const setStatus = (text, saved) => {
-            saveStatus.classList.toggle('is-saved', saved);
-            saveStatus.classList.toggle('is-unsaved', !saved);
-            saveStatus.querySelector('i').className = `fa-solid ${saved ? 'fa-circle-check' : 'fa-clock'}`;
-            saveStatusText.textContent = text;
+            const isFullySaved = saved && savedStudents.size === totalStudents;
+            saveStatus.classList.toggle('is-saved', isFullySaved);
+            saveStatus.classList.toggle('is-unsaved', !isFullySaved);
+            saveStatus.querySelector('i').className = `fa-solid ${isFullySaved ? 'fa-circle-check' : 'fa-clock'}`;
+            saveStatusText.textContent = `${text} · Đã lưu ${savedStudents.size}/${totalStudents}`;
         };
 
         const persistScore = input => {
             const row = input.closest('[data-student-id]');
             const studentId = row?.dataset.studentId;
             const rawScore = input.value.trim();
-            if (!studentId || rawScore === '') return Promise.resolve();
+            if (!studentId) return Promise.resolve();
 
             const score = Number(rawScore);
             if (!Number.isFinite(score) || score < 0 || score > 10) {
@@ -47,8 +80,9 @@
                 if (!response.ok || !result.success) {
                     throw new Error(result.message || 'Không thể lưu điểm kiểm tra.');
                 }
+                updateStudentSaved(studentId, rawScore !== '');
             }).then(() => {
-                if (pendingSaves.get(studentId) === currentSave) setStatus('Đã lưu thay đổi', true);
+                if (pendingSaves.get(studentId) === currentSave) setStatus('Đã lưu', true);
             }).catch(error => {
                 if (pendingSaves.get(studentId) === currentSave) {
                     setStatus(error.message || 'Lỗi lưu điểm kiểm tra', false);
@@ -86,12 +120,6 @@
             });
         });
 
-        const dateInput = document.getElementById('test-date');
-        const hiddenDateInput = scoreForm.querySelector('[name="ngay_kiem_tra"]');
-        dateInput?.addEventListener('change', () => {
-            hiddenDateInput.value = dateInput.value;
-        });
-
         const flushAndWaitForSaves = async () => {
             for (const [input, timer] of saveTimers) {
                 clearTimeout(timer);
@@ -120,9 +148,9 @@
 
         scoreForm.addEventListener('submit', event => {
             event.preventDefault();
-            flushAndWaitForSaves().then(() => {
-                scoreForm.submit();
-            }).catch(() => {});
+            flushAndWaitForSaves().catch(error => {
+                setStatus(error.message || 'Không thể lưu điểm trước khi rời trang.', false);
+            });
         });
     }
 
@@ -178,10 +206,27 @@
         printDocument.body.className = 'exam-print-body';
         const stylesheet = printDocument.createElement('link');
         stylesheet.rel = 'stylesheet';
-        stylesheet.href = '/css/glv/glv-kiem-tra.css';
+        stylesheet.href = '/css/output.css';
 
         const main = printDocument.createElement('main');
         main.className = 'exam-print-document';
+        const watermark = printDocument.createElement('img');
+        watermark.className = 'exam-print-watermark';
+        watermark.src = '/imgs/Logo.png';
+        watermark.alt = '';
+        watermark.setAttribute('aria-hidden', 'true');
+        main.appendChild(watermark);
+        const watermarkReady = new Promise((resolve, reject) => {
+            const onLoad = () => watermark.naturalWidth > 0
+                ? resolve()
+                : reject(new Error('Không tải được logo watermark.'));
+            if (watermark.complete) {
+                onLoad();
+            } else {
+                watermark.addEventListener('load', onLoad, { once: true });
+                watermark.addEventListener('error', () => reject(new Error('Không tải được logo watermark.')), { once: true });
+            }
+        });
         const parish = printDocument.createElement('p');
         parish.className = 'exam-print-parish';
         parish.append('Giáo xứ Tân Thái Sơn');
@@ -237,9 +282,12 @@
         printDocument.body.appendChild(main);
 
         stylesheet.addEventListener('load', () => {
-            printDocument.fonts.ready.then(() => {
+            Promise.all([watermarkReady, printDocument.fonts.ready]).then(() => {
                 printWindow.focus();
                 printWindow.print();
+            }).catch(error => {
+                window.alert(error.message || 'Không thể tải nội dung trang in điểm kiểm tra.');
+                printWindow.close();
             });
         }, { once: true });
         stylesheet.addEventListener('error', () => {

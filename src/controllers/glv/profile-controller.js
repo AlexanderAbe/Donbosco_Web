@@ -49,25 +49,18 @@ const ProfileController = {
                 return res.redirect('/auth/login');
             }
 
-            const { ten_thanh, ho_va_ten_lot, ten, ngay_sinh, gioi_tinh, sdt } = req.body;
-
-            // Gọi model cập nhật (id_glv chỉ dùng trong điều kiện WHERE, không bị sửa)
-            await ProfileModel.updateGlvProfile(id_glv, {
-                ten_thanh,
-                ho_va_ten_lot,
-                ten,
-                ngay_sinh,
-                gioi_tinh,
-                sdt
-            });
-
-            // Cập nhật lại số điện thoại hoặc họ tên trong session nếu hệ thống của bạn lưu trên session
-            if (req.session.user) {
-                req.session.user.sdt = sdt;
-                req.session.user.ho_ten = `${ho_va_ten_lot} ${ten}`;
+            const sdt = typeof req.body.sdt === 'string' ? req.body.sdt.trim() : '';
+            if (!sdt || sdt.length > 15) {
+                return res.redirect('/glv/profile?error=' + encodeURIComponent('Vui lòng nhập số điện thoại (tối đa 15 ký tự).'));
             }
 
-            return res.redirect('/glv/profile?success=' + encodeURIComponent('Cập nhật thông tin thành công!'));
+            await ProfileModel.updateGlvPhone(id_glv, sdt);
+
+            if (req.session.user) {
+                req.session.user.sdt = sdt;
+            }
+
+            return res.redirect('/glv/profile?success=' + encodeURIComponent('Cập nhật số điện thoại thành công!'));
         } catch (error) {
             console.error('Lỗi cập nhật profile:', error);
             return res.redirect('/glv/profile?error=' + encodeURIComponent('Có lỗi xảy ra khi cập nhật thông tin!'));

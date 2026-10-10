@@ -135,16 +135,16 @@ const KyLuatController = {
         const month = getId(req.body.thang);
         const studentId = getId(req.body.id_tn);
         const rawScore = String(req.body.diem ?? '').trim();
-        const score = Number(rawScore);
 
-        if (!yearId || !classId || !month || month > 12 || !studentId || !rawScore
-            || !Number.isFinite(score) || score < 0 || score > 10) {
+        const score = rawScore === '' ? null : Number(rawScore);
+        if (!yearId || !classId || !month || month > 12 || !studentId
+            || (score !== null && (!Number.isFinite(score) || score < 0 || score > 10))) {
             return res.status(400).json({ success: false, message: 'Thông tin điểm kỷ luật không hợp lệ.' });
         }
 
         try {
             await KyLuatModel.saveDisciplineScores(
-                idGlv, yearId, classId, month, [{ id_tn: studentId, diem: score }], false
+                idGlv, yearId, classId, month, [{ id_tn: studentId, diem: rawScore }], false
             );
             return res.json({ success: true });
         } catch (error) {

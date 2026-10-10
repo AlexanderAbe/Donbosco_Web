@@ -19,17 +19,6 @@ const isFutureDate = value => /^\d{4}-\d{2}-\d{2}$/.test(value || '') && value >
 
 const isTodayDate = value => value === getTodayKey();
 
-const getSmartDate = sessionType => {
-    const today = new Date();
-    const targetDay = sessionType === 'Lễ Thứ 3' ? 2 : sessionType === 'Lễ Thứ 5' ? 4 : 0;
-    const difference = (today.getDay() - targetDay + 7) % 7;
-    today.setDate(today.getDate() - difference);
-    const year = today.getFullYear();
-    const month = String(today.getMonth() + 1).padStart(2, '0');
-    const day = String(today.getDate()).padStart(2, '0');
-    return `${year}-${month}-${day}`;
-};
-
 const getSessionTypesForDate = value => {
     if (!/^\d{4}-\d{2}-\d{2}$/.test(value || '')) return [];
     const [year, month, day] = value.split('-').map(Number);
@@ -126,7 +115,7 @@ const DiemDanhController = {
                 : classes[0]?.id_lop;
             const selectedDate = /^\d{4}-\d{2}-\d{2}$/.test(req.query.ngay_diem_danh || '')
                 ? req.query.ngay_diem_danh
-                : getSmartDate(req.query.loai_buoi || 'Học Giáo Lý');
+                : getTodayKey();
             const sessionTypes = getSessionTypesForDate(selectedDate);
             const sessionType = sessionTypes.includes(req.query.loai_buoi)
                 ? req.query.loai_buoi

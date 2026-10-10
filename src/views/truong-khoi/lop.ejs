@@ -41,14 +41,13 @@
             </div>
             <div class="table-scroll">
                 <table>
-                    <thead><tr><th>STT</th><th>Mã số</th><th>Họ và tên</th><th>Lớp</th><th>Ngày sinh</th><th>Giới tính</th><th>Trạng thái</th><th>Thao tác</th></tr></thead>
+                    <thead><tr><th>STT</th><th>Mã số</th><th>Họ và tên</th><th>Ngày sinh</th><th>Giới tính</th><th>Trạng thái</th><th>Thao tác</th></tr></thead>
                     <tbody>
                         <% allStudents.forEach((student, index) => { %>
                             <tr data-student-row data-search="<%= `${student._fullName || ''} ${student.mstn || ''}`.toLowerCase() %>">
                                 <td><%= index + 1 %></td>
                                 <td><%= student.mstn || '-' %></td>
                                 <td><strong><%= student._fullName %></strong></td>
-                                <td><%= student.ten_lop || '-' %></td>
                                 <td><%= student._dobDisplay %></td>
                                 <td><%= student.gioi_tinh || '-' %></td>
                                 <td><span class="status <%= student.trang_thai === 'Đang học' ? 'is-active' : 'is-inactive' %>"><%= student.trang_thai %></span></td>

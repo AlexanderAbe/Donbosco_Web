@@ -1,142 +1,272 @@
-<!-- Font Awesome CDN -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<%
+    const savedScoreCount = students.filter(student => student.da_luu).length;
+    const isScoreSaved = students.length > 0 && savedScoreCount === students.length;
+    const scoreSaveStatusClasses = isScoreSaved
+        ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+        : 'bg-amber-50 text-amber-700 border border-amber-200';
+    const scoreSaveIcon = isScoreSaved ? 'fa-circle-check' : 'fa-clock';
+    const getStudentStatusBadgeClasses = status => status === 'Đang học'
+        ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+        : 'bg-amber-50 text-amber-700 border border-amber-200';
+%>
+<main class="min-h-screen bg-slate-50 text-slate-800 flex flex-col antialiased selection:bg-blue-500 selection:text-white pb-16">
 
-<link rel="stylesheet" href="/css/reset.css">
-<link rel="stylesheet" href="/css/glv/glv-kiem-tra.css">
-
-<main class="test-page">
-    <header class="class-header">
-        <span class="class-eyebrow"><i class="fa-solid fa-layer-group"></i> Quản lý lớp học</span>
-        <h1>Điểm kiểm tra thiếu nhi</h1>
+    <!-- Top Header Banner -->
+    <header class="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-xs">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 rounded-xl bg-blue-600 flex items-center justify-center text-white shadow-md shadow-blue-500/20">
+                    <i class="fa-solid fa-graduation-cap text-lg"></i>
+                </div>
+                <div>
+                    <span class="glv-page-label text-sm font-semibold text-blue-600 block">Quản lý lớp học</span>
+                    <h1 class="text-base sm:text-lg font-bold text-slate-900 leading-tight">Điểm Kiểm Tra Thiếu Nhi</h1>
+                </div>
+            </div>
+        </div>
     </header>
 
-    <% if (!classes.length || !examCount) { %>
-        <div class="empty-state"><i class="fa-solid fa-triangle-exclamation"></i> Chưa có lớp được phân công hoặc chưa cấu hình số bài kiểm tra.</div>
-    <% } else { %>
-        <form class="test-toolbar" method="GET" action="/glv/kiem-tra">
-            <div class="test-field">
-                <label for="student-search"><i class="fa-solid fa-magnifying-glass"></i> Tìm kiếm thiếu nhi</label>
-                <input id="student-search" type="search" data-table-search="[data-student-row]" data-search-empty="#student-search-empty" placeholder="Tên hoặc mã số..." autocomplete="off">
+    <div class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 flex flex-col gap-6">
+        
+        <% if (!classes.length || !examCount) { %>
+            <!-- Empty state for unassigned classes or configuration -->
+            <div class="bg-white rounded-2xl p-12 text-center border border-slate-200 shadow-sm text-slate-500">
+                <i class="fa-solid fa-triangle-exclamation text-3xl mb-2 text-amber-500"></i>
+                <p class="font-medium text-slate-700 text-base">Chưa có lớp được phân công hoặc chưa cấu hình số bài kiểm tra.</p>
             </div>
-            <div class="test-field">
-                <label for="test-number"><i class="fa-solid fa-pen-to-square"></i> Bài kiểm tra</label>
-                <select id="test-number" name="bai_kiem_tra">
-                    <% for (let number = 1; number <= examCount; number += 1) { %>
-                        <option value="<%= number %>" <%= number === selectedExam ? 'selected' : '' %>>Bài kiểm tra <%= number %></option>
-                    <% } %>
-                </select>
-            </div>
+        <% } else { %>
 
-            <div class="test-field">
-                <label for="test-date"><i class="fa-solid fa-calendar-days"></i> Ngày kiểm tra</label>
-                <input id="test-date" type="date" name="ngay_kiem_tra" value="<%= selectedDate ?? '' %>" onchange="document.getElementById('score-exam-date').value = this.value">
-            </div>
-        </form>
+            <!-- Interactive Toolbar Card (Class filter removed as requested) -->
+            <form class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-4 items-end" method="GET" action="/glv/kiem-tra">
+                <!-- Search Input -->
+                <div class="space-y-1.5">
+                    <label for="student-search" class="text-xs font-bold uppercase tracking-wider text-slate-500 flex items-center gap-1.5">
+                        <i class="fa-solid fa-magnifying-glass text-blue-600"></i> Tìm kiếm thiếu nhi
+                    </label>
+                    <div class="relative">
+                        <input id="student-search" type="search" placeholder="Nhập tên hoặc mã số..." autocomplete="off"
+                            data-table-search="[data-student-row]" data-search-empty="#student-search-empty"
+                            class="w-full px-3.5 py-2.5 text-sm bg-slate-50/50 border border-slate-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-600 transition-all">
+                    </div>
+                </div>
 
-        <form method="POST" action="/glv/kiem-tra/save" id="score-form"
-            data-save-url="/glv/kiem-tra/entry-save"
-            data-year-id="<%= selectedYearId %>"
-            data-class-id="<%= selectedClassId %>"
-            data-exam-number="<%= selectedExam %>">
-            <input type="hidden" name="nien_khoa" value="<%= selectedYearId %>">
-            <input type="hidden" name="id_lop" value="<%= selectedClassId %>">
-            <input type="hidden" name="bai_kiem_tra" value="<%= selectedExam %>">
-            <input id="score-exam-date" type="hidden" name="ngay_kiem_tra" value="<%= selectedDate ?? '' %>">
-            
-            <div class="test-summary">
-                <span><i class="fa-solid fa-circle-info"></i> <strong><%= classes.find(item => item.id_lop === selectedClassId)?.ten_lop %></strong> · Bài kiểm tra <strong><%= selectedExam %></strong></span>
-                <span class="score-save-status <%= students.length && students.every(student => student.da_luu) ? 'is-saved' : 'is-unsaved' %>" id="score-save-status">
-                    <i class="fa-solid <%= students.length && students.every(student => student.da_luu) ? 'fa-circle-check' : 'fa-clock' %>"></i>
-                    <span id="score-save-status-text"><%= students.length && students.every(student => student.da_luu) ? 'Đã lưu' : 'Chưa lưu' %></span>
-                </span>
-                <button
-                    class="print-score-button"
-                    type="button"
-                    id="open-exam-print"
-                    data-class-id="<%= selectedClassId || '' %>"
-                    data-exam-count="<%= examCount %>"
-                    <%= !selectedClassId || !students.length ? 'disabled' : '' %>>
-                    <i class="fa-solid fa-print"></i> In điểm kiểm tra
-                </button>
-                <button class="save-score-button" type="submit"><i class="fa-solid fa-floppy-disk"></i> Lưu điểm</button>
-            </div>
+                <!-- Exam Number Selection (Strictly named Bài kiểm tra) -->
+                <div class="space-y-1.5">
+                    <label for="test-number" class="text-xs font-bold uppercase tracking-wider text-slate-500 flex items-center gap-1.5">
+                        <i class="fa-solid fa-pen-to-square text-blue-600"></i> Bài kiểm tra
+                    </label>
+                    <select id="test-number" name="bai_kiem_tra"
+                        class="w-full px-3.5 py-2.5 text-sm bg-slate-50/50 border border-slate-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-600 transition-all font-medium">
+                        <% for (let number = 1; number <= examCount; number += 1) { %>
+                            <option value="<%= number %>" <%= number === selectedExam ? 'selected' : '' %>>Bài kiểm tra <%= number %></option>
+                        <% } %>
+                    </select>
+                </div>
 
-            <% if (!students.length) { %>
-                <div class="empty-state"><i class="fa-solid fa-user-slash"></i> Lớp chưa có thiếu nhi.</div>
-            <% } else { %>
-                <div class="test-table-wrap">
-                    <table class="test-table">
-                        <thead>
-                            <tr>
-                                <th>STT</th>
-                                <th>Mã số</th>
-                                <th>Họ và tên</th>
-                                <th>Trạng thái</th>
-                                <th>Điểm</th>
-                            </tr>
-                        </thead>
-                        <tbody>
+                <!-- Test Date Selection -->
+                <div class="space-y-1.5 sm:col-span-2 lg:col-span-2">
+                    <label for="test-date" class="text-xs font-bold uppercase tracking-wider text-slate-500 flex items-center gap-1.5">
+                        <i class="fa-solid fa-calendar-days text-blue-600"></i> Ngày kiểm tra
+                    </label>
+                    <input id="test-date" type="date" value="<%= selectedDate ?? '' %>"
+                        class="w-full px-3.5 py-2.5 text-sm bg-slate-50/50 border border-slate-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-600 transition-all font-medium">
+                    <p class="text-xs text-slate-500" id="score-date-hint">Chọn ngày kiểm tra trước khi nhập điểm.</p>
+                </div>
+            </form>
+
+            <!-- Main Score Input Form -->
+            <form method="POST" action="/glv/kiem-tra/save" id="score-form"
+                data-save-url="/glv/kiem-tra/entry-save"
+                data-year-id="<%= selectedYearId %>"
+                data-class-id="<%= selectedClassId %>"
+                data-exam-number="<%= selectedExam %>"
+                class="flex flex-col gap-6 flex-1">
+                
+                <input type="hidden" name="nien_khoa" value="<%= selectedYearId %>">
+                <input type="hidden" name="id_lop" value="<%= selectedClassId %>">
+                <input type="hidden" name="bai_kiem_tra" value="<%= selectedExam %>">
+                <input id="score-exam-date" type="hidden" name="ngay_kiem_tra" value="<%= selectedDate ?? '' %>">
+                
+                <!-- Action Bar & Summary Header -->
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white px-5 py-4 rounded-2xl border border-slate-200/80 shadow-sm">
+                    <div class="flex items-center space-x-3 text-sm text-slate-600 flex-wrap gap-y-2">
+                        <span class="inline-flex items-center gap-2 bg-blue-50 text-blue-700 px-3 py-1 rounded-full font-semibold text-xs border border-blue-100">
+                            <i class="fa-solid fa-layer-group"></i> Lớp: <%= classes.find(item => item.id_lop === selectedClassId)?.ten_lop || 'Lớp của bạn' %>
+                        </span>
+                        <span class="hidden md:inline text-slate-300">|</span>
+                        <span class="inline-flex items-center gap-1.5 font-medium text-slate-600">
+                            <i class="fa-solid fa-file-lines text-blue-500"></i> Bài kiểm tra <strong class="text-slate-900"><%= selectedExam %></strong>
+                        </span>
+                    </div>
+
+                    <div class="flex items-center space-x-3 w-full sm:w-auto justify-end flex-wrap gap-y-2">
+                        <!-- Dynamic Save Status Badge -->
+                        <div id="score-save-status" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold <%= scoreSaveStatusClasses %>">
+                            <i class="fa-solid <%= scoreSaveIcon %>"></i>
+                            <span id="score-save-status-text">Đã lưu <%= savedScoreCount %>/<%= students.length %></span>
+                        </div>
+
+                        <!-- Print Trigger Button -->
+                        <button class="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl border border-slate-200 bg-white text-slate-700 hover:bg-slate-50 font-semibold text-sm transition-all shadow-xs disabled:opacity-50 disabled:cursor-not-allowed"
+                            type="button"
+                            id="open-exam-print"
+                            data-class-id="<%= selectedClassId || '' %>"
+                            data-exam-count="<%= examCount %>"
+                            <%= !selectedClassId || !students.length ? 'disabled' : '' %>>
+                            <i class="fa-solid fa-print text-slate-500"></i>
+                            <span class="hidden sm:inline">In điểm kiểm tra</span>
+                        </button>
+
+                    </div>
+                </div>
+
+                <% if (!students.length) { %>
+                    <!-- Empty Class Roster State -->
+                    <div class="bg-white rounded-2xl p-16 text-center border border-slate-200 shadow-sm text-slate-500 flex-1 flex flex-col items-center justify-center">
+                        <i class="fa-solid fa-user-slash text-4xl mb-3 text-slate-300"></i>
+                        <p class="font-semibold text-slate-700 text-base">Lớp chưa có thiếu nhi trong danh sách.</p>
+                    </div>
+                <% } else { %>
+                    <!-- Score List Container with Hybrid Responsive Layout -->
+                    <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden flex-1 flex flex-col">
+                        <!-- Desktop Table View (Visible on Medium screens and up) -->
+                        <div class="hidden md:block overflow-x-auto flex-1" data-score-layout="desktop">
+                            <table class="w-full table-fixed text-left border-collapse min-w-175">
+                                <colgroup>
+                                    <col style="width: 8%">
+                                    <col style="width: 14%">
+                                    <col style="width: 34%">
+                                    <col style="width: 20%">
+                                    <col style="width: 24%">
+                                </colgroup>
+                                <thead>
+                                    <tr class="bg-slate-50/75 border-b border-slate-200 text-slate-500 text-[11px] font-bold uppercase tracking-wider">
+                                        <th class="py-3.5 px-4 text-center w-16">STT</th>
+                                        <th class="py-3.5 px-4 w-32">Mã số</th>
+                                        <th class="py-3.5 px-4">Họ và tên thiếu nhi</th>
+                                        <th class="py-3.5 px-4 w-36">Trạng thái</th>
+                                        <th class="py-3.5 px-4 w-40 text-center">Điểm số (0 - 10)</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-slate-100 text-sm">
+                                    <% students.forEach((student, index) => { %>
+                                        <tr data-student-row data-student-id="<%= student.id_tn %>" data-saved="<%= student.da_luu ? 'true' : 'false' %>" data-search="<%= `${student.mstn || ''} ${student.ten_thanh || ''} ${student.ho_va_ten_lot || ''} ${student.ten || ''}`.toLowerCase() %>"
+                                            class="hover:bg-blue-50/30 transition-colors group">
+                                            <td class="py-3.5 px-4 text-center text-slate-400 font-medium"><%= index + 1 %></td>
+                                            <td class="py-3.5 px-4 font-mono text-xs text-slate-600 font-semibold"><%= student.mstn || '-' %></td>
+                                            <td class="py-3.5 px-4 font-semibold text-slate-900">
+                                                <%= [student.ten_thanh, student.ho_va_ten_lot, student.ten].filter(Boolean).join(' ') %>
+                                            </td>
+                                            <td class="py-3.5 px-4">
+                                                <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold <%= getStudentStatusBadgeClasses(student.trang_thai) %>">
+                                                    <%= student.trang_thai %>
+                                                </span>
+                                            </td>
+                                            <td class="py-3.5 px-4 text-center">
+                                                <input class="score-input w-24 px-3 py-1.5 text-center font-bold text-slate-800 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-blue-500/20 focus:border-blue-600 transition-all shadow-2xs disabled:cursor-not-allowed disabled:opacity-50" 
+                                                    type="number" name="scores[<%= index %>][diem_so]" min="0" max="10" step="0.01" value="<%= student.diem_so ?? '' %>">
+                                                <input type="hidden" name="scores[<%= index %>][id_tn]" value="<%= student.id_tn %>">
+                                            </td>
+                                        </tr>
+                                    <% }) %>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- Mobile Card List View (Visible on small screens below md, eliminating horizontal scrolling) -->
+                        <div class="md:hidden divide-y divide-slate-100" data-score-layout="mobile">
                             <% students.forEach((student, index) => { %>
-                                <tr data-student-row data-student-id="<%= student.id_tn %>" data-search="<%= `${student.mstn || ''} ${student.ten_thanh || ''} ${student.ho_va_ten_lot || ''} ${student.ten || ''}`.toLowerCase() %>">
-                                    <td><%= index + 1 %></td>
-                                    <td><%= student.mstn || '-' %></td>
-                                    <td><strong><%= [student.ten_thanh, student.ho_va_ten_lot, student.ten].filter(Boolean).join(' ') %></strong></td>
-                                    <td class="test-status <%= student.trang_thai === 'Đang học' ? '' : 'inactive' %>"><%= student.trang_thai %></td>
-                                    <td>
-                                        <input class="score-input" type="number" name="scores[<%= index %>][diem_so]" min="0" max="10" step="0.01" value="<%= student.diem_so ?? '' %>" placeholder="0">
-                                        <input type="hidden" name="scores[<%= index %>][id_tn]" value="<%= student.id_tn %>">
-                                    </td>
-                                </tr>
+                                <div data-student-row data-student-id="<%= student.id_tn %>" data-saved="<%= student.da_luu ? 'true' : 'false' %>" data-search="<%= `${student.mstn || ''} ${student.ten_thanh || ''} ${student.ho_va_ten_lot || ''} ${student.ten || ''}`.toLowerCase() %>"
+                                    class="p-4 flex flex-col gap-3 hover:bg-slate-50/50 transition-colors">
+                                    <div class="flex items-center justify-between">
+                                        <div class="flex items-center space-x-2">
+                                            <span class="w-6 h-6 rounded-full bg-slate-100 text-slate-500 font-bold text-xs flex items-center justify-center"><%= index + 1 %></span>
+                                            <span class="font-mono text-xs font-semibold text-slate-500"><%= student.mstn || '-' %></span>
+                                        </div>
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-bold <%= getStudentStatusBadgeClasses(student.trang_thai) %>">
+                                            <%= student.trang_thai %>
+                                        </span>
+                                    </div>
+                                    <div class="flex items-center justify-between gap-3">
+                                        <div class="font-bold text-slate-900 text-sm leading-snug">
+                                            <%= [student.ten_thanh, student.ho_va_ten_lot, student.ten].filter(Boolean).join(' ') %>
+                                        </div>
+                                        <div class="flex items-center gap-2 shrink-0">
+                                            <label for="score-mob-<%= index %>" class="text-xs font-bold text-slate-500 uppercase">Điểm:</label>
+                                            <input id="score-mob-<%= index %>" class="score-input w-24 px-3 py-2 text-center font-bold text-slate-800 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-blue-500/20 focus:border-blue-600 transition-all shadow-2xs text-base disabled:cursor-not-allowed disabled:opacity-50" 
+                                                type="number" name="scores[<%= index %>][diem_so]" min="0" max="10" step="0.01" value="<%= student.diem_so ?? '' %>">
+                                            <input type="hidden" name="scores[<%= index %>][id_tn]" value="<%= student.id_tn %>">
+                                        </div>
+                                    </div>
+                                </div>
                             <% }) %>
-                        </tbody>
-                    </table>
-                </div>
-            <% } %>
-            <div class="empty-state search-hidden" id="student-search-empty">Không tìm thấy thiếu nhi phù hợp.</div>
-        </form>
+                        </div>
+                        
+                        <!-- Empty Search Result State -->
+                        <div id="student-search-empty" class="hidden p-12 text-center text-slate-400">
+                            <i class="fa-solid fa-user-slash text-3xl mb-2 text-slate-300"></i>
+                            <p class="font-medium text-slate-600">Không tìm thấy thiếu nhi phù hợp với từ khóa.</p>
+                        </div>
+                    </div>
+                <% } %>
+            </form>
 
-        <%- include('../partials/pagination', {
-            mode: 'client',
-            currentPage: 1,
-            totalPages: Math.max(Math.ceil(students.length / 25), 1),
-            totalItems: students.length,
-            pageSize: 25,
-            rows: '[data-student-row]'
-        }) %>
+            <!-- Pagination Support Partial -->
+            <%- include('../partials/pagination', {
+                mode: 'client',
+                currentPage: 1,
+                totalPages: Math.max(Math.ceil(students.length / 25), 1),
+                totalItems: students.length,
+                pageSize: 25,
+                rows: '[data-student-row]',
+                rowGroupAttribute: 'data-student-id'
+            }) %>
 
-        <dialog class="exam-print-modal" id="exam-print-modal" aria-labelledby="exam-print-modal-title">
-            <div class="exam-print-modal-heading">
-                <div>
-                    <span class="class-eyebrow">Điểm kiểm tra</span>
-                    <h2 id="exam-print-modal-title">In điểm kiểm tra</h2>
+            <!-- Print Modal Dialog -->
+            <dialog class="m-auto max-h-[calc(100vh-2.5rem)] w-[calc(100vw-2rem)] p-0 rounded-2xl shadow-2xl border-0 max-w-md backdrop:bg-slate-900/60 backdrop:blur-sm overflow-hidden" id="exam-print-modal" aria-labelledby="exam-print-modal-title">
+                <div class="p-6 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
+                    <div>
+                        <span class="text-[10px] font-extrabold uppercase tracking-wider text-blue-600">Báo cáo & Thống kê</span>
+                        <h3 id="exam-print-modal-title" class="text-lg font-bold text-slate-900 mt-0.5">In điểm kiểm tra</h3>
+                    </div>
+                    <button class="w-8 h-8 rounded-full bg-slate-200/60 hover:bg-slate-200 text-slate-600 flex items-center justify-center transition-colors" type="button" data-close-exam-print aria-label="Đóng">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
                 </div>
-                <button class="exam-print-modal-close" type="button" data-close-exam-print aria-label="Đóng">&times;</button>
-            </div>
-            <div class="exam-print-modal-content">
-                <label for="exam-print-from">Chọn khoảng bài kiểm tra cần in</label>
-                <div class="exam-print-range">
-                    <select id="exam-print-from" aria-label="Bắt đầu từ bài kiểm tra">
-                        <% for (let number = 1; number <= examCount; number += 1) { %>
-                            <option value="<%= number %>" <%= number === selectedExam ? 'selected' : '' %>>Từ bài <%= number %></option>
-                        <% } %>
-                    </select>
-                    <select id="exam-print-to" aria-label="Kết thúc đến bài kiểm tra">
-                        <% for (let number = 1; number <= examCount; number += 1) { %>
-                            <option value="<%= number %>" <%= number === examCount ? 'selected' : '' %>>Đến bài <%= number %></option>
-                        <% } %>
-                    </select>
+                <div class="p-6 space-y-4">
+                    <div class="space-y-1.5">
+                        <label for="exam-print-from" class="text-xs font-bold uppercase tracking-wider text-slate-500 block">Chọn khoảng bài kiểm tra cần in</label>
+                        <div class="grid grid-cols-2 gap-3">
+                            <select id="exam-print-from" aria-label="Bắt đầu từ bài kiểm tra"
+                                class="px-3.5 py-2.5 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500/20 focus:border-blue-600">
+                                <% for (let number = 1; number <= examCount; number += 1) { %>
+                                    <option value="<%= number %>" <%= number === selectedExam ? 'selected' : '' %>>Từ bài <%= number %></option>
+                                <% } %>
+                            </select>
+                            <select id="exam-print-to" aria-label="Kết thúc đến bài kiểm tra"
+                                class="px-3.5 py-2.5 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500/20 focus:border-blue-600">
+                                <% for (let number = 1; number <= examCount; number += 1) { %>
+                                    <option value="<%= number %>" <%= number === examCount ? 'selected' : '' %>>Đến bài <%= number %></option>
+                                <% } %>
+                            </select>
+                        </div>
+                    </div>
+                    <p id="exam-print-range-hint" class="text-xs text-slate-500 bg-blue-50/60 p-3 rounded-xl border border-blue-100/60 leading-relaxed">
+                        <i class="fa-solid fa-circle-info text-blue-600 mr-1"></i> Bảng điểm in sẽ được định dạng chuẩn A4 ngang, bao gồm đầy đủ cột điểm các bài kiểm tra đã chọn của lớp.
+                    </p>
                 </div>
-                <p id="exam-print-range-hint">Chọn khoảng cần in trong số bài kiểm tra của niên khóa.</p>
-            </div>
-            <div class="exam-print-modal-actions">
-                <button class="exam-print-modal-cancel" type="button" data-close-exam-print>Hủy</button>
-                <button class="exam-print-modal-confirm" type="button" id="confirm-exam-print">
-                    <i class="fa-solid fa-print"></i> Xác nhận in
-                </button>
-            </div>
-        </dialog>
-    <% } %>
+                <div class="p-4 px-6 bg-slate-50/80 border-t border-slate-100 flex justify-end gap-3">
+                    <button class="px-4 py-2.5 rounded-xl border border-slate-200 bg-white text-slate-700 font-semibold text-sm hover:bg-slate-50 transition-all" type="button" data-close-exam-print>Hủy</button>
+                    <button class="px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-semibold text-sm transition-all shadow-md shadow-blue-500/20 flex items-center gap-2" type="button" id="confirm-exam-print">
+                        <i class="fa-solid fa-print"></i> Xác nhận in
+                    </button>
+                </div>
+            </dialog>
+
+        <% } %>
+    </div>
 </main>
 
+<!-- Scripts -->
 <script src="/js/table-search.js" defer></script>
 <script src="/js/glv/glv-kiem-tra.js" defer></script>

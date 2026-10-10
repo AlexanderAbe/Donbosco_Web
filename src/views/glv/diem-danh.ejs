@@ -1,34 +1,37 @@
-<!-- Font Awesome CDN -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-
-<link rel="stylesheet" href="/css/reset.css">
-<link rel="stylesheet" href="/css/glv/glv-diem-danh.css">
-
-<main class="attendance-page">
-    <header class="class-header">
-        <span class="class-eyebrow"><i class="fa-solid fa-layer-group"></i> Quản lý lớp học</span>
-        <h1>Điểm danh thiếu nhi</h1>
+<main class="min-h-screen bg-linear-to-br from-blue-50 via-slate-50 to-amber-50 text-slate-800 flex flex-col antialiased pb-16 [&_.search-hidden]:hidden!">
+    <header class="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-xs">
+        <div class="max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center gap-3">
+            <div class="w-10 h-10 rounded-xl bg-blue-600 flex items-center justify-center text-white shadow-md shadow-blue-500/20">
+                <i class="fa-solid fa-clipboard-check text-lg"></i>
+            </div>
+            <div>
+                <span class="glv-page-label text-sm font-semibold text-blue-600 block">Quản lý lớp học</span>
+                <h1 class="text-base sm:text-lg font-bold text-slate-900 leading-tight">Điểm danh thiếu nhi</h1>
+            </div>
+        </div>
     </header>
 
+    <div class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 flex flex-col gap-6">
     <% if (!classes.length) { %>
-        <div class="attendance-empty"><i class="fa-solid fa-triangle-exclamation"></i> Bạn chưa được phân công lớp trong niên khóa này.</div>
+        <div class="rounded-2xl border border-dashed border-slate-300 bg-white p-8 text-center text-slate-500 shadow-sm"><i class="fa-solid fa-triangle-exclamation mr-2 text-amber-500"></i> Bạn chưa được phân công lớp trong niên khóa này.</div>
     <% } else { %>
-        <form class="attendance-toolbar" method="GET" action="/glv/diem-danh" id="attendance-filter">
-            <div class="attendance-field">
-                <label for="attendance-search"><i class="fa-solid fa-magnifying-glass"></i> Tìm kiếm thiếu nhi</label>
-                <input id="attendance-search" type="search" data-table-search="[data-attendance-row]" data-search-empty="#attendance-search-empty" placeholder="Tên hoặc mã số..." autocomplete="off">
+        <form class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 items-end" method="GET" action="/glv/diem-danh" id="attendance-filter">
+            <div class="space-y-1.5">
+                <label for="attendance-search" class="text-xs font-bold uppercase tracking-wider text-slate-500 flex items-center gap-1.5"><i class="fa-solid fa-magnifying-glass text-blue-600"></i> Tìm kiếm thiếu nhi</label>
+                <input id="attendance-search" type="search" data-table-search="[data-attendance-row]" data-search-empty="#attendance-search-empty" placeholder="Tên hoặc mã số..." autocomplete="off"
+                    class="w-full px-3.5 py-2.5 text-sm bg-slate-50/50 border border-slate-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-600 transition-all">
             </div>
-            <div class="attendance-field">
-                <label for="attendance-class"><i class="fa-solid fa-school"></i> Lớp</label>
-                <select id="attendance-class" name="id_lop" required>
+            <div class="space-y-1.5">
+                <label for="attendance-class" class="text-xs font-bold uppercase tracking-wider text-slate-500 flex items-center gap-1.5"><i class="fa-solid fa-school text-blue-600"></i> Lớp</label>
+                <select id="attendance-class" name="id_lop" required class="w-full px-3.5 py-2.5 text-sm bg-slate-50/50 border border-slate-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-600 transition-all font-medium">
                     <% classes.forEach(item => { %>
                         <option value="<%= item.id_lop %>" <%= item.id_lop === selectedClassId ? 'selected' : '' %>><%= item.ten_khoi %> - <%= item.ten_lop %></option>
                     <% }) %>
                 </select>
             </div>
-            <div class="attendance-field">
-                <label for="attendance-type"><i class="fa-solid fa-clock"></i> Loại buổi</label>
-                <select id="attendance-type" name="loai_buoi" required>
+            <div class="space-y-1.5">
+                <label for="attendance-type" class="text-xs font-bold uppercase tracking-wider text-slate-500 flex items-center gap-1.5"><i class="fa-solid fa-clock text-blue-600"></i> Loại buổi</label>
+                <select id="attendance-type" name="loai_buoi" required class="w-full px-3.5 py-2.5 text-sm bg-slate-50/50 border border-slate-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-600 transition-all font-medium">
                     <% if (!sessionTypes.length) { %>
                         <option value="">Ngày không khớp lịch</option>
                     <% } %>
@@ -37,65 +40,75 @@
                     <% }) %>
                 </select>
             </div>
-            <div class="attendance-field">
-                <label for="attendance-date"><i class="fa-solid fa-calendar-day"></i> Ngày điểm danh</label>
-                <input id="attendance-date" type="date" name="ngay_diem_danh" value="<%= selectedDate %>" max="<%= todayKey %>" required>
+            <div class="space-y-1.5">
+                <label for="attendance-date" class="text-xs font-bold uppercase tracking-wider text-slate-500 flex items-center gap-1.5"><i class="fa-solid fa-calendar-day text-blue-600"></i> Ngày điểm danh</label>
+                <input id="attendance-date" type="date" name="ngay_diem_danh" value="<%= selectedDate %>" max="<%= todayKey %>" required
+                    class="w-full px-3.5 py-2.5 text-sm bg-slate-50/50 border border-slate-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-600 transition-all font-medium">
             </div>
-            <button class="attendance-save-button" type="submit" <%= isFutureDate ? 'disabled' : '' %>><i class="fa-solid fa-filter"></i> Xem danh sách</button>
+            <button class="inline-flex w-fit items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-semibold text-sm transition-all shadow-md shadow-blue-500/25 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed" type="submit" <%= isFutureDate ? 'disabled' : '' %>><i class="fa-solid fa-filter"></i> Xem danh sách</button>
         </form>
 
         <form method="POST" action="/glv/diem-danh/save" id="attendance-save-form"
+            class="flex flex-col gap-6 flex-1"
             data-save-url="/glv/diem-danh/entry-save"
             data-year-id="<%= selectedYearId %>"
             data-class-id="<%= selectedClassId %>"
             data-session-type="<%= sessionType %>"
             data-attendance-date="<%= selectedDate %>">
-            <% const attendanceSaved = students.length > 0 && students.every(student => student.da_luu); %>
+            <% const attendanceSavedCount = students.filter(student => student.da_luu).length; %>
+            <% const attendanceSaved = students.length > 0 && attendanceSavedCount === students.length; %>
             <input type="hidden" name="nien_khoa" value="<%= selectedYearId %>">
             <input type="hidden" name="id_lop" value="<%= selectedClassId %>">
             <input type="hidden" name="loai_buoi" value="<%= sessionType %>">
             <input type="hidden" name="ngay_diem_danh" value="<%= selectedDate %>">
             
-            <div class="attendance-summary">
-                <span><i class="fa-solid fa-circle-info"></i> <strong><%= classes.find(item => item.id_lop === selectedClassId)?.ten_lop %></strong> · <%= sessionType || 'Chưa chọn loại buổi' %> · <strong><%= selectedDate %></strong></span>
-                <span class="score-save-status <%= attendanceSaved ? 'is-saved' : 'is-unsaved' %>" id="attendance-save-status">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white px-5 py-4 rounded-2xl border border-slate-200/80 shadow-sm">
+                <div class="flex items-center gap-2 text-sm text-slate-600 flex-wrap">
+                    <span class="inline-flex items-center gap-2 bg-blue-50 text-blue-700 px-3 py-1 rounded-full font-semibold text-xs border border-blue-100">
+                        <i class="fa-solid fa-layer-group"></i> Lớp: <%= classes.find(item => item.id_lop === selectedClassId)?.ten_lop %>
+                    </span>
+                    <span class="inline-flex items-center gap-1.5 font-medium"><i class="fa-solid fa-clock text-blue-500"></i> <%= sessionType || 'Chưa chọn loại buổi' %></span>
+                    <span class="inline-flex items-center gap-1.5 font-medium"><i class="fa-solid fa-calendar-day text-blue-500"></i> <strong class="text-slate-900"><%= selectedDate %></strong></span>
+                </div>
+                <div class="flex items-center gap-3 w-full sm:w-auto justify-end flex-wrap">
+                <span class="inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-bold [&.is-saved]:bg-emerald-50 [&.is-saved]:text-emerald-700 [&.is-unsaved]:bg-slate-100 [&.is-unsaved]:text-slate-600 <%= attendanceSaved ? 'is-saved' : 'is-unsaved' %>" id="attendance-save-status">
                     <i class="fa-solid <%= attendanceSaved ? 'fa-circle-check' : 'fa-clock' %>"></i>
-                    <span id="attendance-save-status-text"><%= attendanceSaved ? 'Đã lưu' : 'Chưa lưu' %></span>
+                    <span id="attendance-save-status-text">Đã lưu <%= attendanceSavedCount %>/<%= students.length %></span>
                 </span>
-                <button class="attendance-print-button" type="button" id="print-monthly-attendance" <%= !selectedClassId || !selectedDate ? 'disabled' : '' %>>
+                <button class="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl border border-slate-200 bg-white text-slate-700 hover:bg-slate-50 font-semibold text-sm transition-all shadow-xs disabled:opacity-50 disabled:cursor-not-allowed" type="button" id="print-monthly-attendance" <%= !selectedClassId || !selectedDate ? 'disabled' : '' %>>
                     <i class="fa-solid fa-print"></i> In điểm danh
                 </button>
-                <button class="attendance-save-button" type="submit" <%= !sessionType || isFutureDate ? 'disabled' : '' %>><i class="fa-solid fa-floppy-disk"></i> Lưu điểm danh</button>
+                </div>
             </div>
 
             <% if (!students.length) { %>
-                <div class="attendance-empty"><i class="fa-solid fa-user-slash"></i> Lớp chưa có thiếu nhi đang học.</div>
+                <div class="rounded-2xl border border-dashed border-slate-300 bg-white p-8 text-center text-slate-500"><i class="fa-solid fa-user-slash mr-2 text-slate-400"></i> Lớp chưa có thiếu nhi đang học.</div>
             <% } else { %>
-                <div class="attendance-table-wrap">
-                    <table class="attendance-table">
-                        <thead>
-                            <tr>
-                                <th>STT</th>
-                                <th>Mã TN</th>
-                                <th>Tên Thánh & Họ Tên</th>
-                                <th>Trạng thái</th>
-                                <th>Điểm danh</th>
+                <div class="overflow-x-auto rounded-2xl border border-slate-200 bg-white shadow-sm max-[600px]:overflow-visible max-[600px]:border-0 max-[600px]:bg-transparent max-[600px]:shadow-none">
+                    <table class="w-full min-w-175 border-collapse max-[600px]:min-w-0 max-[600px]:block">
+                        <thead class="max-[600px]:hidden">
+                            <tr class="bg-slate-50 text-[11px] font-bold uppercase tracking-wider text-slate-500">
+                                <th class="w-14 border-b border-slate-200 px-3.5 py-3 text-center">STT</th>
+                                <th class="border-b border-slate-200 px-3.5 py-3 text-left">Mã TN</th>
+                                <th class="border-b border-slate-200 px-3.5 py-3 text-left">Tên Thánh &amp; Họ Tên</th>
+                                <th class="border-b border-slate-200 px-3.5 py-3 text-left">Trạng thái</th>
+                                <th class="border-b border-slate-200 px-3.5 py-3 text-left">Điểm danh</th>
                             </tr>
                         </thead>
-                        <tbody>
+                        <tbody class="text-sm max-[600px]:block">
                             <% students.forEach((student, index) => { %>
-                                <tr data-attendance-row data-student-id="<%= student.id_tn %>" data-search="<%= `${student.mstn || ''} ${student.ten_thanh || ''} ${student.ho_va_ten_lot || ''} ${student.ten || ''}`.toLowerCase() %>">
-                                    <td><%= index + 1 %></td>
-                                    <td><%= student.mstn || '-' %></td>
-                                    <td><strong><%= [student.ten_thanh, student.ho_va_ten_lot, student.ten].filter(Boolean).join(' ') %></strong></td>
-                                    <td class="attendance-status <%= student.trang_thai === 'Đang học' ? '' : 'inactive' %>"><%= student.trang_thai %></td>
-                                    <td>
-                                        <fieldset class="attendance-options">
-                                            <legend class="visually-hidden">Trạng thái điểm danh</legend>
-                                            <label><input type="radio" name="attendance[<%= index %>][trang_thai]" value="Có mặt" <%= !student.da_luu || student.trang_thai_diem_danh === 'Có mặt' ? 'checked' : '' %>><span>Có mặt</span></label>
-                                            <label><input type="radio" name="attendance[<%= index %>][trang_thai]" value="Đi sớm" <%= student.da_luu && student.trang_thai_diem_danh === 'Đi sớm' ? 'checked' : '' %>><span>Đi sớm</span></label>
-                                            <label><input type="radio" name="attendance[<%= index %>][trang_thai]" value="Vắng phép" <%= student.da_luu && student.trang_thai_diem_danh === 'Vắng phép' ? 'checked' : '' %>><span>Vắng phép</span></label>
-                                            <label><input type="radio" name="attendance[<%= index %>][trang_thai]" value="Vắng không phép" <%= student.da_luu && student.trang_thai_diem_danh === 'Vắng không phép' ? 'checked' : '' %>><span>Vắng không phép</span></label>
+                                <tr data-attendance-row data-student-id="<%= student.id_tn %>" data-saved="<%= student.da_luu ? 'true' : 'false' %>" data-search="<%= `${student.mstn || ''} ${student.ten_thanh || ''} ${student.ho_va_ten_lot || ''} ${student.ten || ''}`.toLowerCase() %>" class="hover:bg-blue-50/50 max-[600px]:mb-3 max-[600px]:block max-[600px]:rounded-xl max-[600px]:border max-[600px]:border-slate-200 max-[600px]:bg-white max-[600px]:p-3">
+                                    <td class="border-b border-slate-100 px-3.5 py-3 text-center text-slate-400 max-[600px]:hidden"><%= index + 1 %></td>
+                                    <td class="border-b border-slate-100 px-3.5 py-3 max-[600px]:block max-[600px]:border-0 max-[600px]:px-0 max-[600px]:py-1"><span class="hidden text-xs font-medium text-slate-500 max-[600px]:inline">Mã TN: </span><%= student.mstn || '-' %></td>
+                                    <td class="border-b border-slate-100 px-3.5 py-3 max-[600px]:block max-[600px]:border-0 max-[600px]:px-0 max-[600px]:py-1"><span class="hidden text-xs font-medium text-slate-500 max-[600px]:inline">Họ tên: </span><strong class="font-semibold text-slate-900"><%= [student.ten_thanh, student.ho_va_ten_lot, student.ten].filter(Boolean).join(' ') %></strong></td>
+                                    <td class="border-b border-slate-100 px-3.5 py-3 font-semibold <%= student.trang_thai === 'Đang học' ? 'text-emerald-700' : 'text-amber-700' %> max-[600px]:block max-[600px]:border-0 max-[600px]:px-0 max-[600px]:py-1"><span class="hidden font-medium text-slate-500 max-[600px]:inline">Trạng thái: </span><%= student.trang_thai %></td>
+                                    <td class="border-b border-slate-100 px-3.5 py-3 max-[600px]:block max-[600px]:border-0 max-[600px]:px-0 max-[600px]:pt-2"><span class="mb-2 hidden text-xs font-medium text-slate-500 max-[600px]:block">Điểm danh</span>
+                                        <fieldset class="attendance-options m-0 flex min-w-115 flex-wrap gap-2 border-0 p-0 max-[800px]:min-w-0 max-[800px]:flex-col max-[800px]:items-stretch">
+                                            <legend class="sr-only">Trạng thái điểm danh</legend>
+                                            <label class="inline-flex cursor-pointer items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-600 has-checked:border-blue-600 has-checked:bg-blue-50 has-checked:font-bold has-checked:text-blue-700 max-[600px]:min-h-10"><input class="accent-blue-600" type="radio" name="attendance[<%= index %>][trang_thai]" value="Có mặt" <%= student.trang_thai_diem_danh === 'Có mặt' ? 'checked' : '' %>><span>Có mặt</span></label>
+                                            <label class="inline-flex cursor-pointer items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-600 has-checked:border-blue-600 has-checked:bg-blue-50 has-checked:font-bold has-checked:text-blue-700 max-[600px]:min-h-10"><input class="accent-blue-600" type="radio" name="attendance[<%= index %>][trang_thai]" value="Đi sớm" <%= student.da_luu && student.trang_thai_diem_danh === 'Đi sớm' ? 'checked' : '' %>><span>Đi sớm</span></label>
+                                            <label class="inline-flex cursor-pointer items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-600 has-checked:border-blue-600 has-checked:bg-blue-50 has-checked:font-bold has-checked:text-blue-700 max-[600px]:min-h-10"><input class="accent-blue-600" type="radio" name="attendance[<%= index %>][trang_thai]" value="Vắng phép" <%= student.da_luu && student.trang_thai_diem_danh === 'Vắng phép' ? 'checked' : '' %>><span>Vắng phép</span></label>
+                                            <label class="inline-flex cursor-pointer items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-600 has-checked:border-blue-600 has-checked:bg-blue-50 has-checked:font-bold has-checked:text-blue-700 max-[600px]:min-h-10"><input class="accent-blue-600" type="radio" name="attendance[<%= index %>][trang_thai]" value="Vắng không phép" <%= student.da_luu && student.trang_thai_diem_danh === 'Vắng không phép' ? 'checked' : '' %>><span>Vắng không phép</span></label>
                                         </fieldset>
                                         <input type="hidden" name="attendance[<%= index %>][id_tn]" value="<%= student.id_tn %>">
                                     </td>
@@ -105,7 +118,7 @@
                     </table>
                 </div>
             <% } %>
-            <div class="attendance-empty search-hidden" id="attendance-search-empty">Không tìm thấy thiếu nhi phù hợp.</div>
+            <div class="search-hidden rounded-2xl border border-dashed border-slate-300 bg-white p-8 text-center text-slate-500" id="attendance-search-empty">Không tìm thấy thiếu nhi phù hợp.</div>
         </form>
 
         <%- include('../partials/pagination', {
@@ -117,31 +130,32 @@
             rows: '[data-attendance-row]'
         }) %>
 
-        <dialog class="attendance-print-modal" id="attendance-print-modal" aria-labelledby="attendance-print-modal-title">
-            <div class="attendance-print-modal-heading">
+        <dialog class="m-auto max-h-[calc(100vh-2.5rem)] w-[calc(100vw-2rem)] max-w-110 rounded-2xl border-0 p-0 text-slate-800 shadow-2xl backdrop:bg-slate-900/60 backdrop:backdrop-blur-sm" id="attendance-print-modal" aria-labelledby="attendance-print-modal-title">
+            <div class="flex items-start justify-between gap-4 border-b border-slate-200 px-6 pb-4 pt-5">
                 <div>
-                    <span class="class-eyebrow">Điểm danh</span>
-                    <h2 id="attendance-print-modal-title">In điểm danh</h2>
+                    <span class="text-[10px] font-extrabold uppercase tracking-widest text-blue-600">Điểm danh</span>
+                    <h2 class="mt-1 text-xl font-bold text-slate-900" id="attendance-print-modal-title">In điểm danh</h2>
                 </div>
-                <button class="attendance-print-modal-close" type="button" data-close-attendance-print aria-label="Đóng">&times;</button>
+                <button class="rounded-full p-1 text-2xl leading-none text-slate-500 hover:bg-slate-100 hover:text-slate-800" type="button" data-close-attendance-print aria-label="Đóng">&times;</button>
             </div>
-            <div class="attendance-print-modal-content">
-                <label for="attendance-print-month">Chọn tháng cần in</label>
-                <select id="attendance-print-month">
+            <div class="grid gap-2 px-6 py-5">
+                <label class="text-sm font-bold text-slate-700" for="attendance-print-month">Chọn tháng cần in</label>
+                <select class="w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-sm text-slate-800 focus:border-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500/20" id="attendance-print-month">
                     <% for (let month = 1; month <= 12; month += 1) { %>
                         <option value="<%= month %>" <%= selectedDate && Number(selectedDate.slice(5, 7)) === month ? 'selected' : '' %>>Tháng <%= month %></option>
                     <% } %>
                 </select>
-                <p>Niên khóa đang chọn sẽ được dùng để xác định năm của tháng in.</p>
+                <p class="m-0 mt-1 text-sm text-slate-500">Niên khóa đang chọn sẽ được dùng để xác định năm của tháng in.</p>
             </div>
-            <div class="attendance-print-modal-actions">
-                <button class="attendance-print-modal-cancel" type="button" data-close-attendance-print>Hủy</button>
-                <button class="attendance-print-modal-confirm" type="button" id="confirm-monthly-attendance-print">
+            <div class="flex justify-end gap-3 border-t border-slate-200 px-6 py-4">
+                <button class="inline-flex min-h-10 items-center justify-center rounded-xl bg-slate-100 px-4 py-2 font-semibold text-slate-700 hover:bg-slate-200" type="button" data-close-attendance-print>Hủy</button>
+                <button class="inline-flex min-h-10 items-center justify-center gap-2 rounded-xl bg-blue-600 px-4 py-2 font-semibold text-white hover:bg-blue-700" type="button" id="confirm-monthly-attendance-print">
                     <i class="fa-solid fa-print"></i> Xác nhận in
                 </button>
             </div>
         </dialog>
     <% } %>
+    </div>
 </main>
 
 <script src="/js/table-search.js" defer></script>

@@ -6,11 +6,9 @@
     <title><%= typeof title != 'undefined' ? title : 'Giáo Lý Viên - Xứ Đoàn Don Bosco' %></title>
     <link rel="icon" type="image/png" href="/imgs/Logo.png">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="/css/reset.css">
-    <link rel="stylesheet" href="/css/glv/glv-layout.css">
-    <link rel="stylesheet" href="/css/sidebar-navigation.css">
+    <link rel="stylesheet" href="/css/output.css">
 </head>
-<body>
+<body class="glv-layout-page bg-slate-50 font-sans text-slate-700 antialiased">
 
 <!-- HEADER (Màu Xanh nước biển chủ đạo) -->
 <header class="glv-header">
@@ -48,7 +46,7 @@
         <!-- Mục lớn có Sub-menu 1: Quản lý lớp học -->
         <li class="menu-item" data-active-prefixes="/glv/danh-sach-lop /glv/bang-diem">
             <button class="dropdown-toggle" type="button">
-                <span><i class="fa-solid fa-school"></i> Quản Lý Lớp Học</span>
+                <span class="glv-page-label"><i class="fa-solid fa-school"></i> Quản Lý Lớp Học</span>
                 <span class="arrow-icon"><i class="fa-solid fa-chevron-right"></i></span>
             </button>
             <ul class="submenu">
@@ -88,7 +86,7 @@
     <%- include('../partials/toast') %>
 
     <!-- NỘI DUNG CHÍNH CỦA TRANG -->
-    <main class="main-container">
+    <main class="glv-main-container">
         <%- body %>
     </main>
         <%- include('../partials/footer') %>

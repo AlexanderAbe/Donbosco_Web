@@ -8,6 +8,13 @@ const getId = value => {
     return Number.isInteger(id) && id > 0 ? id : null;
 };
 
+const isValidDateKey = value => {
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(value || '')) return false;
+    const [year, month, day] = value.split('-').map(Number);
+    const date = new Date(year, month - 1, day);
+    return date.getFullYear() === year && date.getMonth() === month - 1 && date.getDate() === day;
+};
+
 const KiemTraController = {
     async getKiemTra(req, res) {
         try {
@@ -30,21 +37,13 @@ const KiemTraController = {
                 ? await KiemTraModel.getExamStudents(idGlv, selectedYearId, selectedClassId, selectedExam)
                 : [];
 
-            // Lấy ngày kiểm tra từ thiếu nhi đầu tiên (nếu có dữ liệu) để hiển thị lên input date
-            let selectedDate = '';
-            if (students.length > 0 && students[0].ngay_kiem_tra) {
-                const examDate = students[0].ngay_kiem_tra;
-                if (typeof examDate === 'string') {
-                    // PostgreSQL thường trả kiểu date dưới dạng chuỗi YYYY-MM-DD.
-                    selectedDate = examDate.slice(0, 10);
-                } else if (examDate instanceof Date && !Number.isNaN(examDate.getTime())) {
-                    // Không dùng toISOString() vì nó chuyển ngày qua UTC và có thể lùi một ngày.
-                    const year = examDate.getFullYear();
-                    const month = String(examDate.getMonth() + 1).padStart(2, '0');
-                    const day = String(examDate.getDate()).padStart(2, '0');
-                    selectedDate = `${year}-${month}-${day}`;
-                }
-            }
+            const savedDate = students.find(student => student.da_luu && student.ngay_kiem_tra)?.ngay_kiem_tra;
+            const savedDateKey = savedDate instanceof Date
+                ? `${savedDate.getFullYear()}-${String(savedDate.getMonth() + 1).padStart(2, '0')}-${String(savedDate.getDate()).padStart(2, '0')}`
+                : String(savedDate || '').slice(0, 10);
+            const selectedDate = Object.hasOwn(req.query, 'ngay_kiem_tra')
+                ? (isValidDateKey(req.query.ngay_kiem_tra) ? req.query.ngay_kiem_tra : '')
+                : (isValidDateKey(savedDateKey) ? savedDateKey : '');
 
             return res.render('glv/kiem-tra', {
                 title: 'Nhập điểm kiểm tra',
@@ -118,9 +117,9 @@ const KiemTraController = {
         const ngayKiemTra = req.body.ngay_kiem_tra || null; // Lấy ngày kiểm tra từ form gửi lên
         const scores = Array.isArray(req.body.scores) ? req.body.scores : [];
 
-        if (!yearId || !classId || !examNumber) {
+        if (!yearId || !classId || !examNumber || !isValidDateKey(ngayKiemTra)) {
             await logAction(req, `Lưu điểm kiểm tra thất bại: Thông tin bài kiểm tra, lớp hoặc niên khóa không hợp lệ (Lớp ID: ${req.body.id_lop}, Bài KT: ${req.body.bai_kiem_tra})`, 'Thất bại');
-            return res.status(400).send('Thông tin bài kiểm tra không hợp lệ.');
+            return res.status(400).send('Vui lòng chọn ngày kiểm tra hợp lệ.');
         }
 
         try {
@@ -167,19 +166,19 @@ const KiemTraController = {
         const examNumber = getId(req.body.bai_kiem_tra);
         const studentId = getId(req.body.id_tn);
         const rawScore = String(req.body.diem_so ?? '').trim();
-        const score = Number(rawScore);
         const examDate = req.body.ngay_kiem_tra || null;
 
-        if (!yearId || !classId || !examNumber || !studentId || !rawScore
-            || !Number.isFinite(score) || score < 0 || score > 10
-            || (examDate && !/^\d{4}-\d{2}-\d{2}$/.test(examDate))) {
+        const score = rawScore === '' ? null : Number(rawScore);
+        if (!yearId || !classId || !examNumber || !studentId || !isValidDateKey(examDate)
+            || (score !== null && (!Number.isFinite(score) || score < 0 || score > 10))
+        ) {
             return res.status(400).json({ success: false, message: 'Thông tin điểm kiểm tra không hợp lệ.' });
         }
 
         try {
             await KiemTraModel.saveExamScores(
                 idGlv, yearId, classId, examNumber,
-                [{ id_tn: studentId, diem_so: score }],
+                [{ id_tn: studentId, diem_so: rawScore }],
                 examDate,
                 false
             );

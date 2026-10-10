@@ -6,10 +6,10 @@
         totalItems: Math.max(typeof totalItems === 'undefined' ? 0 : Number(totalItems) || 0, 0),
         pageSize: Math.max(typeof pageSize === 'undefined' ? 20 : Number(pageSize) || 20, 1),
         rows: typeof rows === 'undefined' ? '' : rows,
-        groups: typeof groups === 'undefined' ? '' : groups
+        groups: typeof groups === 'undefined' ? '' : groups,
+        rowGroupAttribute: typeof rowGroupAttribute === 'undefined' ? '' : rowGroupAttribute
     };
 %>
-<link rel="stylesheet" href="/css/pagination.css">
 <nav
     class="shared-pagination"
     data-pagination

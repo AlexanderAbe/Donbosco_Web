@@ -99,10 +99,14 @@ const KyLuatModel = {
             const allowedIds = new Set(studentResult.rows.map(row => String(row.id_tn)));
 
             const validScores = [];
+            const studentsToClear = [];
             for (const item of (fillMissing ? [] : scores)) {
                 if (!allowedIds.has(String(item.id_tn))) continue;
                 const rawScore = String(item.diem ?? '').trim();
-                if (rawScore === '') continue;
+                if (rawScore === '') {
+                    studentsToClear.push(Number(item.id_tn));
+                    continue;
+                }
                 const score = Number(rawScore);
                 if (!Number.isFinite(score) || score < 0 || score > 10) {
                     throw new Error('Điểm kỷ luật phải nằm trong khoảng từ 0 đến 10.');
@@ -118,6 +122,14 @@ const KyLuatModel = {
                     DO UPDATE SET diem = EXCLUDED.diem
                 `, [month, yearId, JSON.stringify(validScores)]);
             }
+            const clearedScores = studentsToClear.length
+                ? await client.query(`
+                    DELETE FROM DIEM_KY_LUAT
+                    WHERE id_tn = ANY($1::int[])
+                      AND id_cau_hinh_nam_hoc = $2
+                      AND thang = $3
+                `, [studentsToClear, yearId, month])
+                : { rowCount: 0 };
             if (fillMissing) {
                 await client.query(`
                     INSERT INTO DIEM_KY_LUAT (thang, diem, id_tn, id_cau_hinh_nam_hoc)
@@ -135,7 +147,7 @@ const KyLuatModel = {
                     ON CONFLICT (id_tn, id_cau_hinh_nam_hoc, thang) DO NOTHING
                 `, [month, yearId, classId]);
             }
-            if (validScores.length || fillMissing) {
+            if (validScores.length || clearedScores.rowCount || fillMissing) {
                 await client.query(`
                     UPDATE TONG_KET_NAM_HOC
                     SET tinh_trang = NULL

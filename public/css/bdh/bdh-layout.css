@@ -16,6 +16,17 @@ body {
     color: var(--text-main);
 }
 
+body.bdh-layout-page {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+body.bdh-layout-page > .main-container {
+    flex: 1 0 auto;
+    display: flow-root;
+}
+
 /* --- HEADER --- */
 .bdh-header {
     position: fixed;
@@ -225,7 +236,6 @@ body {
     margin-top: 60px;
     margin-left: var(--sidebar-width);
     padding: 24px;
-    min-height: calc(100vh - 60px);
     box-sizing: border-box;
     transition: margin-left 0.3s ease-in-out, margin-top 0.3s ease;
 }
@@ -417,7 +427,6 @@ body {
 
     .main-container {
         margin-top: 90px;
-        min-height: calc(100vh - 90px);
     }
 }
 
@@ -559,6 +568,5 @@ body {
 
     .main-container {
         margin-top: 90px;
-        min-height: calc(100vh - 90px);
     }
 }

@@ -123,10 +123,14 @@ const KiemTraModel = {
             const allowedIds = new Set(studentIds.rows.map(row => String(row.id_tn)));
 
             const validScores = [];
+            const studentsToClear = [];
             for (const item of (fillMissing ? [] : scores)) {
                 if (!allowedIds.has(String(item.id_tn))) continue;
                 const rawScore = String(item.diem_so ?? '').trim();
-                if (rawScore === '') continue;
+                if (rawScore === '') {
+                    studentsToClear.push(Number(item.id_tn));
+                    continue;
+                }
                 const score = Number(rawScore);
                 if (!Number.isFinite(score) || score < 0 || score > 10) {
                     throw new Error('Điểm phải nằm trong khoảng từ 0 đến 10.');
@@ -148,6 +152,14 @@ const KiemTraModel = {
                         ngay_kiem_tra = EXCLUDED.ngay_kiem_tra
                 `, [examNumber, parsedDate, yearId, JSON.stringify(validScores)]);
             }
+            const clearedScores = studentsToClear.length
+                ? await client.query(`
+                    DELETE FROM DIEM_HOC_TAP
+                    WHERE id_tn = ANY($1::int[])
+                      AND id_cau_hinh_nam_hoc = $2
+                      AND stt_bai_ktra = $3
+                `, [studentsToClear, yearId, examNumber])
+                : { rowCount: 0 };
             if (fillMissing) {
                 await client.query(`
                     INSERT INTO DIEM_HOC_TAP (stt_bai_ktra, diem_so, ngay_kiem_tra, id_tn, id_cau_hinh_nam_hoc)
@@ -165,7 +177,7 @@ const KiemTraModel = {
                     ON CONFLICT (id_tn, id_cau_hinh_nam_hoc, stt_bai_ktra) DO NOTHING
                 `, [examNumber, ngayKiemTra || null, yearId, classId]);
             }
-            if (validScores.length || fillMissing) {
+            if (validScores.length || clearedScores.rowCount || fillMissing) {
                 await client.query(`
                     UPDATE TONG_KET_NAM_HOC
                     SET tinh_trang = NULL

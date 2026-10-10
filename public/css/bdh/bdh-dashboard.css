@@ -514,7 +514,6 @@ body {
   box-shadow: none;
   margin-top: 8px;
   overflow-x: auto;
-  overflow-y: hidden;
   -webkit-overflow-scrolling: touch;
   scrollbar-width: thin;
   scrollbar-color: var(--primary-30) #f1f5f9;

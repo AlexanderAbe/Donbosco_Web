@@ -1,26 +1,29 @@
-<!-- Font Awesome CDN -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-
-<link rel="stylesheet" href="/css/reset.css">
-<link rel="stylesheet" href="/css/glv/glv-ky-luat.css">
-
-<main class="discipline-page">
-    <header class="class-header">
-        <span class="class-eyebrow"><i class="fa-solid fa-layer-group"></i> Quản lý lớp học</span>
-        <h1>Điểm kỷ luật theo tháng</h1>
+<main class="min-h-screen bg-linear-to-br from-blue-50 via-slate-50 to-amber-50 text-slate-800 flex flex-col antialiased pb-16 [&_.search-hidden]:hidden!">
+    <header class="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-xs">
+        <div class="max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center gap-3">
+            <div class="w-10 h-10 rounded-xl bg-blue-600 flex items-center justify-center text-white shadow-md shadow-blue-500/20">
+                <i class="fa-solid fa-scale-balanced text-lg"></i>
+            </div>
+            <div>
+                <span class="glv-page-label text-sm font-semibold text-blue-600 block">Quản lý lớp học</span>
+                <h1 class="text-base sm:text-lg font-bold text-slate-900 leading-tight">Điểm kỷ luật theo tháng</h1>
+            </div>
+        </div>
     </header>
 
+    <div class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 flex flex-col gap-6">
     <% if (!classes.length) { %>
-        <div class="discipline-empty"><i class="fa-solid fa-triangle-exclamation"></i> Bạn chưa được phân công lớp trong niên khóa này.</div>
+        <div class="rounded-2xl border border-dashed border-slate-300 bg-white p-8 text-center text-slate-500 shadow-sm"><i class="fa-solid fa-triangle-exclamation mr-2 text-amber-500"></i> Bạn chưa được phân công lớp trong niên khóa này.</div>
     <% } else { %>
-        <form class="discipline-toolbar" method="GET" action="/glv/ky-luat">
-            <div class="discipline-field">
-                <label for="discipline-search"><i class="fa-solid fa-magnifying-glass"></i> Tìm kiếm thiếu nhi</label>
-                <input id="discipline-search" type="search" data-table-search="[data-discipline-row]" data-search-empty="#discipline-search-empty" placeholder="Tên hoặc mã số..." autocomplete="off">
+        <form class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm grid grid-cols-1 sm:grid-cols-2 gap-4 items-end" method="GET" action="/glv/ky-luat">
+            <div class="space-y-1.5">
+                <label for="discipline-search" class="text-xs font-bold uppercase tracking-wider text-slate-500 flex items-center gap-1.5"><i class="fa-solid fa-magnifying-glass text-blue-600"></i> Tìm kiếm thiếu nhi</label>
+                <input id="discipline-search" type="search" data-table-search="[data-discipline-row]" data-search-empty="#discipline-search-empty" placeholder="Tên hoặc mã số..." autocomplete="off"
+                    class="w-full px-3.5 py-2.5 text-sm bg-slate-50/50 border border-slate-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-600 transition-all">
             </div>
-            <div class="discipline-field">
-                <label for="discipline-month"><i class="fa-solid fa-calendar-days"></i> Tháng</label>
-                <select id="discipline-month" name="thang">
+            <div class="space-y-1.5">
+                <label for="discipline-month" class="text-xs font-bold uppercase tracking-wider text-slate-500 flex items-center gap-1.5"><i class="fa-solid fa-calendar-days text-blue-600"></i> Tháng</label>
+                <select id="discipline-month" name="thang" class="w-full px-3.5 py-2.5 text-sm bg-slate-50/50 border border-slate-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-600 transition-all font-medium">
                     <% for (let month = 1; month <= 12; month += 1) { %>
                         <option value="<%= month %>" <%= month === selectedMonth ? 'selected' : '' %>>Tháng <%= month %></option>
                     <% } %>
@@ -28,7 +31,7 @@
             </div>
         </form>
 
-        <form method="POST" action="/glv/ky-luat/save" id="discipline-score-form"
+        <form method="POST" action="/glv/ky-luat/save" id="discipline-score-form" class="flex flex-col gap-6 flex-1"
             data-save-url="/glv/ky-luat/entry-save"
             data-year-id="<%= selectedYearId %>"
             data-class-id="<%= selectedClassId %>"
@@ -37,46 +40,53 @@
             <input type="hidden" name="id_lop" value="<%= selectedClassId %>">
             <input type="hidden" name="thang" value="<%= selectedMonth %>">
             
-            <div class="discipline-summary">
-                <span><i class="fa-solid fa-circle-info"></i> <strong><%= classes.find(item => item.id_lop === selectedClassId)?.ten_lop %></strong> · Tháng <strong><%= selectedMonth %></strong></span>
-                <span class="discipline-save-status <%= students.length && students.every(student => student.da_luu) ? 'saved' : 'unsaved' %>" id="discipline-save-status">
-                    <i class="fa-solid <%= students.length && students.every(student => student.da_luu) ? 'fa-circle-check' : 'fa-clock' %>"></i>
-                    <span id="discipline-save-status-text"><%= students.length && students.every(student => student.da_luu) ? 'Đã lưu' : 'Chưa lưu' %></span>
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white px-5 py-4 rounded-2xl border border-slate-200/80 shadow-sm">
+                <div class="flex items-center gap-2 text-sm text-slate-600 flex-wrap">
+                    <span class="inline-flex items-center gap-2 bg-blue-50 text-blue-700 px-3 py-1 rounded-full font-semibold text-xs border border-blue-100">
+                        <i class="fa-solid fa-layer-group"></i> Lớp: <%= classes.find(item => item.id_lop === selectedClassId)?.ten_lop %>
+                    </span>
+                    <span class="inline-flex items-center gap-1.5 font-medium"><i class="fa-solid fa-calendar-days text-blue-500"></i> Tháng <strong class="text-slate-900"><%= selectedMonth %></strong></span>
+                </div>
+                <div class="flex items-center gap-3 w-full sm:w-auto justify-end flex-wrap">
+                <% const disciplineSavedCount = students.filter(student => student.da_luu).length; %>
+                <span class="inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-bold [&.saved]:bg-emerald-50 [&.saved]:text-emerald-700 [&.unsaved]:bg-slate-100 [&.unsaved]:text-slate-600 <%= students.length && disciplineSavedCount === students.length ? 'saved' : 'unsaved' %>" id="discipline-save-status">
+                    <i class="fa-solid <%= students.length && disciplineSavedCount === students.length ? 'fa-circle-check' : 'fa-clock' %>"></i>
+                    <span id="discipline-save-status-text">Đã lưu <%= disciplineSavedCount %>/<%= students.length %></span>
                 </span>
                 <button
-                    class="discipline-print-button"
+                    class="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl border border-slate-200 bg-white text-slate-700 hover:bg-slate-50 font-semibold text-sm transition-all shadow-xs disabled:opacity-50 disabled:cursor-not-allowed"
                     type="button"
                     id="print-discipline-year"
                     data-class-id="<%= selectedClassId || '' %>"
                     <%= !selectedClassId || !students.length ? 'disabled' : '' %>>
                     <i class="fa-solid fa-print"></i> In điểm kỷ luật
                 </button>
-                <button class="discipline-save-button" type="submit"><i class="fa-solid fa-floppy-disk"></i> Lưu điểm</button>
+                </div>
             </div>
 
             <% if (!students.length) { %>
-                <div class="discipline-empty"><i class="fa-solid fa-user-slash"></i> Lớp chưa có thiếu nhi.</div>
+                <div class="rounded-2xl border border-dashed border-slate-300 bg-white p-8 text-center text-slate-500"><i class="fa-solid fa-user-slash mr-2 text-slate-400"></i> Lớp chưa có thiếu nhi.</div>
             <% } else { %>
-                <div class="discipline-table-wrap">
-                    <table class="discipline-table">
-                        <thead>
-                            <tr>
-                                <th>STT</th>
-                                <th>Mã số</th>
-                                <th>Họ và tên</th>
-                                <th>Trạng thái</th>
-                                <th>Điểm kỷ luật</th>
+                <div class="overflow-x-auto rounded-2xl border border-slate-200 bg-white shadow-sm max-[600px]:overflow-visible max-[600px]:border-0 max-[600px]:bg-transparent max-[600px]:shadow-none">
+                    <table class="w-full min-w-180 border-collapse max-[600px]:min-w-0 max-[600px]:block">
+                        <thead class="max-[600px]:hidden">
+                            <tr class="bg-slate-50 text-[11px] font-bold uppercase tracking-wider text-slate-500">
+                                <th class="w-14 border-b border-slate-200 px-3.5 py-3 text-center">STT</th>
+                                <th class="border-b border-slate-200 px-3.5 py-3 text-left">Mã số</th>
+                                <th class="border-b border-slate-200 px-3.5 py-3 text-left">Họ và tên</th>
+                                <th class="border-b border-slate-200 px-3.5 py-3 text-left">Trạng thái</th>
+                                <th class="border-b border-slate-200 px-3.5 py-3 text-left">Điểm kỷ luật</th>
                             </tr>
                         </thead>
-                        <tbody>
+                        <tbody class="text-sm max-[600px]:block">
                             <% students.forEach((student, index) => { %>
-                                <tr data-discipline-row data-student-id="<%= student.id_tn %>" data-search="<%= `${student.mstn || ''} ${student.ten_thanh || ''} ${student.ho_va_ten_lot || ''} ${student.ten || ''}`.toLowerCase() %>">
-                                    <td><%= index + 1 %></td>
-                                    <td><%= student.mstn || '-' %></td>
-                                    <td><strong><%= [student.ten_thanh, student.ho_va_ten_lot, student.ten].filter(Boolean).join(' ') %></strong></td>
-                                    <td class="discipline-status <%= student.trang_thai === 'Đang học' ? '' : 'inactive' %>"><%= student.trang_thai %></td>
-                                    <td>
-                                        <input class="discipline-input" type="number" name="scores[<%= index %>][diem]" min="0" max="10" step="0.01" value="<%= student.diem ?? '' %>" placeholder="0">
+                                <tr data-discipline-row data-student-id="<%= student.id_tn %>" data-saved="<%= student.da_luu ? 'true' : 'false' %>" data-search="<%= `${student.mstn || ''} ${student.ten_thanh || ''} ${student.ho_va_ten_lot || ''} ${student.ten || ''}`.toLowerCase() %>" class="hover:bg-blue-50/50 max-[600px]:mb-3 max-[600px]:block max-[600px]:rounded-xl max-[600px]:border max-[600px]:border-slate-200 max-[600px]:bg-white max-[600px]:p-3">
+                                    <td class="border-b border-slate-100 px-3.5 py-3 text-center text-slate-400 max-[600px]:hidden"><%= index + 1 %></td>
+                                    <td class="border-b border-slate-100 px-3.5 py-3 max-[600px]:block max-[600px]:border-0 max-[600px]:px-0 max-[600px]:py-1"><span class="hidden text-xs font-medium text-slate-500 max-[600px]:inline">Mã số: </span><%= student.mstn || '-' %></td>
+                                    <td class="border-b border-slate-100 px-3.5 py-3 max-[600px]:block max-[600px]:border-0 max-[600px]:px-0 max-[600px]:py-1"><span class="hidden text-xs font-medium text-slate-500 max-[600px]:inline">Họ tên: </span><strong class="font-semibold text-slate-900"><%= [student.ten_thanh, student.ho_va_ten_lot, student.ten].filter(Boolean).join(' ') %></strong></td>
+                                    <td class="border-b border-slate-100 px-3.5 py-3 font-semibold <%= student.trang_thai === 'Đang học' ? 'text-emerald-700' : 'text-amber-700' %> max-[600px]:block max-[600px]:border-0 max-[600px]:px-0 max-[600px]:py-1"><span class="hidden font-medium text-slate-500 max-[600px]:inline">Trạng thái: </span><%= student.trang_thai %></td>
+                                    <td class="border-b border-slate-100 px-3.5 py-3 max-[600px]:block max-[600px]:border-0 max-[600px]:px-0 max-[600px]:pt-2"><span class="mb-1 hidden text-xs font-medium text-slate-500 max-[600px]:block">Điểm kỷ luật</span>
+                                        <input class="discipline-input w-full max-w-27.5 rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-center font-bold text-slate-800 focus:border-blue-600 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 max-[600px]:max-w-none max-[600px]:min-h-11" type="number" name="scores[<%= index %>][diem]" min="0" max="10" step="0.01" value="<%= student.diem ?? '' %>">
                                         <input type="hidden" name="scores[<%= index %>][id_tn]" value="<%= student.id_tn %>">
                                     </td>
                                 </tr>
@@ -85,7 +95,7 @@
                     </table>
                 </div>
             <% } %>
-            <div class="discipline-empty search-hidden" id="discipline-search-empty">Không tìm thấy thiếu nhi phù hợp.</div>
+            <div class="search-hidden rounded-2xl border border-dashed border-slate-300 bg-white p-8 text-center text-slate-500" id="discipline-search-empty">Không tìm thấy thiếu nhi phù hợp.</div>
         </form>
 
         <%- include('../partials/pagination', {
@@ -97,25 +107,26 @@
             rows: '[data-discipline-row]'
         }) %>
 
-        <dialog class="discipline-print-modal" id="discipline-print-modal" aria-labelledby="discipline-print-modal-title">
-            <div class="discipline-print-modal-heading">
+        <dialog class="m-auto max-h-[calc(100vh-2.5rem)] w-[calc(100vw-2rem)] max-w-115 rounded-2xl border-0 p-0 text-slate-800 shadow-2xl backdrop:bg-slate-900/60 backdrop:backdrop-blur-sm" id="discipline-print-modal" aria-labelledby="discipline-print-modal-title">
+            <div class="flex items-start justify-between gap-4 border-b border-slate-200 px-6 pb-4 pt-5">
                 <div>
-                    <span class="class-eyebrow">Điểm kỷ luật</span>
-                    <h2 id="discipline-print-modal-title">In điểm kỷ luật cả niên khóa</h2>
+                    <span class="text-[10px] font-extrabold uppercase tracking-widest text-blue-600">Điểm kỷ luật</span>
+                    <h2 class="mt-1 text-xl font-bold text-slate-900" id="discipline-print-modal-title">In điểm kỷ luật cả niên khóa</h2>
                 </div>
-                <button class="discipline-print-modal-close" type="button" data-close-discipline-print aria-label="Đóng">&times;</button>
+                <button class="rounded-full p-1 text-2xl leading-none text-slate-500 hover:bg-slate-100 hover:text-slate-800" type="button" data-close-discipline-print aria-label="Đóng">&times;</button>
             </div>
-            <div class="discipline-print-modal-content">
-                <p>Sẽ in toàn bộ điểm 12 tháng của lớp trong niên khóa <strong><%= academicYear %></strong>. Tháng được sắp xếp từ tháng 9 đến tháng 8.</p>
+            <div class="px-6 py-5 leading-relaxed text-slate-600">
+                <p class="m-0">Sẽ in toàn bộ điểm 12 tháng của lớp trong niên khóa <strong class="text-slate-900"><%= academicYear %></strong>. Tháng được sắp xếp từ tháng 9 đến tháng 8.</p>
             </div>
-            <div class="discipline-print-modal-actions">
-                <button class="discipline-print-modal-cancel" type="button" data-close-discipline-print>Hủy</button>
-                <button class="discipline-print-modal-confirm" type="button" id="confirm-discipline-print">
+            <div class="flex justify-end gap-3 border-t border-slate-200 px-6 py-4">
+                <button class="inline-flex min-h-10 items-center justify-center rounded-xl bg-slate-100 px-4 py-2 font-semibold text-slate-700 hover:bg-slate-200" type="button" data-close-discipline-print>Hủy</button>
+                <button class="inline-flex min-h-10 items-center justify-center gap-2 rounded-xl bg-blue-600 px-4 py-2 font-semibold text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60" type="button" id="confirm-discipline-print">
                     <i class="fa-solid fa-print"></i> Xác nhận in
                 </button>
             </div>
         </dialog>
     <% } %>
+</div>
 </main>
 
 <script src="/js/table-search.js" defer></script>

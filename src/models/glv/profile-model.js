@@ -17,28 +17,15 @@ const ProfileModel = {
         }
     },
 
-    // 2. Cập nhật thông tin cá nhân giáo lý viên
-    async updateGlvProfile(id_glv, data) {
+    // 2. Cập nhật số điện thoại giáo lý viên
+    async updateGlvPhone(id_glv, sdt) {
         try {
             const query = `
                 UPDATE GLV 
-                SET ten_thanh = $1, 
-                    ho_va_ten_lot = $2, 
-                    ten = $3, 
-                    ngay_sinh = $4, 
-                    gioi_tinh = $5, 
-                    sdt = $6
-                WHERE id_glv = $7
+                SET sdt = $1
+                WHERE id_glv = $2
             `;
-            const values = [
-                data.ten_thanh,
-                data.ho_va_ten_lot,
-                data.ten,
-                data.ngay_sinh,
-                data.gioi_tinh,
-                data.sdt,
-                id_glv
-            ];
+            const values = [sdt, id_glv];
             
             await pool.query(query, values);
             return true;

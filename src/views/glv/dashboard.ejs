@@ -1,7 +1,4 @@
-<link rel="stylesheet" href="/css/reset.css">
-<link rel="stylesheet" href="/css/glv/glv-dashboard.css">
-
-<main class="dashboard-page">
+<main class="glv-dashboard">
 	<header class="dashboard-hero">
 		<div>
 			<h1>Xin chào, <%= [user.ten_thanh, user.ten].filter(Boolean).join(' ') || 'Giáo lý viên' %></h1>
@@ -38,7 +35,7 @@
 					</div>
 				</div>
 				<div class="stat-card">
-					<div class="stat-icon"><i class="fa-solid fa-mars" style="color: #4a90e2;"></i></div>
+					<div class="stat-icon"><i class="fa-solid fa-mars text-sky-500"></i></div>
 					<div class="stat-info">
 						<h3>Nam</h3>
 						<p class="stat-number"><%= stats.maleCount %></p>
@@ -46,7 +43,7 @@
 					</div>
 				</div>
 				<div class="stat-card">
-					<div class="stat-icon"><i class="fa-solid fa-venus" style="color: #e24a4a;"></i></div>
+					<div class="stat-icon"><i class="fa-solid fa-venus text-rose-500"></i></div>
 					<div class="stat-info">
 						<h3>Nữ</h3>
 						<p class="stat-number"><%= stats.femaleCount %></p>

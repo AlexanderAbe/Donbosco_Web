@@ -1,105 +1,54 @@
-/* 1. Thiết lập box-sizing toàn cục để dễ quản lý kích thước phần tử */
-*, *::before, *::after {
-    box-sizing: border-box;
+@layer base {
+    /* 1. Thiết lập box-sizing toàn cục */
+    *, *::before, *::after {
+        box-sizing: border-box;
+    }
+
+    /* 2. Xóa margin/padding cơ bản nhưng giữ nguyên font để không bị lỗi font chữ */
+    body, h1, h2, h3, h4, h5, h6, p, blockquote, pre,
+    dl, dd, ol, ul, figure, hr, fieldset, legend {
+        margin: 0;
+        padding: 0;
+    }
+
+    /* 3. Thiết lập chiều cao dòng và font mượt mà cho body */
+    body {
+        line-height: 1.5;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+        font-family: 'Inter', sans-serif; /* Đảm bảo font chủ đạo của bạn */
+    }
+
+    /* 4. Loại bỏ dấu chấm danh sách mặc định */
+    ol, ul {
+        list-style: none;
+    }
+
+    /* 5. Đảm bảo hình ảnh và đa phương tiện co giãn tốt */
+    img, picture, video, canvas, svg {
+        display: block;
+        max-width: 100%;
+        height: auto;
+    }
+
+    /* 6. Thiết lập liên kết mặc định */
+    a {
+        text-decoration: none;
+        color: inherit;
+    }
+
+    /* Ẩn thanh cuộn toàn cục nếu bạn muốn giữ thiết kế tối giản */
+    ::-webkit-scrollbar {
+        display: none;
+        width: 0px;
+        background: transparent;
+    }
+    * {
+        scrollbar-width: none;
+        -ms-overflow-style: none;
+    }
 }
 
-/* 2. Xóa bỏ margin, padding và border mặc định của tất cả thẻ */
-html, body, div, span, applet, object, iframe,
-h1, h2, h3, h4, h5, h6, p, blockquote, pre,
-a, abbr, acronym, address, big, cite, code,
-del, dfn, em, img, ins, kbd, q, s, samp,
-small, strike, strong, sub, sup, tt, var,
-b, u, i, center,
-dl, dt, dd, ol, ul, li,
-fieldset, form, label, legend,
-table, caption, tbody, tfoot, thead, tr, th, td,
-article, aside, canvas, details, embed, 
-figure, figcaption, footer, header, 
-menu, nav, output, ruby, section, summary,
-time, mark, audio, video {
-    margin: 0;
-    padding: 0;
-    border: 0;
-    font-size: 100%;
-    font: inherit;
-    vertical-align: baseline;
-}
-
-/* 3. Đảm bảo các thẻ HTML5 hiển thị dạng block đúng chuẩn */
-article, aside, details, figcaption, figure, 
-footer, header, menu, nav, section {
-    display: block;
-}
-
-/* 4. Thiết lập chiều cao dòng cơ bản và làm mịn font chữ */
-body {
-    line-height: 1.5;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-}
-
-/* 5. Loại bỏ dấu chấm/số thứ tự mặc định của danh sách */
-ol, ul {
-    list-style: none;
-}
-
-/* 6. Xử lý trích dẫn */
-blockquote, q {
-    quotes: none;
-}
-blockquote:before, blockquote:after,
-q:before, q:after {
-    content: '';
-    content: none;
-}
-
-/* 7. Thiết lập bảng không bị giãn khoảng trắng thừa */
-table {
-    border-collapse: collapse;
-    border-spacing: 0;
-}
-
-/* 8. Đảm bảo hình ảnh và các tệp đa phương tiện không vượt quá kích thước chứa */
-img, picture, video, canvas, svg {
-    display: block;
-    max-width: 100%;
-    height: auto;
-}
-
-/* 9. Kế thừa font chữ cho các thẻ form (input, button, select, textarea) */
-input, button, textarea, select {
-    font: inherit;
-    color: inherit;
-}
-
-/* 10. Xóa bỏ gạch chân và màu mặc định của thẻ a */
-a {
-    text-decoration: none;
-    color: inherit;
-}
-
-/* 11. Loại bỏ viền focus mặc định của trình duyệt (có thể tùy chỉnh lại sau) */
-button, input, select, textarea {
-    outline: none;
-}
-
-/* Ẩn thanh cuộn cho trình duyệt Chrome, Safari, Edge và Opera */
-::-webkit-scrollbar {
-    display: none;
-    width: 0px;
-    background: transparent;
-}
-
-/* Ẩn thanh cuộn cho trình duyệt Firefox */
-* {
-    scrollbar-width: none;
-}
-
-/* Ẩn thanh cuộn cho IE và Edge cũ */
-* {
-    -ms-overflow-style: none;
-}
-/* Shared client-side list filtering visibility state. */
 .search-hidden {
     display: none !important;
 }

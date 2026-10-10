@@ -1,75 +1,124 @@
-<link rel="stylesheet" href="/css/reset.css">
-<link rel="stylesheet" href="/css/glv/glv-profile.css">
+<main class="flex-1 overflow-y-auto p-4 sm:p-8">
+    <div class="profile-container mx-auto max-w-4xl space-y-6">
+        <header>
+            <h1 class="text-3xl font-bold text-gray-900">Hồ Sơ Cá Nhân</h1>
+            <p class="mt-1 text-sm text-gray-500">Quản lý thông tin liên lạc và xem thông tin hồ sơ của bạn.</p>
+        </header>
 
-<div class="profile-container">
-    <div class="profile-header">
-        <h1>Hồ Sơ Cá Nhân</h1>
-    </div>
-
-    <div class="profile-card">
-        <form action="/glv/profile/update" method="POST" class="profile-form">
-            
-            <!-- ID Giáo lý viên (Read-only) -->
-            <div class="profile-group">
-                <label for="id_glv">ID Giáo lý viên (Chỉ đọc)</label>
-                <input type="text" id="id_glv" value="#<%= glv.id_glv %>" readonly />
-            </div>
-
-            <div class="profile-grid-2">
-                <!-- Tên thánh -->
-                <div class="profile-group">
-                    <label for="ten_thanh">Tên Thánh</label>
-                    <input type="text" id="ten_thanh" name="ten_thanh" value="<%= glv.ten_thanh || '' %>" readonly />
+        <% if (success || error) { %>
+            <% if (success) { %>
+                <div class="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800" role="status">
+                    <%= success || '' %>
                 </div>
+            <% } %>
+            <% if (error) { %>
+                <div class="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800" role="alert">
+                    <%= error || '' %>
+                </div>
+            <% } %>
+        <% } %>
 
-                <!-- Giới tính (Chuyển thành readonly bằng input text) -->
-                <div class="profile-group">
-                    <label for="gioi_tinh">Giới tính</label>
-                    <input type="text" id="gioi_tinh" name="gioi_tinh" value="<%= glv.gioi_tinh || '' %>" readonly />
+        <div class="flex flex-col gap-8">
+        <section class="rounded-2xl border border-gray-200 bg-white shadow-sm" aria-label="Tóm tắt hồ sơ">
+            <div class="relative h-36 rounded-t-2xl bg-linear-to-r from-blue-600 via-indigo-600 to-sky-400">
+                <div class="absolute inset-0 bg-[radial-gradient(#fff_1px,transparent_1px)] bg-size-[16px_16px] opacity-10"></div>
+                <div class="absolute left-6 top-full z-10 flex h-20 w-20 -translate-y-1/2 select-none items-center justify-center rounded-2xl bg-linear-to-tr from-blue-600 to-indigo-500 text-4xl font-bold tracking-wider text-white shadow-md ring-4 ring-white">
+                    <%= glv.ten %>
                 </div>
             </div>
+            <div class="relative px-6 pb-0 pt-4">
+                <div class="flex flex-col justify-between gap-4 sm:flex-row sm:items-start">
+                    <div class="flex min-w-0 items-start gap-4">
+                        <div class="h-20 w-20 shrink-0" aria-hidden="true"></div>
+                        <div class="mb-1 pt-1 sm:-translate-y-4 sm:pt-0">
+                            <div class="flex flex-col gap-4 sm:flex-row sm:items-center">
+                                <h3 class="text-xl font-bold text-gray-900 sm:text-2xl">
+                                    <%= [glv.ten_thanh || '', glv.ho_va_ten_lot || '', glv.ten || ''].filter(Boolean).join(' ') || 'Giáo lý viên' %>
+                                </h3>
+                                <span class="inline-flex w-fit items-center gap-2 rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-xs font-medium text-emerald-700">
+                                    <span class="h-2 w-2 animate-pulse rounded-full bg-emerald-500"></span>
+                                    Đang hoạt động
+                                </span>
+                            </div>
+                        </div>
+                    </div>
 
-            <div class="profile-grid-2">
-                <!-- Họ và tên lót -->
-                <div class="profile-group">
-                    <label for="ho_va_ten_lot">Họ và tên lót</label>
-                    <input type="text" id="ho_va_ten_lot" name="ho_va_ten_lot" value="<%= glv.ho_va_ten_lot || '' %>" readonly />
-                </div>
-
-                <!-- Tên -->
-                <div class="profile-group">
-                    <label for="ten">Tên</label>
-                    <input type="text" id="ten" name="ten" value="<%= glv.ten || '' %>" readonly />
-                </div>
-            </div>
-
-            <div class="profile-grid-2">
-                <!-- Ngày sinh -->
-                <div class="profile-group">
-                    <label for="ngay_sinh">Ngày sinh</label>
-                    <input type="date" id="ngay_sinh" name="ngay_sinh" value="<%= glv.ngay_sinh_formatted || '' %>" readonly />
-                </div>
-
-                <!-- Số điện thoại (Được phép đổi tự do) -->
-                <div class="profile-group">
-                    <label for="sdt">Số điện thoại</label>
-                    <input type="tel" id="sdt" name="sdt" value="<%= glv.sdt || '' %>" required />
+                    <!-- Notice Badge -->
+                    <div class="bg-amber-50 border border-amber-200/80 px-4 py-2 rounded-xl text-xs text-amber-800 flex items-center space-x-2 sm:-translate-y-4">
+                        <i class="fa-solid fa-shield-halved text-amber-600"></i>
+                        <span>Chỉ được phép cập nhật Số điện thoại cá nhân</span>
+                    </div>
                 </div>
             </div>
+        </section>
 
-            <!-- Trạng thái (Read-only) -->
-            <div class="profile-group">
-                <label for="trang_thai">Trạng thái hoạt động</label>
-                <input type="text" id="trang_thai" value="<%= glv.trang_thai || 'Đang hoạt động' %>" readonly />
-            </div>
+        <form action="/glv/profile/update" method="POST" class="space-y-6">
+            <section class="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm sm:p-8" aria-labelledby="identity-heading">
+                <div class="mb-5 flex flex-wrap items-center justify-between gap-3">
+                    <div>
+                        <h2 id="identity-heading" class="text-lg font-bold text-gray-900">
+                            <i class="fa-solid fa-id-card mr-2 text-blue-600" aria-hidden="true"></i>
+                            Thông tin cá nhân
+                        </h2>
+                    </div>
+                </div>
 
-            <!-- Nút thao tác -->
-            <div class="profile-action">
-                <button type="submit" class="btn-save-profile">
-                    <i class="fa-solid fa-floppy-disk"></i> Lưu thay đổi
-                </button>
-            </div>
-
+                <div class="grid grid-cols-1 gap-5 sm:grid-cols-2">
+                    <div>
+                        <label for="profile-ten-thanh" class="mb-1.5 block text-xs font-semibold text-gray-600">Tên thánh</label>
+                        <div class="relative">
+                            <input id="profile-ten-thanh" type="text" value="<%= glv.ten_thanh || '' %>" disabled class="w-full cursor-not-allowed rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 pr-11 text-sm text-gray-700 disabled:opacity-100">
+                            <i class="fa-solid fa-lock pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-xs text-gray-400" aria-hidden="true"></i>
+                        </div>
+                    </div>
+                    <div>
+                        <label for="profile-gioi-tinh" class="mb-1.5 block text-xs font-semibold text-gray-600">Giới tính</label>
+                        <div class="relative">
+                            <input id="profile-gioi-tinh" type="text" value="<%= glv.gioi_tinh || '' %>" disabled class="w-full cursor-not-allowed rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 pr-11 text-sm text-gray-700 disabled:opacity-100">
+                            <i class="fa-solid fa-lock pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-xs text-gray-400" aria-hidden="true"></i>
+                        </div>
+                    </div>
+                    <div>
+                        <label for="profile-ho-va-ten-lot" class="mb-1.5 block text-xs font-semibold text-gray-600">Họ và tên lót</label>
+                        <div class="relative">
+                            <input id="profile-ho-va-ten-lot" type="text" value="<%= glv.ho_va_ten_lot || '' %>" disabled class="w-full cursor-not-allowed rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 pr-11 text-sm text-gray-700 disabled:opacity-100">
+                            <i class="fa-solid fa-lock pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-xs text-gray-400" aria-hidden="true"></i>
+                        </div>
+                    </div>
+                    <div>
+                        <label for="profile-ten" class="mb-1.5 block text-xs font-semibold text-gray-600">Tên</label>
+                        <div class="relative">
+                            <input id="profile-ten" type="text" value="<%= glv.ten || '' %>" disabled class="w-full cursor-not-allowed rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 pr-11 text-sm text-gray-700 disabled:opacity-100">
+                            <i class="fa-solid fa-lock pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-xs text-gray-400" aria-hidden="true"></i>
+                        </div>
+                    </div>
+                    <div>
+                        <label for="profile-ngay-sinh" class="mb-1.5 block text-xs font-semibold text-gray-600">Ngày sinh</label>
+                        <div class="relative">
+                            <% const ngaySinh = String(glv.ngay_sinh_formatted || glv.ngay_sinh || ''); const ngaySinhParts = ngaySinh.match(/^(\d{4})-(\d{2})-(\d{2})/); %>
+                            <input id="profile-ngay-sinh" type="text" value="<%= ngaySinhParts ? `${ngaySinhParts[3]}/${ngaySinhParts[2]}/${ngaySinhParts[1]}` : ngaySinh %>" disabled class="w-full cursor-not-allowed rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 pr-11 text-sm text-gray-700 disabled:opacity-100">
+                            <i class="fa-solid fa-lock pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-xs text-gray-400" aria-hidden="true"></i>
+                        </div>
+                    </div>
+                    <div class="rounded-2xl border border-blue-100 bg-linear-to-br from-blue-50/60 to-indigo-50/30 p-5 sm:p-6">
+                        <label for="sdt" class="mb-2 block text-sm font-semibold text-gray-800">
+                            Số điện thoại <span class="text-red-600" aria-hidden="true">*</span>
+                        </label>
+                        <div class="relative">
+                            <i class="fa-solid fa-phone pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-sm text-blue-600" aria-hidden="true"></i>
+                            <input type="tel" id="sdt" name="sdt" value="<%= glv.sdt || '' %>" autocomplete="tel" inputmode="tel" maxlength="15" required aria-required="true" class="w-full rounded-xl border border-blue-200 bg-white py-3 pl-11 pr-4 text-sm text-gray-900 shadow-sm outline-none transition placeholder:text-gray-400 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/15">
+                        </div>
+                        <p class="mt-2 text-xs text-gray-500">Chỉ số điện thoại cá nhân có thể được chỉnh sửa tại đây.</p>
+                    </div>
+                </div>
+                <div class="mt-6 flex justify-end border-t border-gray-100 pt-5">
+                    <button type="submit" class="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-blue-600 px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700 focus:outline-none focus:ring-4 focus:ring-blue-500/25 sm:w-auto">
+                        <i class="fa-solid fa-floppy-disk" aria-hidden="true"></i>
+                        Lưu số điện thoại
+                    </button>
+                </div>
+            </section>
         </form>
+        </div>
     </div>
-</div>
+</main>

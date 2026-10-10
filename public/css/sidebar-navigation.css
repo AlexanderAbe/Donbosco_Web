@@ -6,6 +6,34 @@
     box-shadow: 0 10px 30px rgba(15, 23, 42, 0.06);
 }
 
+.glv-sidebar {
+    --sidebar-accent: #2563eb;
+    --sidebar-accent-hover: #1d4ed8;
+    --sidebar-accent-soft: #eff6ff;
+    --sidebar-accent-icon: #dbeafe;
+}
+
+.admin-sidebar {
+    --sidebar-accent: #16a34a;
+    --sidebar-accent-hover: #15803d;
+    --sidebar-accent-soft: #dcfce7;
+    --sidebar-accent-icon: #bbf7d0;
+}
+
+.bdh-sidebar {
+    --sidebar-accent: #ef4444;
+    --sidebar-accent-hover: #d01818;
+    --sidebar-accent-soft: #fee2e2;
+    --sidebar-accent-icon: #fecaca;
+}
+
+.tk-sidebar {
+    --sidebar-accent: #d97706;
+    --sidebar-accent-hover: #b45309;
+    --sidebar-accent-soft: #fef3c7;
+    --sidebar-accent-icon: #fde68a;
+}
+
 .sidebar-main {
     flex: 1;
     min-height: 0;
@@ -69,7 +97,7 @@
     width: 3px;
     height: 0;
     border-radius: 0 3px 3px 0;
-    background: #2563eb;
+    background: var(--sidebar-accent, #2563eb);
     content: "";
     transform: translateY(-50%);
     transition: height 180ms ease;
@@ -77,20 +105,20 @@
 
 .menu-link:hover,
 .dropdown-toggle:hover {
-    background: #f8fafc;
-    color: #334155;
+    background: var(--sidebar-accent-soft, #f8fafc);
+    color: var(--sidebar-accent-hover, #334155);
 }
 
 .menu-link:hover > span:first-child > i,
 .dropdown-toggle:hover > span:first-child > i {
-    color: #64748b;
+    color: var(--sidebar-accent-hover, #64748b);
 }
 
 .menu-item.active > .menu-link,
 .menu-item.active > .dropdown-toggle,
 .menu-link.is-active {
-    background: #eff6ff;
-    color: #2563eb;
+    background: var(--sidebar-accent-soft, #eff6ff);
+    color: var(--sidebar-accent, #2563eb);
 }
 
 .menu-item.active > .menu-link::before,
@@ -102,7 +130,7 @@
 .menu-item.active > .menu-link > span:first-child > i,
 .menu-item.active > .dropdown-toggle > span:first-child > i,
 .menu-link.is-active > span:first-child > i {
-    color: #2563eb;
+    color: var(--sidebar-accent, #2563eb);
 }
 
 .submenu {
@@ -120,8 +148,8 @@
 
 .submenu li a:hover,
 .submenu li a.is-active {
-    background: #f1f5f9;
-    color: #2563eb;
+    background: var(--sidebar-accent-soft, #eff6ff);
+    color: var(--sidebar-accent-hover, #2563eb);
 }
 
 .arrow-icon {
@@ -130,7 +158,7 @@
 }
 
 .menu-item.active .arrow-icon {
-    color: #2563eb;
+    color: var(--sidebar-accent, #2563eb);
 }
 
 .sidebar-footer {
@@ -175,14 +203,22 @@
     color: #475569;
 }
 
+.logout-btn {
+    color: #e11d48;
+}
+
+.logout-btn .sidebar-btn-icon {
+    color: #e11d48;
+}
+
 .password-btn:hover {
-    background: #eff6ff;
-    color: #2563eb;
+    background: var(--sidebar-accent-soft, #eff6ff);
+    color: var(--sidebar-accent-hover, #2563eb);
 }
 
 .password-btn:hover .sidebar-btn-icon {
-    background: #dbeafe;
-    color: #2563eb;
+    background: var(--sidebar-accent-icon, #dbeafe);
+    color: var(--sidebar-accent-hover, #2563eb);
 }
 
 .logout-btn:hover {

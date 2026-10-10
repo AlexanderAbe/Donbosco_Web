@@ -6,13 +6,25 @@
 
     const pendingSaves = new Set();
     const studentSaves = new Map();
-    let resumeSubmit = false;
-
+    const saveErrors = new Map();
+    const studentRows = [...form.querySelectorAll('[data-student-id][data-saved]')];
+    const totalStudents = new Set(studentRows.map(row => row.dataset.studentId)).size;
+    const savedStudents = new Set(studentRows
+        .filter(row => row.dataset.saved === 'true')
+        .map(row => row.dataset.studentId));
+    const updateStudentSaved = (studentId, saved) => {
+        form.querySelectorAll('[data-student-id]').forEach(row => {
+            if (row.dataset.studentId === studentId) row.dataset.saved = String(saved);
+        });
+        if (saved) savedStudents.add(studentId);
+        else savedStudents.delete(studentId);
+    };
     const setStatus = (text, saved) => {
-        saveStatus.classList.toggle('is-saved', saved);
-        saveStatus.classList.toggle('is-unsaved', !saved);
-        saveStatus.querySelector('i').className = `fa-solid ${saved ? 'fa-circle-check' : 'fa-clock'}`;
-        saveStatusText.textContent = text;
+        const isFullySaved = saved && savedStudents.size === totalStudents;
+        saveStatus.classList.toggle('is-saved', isFullySaved);
+        saveStatus.classList.toggle('is-unsaved', !isFullySaved);
+        saveStatus.querySelector('i').className = `fa-solid ${isFullySaved ? 'fa-circle-check' : 'fa-clock'}`;
+        saveStatusText.textContent = `${text} · Đã lưu ${savedStudents.size}/${totalStudents}`;
     };
 
     form.querySelectorAll('.attendance-options input[type="radio"]').forEach(input => {
@@ -42,31 +54,43 @@
                 if (!response.ok || !result.success) {
                     throw new Error(result.message || 'Không thể lưu điểm danh.');
                 }
-                if (studentSaves.get(studentId) === currentSave) setStatus('Đã lưu thay đổi', true);
+                updateStudentSaved(studentId, true);
+                if (studentSaves.get(studentId) === currentSave) {
+                    saveErrors.delete(studentId);
+                    setStatus('Đã lưu', true);
+                }
             }).catch(error => {
+                saveErrors.set(studentId, error);
                 setStatus(error.message || 'Lỗi lưu điểm danh', false);
+                throw error;
             }).finally(() => {
                 pendingSaves.delete(currentSave);
                 if (studentSaves.get(studentId) === currentSave) studentSaves.delete(studentId);
             });
 
+            currentSave.catch(() => {});
             studentSaves.set(studentId, currentSave);
             pendingSaves.add(currentSave);
         });
     });
 
     form.addEventListener('submit', event => {
-        if (resumeSubmit) {
-            resumeSubmit = false;
-            return;
-        }
-        if (!pendingSaves.size) return;
-
         event.preventDefault();
-        const submitter = event.submitter;
+    });
+
+    const filterForm = document.getElementById('attendance-filter');
+    filterForm?.addEventListener('submit', event => {
+        if (!pendingSaves.size && !saveErrors.size) return;
+        event.preventDefault();
         Promise.all([...pendingSaves]).then(() => {
-            resumeSubmit = true;
-            form.requestSubmit(submitter || undefined);
+            if (saveErrors.size) {
+                const error = saveErrors.values().next().value;
+                setStatus(error.message || 'Không thể lưu điểm danh.', false);
+                return;
+            }
+            filterForm.submit();
+        }).catch(error => {
+            setStatus(error.message || 'Không thể lưu điểm danh trước khi chuyển ngày hoặc lớp.', false);
         });
     });
 })();
@@ -115,7 +139,7 @@
         printDocument.body.className = 'attendance-print-body';
         const stylesheet = printDocument.createElement('link');
         stylesheet.rel = 'stylesheet';
-        stylesheet.href = '/css/glv/glv-diem-danh.css';
+        stylesheet.href = '/css/output.css';
 
         const main = printDocument.createElement('main');
         main.className = 'attendance-print-document';
@@ -253,12 +277,9 @@
 
 (() => {
     const type = document.getElementById('attendance-type');
-    const date = document.getElementById('attendance-date');
     const filter = document.getElementById('attendance-filter');
     const classSelect = document.getElementById('attendance-class');
-    const targetDays = { 'Lễ Thứ 3': 2, 'Lễ Thứ 5': 4, 'Lễ Chúa Nhật': 0, 'Học Giáo Lý': 0 };
-    const smartDate = sessionType => { const current = new Date(); current.setDate(current.getDate() - ((current.getDay() - targetDays[sessionType] + 7) % 7)); return `${current.getFullYear()}-${String(current.getMonth() + 1).padStart(2, '0')}-${String(current.getDate()).padStart(2, '0')}`; };
-    type?.addEventListener('change', () => { date.value = smartDate(type.value); filter.submit(); });
-    date?.addEventListener('change', () => { filter.submit(); });
+    type?.addEventListener('change', () => { filter.submit(); });
+    document.getElementById('attendance-date')?.addEventListener('change', () => { filter.submit(); });
     classSelect?.addEventListener('change', () => { filter.submit(); });
 })();

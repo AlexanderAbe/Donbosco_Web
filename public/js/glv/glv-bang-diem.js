@@ -48,7 +48,7 @@
                 printDocument.body.className = 'score-print-body';
                 const stylesheet = printDocument.createElement('link');
                 stylesheet.rel = 'stylesheet';
-                stylesheet.href = '/css/glv/glv-bang-diem.css';
+                stylesheet.href = '/css/output.css';
 
                 const printMain = printDocument.createElement('main');
                 printMain.className = 'score-print-document';

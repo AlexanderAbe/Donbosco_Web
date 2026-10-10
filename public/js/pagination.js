@@ -146,11 +146,24 @@
         const render = () => {
             if (config.mode === 'client') {
                 filteredRows = rows.filter(visibleToFilter);
-                config.totalItems = filteredRows.length;
+                const paginationItems = config.rowGroupAttribute
+                    ? [...filteredRows.reduce((groupedRows, row) => {
+                        const key = row.getAttribute(config.rowGroupAttribute) || row;
+                        const matchingRows = groupedRows.get(key) || [];
+                        matchingRows.push(row);
+                        groupedRows.set(key, matchingRows);
+                        return groupedRows;
+                    }, new Map()).values()]
+                    : filteredRows.map(row => [row]);
+                config.totalItems = paginationItems.length;
                 config.totalPages = Math.max(Math.ceil(config.totalItems / config.pageSize), 1);
                 currentPage = Math.min(currentPage, config.totalPages);
                 const firstVisibleIndex = (currentPage - 1) * config.pageSize;
-                const visiblePageRows = new Set(filteredRows.slice(firstVisibleIndex, firstVisibleIndex + config.pageSize));
+                const visiblePageRows = new Set(
+                    paginationItems
+                        .slice(firstVisibleIndex, firstVisibleIndex + config.pageSize)
+                        .flat()
+                );
 
                 rows.forEach(row => {
                     row.classList.toggle('pagination-page-hidden', !visiblePageRows.has(row) && visibleToFilter(row));
