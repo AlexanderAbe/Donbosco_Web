@@ -95,7 +95,7 @@ app.get('/sitemap.xml', (req, res) => {
 
 // Trang chủ chuyển hướng về đăng nhập
 app.get('/', (req, res) => {
-    res.redirect('/auth/login');
+    res.redirect(301, '/auth/login');
 });
 
 // --- 6. QUAN TRỌNG: Dùng server.listen thay vì app.listen ---
