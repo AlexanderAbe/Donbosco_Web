@@ -1,6 +1,8 @@
 const express = require('express');
 const multer = require('multer');
 const router = express.Router();
+
+// Import Controllers
 const DashboardController = require('../controllers/bdh/dashboard-controller');
 const KhoiController = require('../controllers/bdh/khoi-controller');
 const LopController = require('../controllers/bdh/lop-controller');
@@ -12,10 +14,11 @@ const settingsController = require('../controllers/bdh/settings-controller');
 const BangDiemController = require('../controllers/bdh/bang-diem-controller');
 const ChuyenGiaoController = require('../controllers/bdh/chuyen-giao-controller');
 const ChuyenLopController = require('../controllers/bdh/chuyen-lop-controller');
+const ThiDuaController = require('../controllers/bdh/thi-dua-controller'); // Thêm Controller Thi Đua
 
 const upload = multer({
-	storage: multer.memoryStorage(),
-	limits: { fileSize: 5 * 1024 * 1024 }
+    storage: multer.memoryStorage(),
+    limits: { fileSize: 5 * 1024 * 1024 }
 });
 
 const { isAuthenticated } = require('../middlewares/auth-middleware');
@@ -64,7 +67,7 @@ router.post('/glv/:id/status', GlvController.postStatus);
 router.get('/weight', weightController.getWeightPage);
 router.post('/weight/save', weightController.saveWeightConfig);
 
-// 1. Route hiển thị trang settings
+// Route hiển thị trang settings
 router.get('/settings', settingsController.getSettingsPage);
 router.post('/settings/save', settingsController.saveSettingsConfig);
 router.post('/settings/update-year', settingsController.updateYearConfig);
@@ -72,11 +75,16 @@ router.post('/settings/update-year', settingsController.updateYearConfig);
 // Bảng điểm tổng kết cuối năm
 router.get('/bang-diem', BangDiemController.getBangDiemPage);
 router.post('/bang-diem/tong-ket', BangDiemController.tongKetDiem);
+
+// Chuyển giao & Chuyển lớp
 router.get('/chuyen-giao', ChuyenGiaoController.getPage);
 router.post('/chuyen-giao/lock', ChuyenGiaoController.lockYear);
 router.post('/chuyen-giao/transfer', ChuyenGiaoController.transferYear);
 router.get('/chuyen-giao/export-awards', ChuyenGiaoController.exportAwards);
 router.get('/chuyen-lop', ChuyenLopController.getPage);
 router.post('/chuyen-lop/move', ChuyenLopController.moveStudents);
+
+// Thi đua Kỷ luật - Chuyên cần
+router.get('/thi-dua', ThiDuaController.getThiDuaPage);
 
 module.exports = router;
