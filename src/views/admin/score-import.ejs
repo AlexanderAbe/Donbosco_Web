@@ -1,0 +1,87 @@
+<section class="mx-auto w-full max-w-6xl space-y-6 px-4 py-6 sm:px-6">
+    <header class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+        <p class="text-sm font-semibold uppercase tracking-wide text-blue-700">Quản trị viên</p>
+        <h1 class="mt-1 text-2xl font-bold text-slate-900">Import bảng điểm</h1>
+        <p class="mt-2 text-sm text-slate-600">Import điểm kiểm tra, điểm danh chuyên cần và điểm kỷ luật theo niên khóa, lớp.</p>
+    </header>
+
+    <% if (success) { %>
+        <div role="status" class="rounded-xl border border-emerald-200 bg-emerald-50 p-4 text-sm font-medium text-emerald-800"><%= success %></div>
+    <% } %>
+    <% if (error) { %>
+        <div role="alert" class="rounded-xl border border-red-200 bg-red-50 p-4 text-sm font-medium text-red-800"><%= error %></div>
+    <% } %>
+    <% if (validationErrors.length) { %>
+        <div role="alert" class="rounded-xl border border-red-200 bg-red-50 p-5 text-sm text-red-900">
+            <h2 class="font-bold">Không có dữ liệu nào được import. Hãy sửa các lỗi sau rồi tải lại file:</h2>
+            <ul class="mt-3 list-inside list-disc space-y-1">
+                <% validationErrors.forEach(message => { %>
+                    <li><%= message %></li>
+                <% }) %>
+            </ul>
+        </div>
+    <% } %>
+
+    <section class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+        <h2 class="text-lg font-bold text-slate-900">1. Chọn phạm vi import</h2>
+        <form method="GET" action="/admin/score-import" class="mt-4 grid gap-4 sm:grid-cols-[1fr_1fr_auto] sm:items-end">
+            <label class="block text-sm font-semibold text-slate-700">
+                Niên khóa
+                <select name="yearId" required class="mt-1.5 w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5 font-normal">
+                    <% years.forEach(year => { %>
+                        <option value="<%= year.id_cau_hinh_nam_hoc %>" <%= Number(selectedYearId) === year.id_cau_hinh_nam_hoc ? 'selected' : '' %>><%= year.nien_khoa %></option>
+                    <% }) %>
+                </select>
+            </label>
+            <label class="block text-sm font-semibold text-slate-700">
+                Lớp
+                <select name="classId" required class="mt-1.5 w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5 font-normal">
+                    <% classes.forEach(classItem => { %>
+                        <option value="<%= classItem.id_lop %>" <%= Number(selectedClassId) === classItem.id_lop ? 'selected' : '' %>><%= classItem.ten_lop %></option>
+                    <% }) %>
+                </select>
+            </label>
+            <button type="submit" class="rounded-lg bg-slate-800 px-5 py-2.5 font-semibold text-white hover:bg-slate-700">Chọn lớp</button>
+        </form>
+        <% if (!years.length) { %>
+            <p class="mt-4 text-sm text-amber-700">Chưa có niên khóa để import điểm.</p>
+        <% } else if (!classes.length) { %>
+            <p class="mt-4 text-sm text-amber-700">Niên khóa này chưa có lớp.</p>
+        <% } %>
+    </section>
+
+    <% if (selectedYearId && selectedClassId) { %>
+        <section class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+            <h2 class="text-lg font-bold text-slate-900">2. Tải mẫu và import</h2>
+            <p class="mt-2 text-sm text-slate-600">
+                Lớp <strong><%= selectedClass %></strong>, niên khóa <strong><%= selectedYear %></strong>.
+                Workbook cần có đúng ba sheet: <strong>Kiểm tra</strong>, <strong>Chuyên cần</strong>, <strong>Kỷ luật</strong>.
+            </p>
+            <a href="/admin/score-import/template?yearId=<%= selectedYearId %>&classId=<%= selectedClassId %>"
+               class="mt-4 inline-flex items-center gap-2 rounded-lg border border-blue-200 bg-blue-50 px-4 py-2.5 font-semibold text-blue-800 hover:bg-blue-100">
+                <i class="fa-solid fa-download" aria-hidden="true"></i> Tải workbook mẫu
+            </a>
+
+            <form method="POST" action="/admin/score-import" enctype="multipart/form-data" class="mt-6 space-y-4 border-t border-slate-200 pt-5">
+                <input type="hidden" name="yearId" value="<%= selectedYearId %>">
+                <input type="hidden" name="classId" value="<%= selectedClassId %>">
+                <label for="score-import-file" class="block text-sm font-semibold text-slate-700">Chọn workbook Excel (.xlsx hoặc .xls, tối đa 5 MB)</label>
+                <input id="score-import-file" type="file" name="file" accept=".xlsx,.xls" required
+                    class="block w-full rounded-lg border border-slate-300 bg-white text-sm file:mr-4 file:border-0 file:bg-slate-100 file:px-4 file:py-2.5 file:font-semibold">
+                <button type="submit" class="rounded-lg bg-blue-700 px-5 py-2.5 font-semibold text-white hover:bg-blue-800">
+                    Kiểm tra và import toàn bộ file
+                </button>
+            </form>
+        </section>
+
+        <aside class="rounded-2xl border border-amber-200 bg-amber-50 p-5 text-sm text-amber-950">
+            <h2 class="font-bold">Lưu ý</h2>
+            <ul class="mt-2 list-inside list-disc space-y-1.5">
+                <li>Hãy tải mẫu cho đúng lớp; mã số thiếu nhi là khóa đối chiếu và phải thuộc lớp/niên khóa đã chọn.</li>
+                <li>Mẫu được điền sẵn điểm đang có để tránh vô tình xóa dữ liệu. Nếu xóa giá trị trong ô rồi import, điểm/trạng thái cũ tương ứng sẽ bị xóa.</li>
+                <li>Điểm phải nằm trong khoảng 0–10, tối đa 2 chữ số thập phân. Điểm danh dùng S (đi sớm), - (có mặt), V (vắng không phép), P (vắng phép).</li>
+                <li>Hệ thống kiểm tra tất cả sheet trước khi ghi. Chỉ cần một lỗi thì toàn bộ workbook sẽ bị từ chối và không ghi dữ liệu nào.</li>
+            </ul>
+        </aside>
+    <% } %>
+</section>

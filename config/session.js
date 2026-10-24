@@ -24,7 +24,7 @@ module.exports = session({
   cookie: {
     maxAge: 30 * 60 * 1000, // 30 phút
     //secure: false,
-    secure: /*false*/ process.env.NODE_ENV === "production",
+    secure: process.env.NODE_ENV === "production",
     httpOnly: true,
     sameSite: "lax",
     domain: "thieunhitanthaison.com",
