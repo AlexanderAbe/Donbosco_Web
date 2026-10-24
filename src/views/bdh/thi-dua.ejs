@@ -1,0 +1,116 @@
+<link rel="stylesheet" href="/css/reset.css">
+<link rel="stylesheet" href="/css/bdh/bdh-thi-dua.css">
+
+<div class="td-wrapper">
+    <div class="td-card">
+        
+        <!-- Thanh công cụ & Bộ lọc -->
+        <div class="td-filter-bar">
+            <h1 class="td-title">
+                <i class="fas fa-chart-pie"></i> Điểm Thi Đua Tháng <%= selectedMonth %>
+            </h1>
+            
+            <form method="GET" action="/bdh/thi-dua" class="td-form-group">
+                <select name="nien_khoa" class="td-select">
+                    <% academicYears.forEach(year => { %>
+                        <option value="<%= year.id_cau_hinh_nam_hoc %>" <%= String(year.id_cau_hinh_nam_hoc) === String(selectedYearId) ? 'selected' : '' %>>
+                            Niên khóa: <%= year.nien_khoa %>
+                        </option>
+                    <% }) %>
+                </select>
+
+                <select name="thang" class="td-select">
+                    <% for(let i = 1; i <= 12; i++) { %>
+                        <option value="<%= i %>" <%= String(i) === String(selectedMonth) ? 'selected' : '' %>>
+                            Tháng <%= i %>
+                        </option>
+                    <% } %>
+                </select>
+
+                <button type="submit" class="td-btn">
+                    <i class="fas fa-filter"></i> Lọc
+                </button>
+            </form>
+        </div>
+
+        <!-- Bảng hiển thị (Đã đơn giản hóa tiêu đề, dùng progress bar) -->
+        <div class="td-table-container">
+            <table class="td-table">
+                <thead>
+                    <tr>
+                        <th class="td-sticky-col">Lớp</th>
+                        <th>Sĩ Số</th>
+                        <th>Kỷ Luật (Điểm / %)</th>
+                        <th>Chuyên Cần (Điểm / %)</th>
+                        <th>Sớm 7h30 (Điểm / %)</th>
+                        <th style="text-align: right;">Tổng Hợp (%)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% if (danhSachThiDua && danhSachThiDua.length > 0) { %>
+                        <% danhSachThiDua.forEach(lop => { %>
+                            <tr>
+                                <!-- Lớp & Sĩ số -->
+                                <td class="td-sticky-col"><%= lop.ten_lop %></td>
+                                <td><span style="color: var(--text-muted); font-weight: 500;"><%= lop.so_luong_tn %> em</span></td>
+                                
+                                <!-- Trực quan hóa Kỷ Luật -->
+                                <td>
+                                    <div class="td-progress-wrapper">
+                                        <span style="font-weight: 600; min-width: 25px;"><%= lop.diem_kl %></span>
+                                        <div class="td-progress-bar">
+                                            <div class="td-progress-fill td-fill-warning" style="width: <%= lop.ti_le_kl %>%;"></div>
+                                        </div>
+                                        <span class="td-progress-text" style="color: var(--warning);"><%= lop.ti_le_kl %>%</span>
+                                    </div>
+                                </td>
+
+                                <!-- Trực quan hóa Chuyên Cần -->
+                                <td>
+                                    <div class="td-progress-wrapper">
+                                        <span style="font-weight: 600; min-width: 25px;"><%= lop.diem_cc %></span>
+                                        <div class="td-progress-bar">
+                                            <div class="td-progress-fill td-fill-primary" style="width: <%= lop.ti_le_cc %>%; background-color: var(--primary);"></div>
+                                        </div>
+                                        <span class="td-progress-text" style="color: var(--primary);"><%= lop.ti_le_cc %>%</span>
+                                    </div>
+                                </td>
+
+                                <!-- Trực quan hóa Điểm A -->
+                                <td>
+                                    <div class="td-progress-wrapper">
+                                        <span style="font-weight: 600; min-width: 25px;"><%= lop.diem_a %></span>
+                                        <div class="td-progress-bar">
+                                            <div class="td-progress-fill td-fill-danger" style="width: <%= lop.ti_le_a %>%;"></div>
+                                        </div>
+                                        <span class="td-progress-text" style="color: var(--danger);"><%= lop.ti_le_a %>%</span>
+                                    </div>
+                                </td>
+
+                                <!-- Cột Tổng Tỉ Lệ (Hiển thị Badge dựa trên mức độ) -->
+                                <td style="text-align: right;">
+                                    <% 
+                                        let badgeClass = 'td-badge-average';
+                                        if (lop.tong_ti_le >= 80) badgeClass = 'td-badge-excellent';
+                                        else if (lop.tong_ti_le >= 60) badgeClass = 'td-badge-good';
+                                    %>
+                                    <div class="td-badge <%= badgeClass %>">
+                                        <%= lop.tong_ti_le %>%
+                                    </div>
+                                </td>
+                            </tr>
+                        <% }) %>
+                    <% } else { %>
+                        <tr>
+                            <td colspan="6" style="text-align: center; padding: 3rem; color: var(--text-muted);">
+                                <i class="fas fa-folder-open" style="font-size: 2rem; margin-bottom: 1rem; color: #cbd5e1;"></i>
+                                <p>Chưa có dữ liệu tổng kết thi đua cho tháng <%= selectedMonth %>.</p>
+                            </td>
+                        </tr>
+                    <% } %>
+                </tbody>
+            </table>
+        </div>
+
+    </div>
+</div>
