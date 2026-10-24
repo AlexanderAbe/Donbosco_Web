@@ -62,6 +62,7 @@
                 setStatus('Đã đồng bộ', true);
             }
         });
+        socket.on('score_import_completed', () => window.location.reload());
         // ---------------------------------
 
         const persistScore = input => {
