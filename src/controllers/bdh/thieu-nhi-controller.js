@@ -34,10 +34,15 @@ const parseImportDate = (value) => {
   const textValue = String(value || "")
     .trim()
     .replace(/[./]/g, "-");
+  if (/^\d{4}-\d{2}-\d{2}$/.test(textValue)) return textValue;
+  const dayFirstMatch = textValue.match(/^(\d{1,2})-(\d{1,2})-(\d{4})$/);
+  if (dayFirstMatch) {
+    const [, day, month, year] = dayFirstMatch;
+    return `${year}-${month.padStart(2, "0")}-${day.padStart(2, "0")}`;
+  }
   const compact = textValue.replace(/-/g, "");
   if (/^\d{8}$/.test(compact))
     return `${compact.slice(4)}-${compact.slice(2, 4)}-${compact.slice(0, 2)}`;
-  if (/^\d{4}-\d{2}-\d{2}$/.test(textValue)) return textValue;
   return "";
 };
 const isValidDate = (value) => {

@@ -16,13 +16,15 @@ const redirect = (res, params, message, isError = false) => {
     res.redirect(`/bdh/glv?${query.toString()}`);
 };
 
+const normalizePhone = value => String(value ?? '').replace(/\s+/g, '');
+
 const getProfileInput = body => ({
     tenThanh: String(body.ten_thanh || '').trim(),
     hoLot: String(body.ho_va_ten_lot || '').trim(),
     ten: String(body.ten || '').trim(),
     ngaySinh: body.ngay_sinh || '',
     gioiTinh: body.gioi_tinh || '',
-    sdt: String(body.sdt || '').trim()
+    sdt: normalizePhone(body.sdt)
 });
 
 const parseImportDate = (value) => {
@@ -75,7 +77,7 @@ const getImportInput = row => ({
     ten: String(getImportValue(row, ['TEN', 'TÊN'])).trim(),
     ngaySinh: parseImportDate(getImportValue(row, ['NGAY_SINH', 'NGÀY SINH', 'NGAY SINH'])),
     gioiTinh: String(getImportValue(row, ['GIOI_TINH', 'GIỚI TÍNH', 'GIOI TINH'])).trim(),
-    sdt: String(getImportValue(row, ['SDT', 'SỐ ĐIỆN THOẠI', 'SO DIEN THOAI'])).trim(),
+    sdt: normalizePhone(getImportValue(row, ['SDT', 'SỐ ĐIỆN THOẠI', 'SO DIEN THOAI'])),
     trangThai: statuses[0]
 });
 
