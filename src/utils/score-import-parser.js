@@ -17,19 +17,13 @@ const ATTENDANCE_LABELS = new Map([
 
 const ATTENDANCE_STATUSES = new Map([
     ['S', 'Đi sớm'],
-<<<<<<< HEAD
-=======
     ['T', 'Đi trễ'],
->>>>>>> 343e79d (fix: resolve conflicts and keep score import files)
     ['-', 'Có mặt'],
     ['V', 'Vắng không phép'],
     ['P', 'Vắng phép'],
     ['CO MAT', 'Có mặt'],
     ['DI SOM', 'Đi sớm'],
-<<<<<<< HEAD
-=======
     ['DI TRE', 'Đi trễ'],
->>>>>>> 343e79d (fix: resolve conflicts and keep score import files)
     ['VANG KHONG PHEP', 'Vắng không phép'],
     ['VANG PHEP', 'Vắng phép']
 ]);
@@ -209,11 +203,7 @@ function parseWorkbook(xlsx, workbook, academicYear) {
             if (isBlank(value)) return null;
             const status = ATTENDANCE_STATUSES.get(normalize(value));
             if (!status) {
-<<<<<<< HEAD
-                errors.push(`${SCORE_SHEETS.attendance}, dòng ${row}, cột ${column.index + 1}: trạng thái phải là S, -, V, P hoặc tên trạng thái hợp lệ.`);
-=======
                 errors.push(`${SCORE_SHEETS.attendance}, dòng ${row}, cột ${column.index + 1}: trạng thái phải là S, T, -, V, P hoặc tên trạng thái hợp lệ.`);
->>>>>>> 343e79d (fix: resolve conflicts and keep score import files)
             }
             return status || null;
         }

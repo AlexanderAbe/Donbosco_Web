@@ -9,11 +9,10 @@
         const scoreLayouts = [...scoreForm.querySelectorAll('[data-score-layout]')];
         const desktopLayout = window.matchMedia('(min-width: 768px)');
         const updateScoreLayout = () => {
-            const hasExamDate = Boolean(dateInput?.value);
             scoreLayouts.forEach(layout => {
                 const activeLayout = layout.dataset.scoreLayout === (desktopLayout.matches ? 'desktop' : 'mobile');
                 layout.querySelectorAll('input').forEach(input => {
-                    input.disabled = !activeLayout || !hasExamDate;
+                    input.disabled = !activeLayout;
                 });
             });
         };
@@ -26,6 +25,7 @@
 
         const pendingSaves = new Map();
         const saveTimers = new Map();
+        const scoresWaitingForDate = new Set();
         const studentRows = [...scoreForm.querySelectorAll('[data-student-id][data-saved]')];
         const totalStudents = new Set(studentRows.map(row => row.dataset.studentId)).size;
         const savedStudents = new Set(studentRows
@@ -145,6 +145,12 @@
 
         scoreForm.querySelectorAll('.score-input').forEach(input => {
             const scheduleSave = () => {
+                if (!hiddenDateInput?.value) {
+                    scoresWaitingForDate.add(input);
+                    setStatus('Chọn ngày kiểm tra để lưu điểm', false);
+                    return;
+                }
+                scoresWaitingForDate.delete(input);
                 const previousTimer = saveTimers.get(input);
                 if (previousTimer) clearTimeout(previousTimer);
                 saveTimers.set(input, setTimeout(() => {
@@ -192,6 +198,14 @@
                 window.alert('Vui lòng chọn ngày và bài kiểm tra hợp lệ.');
                 return;
             }
+            if (scoresWaitingForDate.size && !date) {
+                setStatus('Chọn ngày kiểm tra để lưu điểm', false);
+                return;
+            }
+            if (scoresWaitingForDate.size && selectedExam !== Number(examNumber)) {
+                setStatus('Hãy chọn ngày cho bài kiểm tra hiện tại trước khi chuyển bài.', false);
+                return;
+            }
 
             const applyButton = document.getElementById('apply-exam-context');
             const scoreInputs = [...scoreForm.querySelectorAll('.score-input')];
@@ -214,6 +228,12 @@
                 if (!response.ok || !result.success) {
                     throw new Error(result.message || 'Không thể cập nhật ngày kiểm tra.');
                 }
+                if (dateInput) dateInput.value = date;
+                if (hiddenDateInput) hiddenDateInput.value = date;
+                await Promise.all([...scoresWaitingForDate].map(async input => {
+                    await persistScore(input);
+                    scoresWaitingForDate.delete(input);
+                }));
                 const contextModal = document.getElementById('exam-context-modal');
                 if (contextModal?.open) contextModal.close();
 
@@ -250,6 +270,11 @@
 
         const examSelector = document.getElementById('test-number');
         examSelector?.addEventListener('change', async () => {
+            if (scoresWaitingForDate.size) {
+                examSelector.value = examNumber;
+                setStatus('Hãy chọn ngày cho bài kiểm tra hiện tại trước khi chuyển bài.', false);
+                return;
+            }
             try {
                 await flushAndWaitForSaves();
                 examSelector.form.submit();
