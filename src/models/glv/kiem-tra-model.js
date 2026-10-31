@@ -28,9 +28,83 @@ const KiemTraModel = {
             WHERE pc.id_glv = $1
               AND pc.id_cau_hinh_nam_hoc = $2
               AND pc.id_lop = $3
+              AND pl.trang_thai = 'Đang học'
             ORDER BY tn.ten, tn.ho_va_ten_lot, tn.ten_thanh
         `, [idGlv, yearId, classId, examNumber]);
         return sortStudentsByName(rows);
+    },
+
+    async getExamDate(idGlv, yearId, classId, examNumber) {
+        const assigned = await pool.query(`
+            SELECT 1 FROM PHAN_CONG_GLV
+            WHERE id_glv = $1 AND id_lop = $2 AND id_cau_hinh_nam_hoc = $3
+        `, [idGlv, classId, yearId]);
+        if (!assigned.rows.length) {
+            const error = new Error('Bạn không có quyền xem ngày kiểm tra của lớp này.');
+            error.code = 'FORBIDDEN';
+            throw error;
+        }
+
+        const examCount = await this.getExamCount(yearId);
+        if (examNumber > examCount) {
+            const error = new Error('Bài kiểm tra không hợp lệ.');
+            error.code = 'INVALID_EXAM';
+            throw error;
+        }
+
+        const { rows } = await pool.query(`
+            SELECT TO_CHAR(MIN(dht.ngay_kiem_tra), 'YYYY-MM-DD') AS ngay_kiem_tra
+            FROM DIEM_HOC_TAP dht
+            JOIN PHAN_LOP pl
+                ON pl.id_tn = dht.id_tn
+                AND pl.id_cau_hinh_nam_hoc = dht.id_cau_hinh_nam_hoc
+            WHERE pl.id_lop = $1
+              AND pl.id_cau_hinh_nam_hoc = $2
+              AND dht.stt_bai_ktra = $3
+        `, [classId, yearId, examNumber]);
+        return rows[0]?.ngay_kiem_tra || '';
+    },
+
+    async updateExamDate(idGlv, yearId, classId, examNumber, examDate) {
+        const client = await pool.connect();
+        try {
+            await client.query('BEGIN');
+            const assigned = await client.query(`
+                SELECT 1 FROM PHAN_CONG_GLV
+                WHERE id_glv = $1 AND id_lop = $2 AND id_cau_hinh_nam_hoc = $3
+            `, [idGlv, classId, yearId]);
+            if (!assigned.rows.length) {
+                const error = new Error('Bạn không có quyền cập nhật ngày kiểm tra của lớp này.');
+                error.code = 'FORBIDDEN';
+                throw error;
+            }
+
+            const examCount = await this.getExamCount(yearId);
+            if (examNumber > examCount) {
+                const error = new Error('Bài kiểm tra không hợp lệ.');
+                error.code = 'INVALID_EXAM';
+                throw error;
+            }
+
+            const updated = await client.query(`
+                UPDATE DIEM_HOC_TAP dht
+                SET ngay_kiem_tra = $1::date
+                FROM PHAN_LOP pl
+                WHERE pl.id_tn = dht.id_tn
+                  AND pl.id_cau_hinh_nam_hoc = dht.id_cau_hinh_nam_hoc
+                  AND pl.id_lop = $2
+                  AND pl.id_cau_hinh_nam_hoc = $3
+                  AND dht.stt_bai_ktra = $4
+            `, [examDate, classId, yearId, examNumber]);
+
+            await client.query('COMMIT');
+            return updated.rowCount;
+        } catch (error) {
+            await client.query('ROLLBACK');
+            throw error;
+        } finally {
+            client.release();
+        }
     },
 
     async getExamScoresForPrint(idGlv, yearId, classId, fromExam, toExam) {
@@ -69,6 +143,7 @@ const KiemTraModel = {
                 AND dht.stt_bai_ktra BETWEEN $3 AND $4
             WHERE pl.id_lop = $1
               AND pl.id_cau_hinh_nam_hoc = $2
+              AND pl.trang_thai = 'Đang học'
             ORDER BY tn.ten, tn.ho_va_ten_lot, tn.ten_thanh, dht.stt_bai_ktra
         `, [classId, yearId, fromExam, toExam]);
 

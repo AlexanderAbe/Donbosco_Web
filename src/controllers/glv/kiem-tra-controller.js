@@ -74,6 +74,80 @@ const KiemTraController = {
         }
     },
 
+    async getExamDate(req, res) {
+        const idGlv = req.session.user?.id_glv;
+        const yearId = getId(req.query.nien_khoa);
+        const classId = getId(req.query.id_lop);
+        const examNumber = getId(req.query.bai_kiem_tra);
+        if (!yearId || !classId || !examNumber) {
+            return res.status(400).json({
+                success: false,
+                message: 'Thông tin lớp hoặc bài kiểm tra không hợp lệ.'
+            });
+        }
+
+        try {
+            const date = await KiemTraModel.getExamDate(idGlv, yearId, classId, examNumber);
+            return res.json({ success: true, date });
+        } catch (error) {
+            console.error('Lỗi tải ngày kiểm tra GLV:', error);
+            const status = error.code === 'FORBIDDEN' ? 403
+                : error.code === 'INVALID_EXAM' ? 400
+                    : 500;
+            return res.status(status).json({
+                success: false,
+                message: status === 500 ? 'Không thể tải ngày kiểm tra.' : error.message
+            });
+        }
+    },
+
+    async updateExamDate(req, res) {
+        const idGlv = req.session.user?.id_glv;
+        const yearId = getId(req.body.nien_khoa);
+        const classId = getId(req.body.id_lop);
+        const examNumber = getId(req.body.bai_kiem_tra);
+        const rawDate = req.body.ngay_kiem_tra;
+        if (!yearId || !classId || !examNumber
+            || typeof rawDate !== 'string'
+            || (rawDate !== '' && !isValidDateKey(rawDate))) {
+            return res.status(400).json({
+                success: false,
+                message: 'Thông tin ngày kiểm tra không hợp lệ.'
+            });
+        }
+
+        try {
+            const updatedCount = await KiemTraModel.updateExamDate(
+                idGlv, yearId, classId, examNumber, rawDate || null
+            );
+            broadcastBangDiemRefresh(req, yearId);
+            const io = req.app.get('io');
+            if (io) {
+                io.to(getExamRoom(yearId, classId, examNumber)).emit('exam_date_updated', {
+                    date: rawDate
+                });
+            }
+            await logAction(
+                req,
+                `Cập nhật ngày kiểm tra thành công cho Lớp ID: ${classId} (Bài kiểm tra số: ${examNumber}, Ngày: ${rawDate || 'Không có'}, Số dòng điểm: ${updatedCount})`,
+                'Thành công'
+            );
+            return res.json({ success: true, updatedCount });
+        } catch (error) {
+            console.error('Lỗi cập nhật ngày kiểm tra GLV:', error);
+            const status = error.code === 'FORBIDDEN' ? 403
+                : error.code === 'INVALID_EXAM' ? 400
+                    : 500;
+            const message = status === 500 ? 'Không thể cập nhật ngày kiểm tra.' : error.message;
+            await logAction(
+                req,
+                `Cập nhật ngày kiểm tra thất bại cho Lớp ID: ${classId} (Bài kiểm tra số: ${examNumber}): ${message}`,
+                'Thất bại'
+            );
+            return res.status(status).json({ success: false, message });
+        }
+    },
+
     async getExamScoresForPrint(req, res) {
         const idGlv = req.session.user?.id_glv;
         const classId = getId(req.body?.id_lop);

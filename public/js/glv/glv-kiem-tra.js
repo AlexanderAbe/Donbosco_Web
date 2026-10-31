@@ -37,6 +37,22 @@
         const socket = io();
         socket.emit('join_room', `exam_${yearId}_${classId}_${examNumber}`);
 
+        socket.on('exam_date_updated', ({ date }) => {
+            const normalizedDate = date || '';
+            if (dateInput) dateInput.value = normalizedDate;
+            if (hiddenDateInput) hiddenDateInput.value = normalizedDate;
+            const mobileDateInput = document.getElementById('test-date-mobile');
+            if (mobileDateInput) mobileDateInput.value = normalizedDate;
+            const mobileDateStatus = document.getElementById('exam-context-mobile-label');
+            if (mobileDateStatus) {
+                const dateLabel = normalizedDate
+                    ? normalizedDate.split('-').reverse().join('/')
+                    : 'Chưa chọn ngày';
+                mobileDateStatus.textContent = `Bài kiểm tra ${examNumber} | ${dateLabel}`;
+            }
+            updateScoreLayout();
+        });
+
         const updateStudentSaved = (studentId, saved) => {
             scoreForm.querySelectorAll('[data-student-id]').forEach(row => {
                 if (row.dataset.studentId === studentId) row.dataset.saved = String(saved);
@@ -167,6 +183,70 @@
                 await Promise.all([...pendingSaves.values()]);
             }
         };
+
+        document.addEventListener('exam-date-save', async event => {
+            const { date, exam } = event.detail || {};
+            const selectedExam = Number(exam);
+            if ((date !== '' && !/^\d{4}-\d{2}-\d{2}$/.test(date))
+                || !Number.isInteger(selectedExam) || selectedExam < 1) {
+                window.alert('Vui lòng chọn ngày và bài kiểm tra hợp lệ.');
+                return;
+            }
+
+            const applyButton = document.getElementById('apply-exam-context');
+            const scoreInputs = [...scoreForm.querySelectorAll('.score-input')];
+            if (applyButton) applyButton.disabled = true;
+            scoreInputs.forEach(input => { input.disabled = true; });
+            try {
+                await flushAndWaitForSaves();
+                const body = new URLSearchParams({
+                    nien_khoa: yearId,
+                    id_lop: classId,
+                    bai_kiem_tra: String(selectedExam),
+                    ngay_kiem_tra: date
+                });
+                const response = await fetch('/glv/kiem-tra/update-date', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body
+                });
+                const result = await response.json();
+                if (!response.ok || !result.success) {
+                    throw new Error(result.message || 'Không thể cập nhật ngày kiểm tra.');
+                }
+                const contextModal = document.getElementById('exam-context-modal');
+                if (contextModal?.open) contextModal.close();
+
+                if (selectedExam !== Number(examNumber) || result.updatedCount > 0) {
+                    const nextUrl = new URL(window.location.href);
+                    nextUrl.searchParams.set('nien_khoa', yearId);
+                    nextUrl.searchParams.set('id_lop', classId);
+                    nextUrl.searchParams.set('bai_kiem_tra', String(selectedExam));
+                    if (result.updatedCount > 0) {
+                        nextUrl.searchParams.delete('ngay_kiem_tra');
+                    } else {
+                        nextUrl.searchParams.set('ngay_kiem_tra', date);
+                    }
+                    window.location.assign(nextUrl);
+                    return;
+                }
+
+                if (dateInput) dateInput.value = date;
+                if (hiddenDateInput) hiddenDateInput.value = date;
+                const mobileDateStatus = document.getElementById('exam-context-mobile-label');
+                if (mobileDateStatus) {
+                    const dateLabel = date ? date.split('-').reverse().join('/') : 'Chưa chọn ngày';
+                    mobileDateStatus.textContent = `Bài kiểm tra ${examNumber} | ${dateLabel}`;
+                }
+                updateScoreLayout();
+            } catch (error) {
+                window.alert(error.message || 'Không thể cập nhật ngày kiểm tra.');
+            } finally {
+                scoreInputs.forEach(input => { input.disabled = false; });
+                updateScoreLayout();
+                if (applyButton) applyButton.disabled = false;
+            }
+        });
 
         const examSelector = document.getElementById('test-number');
         examSelector?.addEventListener('change', async () => {

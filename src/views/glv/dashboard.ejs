@@ -114,10 +114,10 @@
               <span><%= attendance.loai_buoi %></span>
             </div>
 
-            <span class="attendance-badge">
-              <%= attendance.marked_count === attendance.total_count
-                ? 'Đã điểm danh'
-                : 'Chưa điểm danh đủ' %>
+            <span class="attendance-badge <%= attendance.marked_count === attendance.total_count
+              ? 'attendance-badge--complete'
+              : 'attendance-badge--incomplete' %>">
+              Đã lưu <%= attendance.marked_count %>/<%= attendance.total_count %>
             </span>
           </div>
 
@@ -130,11 +130,6 @@
             <div>
               <strong><%= attendance.absent_count %></strong>
               <span>Vắng</span>
-            </div>
-
-            <div>
-              <strong><%= attendance.marked_count %>/<%= attendance.total_count %></strong>
-              <span>Đã ghi nhận</span>
             </div>
           </div>
 
@@ -156,53 +151,95 @@
           <i class="fa-solid fa-bell"></i>
         </div>
 
-        <!-- Cảnh báo chuyên cần -->
-        <div class="alert-group">
-          <h3>
-            <i class="fa-solid fa-user-clock"></i>
-            Chuyên cần
-          </h3>
+        <div class="alert-tabs" role="tablist" aria-label="Nhóm cảnh báo">
+          <button type="button" class="alert-tab is-active" id="attendance-alert-tab" role="tab"
+            aria-selected="true" aria-controls="attendance-alert-panel" tabindex="0">
+            Chuyên cần <span><%= attendanceAlerts.length %></span>
+          </button>
+          <button type="button" class="alert-tab" id="discipline-alert-tab" role="tab"
+            aria-selected="false" aria-controls="discipline-alert-panel" tabindex="-1">
+            Kỷ luật <span><%= disciplineAlerts.length %></span>
+          </button>
+          <button type="button" class="alert-tab" id="score-alert-tab" role="tab"
+            aria-selected="false" aria-controls="score-alert-panel" tabindex="-1">
+            Học tập <span><%= scoreAlerts.length %></span>
+          </button>
+        </div>
 
+        <section class="alert-tab-panel" id="attendance-alert-panel" role="tabpanel"
+          aria-labelledby="attendance-alert-tab" tabindex="0">
           <% if (!attendanceAlerts.length) { %>
-            <p class="panel-empty">
-              Chưa có em nào vắng từ 2 buổi gần đây.
-            </p>
+            <p class="panel-empty">Chưa có em nào có điểm chuyên cần dưới 5.</p>
           <% } else { %>
-            <ul>
-              <% attendanceAlerts.forEach(item => { %>
-                <li>
-                  <span><%= item.ho_ten %></span>
-                  <strong><%= item.absent_count %> buổi vắng</strong>
-                </li>
-              <% }) %>
-            </ul>
+            <div class="alert-table-wrap">
+              <table class="alert-table">
+                <thead>
+                  <tr><th>Mã TN</th><th>Họ tên</th><th>Điểm chuyên cần</th></tr>
+                </thead>
+                <tbody>
+                  <% attendanceAlerts.forEach(item => { %>
+                    <tr>
+                      <td><%= item.mstn || '-' %></td>
+                      <td><%= item.ho_ten %></td>
+                      <td><%= item.diem_chuyen_can %></td>
+                    </tr>
+                  <% }) %>
+                </tbody>
+              </table>
+            </div>
           <% } %>
-        </div>
+        </section>
 
-        <!-- Cảnh báo học tập -->
-        <div class="alert-group">
-          <h3>
-            <i class="fa-solid fa-book-open"></i>
-            Học tập
-          </h3>
+        <section class="alert-tab-panel" id="discipline-alert-panel" role="tabpanel"
+          aria-labelledby="discipline-alert-tab" tabindex="0" hidden>
+          <% if (!disciplineAlerts.length) { %>
+            <p class="panel-empty">Chưa có em nào có điểm kỷ luật trung bình dưới 7.</p>
+          <% } else { %>
+            <div class="alert-table-wrap">
+              <table class="alert-table">
+                <thead>
+                  <tr><th>Mã TN</th><th>Họ tên</th><th>Điểm kỷ luật trung bình</th></tr>
+                </thead>
+                <tbody>
+                  <% disciplineAlerts.forEach(item => { %>
+                    <tr>
+                      <td><%= item.mstn || '-' %></td>
+                      <td><%= item.ho_ten %></td>
+                      <td><%= item.diem_ky_luat %></td>
+                    </tr>
+                  <% }) %>
+                </tbody>
+              </table>
+            </div>
+          <% } %>
+        </section>
 
+        <section class="alert-tab-panel" id="score-alert-panel" role="tabpanel"
+          aria-labelledby="score-alert-tab" tabindex="0" hidden>
           <% if (!scoreAlerts.length) { %>
-            <p class="panel-empty">
-              Chưa có em nào có điểm trung bình dưới hoặc bằng 5.
-            </p>
+            <p class="panel-empty">Chưa có em nào có điểm học tập dưới 5.</p>
           <% } else { %>
-            <ul>
-              <% scoreAlerts.forEach(item => { %>
-                <li>
-                  <span><%= item.ho_ten %></span>
-                  <strong><%= item.average_score %> điểm</strong>
-                </li>
-              <% }) %>
-            </ul>
+            <div class="alert-table-wrap">
+              <table class="alert-table">
+                <thead>
+                  <tr><th>Mã TN</th><th>Họ tên</th><th>Điểm học tập</th></tr>
+                </thead>
+                <tbody>
+                  <% scoreAlerts.forEach(item => { %>
+                    <tr>
+                      <td><%= item.mstn || '-' %></td>
+                      <td><%= item.ho_ten %></td>
+                      <td><%= item.diem_hoc_tap %></td>
+                    </tr>
+                  <% }) %>
+                </tbody>
+              </table>
+            </div>
           <% } %>
-        </div>
+        </section>
       </article>
     </section>
 
   <% } %>
 </main>
+<script src="/js/glv/glv-dashboard.js" defer></script>

@@ -105,6 +105,7 @@ const BangDiemModel = {
                          AND dht.id_cau_hinh_nam_hoc = $2
                    ), '[]'::json) AS learning_history,
                    attendance.early_count,
+                   attendance.late_count,
                    attendance.present_count,
                    attendance.unexcused_count,
                    attendance.excused_count,
@@ -121,6 +122,7 @@ const BangDiemModel = {
             LEFT JOIN LATERAL (
                 SELECT
                     COUNT(*) FILTER (WHERE dd.trang_thai = 'Đi sớm')::int AS early_count,
+                    COUNT(*) FILTER (WHERE dd.trang_thai = 'Đi trễ')::int AS late_count,
                     COUNT(*) FILTER (WHERE dd.trang_thai = 'Có mặt')::int AS present_count,
                     COUNT(*) FILTER (WHERE dd.trang_thai = 'Vắng không phép')::int AS unexcused_count,
                     COUNT(*) FILTER (WHERE dd.trang_thai = 'Vắng phép')::int AS excused_count

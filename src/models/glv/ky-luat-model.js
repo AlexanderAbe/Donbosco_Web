@@ -19,6 +19,7 @@ const KyLuatModel = {
             WHERE pc.id_glv = $1
               AND pc.id_cau_hinh_nam_hoc = $2
               AND pc.id_lop = $3
+              AND pl.trang_thai = 'Đang học'
             ORDER BY tn.ten, tn.ho_va_ten_lot, tn.ten_thanh
         `, [idGlv, yearId, classId, month]);
         return sortStudentsByName(rows);
@@ -51,6 +52,7 @@ const KyLuatModel = {
                 AND dkl.id_cau_hinh_nam_hoc = pl.id_cau_hinh_nam_hoc
             WHERE pl.id_lop = $1
               AND pl.id_cau_hinh_nam_hoc = $2
+              AND pl.trang_thai = 'Đang học'
             ORDER BY tn.ten, tn.ho_va_ten_lot, tn.ten_thanh, dkl.thang
         `, [classId, yearId]);
 
@@ -123,7 +125,7 @@ const KyLuatModel = {
                     JOIN CAU_HINH_NAM_HOC ch ON ch.id_cau_hinh_nam_hoc = $2
                     WHERE dd.id_tn = ANY($1::int[])
                       AND dd.id_lop = $3
-                      AND dd.trang_thai IN ('Vắng phép', 'Vắng không phép')
+                      AND dd.trang_thai IN ('Vắng phép', 'Vắng không phép', 'Đi trễ')
                       AND dd.ngay_diem_danh >= make_date(
                           CASE
                               WHEN $4 >= 9 THEN split_part(ch.nien_khoa, '-', 1)::int
@@ -142,7 +144,7 @@ const KyLuatModel = {
                       ) + INTERVAL '1 month'
                 `, [perfectScoreStudentIds, yearId, classId, month]);
                 if (absentStudents.rows.length) {
-                    const error = new Error('Thiếu nhi có buổi vắng nên không được phép đạt 10 điểm kỷ luật!');
+                    const error = new Error('Thiếu nhi có buổi vắng hoặc đi trễ nên không được phép đạt 10 điểm kỷ luật!');
                     error.code = 'DISCIPLINE_ABSENCE';
                     throw error;
                 }

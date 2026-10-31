@@ -9,6 +9,9 @@
     const saveErrors = new Map();
     const studentRows = [...form.querySelectorAll('[data-student-id][data-saved]')];
     const totalStudents = new Set(studentRows.map(row => row.dataset.studentId)).size;
+    const pickerDialog = document.getElementById('attendance-picker-dialog');
+    const pickerStudent = pickerDialog?.querySelector('[data-attendance-picker-student]');
+    let activePickerRow = null;
     const savedStudents = new Set(studentRows
         .filter(row => row.dataset.saved === 'true')
         .map(row => row.dataset.studentId));
@@ -25,6 +28,11 @@
         });
         if (saved) savedStudents.add(studentId);
         else savedStudents.delete(studentId);
+    };
+    const updatePickerLabel = row => {
+        const selected = row.querySelector('.attendance-options input[type="radio"]:checked');
+        const label = row.querySelector('[data-attendance-picker-label]');
+        if (label) label.textContent = selected?.value || 'Chọn trạng thái';
     };
     const setStatus = (text, saved) => {
         const isFullySaved = saved && savedStudents.size === totalStudents;
@@ -44,6 +52,7 @@
             row.querySelectorAll('.attendance-options input[type="radio"]').forEach(input => {
                 input.checked = input.value === status;
             });
+            updatePickerLabel(row);
         }
         setStatus('Đã đồng bộ', true);
     });
@@ -53,6 +62,7 @@
         input.addEventListener('change', () => {
             const row = input.closest('[data-student-id]');
             if (!row) return;
+            updatePickerLabel(row);
             const studentId = row.dataset.studentId;
             const previousSave = studentSaves.get(studentId) || Promise.resolve();
             setStatus('Đang lưu...', false);
@@ -95,6 +105,50 @@
             pendingSaves.add(currentSave);
         });
     });
+
+    if (pickerDialog && pickerStudent) {
+        form.querySelectorAll('[data-attendance-picker-trigger]').forEach(button => {
+            button.addEventListener('click', () => {
+                activePickerRow = button.closest('[data-student-id]');
+                if (!activePickerRow) return;
+                pickerStudent.textContent = activePickerRow.querySelector('td strong')?.textContent.trim() || '';
+                const currentStatus = activePickerRow.querySelector('.attendance-options input[type="radio"]:checked')?.value;
+                pickerDialog.querySelectorAll('[data-attendance-picker-option]').forEach(option => {
+                    const selected = option.dataset.value === currentStatus;
+                    option.setAttribute('aria-pressed', String(selected));
+                    option.querySelector('i')?.classList.toggle('invisible', !selected);
+                    option.classList.toggle('border-slate-400', selected);
+                    option.classList.toggle('bg-slate-50', selected);
+                });
+                pickerDialog.showModal();
+            });
+        });
+
+        pickerDialog.querySelectorAll('[data-attendance-picker-option]').forEach(option => {
+            option.addEventListener('click', () => {
+                if (!activePickerRow) return;
+                const input = [...activePickerRow.querySelectorAll('.attendance-options input[type="radio"]')]
+                    .find(radio => radio.value === option.dataset.value);
+                if (!input) {
+                    throw new Error(`Không tìm thấy trạng thái điểm danh "${option.dataset.value}".`);
+                }
+                input.checked = true;
+                input.dispatchEvent(new Event('change', { bubbles: true }));
+                pickerDialog.close();
+                activePickerRow = null;
+            });
+        });
+
+        pickerDialog.querySelectorAll('[data-close-attendance-picker]').forEach(button => {
+            button.addEventListener('click', () => pickerDialog.close());
+        });
+        pickerDialog.addEventListener('click', event => {
+            if (event.target === pickerDialog) pickerDialog.close();
+        });
+        pickerDialog.addEventListener('close', () => {
+            activePickerRow = null;
+        });
+    }
 
     form.addEventListener('submit', event => {
         event.preventDefault();
@@ -195,7 +249,7 @@
 
         const note = printDocument.createElement('p');
         note.className = 'attendance-print-note';
-        note.textContent = 'Đi sớm: S, Có mặt: -, Vắng không phép: V, Vắng có phép: P';
+        note.textContent = 'Đi sớm: S, Đi trễ: T (2 lần = 1 buổi vắng), Có mặt: -, Vắng không phép: V, Vắng có phép: P';
         main.appendChild(note);
 
         const sessions = getMonthSessions(data.calendarYear, data.month);
@@ -224,6 +278,7 @@
 
         const statusCodes = {
             'Đi sớm': 'S',
+            'Đi trễ': 'T',
             'Có mặt': '-',
             'Vắng không phép': 'V',
             'Vắng phép': 'P'
@@ -300,8 +355,61 @@
 (() => {
     const type = document.getElementById('attendance-type');
     const filter = document.getElementById('attendance-filter');
-    const classSelect = document.getElementById('attendance-class');
-    type?.addEventListener('change', () => { filter.submit(); });
-    document.getElementById('attendance-date')?.addEventListener('change', () => { filter.submit(); });
-    classSelect?.addEventListener('change', () => { filter.submit(); });
+    const date = document.getElementById('attendance-date');
+    const modal = document.getElementById('attendance-context-modal');
+    const openButton = document.getElementById('open-attendance-context');
+    const mobileDate = document.getElementById('attendance-date-mobile');
+    const mobileType = document.getElementById('attendance-type-mobile');
+    const applyButton = document.getElementById('apply-attendance-context');
+    if (!filter || !type || !date) return;
+
+    const getSessionTypes = value => {
+        if (!/^\d{4}-\d{2}-\d{2}$/.test(value || '')) return [];
+        const [year, month, day] = value.split('-').map(Number);
+        const weekday = new Date(year, month - 1, day).getDay();
+        if (weekday === 2) return ['Lễ Thứ 3'];
+        if (weekday === 4) return ['Lễ Thứ 5'];
+        if (weekday === 0) return ['Lễ Chúa Nhật', 'Học Giáo Lý'];
+        return [];
+    };
+    const updateTypeOptions = (select, value, preferredType) => {
+        const sessionTypes = getSessionTypes(value);
+        const selectedType = sessionTypes.includes(preferredType) ? preferredType : sessionTypes[0] || '';
+        select.replaceChildren();
+        if (!sessionTypes.length) {
+            select.add(new Option('Ngày không khớp lịch', ''));
+            return '';
+        }
+        sessionTypes.forEach(sessionType => {
+            select.add(new Option(sessionType, sessionType, false, sessionType === selectedType));
+        });
+        return selectedType;
+    };
+
+    type.addEventListener('change', () => filter.requestSubmit());
+    date.addEventListener('change', () => {
+        updateTypeOptions(type, date.value, type.value);
+        filter.requestSubmit();
+    });
+
+    if (!modal || !openButton || !mobileDate || !mobileType || !applyButton) return;
+    openButton.addEventListener('click', () => {
+        mobileDate.value = date.value;
+        updateTypeOptions(mobileType, mobileDate.value, type.value);
+        modal.showModal();
+    });
+    modal.querySelectorAll('[data-close-attendance-context]').forEach(button => {
+        button.addEventListener('click', () => modal.close());
+    });
+    mobileDate.addEventListener('change', () => {
+        updateTypeOptions(mobileType, mobileDate.value, mobileType.value);
+    });
+    applyButton.addEventListener('click', () => {
+        if (!mobileDate.reportValidity()) return;
+        date.value = mobileDate.value;
+        const selectedType = updateTypeOptions(type, date.value, mobileType.value);
+        type.value = selectedType;
+        modal.close();
+        filter.requestSubmit();
+    });
 })();

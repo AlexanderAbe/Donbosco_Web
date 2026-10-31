@@ -5,26 +5,51 @@
         ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
         : 'bg-amber-50 text-amber-700 border border-amber-200';
     const scoreSaveIcon = isScoreSaved ? 'fa-circle-check' : 'fa-clock';
-    const getStudentStatusBadgeClasses = status => status === 'Đang học'
-        ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
-        : 'bg-amber-50 text-amber-700 border border-amber-200';
 %>
+<style>
+    #exam-context-sticky {
+        top: 60px;
+        z-index: 20;
+        width: 100vw;
+        margin-left: calc(50% - 50vw);
+        margin-top: -2.5rem;
+    }
+    #exam-context-modal {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        right: auto;
+        bottom: auto;
+        width: min(32rem, calc(100vw - 2rem));
+        max-width: none;
+        max-height: min(85vh, 85dvh);
+        margin: 0;
+        padding: 0;
+        overflow-y: auto;
+        border: 0;
+        border-radius: 1rem;
+        background: #fff;
+        box-shadow: 0 24px 64px rgb(15 23 42 / 24%);
+        transform: translate(-50%, -50%);
+    }
+    #exam-context-modal::backdrop { background: rgb(15 23 42 / 50%); }
+    @media (min-width: 768px) {
+        #exam-context-desktop-controls { display: flex; }
+        #open-exam-context { display: none; }
+    }
+    @media (min-width: 640px) {
+        #exam-context-sticky { margin-top: -3rem; }
+    }
+    @media (min-width: 1025px) {
+        #exam-context-sticky {
+            top: 90px;
+            width: calc(100vw - 280px);
+            margin-left: calc(50% - 50vw + 140px);
+            margin-top: -3rem;
+        }
+    }
+</style>
 <main class="min-h-screen bg-slate-50 text-slate-800 flex flex-col antialiased selection:bg-blue-500 selection:text-white pb-16">
-
-    <!-- Top Header Banner -->
-    <header class="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-xs">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-            <div class="flex items-center space-x-3">
-                <div class="w-10 h-10 rounded-xl bg-blue-600 flex items-center justify-center text-white shadow-md shadow-blue-500/20">
-                    <i class="fa-solid fa-graduation-cap text-lg"></i>
-                </div>
-                <div>
-                    <span class="glv-page-label text-sm font-semibold text-blue-600 block">Quản lý lớp học</span>
-                    <h1 class="text-base sm:text-lg font-bold text-slate-900 leading-tight">Điểm Kiểm Tra Thiếu Nhi</h1>
-                </div>
-            </div>
-        </div>
-    </header>
 
     <div class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 flex flex-col gap-6">
         
@@ -36,42 +61,103 @@
             </div>
         <% } else { %>
 
-            <!-- Interactive Toolbar Card (Class filter removed as requested) -->
-            <form class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-4 items-end" method="GET" action="/glv/kiem-tra">
-                <!-- Search Input -->
-                <div class="space-y-1.5">
-                    <label for="student-search" class="text-xs font-bold uppercase tracking-wider text-slate-500 flex items-center gap-1.5">
-                        <i class="fa-solid fa-magnifying-glass text-blue-600"></i> Tìm kiếm thiếu nhi
-                    </label>
-                    <div class="relative">
-                        <input id="student-search" type="search" placeholder="Nhập tên hoặc mã số..." autocomplete="off"
-                            data-table-search="[data-student-row]" data-search-empty="#student-search-empty"
-                            class="w-full px-3.5 py-2.5 text-sm bg-slate-50/50 border border-slate-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-600 transition-all">
+            <form id="exam-context-form" method="GET" action="/glv/kiem-tra" class="contents">
+                <input type="hidden" name="nien_khoa" value="<%= selectedYearId %>">
+                <input type="hidden" name="id_lop" value="<%= selectedClassId %>">
+
+            <!-- Sticky exam context sub-header -->
+            <section id="exam-context-sticky" class="sticky rounded-b-[3rem] px-4 sm:px-6 lg:px-8 py-4 sm:py-5 bg-white border-b border-slate-200 shadow-sm" aria-label="Thông tin bài kiểm tra">
+                    <div class="flex flex-wrap items-center justify-between gap-2">
+                        <div class="flex min-w-0 flex-wrap items-center gap-3">
+                            <span class="inline-flex items-center gap-2.5 rounded-lg bg-blue-50 px-4 py-2.5 text-sm font-bold text-blue-700">
+                                <i class="fa-solid fa-layer-group" aria-hidden="true"></i>
+                                <span><%= classes.find(item => item.id_lop === selectedClassId)?.ten_lop || 'Lớp của bạn' %></span>
+                            </span>
+                            <span class="inline-flex items-center gap-2 rounded-lg bg-slate-100 px-4 py-2.5 text-sm font-medium text-slate-700 md:hidden">
+                                <i class="fa-solid fa-file-lines text-slate-500" aria-hidden="true"></i>
+                                <span id="exam-context-mobile-label">Bài kiểm tra <%= selectedExam %> | <%= selectedDate ? selectedDate.split('-').reverse().join('/') : 'Chưa chọn ngày' %></span>
+                            </span>
+                            <div id="exam-context-desktop-controls" class="hidden items-center gap-2">
+                                <label for="test-number" class="sr-only">Bài kiểm tra</label>
+                                <select id="test-number" name="bai_kiem_tra" class="h-11 rounded-lg border border-slate-200 bg-slate-100 px-3 text-sm font-medium text-slate-700 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20">
+                                    <% for (let number = 1; number <= examCount; number += 1) { %>
+                                        <option value="<%= number %>" <%= number === selectedExam ? 'selected' : '' %>>Bài kiểm tra <%= number %></option>
+                                    <% } %>
+                                </select>
+                                <label for="test-date" class="sr-only">Ngày kiểm tra</label>
+                                <input id="test-date" name="ngay_kiem_tra" type="date" value="<%= selectedDate ?? '' %>"
+                                    class="h-11 rounded-lg border border-slate-200 bg-slate-100 px-3 text-sm font-medium text-slate-700 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20">
+                            </div>
+                        </div>
+
+                        <div class="flex shrink-0 items-center gap-3">
+                            <button type="button" id="open-exam-context"
+                                class="inline-flex h-11 items-center gap-2 rounded-lg border border-blue-200 bg-blue-50 px-4 text-sm font-semibold text-blue-600 transition-colors hover:bg-blue-100"
+                                aria-haspopup="dialog" aria-controls="exam-context-modal">
+                                <i class="fa-solid fa-sliders" aria-hidden="true"></i>
+                                <span>Đổi</span>
+                            </button>
+                            <div id="score-save-status" class="inline-flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-medium <%= scoreSaveStatusClasses %>">
+                                <i class="fa-solid <%= scoreSaveIcon %>" aria-hidden="true"></i>
+                                <span id="score-save-status-text">Đã lưu <%= savedScoreCount %>/<%= students.length %></span>
+                            </div>
+                        </div>
                     </div>
-                </div>
+                    <!-- Search and print actions stay with the sticky exam context -->
+                    <div class="mt-3 flex items-center gap-2">
+                        <label for="student-search" class="sr-only">Tìm tên hoặc mã số</label>
+                        <div class="relative min-w-0 flex-1">
+                            <i class="fa-solid fa-magnifying-glass pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-sm text-slate-400" aria-hidden="true"></i>
+                            <input id="student-search" type="search" placeholder="Tìm tên hoặc mã số..." autocomplete="off"
+                                data-table-search="[data-student-row]" data-search-empty="#student-search-empty"
+                                class="h-10 w-full rounded-xl border border-slate-200 bg-white py-2 pl-10 pr-3.5 text-sm text-slate-800 placeholder:text-slate-400 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20">
+                        </div>
+                        <button class="inline-flex h-10 w-10 shrink-0 items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white text-slate-600 transition-colors hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50 md:w-auto md:px-3.5"
+                            type="button"
+                            id="open-exam-print"
+                            data-class-id="<%= selectedClassId || '' %>"
+                            data-exam-count="<%= examCount %>"
+                            aria-label="In điểm kiểm tra"
+                            title="In điểm kiểm tra"
+                            <%= !selectedClassId || !students.length ? 'disabled' : '' %>>
+                            <i class="fa-solid fa-print" aria-hidden="true"></i>
+                            <span class="hidden md:inline">In điểm kiểm tra</span>
+                        </button>
+                    </div>
+            </section>
 
-                <!-- Exam Number Selection (Strictly named Bài kiểm tra) -->
-                <div class="space-y-1.5">
-                    <label for="test-number" class="text-xs font-bold uppercase tracking-wider text-slate-500 flex items-center gap-1.5">
-                        <i class="fa-solid fa-pen-to-square text-blue-600"></i> Bài kiểm tra
-                    </label>
-                    <select id="test-number" name="bai_kiem_tra"
-                        class="w-full px-3.5 py-2.5 text-sm bg-slate-50/50 border border-slate-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-600 transition-all font-medium">
-                        <% for (let number = 1; number <= examCount; number += 1) { %>
-                            <option value="<%= number %>" <%= number === selectedExam ? 'selected' : '' %>>Bài kiểm tra <%= number %></option>
-                        <% } %>
-                    </select>
-                </div>
-
-                <!-- Test Date Selection -->
-                <div class="space-y-1.5 sm:col-span-2 lg:col-span-2">
-                    <label for="test-date" class="text-xs font-bold uppercase tracking-wider text-slate-500 flex items-center gap-1.5">
-                        <i class="fa-solid fa-calendar-days text-blue-600"></i> Ngày kiểm tra
-                    </label>
-                    <input id="test-date" type="date" value="<%= selectedDate ?? '' %>"
-                        class="w-full px-3.5 py-2.5 text-sm bg-slate-50/50 border border-slate-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-600 transition-all font-medium">
-                    <p class="text-xs text-slate-500" id="score-date-hint">Chọn ngày kiểm tra trước khi nhập điểm.</p>
-                </div>
+                <dialog id="exam-context-modal" aria-labelledby="exam-context-title" class="overflow-y-auto">
+                    <div class="flex items-center justify-between border-b border-slate-100 px-5 pb-4 pt-3">
+                        <div>
+                            <h2 id="exam-context-title" class="text-base font-bold text-slate-900">Đổi thông tin kiểm tra</h2>
+                            <p class="mt-1 text-xs text-slate-500">Chọn bài và ngày kiểm tra.</p>
+                        </div>
+                        <button type="button" data-close-exam-context class="flex h-9 w-9 items-center justify-center rounded-full bg-slate-100 text-slate-600 hover:bg-slate-200" aria-label="Đóng">
+                            <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+                        </button>
+                    </div>
+                    <div class="space-y-4 px-5 py-5">
+                        <div class="space-y-1.5">
+                            <label for="test-number-mobile" class="text-xs font-semibold text-slate-600">Bài kiểm tra</label>
+                            <select id="test-number-mobile" class="h-10 w-full rounded-xl border border-slate-200 bg-white px-3.5 text-sm font-medium text-slate-800 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20">
+                                <% for (let number = 1; number <= examCount; number += 1) { %>
+                                    <option value="<%= number %>" <%= number === selectedExam ? 'selected' : '' %>>Bài kiểm tra <%= number %></option>
+                                <% } %>
+                            </select>
+                        </div>
+                        <div class="space-y-1.5">
+                            <label for="test-date-mobile" class="text-xs font-semibold text-slate-600">Ngày kiểm tra</label>
+                            <input id="test-date-mobile" type="date" value="<%= selectedDate ?? '' %>"
+                                class="h-10 w-full rounded-xl border border-slate-200 bg-white px-3.5 text-sm font-medium text-slate-800 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20">
+                            <p class="text-xs text-slate-500" id="score-date-hint">Chọn ngày kiểm tra trước khi nhập điểm.</p>
+                        </div>
+                    </div>
+                    <div class="border-t border-slate-100 bg-slate-50 px-5 py-4">
+                        <button type="button" id="apply-exam-context" class="h-10 w-full rounded-xl bg-blue-600 px-4 text-sm font-semibold text-white transition-colors hover:bg-blue-700">
+                            Áp dụng
+                        </button>
+                    </div>
+                </dialog>
             </form>
 
             <!-- Main Score Input Form -->
@@ -87,39 +173,6 @@
                 <input type="hidden" name="bai_kiem_tra" value="<%= selectedExam %>">
                 <input id="score-exam-date" type="hidden" name="ngay_kiem_tra" value="<%= selectedDate ?? '' %>">
                 
-                <!-- Action Bar & Summary Header -->
-                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white px-5 py-4 rounded-2xl border border-slate-200/80 shadow-sm">
-                    <div class="flex items-center space-x-3 text-sm text-slate-600 flex-wrap gap-y-2">
-                        <span class="inline-flex items-center gap-2 bg-blue-50 text-blue-700 px-3 py-1 rounded-full font-semibold text-xs border border-blue-100">
-                            <i class="fa-solid fa-layer-group"></i> Lớp: <%= classes.find(item => item.id_lop === selectedClassId)?.ten_lop || 'Lớp của bạn' %>
-                        </span>
-                        <span class="hidden md:inline text-slate-300">|</span>
-                        <span class="inline-flex items-center gap-1.5 font-medium text-slate-600">
-                            <i class="fa-solid fa-file-lines text-blue-500"></i> Bài kiểm tra <strong class="text-slate-900"><%= selectedExam %></strong>
-                        </span>
-                    </div>
-
-                    <div class="flex items-center space-x-3 w-full sm:w-auto justify-end flex-wrap gap-y-2">
-                        <!-- Dynamic Save Status Badge -->
-                        <div id="score-save-status" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold <%= scoreSaveStatusClasses %>">
-                            <i class="fa-solid <%= scoreSaveIcon %>"></i>
-                            <span id="score-save-status-text">Đã lưu <%= savedScoreCount %>/<%= students.length %></span>
-                        </div>
-
-                        <!-- Print Trigger Button -->
-                        <button class="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl border border-slate-200 bg-white text-slate-700 hover:bg-slate-50 font-semibold text-sm transition-all shadow-xs disabled:opacity-50 disabled:cursor-not-allowed"
-                            type="button"
-                            id="open-exam-print"
-                            data-class-id="<%= selectedClassId || '' %>"
-                            data-exam-count="<%= examCount %>"
-                            <%= !selectedClassId || !students.length ? 'disabled' : '' %>>
-                            <i class="fa-solid fa-print text-slate-500"></i>
-                            <span class="hidden sm:inline">In điểm kiểm tra</span>
-                        </button>
-
-                    </div>
-                </div>
-
                 <% if (!students.length) { %>
                     <!-- Empty Class Roster State -->
                     <div class="bg-white rounded-2xl p-16 text-center border border-slate-200 shadow-sm text-slate-500 flex-1 flex flex-col items-center justify-center">
@@ -135,8 +188,7 @@
                                 <colgroup>
                                     <col style="width: 8%">
                                     <col style="width: 14%">
-                                    <col style="width: 34%">
-                                    <col style="width: 20%">
+                                    <col style="width: 54%">
                                     <col style="width: 24%">
                                 </colgroup>
                                 <thead>
@@ -144,7 +196,6 @@
                                         <th class="py-3.5 px-4 text-center w-16">STT</th>
                                         <th class="py-3.5 px-4 w-32">Mã số</th>
                                         <th class="py-3.5 px-4">Họ và tên thiếu nhi</th>
-                                        <th class="py-3.5 px-4 w-36">Trạng thái</th>
                                         <th class="py-3.5 px-4 w-40 text-center">Điểm số (0 - 10)</th>
                                     </tr>
                                 </thead>
@@ -153,14 +204,9 @@
                                         <tr data-student-row data-student-id="<%= student.id_tn %>" data-saved="<%= student.da_luu ? 'true' : 'false' %>" data-search="<%= `${student.mstn || ''} ${student.ten_thanh || ''} ${student.ho_va_ten_lot || ''} ${student.ten || ''}`.toLowerCase() %>"
                                             class="hover:bg-blue-50/30 transition-colors group">
                                             <td class="py-3.5 px-4 text-center text-slate-400 font-medium"><%= index + 1 %></td>
-                                            <td class="py-3.5 px-4 font-mono text-xs text-slate-600 font-semibold"><%= student.mstn || '-' %></td>
+                                            <td class="py-3.5 px-4"><%= student.mstn || '-' %></td>
                                             <td class="py-3.5 px-4 font-semibold text-slate-900">
                                                 <%= [student.ten_thanh, student.ho_va_ten_lot, student.ten].filter(Boolean).join(' ') %>
-                                            </td>
-                                            <td class="py-3.5 px-4">
-                                                <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold <%= getStudentStatusBadgeClasses(student.trang_thai) %>">
-                                                    <%= student.trang_thai %>
-                                                </span>
                                             </td>
                                             <td class="py-3.5 px-4 text-center">
                                                 <input class="score-input w-24 px-3 py-1.5 text-center font-bold text-slate-800 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-blue-500/20 focus:border-blue-600 transition-all shadow-2xs disabled:cursor-not-allowed disabled:opacity-50" 
@@ -181,11 +227,8 @@
                                     <div class="flex items-center justify-between">
                                         <div class="flex items-center space-x-2">
                                             <span class="w-6 h-6 rounded-full bg-slate-100 text-slate-500 font-bold text-xs flex items-center justify-center"><%= index + 1 %></span>
-                                            <span class="font-mono text-xs font-semibold text-slate-500"><%= student.mstn || '-' %></span>
+                                            <span><%= student.mstn || '-' %></span>
                                         </div>
-                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-bold <%= getStudentStatusBadgeClasses(student.trang_thai) %>">
-                                            <%= student.trang_thai %>
-                                        </span>
                                     </div>
                                     <div class="flex items-center justify-between gap-3">
                                         <div class="font-bold text-slate-900 text-sm leading-snug">
@@ -271,3 +314,95 @@
 <script src="/js/table-search.js" defer></script>
 <script src="/socket.io/socket.io.js"></script>
 <script src="/js/glv/glv-kiem-tra.js" defer></script>
+<script>
+    (() => {
+        const contextModal = document.getElementById('exam-context-modal');
+        const openContextButton = document.getElementById('open-exam-context');
+        const applyContextButton = document.getElementById('apply-exam-context');
+        const examSelector = document.getElementById('test-number');
+        const mobileExamSelector = document.getElementById('test-number-mobile');
+        const dateInput = document.getElementById('test-date');
+        const mobileDateInput = document.getElementById('test-date-mobile');
+        const desktopViewport = window.matchMedia('(min-width: 768px)');
+
+        if (!contextModal || !openContextButton || !applyContextButton
+            || !examSelector || !mobileExamSelector || !dateInput || !mobileDateInput) return;
+
+        let mobileDateWasChanged = false;
+        let mobileExamLoadId = 0;
+        const applyExamContext = () => {
+            examSelector.dispatchEvent(new Event('change', { bubbles: true }));
+        };
+
+        examSelector.addEventListener('change', () => {
+            dateInput.disabled = true;
+        });
+        openContextButton.addEventListener('click', () => {
+            mobileExamSelector.value = examSelector.value;
+            mobileDateInput.value = dateInput.value;
+            mobileDateWasChanged = false;
+            contextModal.showModal();
+        });
+        mobileExamSelector.addEventListener('change', async () => {
+            const loadId = ++mobileExamLoadId;
+            const query = new URLSearchParams({
+                nien_khoa: '<%= selectedYearId %>',
+                id_lop: '<%= selectedClassId %>',
+                bai_kiem_tra: mobileExamSelector.value
+            });
+            mobileDateInput.disabled = true;
+            applyContextButton.disabled = true;
+            try {
+                const response = await fetch(`/glv/kiem-tra/exam-date?${query}`);
+                const result = await response.json();
+                if (!response.ok || !result.success) {
+                    throw new Error(result.message || 'Không thể tải ngày kiểm tra.');
+                }
+                if (loadId !== mobileExamLoadId) return;
+                mobileDateInput.value = result.date || '';
+                mobileDateWasChanged = false;
+            } catch (error) {
+                if (loadId === mobileExamLoadId) {
+                    mobileExamSelector.value = examSelector.value;
+                    mobileDateInput.value = dateInput.value;
+                    window.alert(error.message || 'Không thể tải ngày kiểm tra.');
+                }
+            } finally {
+                if (loadId === mobileExamLoadId) {
+                    mobileDateInput.disabled = false;
+                    applyContextButton.disabled = false;
+                }
+            }
+        });
+        mobileDateInput.addEventListener('change', () => {
+            mobileDateWasChanged = true;
+        });
+        contextModal.querySelectorAll('[data-close-exam-context]').forEach(button => {
+            button.addEventListener('click', () => contextModal.close());
+        });
+        applyContextButton.addEventListener('click', () => {
+            if (mobileDateWasChanged) {
+                document.dispatchEvent(new CustomEvent('exam-date-save', {
+                    detail: {
+                        date: mobileDateInput.value,
+                        exam: mobileExamSelector.value
+                    }
+                }));
+                return;
+            }
+            contextModal.close();
+            if (mobileExamSelector.value !== examSelector.value) {
+                examSelector.value = mobileExamSelector.value;
+                dateInput.disabled = true;
+                applyExamContext();
+            }
+        });
+        dateInput.addEventListener('change', () => {
+            if (desktopViewport.matches) {
+                document.dispatchEvent(new CustomEvent('exam-date-save', {
+                    detail: { date: dateInput.value, exam: examSelector.value }
+                }));
+            }
+        });
+    })();
+</script>

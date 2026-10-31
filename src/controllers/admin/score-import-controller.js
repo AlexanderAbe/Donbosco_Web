@@ -102,6 +102,7 @@ const buildTemplate = data => {
     ]));
     const statusCodes = new Map([
         ['Đi sớm', 'S'],
+        ['Đi trễ', 'T'],
         ['Có mặt', '-'],
         ['Vắng không phép', 'V'],
         ['Vắng phép', 'P']

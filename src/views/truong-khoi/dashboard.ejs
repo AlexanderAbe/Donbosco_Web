@@ -63,7 +63,7 @@
         </section>
         <section class="dashboard-panel">
             <div class="panel-heading"><h2>Điểm danh gần đây</h2><span><%= recentAttendance.length %> buổi</span></div>
-            <% if (!recentAttendance.length) { %><p class="panel-empty">Chưa có dữ liệu điểm danh.</p><% } else { %><div class="dashboard-table-wrap"><table><thead><tr><th>Ngày</th><th>Buổi</th><th>Lớp</th><th>Có mặt</th><th>Tổng</th></tr></thead><tbody><% recentAttendance.forEach(item => { %><tr><td><%= new Date(item.ngay_diem_danh).toLocaleDateString('vi-VN') %></td><td><%= item.loai_buoi %></td><td><%= item.ten_lop %></td><td><%= item.present_count %></td><td><%= item.student_count %></td></tr><% }) %></tbody></table></div><% } %>
+            <% if (!recentAttendance.length) { %><p class="panel-empty">Chưa có dữ liệu điểm danh.</p><% } else { %><div class="dashboard-table-wrap"><table><thead><tr><th>Ngày</th><th>Buổi</th><th>Lớp</th><th>Có mặt</th><th>Đi trễ</th><th>Tổng</th></tr></thead><tbody><% recentAttendance.forEach(item => { %><tr><td><%= new Date(item.ngay_diem_danh).toLocaleDateString('vi-VN') %></td><td><%= item.loai_buoi %></td><td><%= item.ten_lop %></td><td><%= item.present_count %></td><td><%= item.late_count %></td><td><%= item.student_count %></td></tr><% }) %></tbody></table></div><% } %>
         </section>
     </div>
 </main>

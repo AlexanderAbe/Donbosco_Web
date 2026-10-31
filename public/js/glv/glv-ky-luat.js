@@ -45,20 +45,19 @@
         // Lắng nghe sự kiện điểm thay đổi từ server (do người khác hoặc tab khác sửa)
         socket.on('discipline_score_updated', (data) => {
             const { studentId, newScore } = data;
-            const row = scoreForm.querySelector(`tr[data-student-id="${studentId}"]`);
-            if (row) {
-                const inputElem = row.querySelector('.discipline-input');
+            const rows = [...scoreForm.querySelectorAll('[data-student-id]')]
+                .filter(row => row.dataset.studentId === String(studentId));
+            if (rows.length) {
                 const savedScore = savedScores.get(String(studentId)) ?? '';
-                const hasLocalChanges = inputElem && inputElem.value.trim() !== savedScore;
                 savedScores.set(String(studentId), newScore);
                 updateStudentSaved(String(studentId), newScore !== '');
-                if (inputElem && !hasLocalChanges) {
+                rows.forEach(row => {
+                    const inputElem = row.querySelector('.discipline-input');
+                    if (!inputElem || inputElem.value.trim() !== savedScore) return;
                     inputElem.value = newScore;
-                    
-                    // Hiệu ứng nháy xanh nhẹ thông báo dữ liệu được đồng bộ từ xa
                     inputElem.classList.add('bg-green-100', 'transition-colors');
                     setTimeout(() => inputElem.classList.remove('bg-green-100'), 1000);
-                }
+                });
                 setStatus('Đã đồng bộ', true);
             }
         });
@@ -126,7 +125,17 @@
         };
 
         scoreForm.querySelectorAll('.discipline-input').forEach(input => {
+            const syncResponsiveInput = () => {
+                const studentId = input.closest('[data-student-id]')?.dataset.studentId;
+                if (!studentId) return;
+                scoreForm.querySelectorAll('[data-student-id]').forEach(row => {
+                    if (row.dataset.studentId !== studentId) return;
+                    const pairedInput = row.querySelector('.discipline-input');
+                    if (pairedInput && pairedInput !== input) pairedInput.value = input.value;
+                });
+            };
             const scheduleSave = () => {
+                syncResponsiveInput();
                 const previousTimer = saveTimers.get(input);
                 if (previousTimer) clearTimeout(previousTimer);
                 saveTimers.set(input, setTimeout(() => {
@@ -134,8 +143,10 @@
                     persistScore(input).catch(() => {});
                 }, 400));
             };
+            input.addEventListener('input', syncResponsiveInput);
             input.addEventListener('input', scheduleSave);
             input.addEventListener('change', () => {
+                syncResponsiveInput();
                 const timer = saveTimers.get(input);
                 if (timer) clearTimeout(timer);
                 saveTimers.delete(input);

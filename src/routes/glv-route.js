@@ -34,6 +34,8 @@ router.post('/bang-diem/:id/update-result', bangDiemController.updateResult);
 
 // Kiểm tra
 router.get('/kiem-tra', kiemTraController.getKiemTra);
+router.get('/kiem-tra/exam-date', kiemTraController.getExamDate);
+router.post('/kiem-tra/update-date', kiemTraController.updateExamDate);
 router.post('/kiem-tra/print-data', kiemTraController.getExamScoresForPrint);
 router.post('/kiem-tra/save', kiemTraController.saveKiemTra);
 router.post('/kiem-tra/entry-save', kiemTraController.saveExamScoreEntry);

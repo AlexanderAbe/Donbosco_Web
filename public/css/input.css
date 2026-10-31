@@ -237,7 +237,7 @@
   }
 
   .glv-dashboard {
-    @apply min-h-[calc(100vh-60px)] bg-linear-to-br from-blue-50 via-slate-50 to-amber-50 px-3.5 py-6 text-slate-800 sm:px-8 min-[1025px]:min-h-[calc(100vh-90px)] min-[1025px]:px-14 min-[1025px]:py-9;
+    @apply min-h-[calc(100vh-60px)] bg-slate-50 px-3.5 py-6 text-slate-800 sm:px-8 min-[1025px]:min-h-[calc(100vh-90px)] min-[1025px]:px-14 min-[1025px]:py-9;
   }
 
   .glv-dashboard .dashboard-hero {
@@ -284,29 +284,33 @@
   }
 
   .glv-dashboard .stats-grid {
-    @apply grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3;
+    @apply grid grid-cols-3 gap-2 sm:gap-4;
   }
 
   .glv-dashboard .stat-card,
   .glv-dashboard .dashboard-panel,
   .glv-dashboard .dashboard-empty {
-    @apply rounded-xl border border-slate-200 bg-white shadow-sm;
+    @apply min-w-0 rounded-xl border border-slate-200 bg-white shadow-sm;
   }
 
   .glv-dashboard .stat-card {
-    @apply flex items-start gap-4 p-5;
+    @apply flex min-w-0 items-start gap-2 p-2.5 sm:gap-4 sm:p-5;
   }
 
   .glv-dashboard .stat-icon {
-    @apply flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-blue-50 text-2xl text-blue-600;
+    @apply flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-blue-50 text-lg text-blue-600 sm:h-12 sm:w-12 sm:text-2xl;
+  }
+
+  .glv-dashboard .stat-info {
+    @apply min-w-0;
   }
 
   .glv-dashboard .stat-info h3 {
-    @apply mb-2 text-sm font-semibold text-slate-500;
+    @apply mb-1 text-xs font-semibold leading-tight text-slate-500 sm:mb-2 sm:text-sm;
   }
 
   .glv-dashboard .stat-number {
-    @apply m-0 text-3xl font-extrabold text-slate-900;
+    @apply m-0 text-2xl font-extrabold text-slate-900 sm:text-3xl;
   }
 
   .glv-dashboard .stat-desc {
@@ -347,24 +351,32 @@
   }
 
   .glv-dashboard .attendance-badge {
-    @apply whitespace-nowrap rounded-full bg-emerald-100 px-3 py-2 text-sm font-semibold text-emerald-800;
+    @apply whitespace-nowrap rounded-full px-3 py-2 text-sm font-semibold;
     font-family: inherit;
   }
 
+  .glv-dashboard .attendance-badge--complete {
+    @apply bg-emerald-100 text-emerald-800;
+  }
+
+  .glv-dashboard .attendance-badge--incomplete {
+    @apply bg-amber-100 text-amber-800;
+  }
+
   .glv-dashboard .attendance-numbers {
-    @apply my-4 grid grid-cols-1 gap-2 sm:grid-cols-3;
+    @apply my-4 grid grid-cols-2 gap-2;
   }
 
   .glv-dashboard .attendance-numbers > div {
-    @apply rounded-lg border border-slate-200 p-3 text-center;
+    @apply min-w-0 rounded-lg border border-slate-200 p-1.5 text-center sm:p-3;
   }
 
   .glv-dashboard .attendance-numbers strong {
-    @apply block text-xl text-slate-900;
+    @apply block text-base text-slate-900 sm:text-xl;
   }
 
   .glv-dashboard .attendance-numbers span {
-    @apply mt-1 block;
+    @apply mt-1 block text-[10px] leading-tight sm:text-xs;
   }
 
   .glv-dashboard .panel-link {
@@ -372,28 +384,129 @@
     font-family: inherit;
   }
 
-  .glv-dashboard .alert-group + .alert-group {
-    @apply mt-5 border-t border-slate-100 pt-4;
+  @media (max-width: 640px) {
+    .glv-dashboard .stat-card {
+      flex-direction: column;
+      align-items: center;
+      gap: 0.375rem;
+      padding: 0.75rem 0.375rem;
+      text-align: center;
+    }
+
+    .glv-dashboard .stat-icon {
+      width: 2rem;
+      height: 2rem;
+      border-radius: 0.5rem;
+      font-size: 1rem;
+    }
+
+    .glv-dashboard .stat-info {
+      width: 100%;
+    }
+
+    .glv-dashboard .stat-info h3 {
+      min-height: 2.4em;
+      margin-bottom: 0.25rem;
+      font-size: 0.75rem;
+      overflow-wrap: break-word;
+    }
+
+    .glv-dashboard .stat-number {
+      font-size: clamp(1.25rem, 6vw, 1.5rem);
+      line-height: 1.2;
+    }
+
+    .glv-dashboard .stat-desc {
+      display: none;
+    }
+
+    .glv-dashboard .attendance-panel {
+      padding: 0.75rem;
+    }
+
+    .glv-dashboard .attendance-focus {
+      flex-direction: row;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.625rem;
+    }
+
+    .glv-dashboard .attendance-date {
+      min-width: 0;
+      overflow-wrap: anywhere;
+    }
+
+    .glv-dashboard .attendance-badge {
+      padding: 0.5rem 0.75rem;
+      font-size: 0.75rem;
+    }
+
+    .glv-dashboard .attendance-numbers > div {
+      padding: 0.75rem 0.5rem;
+    }
+
+    .glv-dashboard .attendance-numbers strong {
+      font-size: clamp(1.25rem, 6vw, 1.5rem);
+      overflow-wrap: anywhere;
+    }
+
+    .glv-dashboard .attendance-numbers span {
+      font-size: 0.8125rem;
+      overflow-wrap: anywhere;
+    }
   }
 
-  .glv-dashboard .alert-group h3 {
-    @apply mb-2 text-[15px] font-bold text-slate-900;
+  .glv-dashboard .alert-tabs {
+    @apply mb-4 grid w-full grid-cols-3 gap-1 border-b border-slate-200;
   }
 
-  .glv-dashboard .alert-group h3 i {
-    @apply mr-2 text-amber-600;
+  .glv-dashboard .alert-tab {
+    @apply inline-flex min-h-11 min-w-0 cursor-pointer items-center justify-center gap-2 border-0 border-b-2 border-transparent bg-transparent px-2 text-sm font-semibold text-slate-500 transition-colors hover:text-slate-800;
   }
 
-  .glv-dashboard .alert-group ul {
-    @apply m-0 list-none p-0;
+  .glv-dashboard .alert-tab.is-active {
+    @apply border-blue-600 text-blue-700;
   }
 
-  .glv-dashboard .alert-group li {
-    @apply flex justify-between gap-3 border-b border-slate-100 py-2 text-sm last:border-0;
+  .glv-dashboard .alert-tab span {
+    @apply inline-flex min-w-5 items-center justify-center rounded-full bg-slate-100 px-1.5 py-0.5 text-xs font-bold text-slate-600;
   }
 
-  .glv-dashboard .alert-group li strong {
-    @apply whitespace-nowrap text-amber-700;
+  .glv-dashboard .alert-tab.is-active span {
+    @apply bg-blue-50 text-blue-700;
+  }
+
+  .glv-dashboard .alert-tab:focus-visible,
+  .glv-dashboard .alert-tab-panel:focus-visible {
+    @apply rounded-sm outline-2 outline-offset-2 outline-blue-500;
+  }
+
+  .glv-dashboard .alert-table-wrap {
+    @apply max-w-full overflow-x-auto;
+  }
+
+  .glv-dashboard .alert-table {
+    @apply w-full border-collapse text-left text-sm;
+  }
+
+  .glv-dashboard .alert-table th {
+    @apply whitespace-nowrap border-b border-slate-200 bg-slate-50 px-3 py-2.5 text-xs font-bold text-slate-500;
+  }
+
+  .glv-dashboard .alert-table td {
+    @apply border-b border-slate-100 px-3 py-2.5 text-slate-700 last:border-0;
+  }
+
+  .glv-dashboard .alert-table td:nth-child(2) {
+    @apply min-w-32 font-semibold text-slate-900;
+  }
+
+  .glv-dashboard .alert-table td:last-child {
+    @apply whitespace-nowrap font-semibold text-amber-700;
+  }
+
+  .glv-dashboard .alert-tab-panel[hidden] {
+    display: none;
   }
 
   .glv-dashboard .dashboard-empty {
@@ -411,7 +524,7 @@
   .class-page,
   .attendance-page,
   .discipline-page {
-    @apply min-h-[calc(100vh-60px)] bg-linear-to-br from-blue-50 via-slate-50 to-amber-50 px-3.5 py-6 text-slate-800 sm:px-8 min-[1025px]:min-h-[calc(100vh-90px)] min-[1025px]:px-14 min-[1025px]:py-9;
+    @apply min-h-[calc(100vh-60px)] bg-slate-50 px-3.5 py-6 text-slate-800 sm:px-8 min-[1025px]:min-h-[calc(100vh-90px)] min-[1025px]:px-14 min-[1025px]:py-9;
   }
 
   .search-hidden {
@@ -1794,5 +1907,79 @@
 
   .pagination-current {
     @apply inline-flex min-h-12 items-center justify-center gap-1 whitespace-nowrap;
+  }
+}
+
+@media (min-width: 1025px) {
+  .desktop-switch-buttons {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    padding: 4px;
+    border: 1px solid #e2e8f0;
+    border-radius: 14px;
+    background: #f1f5f9;
+    box-shadow: 0 1px 2px rgb(15 23 42 / 8%);
+  }
+
+  .desktop-switch-buttons .switch-btn {
+    display: inline-flex;
+    min-height: 40px;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 8px 14px;
+    border: 1px solid transparent;
+    border-radius: 10px;
+    background: transparent;
+    color: #475569;
+    font-size: 13px;
+    font-weight: 600;
+    text-decoration: none;
+    white-space: nowrap;
+    box-shadow: none;
+  }
+
+  .desktop-switch-buttons .switch-btn:hover {
+    border-color: transparent;
+    background: #e2e8f0;
+    color: #0f172a;
+  }
+
+  .desktop-switch-buttons .switch-btn.is-current,
+  .desktop-switch-buttons .switch-btn.is-current:hover {
+    border-color: var(--role-switch-border, #dbeafe);
+    background: var(--role-switch-background, #fff);
+    color: var(--role-switch-color, #1d4ed8);
+    box-shadow: 0 1px 3px rgb(15 23 42 / 12%);
+  }
+
+  .desktop-switch-buttons[data-active-role="glv"] {
+    --role-switch-color: #1d4ed8;
+    --role-switch-border: #bfdbfe;
+    --role-switch-background: #eff6ff;
+  }
+
+  .desktop-switch-buttons[data-active-role="truong-khoi"] {
+    --role-switch-color: #b45309;
+    --role-switch-border: #fcd34d;
+    --role-switch-background: #fef3c7;
+  }
+
+  .desktop-switch-buttons[data-active-role="bdh"] {
+    --role-switch-color: #b91c1c;
+    --role-switch-border: #fecaca;
+    --role-switch-background: #fef2f2;
+  }
+
+  .desktop-switch-buttons[data-active-role="admin"] {
+    --role-switch-color: #15803d;
+    --role-switch-border: #bbf7d0;
+    --role-switch-background: #f0fdf4;
+  }
+
+  .desktop-switch-buttons .switch-btn:focus-visible {
+    outline: 2px solid #3b82f6;
+    outline-offset: 2px;
   }
 }

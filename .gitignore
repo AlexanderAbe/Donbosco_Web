@@ -5,3 +5,4 @@ npm-debug.log
 .clinic
 database
 docker
+service-account-key.json

@@ -295,8 +295,9 @@
                         const attendanceHeading = printDocument.createElement('h2');
                         attendanceHeading.textContent = 'TỔNG SỐ BUỔI ĐIỂM DANH';
                         page.appendChild(attendanceHeading);
-                        appendTable(page, ['Đi sớm', 'Có mặt', 'Vắng không phép', 'Vắng có phép'], [[
+                        appendTable(page, ['Đi sớm', 'Đi trễ', 'Có mặt', 'Vắng không phép', 'Vắng có phép'], [[
                             student.early_count,
+                            student.late_count,
                             student.present_count,
                             student.unexcused_count,
                             student.excused_count

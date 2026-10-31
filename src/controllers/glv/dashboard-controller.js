@@ -15,7 +15,7 @@ const DashboardController = {
             const { selectedYearId, selectedYear } = getCurrentYear(years, req.session);
             const dashboard = selectedYearId
                 ? await DashboardModel.getDashboardData(idGlv, selectedYearId)
-                : { classes: [], attendance: null, attendanceAlerts: [], scoreAlerts: [] };
+                : { classes: [], attendance: null, attendanceAlerts: [], scoreAlerts: [], disciplineAlerts: [] };
             return res.render('glv/dashboard', {
                 title: 'Tổng quan GLV',
                 user: req.session.user,

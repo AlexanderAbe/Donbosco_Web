@@ -89,7 +89,7 @@ const DiemDanhModel = {
 
     async saveAttendance(idGlv, yearId, classId, attendanceDate, sessionType, attendance, unmarkedStatus = 'Có mặt') {
         const sessionTypes = ['Lễ Thứ 3', 'Lễ Thứ 5', 'Lễ Chúa Nhật', 'Học Giáo Lý'];
-        const statuses = ['Có mặt', 'Đi sớm', 'Vắng phép', 'Vắng không phép'];
+        const statuses = ['Có mặt', 'Đi sớm', 'Đi trễ', 'Vắng phép', 'Vắng không phép'];
         if (!Number.isInteger(yearId) || !Number.isInteger(classId) || !/^\d{4}-\d{2}-\d{2}$/.test(attendanceDate || '') || !sessionTypes.includes(sessionType) || !statuses.includes(unmarkedStatus)) {
             throw new Error('Thông tin điểm danh không hợp lệ.');
         }
@@ -161,7 +161,7 @@ const DiemDanhModel = {
 
     async saveStudentAttendance(idGlv, yearId, classId, studentId, attendanceDate, sessionType, status) {
         const sessionTypes = ['Lễ Thứ 3', 'Lễ Thứ 5', 'Lễ Chúa Nhật', 'Học Giáo Lý'];
-        const statuses = ['Có mặt', 'Đi sớm', 'Vắng phép', 'Vắng không phép'];
+        const statuses = ['Có mặt', 'Đi sớm', 'Đi trễ', 'Vắng phép', 'Vắng không phép'];
         if (!Number.isInteger(idGlv) || !Number.isInteger(yearId) || !Number.isInteger(classId)
             || !Number.isInteger(studentId) || !/^\d{4}-\d{2}-\d{2}$/.test(attendanceDate || '')
             || !sessionTypes.includes(sessionType) || !statuses.includes(status)) {

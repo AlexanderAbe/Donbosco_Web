@@ -4,6 +4,7 @@
    
    // Biến 'isGlv' được truyền từ layout (mặc định là false)
    const currentIsGlv = typeof isGlv !== 'undefined' ? isGlv : false;
+   const activeRole = String(session.user.active_role || '').toLowerCase();
    
    // Xác định xem có cần hiển thị phần chuyển đổi vai trò hay không
    // - Nếu KHÔNG ở trang GLV -> luôn hiển thị (vì ít nhất có nút về GLV).
@@ -15,25 +16,28 @@
     <div class="header-right">
         
         <!-- 1. GIAO DIỆN MÁY TÍNH (Các nút ngang truyền thống) -->
-        <div class="desktop-switch-buttons">
-            <% if (!currentIsGlv) { %>
-                <a href="/auth/switch-role/glv" class="switch-btn" title="Về giao diện GLV">
-                    <i class="fa-solid fa-house"></i> GLV
-                </a>
-            <% } %>
-            <% if (session.user.is_admin) { %>
-                <a href="/auth/switch-role/admin" class="switch-btn" title="Chuyển sang Quản trị">
-                    <i class="fa-solid fa-shield-halved"></i> Admin
+        <div class="desktop-switch-buttons" data-active-role="<%= activeRole %>" role="group" aria-label="Chuyển đổi vai trò">
+            <a href="/auth/switch-role/glv" class="switch-btn <%= activeRole === 'glv' ? 'is-current' : '' %>"
+                title="<%= activeRole === 'glv' ? 'Đang ở giao diện GLV' : 'Về giao diện GLV' %>"
+                <% if (activeRole === 'glv') { %>aria-current="page"<% } %>>
+                <i class="fa-solid fa-house"></i> GLV
+            </a>
+            <% if (session.user.is_truong_khoi) { %>
+                <a href="/auth/switch-role/truong-khoi" class="switch-btn <%= activeRole === 'truong-khoi' ? 'is-current' : '' %>"
+                    title="Chuyển sang Trưởng Khối" <% if (activeRole === 'truong-khoi') { %>aria-current="page"<% } %>>
+                    <i class="fa-solid fa-user-tie"></i> Trưởng/Phó Khối
                 </a>
             <% } %>
             <% if (session.user.is_bdh) { %>
-                <a href="/auth/switch-role/bdh" class="switch-btn" title="Chuyển sang Ban Điều Hành">
+                <a href="/auth/switch-role/bdh" class="switch-btn <%= activeRole === 'bdh' ? 'is-current' : '' %>"
+                    title="Chuyển sang Ban Điều Hành" <% if (activeRole === 'bdh') { %>aria-current="page"<% } %>>
                     <i class="fa-solid fa-users-gear"></i> BDH
                 </a>
             <% } %>
-            <% if (session.user.is_truong_khoi) { %>
-                <a href="/auth/switch-role/truong-khoi" class="switch-btn" title="Chuyển sang Trưởng Khối">
-                    <i class="fa-solid fa-user-tie"></i> Trưởng/Phó Khối
+            <% if (session.user.is_admin) { %>
+                <a href="/auth/switch-role/admin" class="switch-btn <%= activeRole === 'admin' ? 'is-current' : '' %>"
+                    title="Chuyển sang Quản trị" <% if (activeRole === 'admin') { %>aria-current="page"<% } %>>
+                    <i class="fa-solid fa-shield-halved"></i> Admin
                 </a>
             <% } %>
         </div>
@@ -49,9 +53,9 @@
                         <i class="fa-solid fa-house"></i> Về giao diện GLV
                     </a>
                 <% } %>
-                <% if (session.user.is_admin) { %>
-                    <a href="/auth/switch-role/admin" class="mobile-switch-item">
-                        <i class="fa-solid fa-shield-halved"></i> Chuyển sang Admin
+                <% if (session.user.is_truong_khoi) { %>
+                    <a href="/auth/switch-role/truong-khoi" class="mobile-switch-item">
+                        <i class="fa-solid fa-user-tie"></i> Chuyển sang Trưởng/Phó Khối
                     </a>
                 <% } %>
                 <% if (session.user.is_bdh) { %>
@@ -59,9 +63,9 @@
                         <i class="fa-solid fa-users-gear"></i> Chuyển sang BDH
                     </a>
                 <% } %>
-                <% if (session.user.is_truong_khoi) { %>
-                    <a href="/auth/switch-role/truong-khoi" class="mobile-switch-item">
-                        <i class="fa-solid fa-user-tie"></i> Chuyển sang Trưởng/Phó Khối
+                <% if (session.user.is_admin) { %>
+                    <a href="/auth/switch-role/admin" class="mobile-switch-item">
+                        <i class="fa-solid fa-shield-halved"></i> Chuyển sang Admin
                     </a>
                 <% } %>
             </div>

@@ -53,6 +53,7 @@ const buildAttendanceReport = (attendance = []) => {
             ten_lop: item.ten_lop || 'Chưa có lớp',
             total: 0,
             'Đi sớm': 0,
+            'Đi trễ': 0,
             'Có mặt': 0,
             'Vắng có phép': 0,
             'Vắng không phép': 0
@@ -92,6 +93,7 @@ const buildAttendanceReport = (attendance = []) => {
     const stats = {
         total: normalized.length,
         present: normalized.filter((item) => ['Có mặt', 'Đi sớm'].includes(item._status)).length,
+        late: normalized.filter((item) => item._status === 'Đi trễ').length,
         excused: normalized.filter((item) => item._status === 'Vắng có phép').length,
         absent: normalized.filter((item) => item._status === 'Vắng không phép').length
     };
