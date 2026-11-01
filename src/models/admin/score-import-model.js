@@ -122,9 +122,11 @@ const ScoreImportModel = {
             for (const student of attendanceStudents) {
                 for (let index = 0; index < workbookData.attendance.columns.length; index += 1) {
                     const column = workbookData.attendance.columns[index];
+                    const status = student.values[index];
+                    if (status === null) continue;
                     attendanceOverrides.set(
                         `${student.id_tn}|${column.date}|${column.type}`,
-                        student.values[index]
+                        status
                     );
                 }
             }
@@ -187,59 +189,49 @@ const ScoreImportModel = {
             }
 
             const examValues = [];
-            const examClears = [];
             const disciplineValues = [];
-            const disciplineClears = [];
             const attendanceValues = [];
-            const attendanceClears = [];
 
             for (const student of examStudents) {
                 for (let index = 0; index < workbookData.exams.columns.length; index += 1) {
                     const column = workbookData.exams.columns[index];
                     const score = student.values[index];
+                    if (score === null) continue;
                     const value = {
                         id_tn: student.id_tn,
                         stt_bai_ktra: column.number,
                         diem_so: score,
                         ngay_kiem_tra: column.date
                     };
-                    (score === null ? examClears : examValues).push(value);
+                    examValues.push(value);
                 }
             }
             for (const student of disciplineStudents) {
                 for (let index = 0; index < workbookData.discipline.columns.length; index += 1) {
                     const column = workbookData.discipline.columns[index];
                     const score = student.values[index];
+                    if (score === null) continue;
                     const value = {
                         id_tn: student.id_tn,
                         thang: column.month,
                         diem: score
                     };
-                    (score === null ? disciplineClears : disciplineValues).push(value);
+                    disciplineValues.push(value);
                 }
             }
             for (const student of attendanceStudents) {
                 for (let index = 0; index < workbookData.attendance.columns.length; index += 1) {
                     const column = workbookData.attendance.columns[index];
                     const status = student.values[index];
+                    if (status === null) continue;
                     const value = {
                         id_tn: student.id_tn,
                         ngay_diem_danh: column.date,
                         loai_buoi: column.type,
                         trang_thai: status
                     };
-                    (status === null ? attendanceClears : attendanceValues).push(value);
+                    attendanceValues.push(value);
                 }
-            }
-
-            if (examClears.length) {
-                await client.query(`
-                    DELETE FROM DIEM_HOC_TAP dht
-                    USING jsonb_to_recordset($1::jsonb) AS item(id_tn integer, stt_bai_ktra integer)
-                    WHERE dht.id_tn = item.id_tn
-                      AND dht.id_cau_hinh_nam_hoc = $2
-                      AND dht.stt_bai_ktra = item.stt_bai_ktra
-                `, [JSON.stringify(examClears), yearId]);
             }
             if (examValues.length) {
                 await client.query(`
@@ -249,22 +241,11 @@ const ScoreImportModel = {
                         id_tn integer, stt_bai_ktra integer, diem_so numeric, ngay_kiem_tra text
                     )
                     ON CONFLICT (id_tn, id_cau_hinh_nam_hoc, stt_bai_ktra)
-                    DO UPDATE SET diem_so = EXCLUDED.diem_so, ngay_kiem_tra = EXCLUDED.ngay_kiem_tra
+                    DO UPDATE SET diem_so = EXCLUDED.diem_so,
+                                  ngay_kiem_tra = COALESCE(EXCLUDED.ngay_kiem_tra, DIEM_HOC_TAP.ngay_kiem_tra)
                 `, [JSON.stringify(examValues), yearId]);
             }
 
-            if (attendanceClears.length) {
-                await client.query(`
-                    DELETE FROM DIEM_DANH dd
-                    USING jsonb_to_recordset($1::jsonb) AS item(
-                        id_tn integer, ngay_diem_danh date, loai_buoi text
-                    )
-                    WHERE dd.id_tn = item.id_tn
-                      AND dd.id_lop = $2
-                      AND dd.ngay_diem_danh = item.ngay_diem_danh
-                      AND dd.loai_buoi = item.loai_buoi::enum_loai_buoi
-                `, [JSON.stringify(attendanceClears), classId]);
-            }
             if (attendanceValues.length) {
                 await client.query(`
                     INSERT INTO DIEM_DANH (id_tn, id_lop, ngay_diem_danh, loai_buoi, trang_thai)
@@ -278,8 +259,11 @@ const ScoreImportModel = {
                 `, [JSON.stringify(attendanceValues), classId]);
             }
 
-            if (attendanceStudents.length) {
-                const attendanceIds = [...new Set(attendanceStudents.map(student => student.id_tn))];
+            const studentsWithAttendanceUpdates = attendanceStudents.filter(student =>
+                student.values.some(status => status !== null)
+            );
+            if (studentsWithAttendanceUpdates.length) {
+                const attendanceIds = [...new Set(studentsWithAttendanceUpdates.map(student => student.id_tn))];
                 const months = [...new Set(workbookData.attendance.columns.map(column => Number(column.date.slice(5, 7))))];
                 for (const idTn of attendanceIds) {
                     for (const month of months) {
@@ -307,15 +291,6 @@ const ScoreImportModel = {
                 }
             }
 
-            if (disciplineClears.length) {
-                await client.query(`
-                    DELETE FROM DIEM_KY_LUAT dkl
-                    USING jsonb_to_recordset($1::jsonb) AS item(id_tn integer, thang integer)
-                    WHERE dkl.id_tn = item.id_tn
-                      AND dkl.id_cau_hinh_nam_hoc = $2
-                      AND dkl.thang = item.thang
-                `, [JSON.stringify(disciplineClears), yearId]);
-            }
             if (disciplineValues.length) {
                 await client.query(`
                     INSERT INTO DIEM_KY_LUAT (id_tn, id_cau_hinh_nam_hoc, thang, diem)
