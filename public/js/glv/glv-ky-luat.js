@@ -29,6 +29,8 @@
             const isFullySaved = saved && savedStudents.size === totalStudents;
             saveStatus.classList.toggle('saved', isFullySaved);
             saveStatus.classList.toggle('unsaved', !isFullySaved);
+            saveStatus.classList.toggle('discipline-save-status--saved', isFullySaved);
+            saveStatus.classList.toggle('discipline-save-status--pending', !isFullySaved);
             saveStatus.querySelector('i').className = `fa-solid ${isFullySaved ? 'fa-circle-check' : 'fa-clock'}`;
             saveStatusText.textContent = `${text} · Đã lưu ${savedStudents.size}/${totalStudents}`;
         };

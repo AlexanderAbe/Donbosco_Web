@@ -43,13 +43,6 @@
             if (hiddenDateInput) hiddenDateInput.value = normalizedDate;
             const mobileDateInput = document.getElementById('test-date-mobile');
             if (mobileDateInput) mobileDateInput.value = normalizedDate;
-            const mobileDateStatus = document.getElementById('exam-context-mobile-label');
-            if (mobileDateStatus) {
-                const dateLabel = normalizedDate
-                    ? normalizedDate.split('-').reverse().join('/')
-                    : 'Chưa chọn ngày';
-                mobileDateStatus.textContent = `Bài kiểm tra ${examNumber} | ${dateLabel}`;
-            }
             updateScoreLayout();
         });
 
@@ -207,9 +200,7 @@
                 return;
             }
 
-            const applyButton = document.getElementById('apply-exam-context');
             const scoreInputs = [...scoreForm.querySelectorAll('.score-input')];
-            if (applyButton) applyButton.disabled = true;
             scoreInputs.forEach(input => { input.disabled = true; });
             try {
                 await flushAndWaitForSaves();
@@ -230,12 +221,12 @@
                 }
                 if (dateInput) dateInput.value = date;
                 if (hiddenDateInput) hiddenDateInput.value = date;
+                const mobileDateInput = document.getElementById('test-date-mobile');
+                if (mobileDateInput) mobileDateInput.value = date;
                 await Promise.all([...scoresWaitingForDate].map(async input => {
                     await persistScore(input);
                     scoresWaitingForDate.delete(input);
                 }));
-                const contextModal = document.getElementById('exam-context-modal');
-                if (contextModal?.open) contextModal.close();
 
                 if (selectedExam !== Number(examNumber) || result.updatedCount > 0) {
                     const nextUrl = new URL(window.location.href);
@@ -253,18 +244,12 @@
 
                 if (dateInput) dateInput.value = date;
                 if (hiddenDateInput) hiddenDateInput.value = date;
-                const mobileDateStatus = document.getElementById('exam-context-mobile-label');
-                if (mobileDateStatus) {
-                    const dateLabel = date ? date.split('-').reverse().join('/') : 'Chưa chọn ngày';
-                    mobileDateStatus.textContent = `Bài kiểm tra ${examNumber} | ${dateLabel}`;
-                }
                 updateScoreLayout();
             } catch (error) {
                 window.alert(error.message || 'Không thể cập nhật ngày kiểm tra.');
             } finally {
                 scoreInputs.forEach(input => { input.disabled = false; });
                 updateScoreLayout();
-                if (applyButton) applyButton.disabled = false;
             }
         });
 
@@ -272,6 +257,9 @@
         examSelector?.addEventListener('change', async () => {
             if (scoresWaitingForDate.size) {
                 examSelector.value = examNumber;
+                if (dateInput) dateInput.disabled = false;
+                const mobileExamSelector = document.getElementById('test-number-mobile');
+                if (mobileExamSelector) mobileExamSelector.value = examNumber;
                 setStatus('Hãy chọn ngày cho bài kiểm tra hiện tại trước khi chuyển bài.', false);
                 return;
             }

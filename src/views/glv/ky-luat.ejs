@@ -6,11 +6,6 @@
         width: 100vw;
         margin-left: calc(50% - 50vw);
         margin-top: -2.5rem;
-        padding: 1rem 1rem 1.25rem;
-        border-bottom: 1px solid #e2e8f0;
-        border-radius: 0 0 3rem 3rem;
-        background: #fff;
-        box-shadow: 0 1px 3px rgb(15 23 42 / 10%);
     }
     #discipline-save-status.discipline-save-status--saved {
         background-color: #ecfdf5;
@@ -22,13 +17,21 @@
         color: #b45309;
         border-color: #fde68a;
     }
+    @media (max-width: 768px) {
+        #discipline-score-form .discipline-score-entry {
+            display: grid;
+            grid-template-columns: auto minmax(0, 1fr);
+            align-items: center;
+            gap: 0.75rem;
+        }
+        #discipline-score-form [data-discipline-layout="mobile"] .discipline-input {
+            width: 100%;
+            max-width: none;
+        }
+    }
     @media (min-width: 640px) {
         #discipline-filter-sticky {
             margin-top: -3rem;
-            padding-top: 1.25rem;
-            padding-bottom: 1.25rem;
-            padding-right: 1.5rem;
-            padding-left: 1.5rem;
         }
     }
     @media (min-width: 1025px) {
@@ -46,23 +49,19 @@
     <% if (!classes.length) { %>
         <div class="rounded-2xl border border-dashed border-slate-300 bg-white p-8 text-center text-slate-500 shadow-sm"><i class="fa-solid fa-triangle-exclamation mr-2 text-amber-500"></i> Bạn chưa được phân công lớp trong niên khóa này.</div>
     <% } else { %>
-        <form id="discipline-filter-sticky" class="flex flex-col gap-3" method="GET" action="/glv/ky-luat">
-            <div class="flex flex-wrap items-center justify-between gap-2">
-                <div class="flex min-w-0 flex-wrap items-center gap-2">
-                    <span class="inline-flex items-center gap-2.5 rounded-lg bg-blue-50 px-4 py-2.5 text-sm font-bold text-blue-700">
-                        <i class="fa-solid fa-layer-group" aria-hidden="true"></i>
-                        <span><%= classes.find(item => item.id_lop === selectedClassId)?.ten_lop || 'Lớp của bạn' %></span>
-                    </span>
-                    <label for="discipline-month" class="sr-only">Chọn tháng</label>
-                    <select id="discipline-month" name="thang" class="h-11 w-40 shrink-0 rounded-lg border border-slate-200 bg-slate-100 px-3 text-sm font-medium text-slate-700 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 sm:w-36">
+        <form id="discipline-filter-sticky" class="sticky rounded-b-[3rem] border-b border-slate-200 bg-white px-4 py-4 shadow-sm sm:px-6 sm:py-5 lg:px-8 flex flex-col gap-3" method="GET" action="/glv/ky-luat">
+            <div class="flex flex-col gap-2 md:flex-row md:items-end">
+                <div class="min-w-0 md:w-56">
+                    <label for="discipline-month" class="mb-1 block text-xs font-semibold text-slate-600">Kỷ luật</label>
+                    <select id="discipline-month" name="thang" class="h-10 w-full rounded-lg border border-slate-200 bg-slate-100 px-3 text-sm font-medium text-slate-700 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 md:h-11">
                         <% for (let month = 1; month <= 12; month += 1) { %>
-                            <option value="<%= month %>" <%= month === selectedMonth ? 'selected' : '' %>>Kỷ luật Tháng <%= month %></option>
+                            <option value="<%= month %>" <%= month === selectedMonth ? 'selected' : '' %>>Tháng <%= month %></option>
                         <% } %>
                     </select>
                 </div>
-                <div class="flex shrink-0 items-center gap-2">
-                    <% const disciplineSavedCount = students.filter(student => student.da_luu).length; %>
-                    <span class="inline-flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-medium <%= students.length && disciplineSavedCount === students.length ? 'discipline-save-status--saved' : 'discipline-save-status--pending' %>" id="discipline-save-status">
+                <% const disciplineSavedCount = students.filter(student => student.da_luu).length; %>
+                <div class="flex justify-end md:ml-auto">
+                    <span class="inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-medium <%= students.length && disciplineSavedCount === students.length ? 'discipline-save-status--saved' : 'discipline-save-status--pending' %>" id="discipline-save-status">
                         <i class="fa-solid <%= students.length && disciplineSavedCount === students.length ? 'fa-circle-check' : 'fa-clock' %>"></i>
                         <span id="discipline-save-status-text">Đã lưu <%= disciplineSavedCount %>/<%= students.length %></span>
                     </span>
@@ -76,7 +75,7 @@
                         class="h-10 w-full rounded-xl border border-slate-200 bg-white py-2 pl-10 pr-3.5 text-sm text-slate-800 placeholder:text-slate-400 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20">
                 </div>
                 <button
-                    class="inline-flex h-10 w-10 shrink-0 items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white text-slate-700 transition-colors hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50 md:w-auto md:px-3.5"
+                    class="inline-flex h-10 w-10 shrink-0 items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white text-slate-600 transition-colors hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50 md:w-auto md:px-3.5"
                     type="button"
                     id="print-discipline-year"
                     data-class-id="<%= selectedClassId || '' %>"
@@ -101,7 +100,7 @@
             <% if (!students.length) { %>
                 <div class="rounded-2xl border border-dashed border-slate-300 bg-white p-8 text-center text-slate-500"><i class="fa-solid fa-user-slash mr-2 text-slate-400"></i> Lớp chưa có thiếu nhi.</div>
             <% } else { %>
-                <div class="overflow-hidden rounded-2xl border border-slate-200/80 bg-white shadow-sm">
+                <div class="overflow-hidden rounded-2xl border border-slate-200/80 bg-white shadow-sm max-md:overflow-visible max-md:border-0 max-md:bg-transparent max-md:shadow-none">
                     <div class="hidden overflow-x-auto md:block" data-discipline-layout="desktop">
                         <table class="w-full min-w-175 table-fixed border-collapse text-left text-sm">
                             <colgroup>
@@ -113,8 +112,8 @@
                             <thead>
                                 <tr class="border-b border-slate-200 bg-slate-50/75 text-[11px] font-bold uppercase tracking-wider text-slate-500">
                                     <th class="w-16 px-4 py-3.5 text-center">STT</th>
-                                    <th class="w-32 px-4 py-3.5">Mã số</th>
-                                    <th class="px-4 py-3.5">Họ và tên thiếu nhi</th>
+                                    <th class="w-32 px-4 py-3.5">MSTN</th>
+                                    <th class="px-4 py-3.5">Họ và tên</th>
                                     <th class="w-40 px-4 py-3.5 text-center">Điểm kỷ luật</th>
                                 </tr>
                             </thead>
@@ -134,23 +133,20 @@
                             </tbody>
                         </table>
                     </div>
-                    <div class="divide-y divide-slate-100 md:hidden" data-discipline-layout="mobile">
+                    <div class="space-y-3 md:hidden" data-discipline-layout="mobile">
                         <% students.forEach((student, index) => { %>
-                            <div data-discipline-row data-student-id="<%= student.id_tn %>" data-saved="<%= student.da_luu ? 'true' : 'false' %>" data-search="<%= `${student.mstn || ''} ${student.ten_thanh || ''} ${student.ho_va_ten_lot || ''} ${student.ten || ''}`.toLowerCase() %>" class="flex flex-col gap-3 p-4 transition-colors hover:bg-slate-50/50">
+                            <div data-discipline-row data-student-id="<%= student.id_tn %>" data-saved="<%= student.da_luu ? 'true' : 'false' %>" data-search="<%= `${student.mstn || ''} ${student.ten_thanh || ''} ${student.ho_va_ten_lot || ''} ${student.ten || ''}`.toLowerCase() %>" class="flex flex-col gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2 transition-colors hover:bg-slate-50/50">
                                 <div class="flex items-center justify-between">
                                     <div class="flex items-center space-x-2">
-                                        <span class="flex h-6 w-6 items-center justify-center rounded-full bg-slate-100 text-xs font-bold text-slate-500"><%= index + 1 %></span>
                                         <span class="text-xs font-semibold text-slate-500"><%= student.mstn || '-' %></span>
                                     </div>
                                 </div>
-                                <div class="flex items-center justify-between gap-3">
-                                    <div class="text-sm font-bold leading-snug text-slate-900"><%= [student.ten_thanh, student.ho_va_ten_lot, student.ten].filter(Boolean).join(' ') %></div>
-                                    <div class="flex shrink-0 items-center gap-2">
-                                        <label for="discipline-score-mob-<%= index %>" class="text-xs font-bold uppercase text-slate-500">Điểm:</label>
-                                        <input id="discipline-score-mob-<%= index %>" class="discipline-input w-24 rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-center text-base font-bold text-slate-800 shadow-2xs transition-all focus:border-blue-600 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 disabled:cursor-not-allowed disabled:opacity-50"
-                                            type="number" name="scores[<%= index %>][diem]" min="0" max="10" step="0.01" value="<%= student.diem ?? '' %>">
-                                        <input type="hidden" name="scores[<%= index %>][id_tn]" value="<%= student.id_tn %>">
-                                    </div>
+                                <div class="text-sm font-bold leading-snug text-slate-900"><%= [student.ten_thanh, student.ho_va_ten_lot, student.ten].filter(Boolean).join(' ') %></div>
+                                <div class="discipline-score-entry">
+                                    <label for="discipline-score-mob-<%= index %>" class="text-xs font-bold uppercase text-slate-500">Điểm:</label>
+                                    <input id="discipline-score-mob-<%= index %>" class="discipline-input min-w-0 rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-center text-base font-bold text-slate-800 shadow-2xs transition-all focus:border-blue-600 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 disabled:cursor-not-allowed disabled:opacity-50"
+                                        type="number" name="scores[<%= index %>][diem]" min="0" max="10" step="0.01" value="<%= student.diem ?? '' %>">
+                                    <input type="hidden" name="scores[<%= index %>][id_tn]" value="<%= student.id_tn %>">
                                 </div>
                             </div>
                         <% }) %>

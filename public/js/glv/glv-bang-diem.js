@@ -39,24 +39,27 @@
                         };
                         Object.entries(scoreFields).forEach(([field, value]) => {
                             row.dataset[`${field}Score`] = value ?? '';
-                            const cell = row.querySelector(`[data-score-field="${field}"]`);
-                            if (!cell) return;
-
+                            const cells = row.querySelectorAll(`[data-score-field="${field}"]`);
                             const displayValue = value ?? '-';
-                            if (field === 'total') {
-                                cell.querySelector('strong').textContent = displayValue;
-                            } else {
-                                cell.textContent = displayValue;
-                            }
+                            cells.forEach(cell => {
+                                const valueElement = cell.querySelector('.score-mobile-metric-value')
+                                    || (field === 'total' ? cell.querySelector('strong') : null);
+                                if (valueElement) {
+                                    valueElement.textContent = displayValue;
+                                } else {
+                                    cell.textContent = displayValue;
+                                }
+                            });
                         });
 
-                        const resultCell = row.querySelector('[data-result-cell]');
-                        if (resultCell) {
-                            resultCell.textContent = student.tinh_trang || '-';
-                            resultCell.classList.toggle(
-                                'is-inactive',
-                                student.tinh_trang !== 'Đang học' && student.tinh_trang !== 'Lên lớp'
-                            );
+                        const resultCells = row.querySelectorAll('[data-result-cell]');
+                        if (resultCells.length) {
+                            const result = student.tinh_trang || '-';
+                            const isInactive = result !== 'Đang học' && result !== 'Lên lớp';
+                            resultCells.forEach(resultCell => {
+                                resultCell.textContent = result;
+                                resultCell.classList.toggle('is-inactive', isInactive);
+                            });
                         }
                         row.classList.add('bg-green-50', 'transition-colors');
                         window.setTimeout(() => row.classList.remove('bg-green-50'), 1000);
@@ -77,21 +80,21 @@
             const row = document.querySelector(`tr[data-student-id="${idTn}"]`);
             if (row) {
                 // Cập nhật giá trị hiển thị ở ô kết quả
-                const cell = row.querySelector('[data-result-cell]');
-                if (cell) {
+                row.querySelectorAll('[data-result-cell]').forEach(cell => {
                     cell.textContent = result;
                     cell.classList.remove('is-inactive');
-                    
+
                     // Hiệu ứng nháy xanh nhẹ nhận biết dữ liệu thay đổi từ xa
                     cell.classList.add('bg-green-100', 'transition-colors');
                     setTimeout(() => cell.classList.remove('bg-green-100'), 1000);
-                }
+                });
 
                 // Cập nhật luôn giá trị trong thẻ <select> (nếu ô đó đang không bị focus)
-                const select = row.querySelector('[data-result-select]');
-                if (select && document.activeElement !== select) {
-                    select.value = result;
-                }
+                row.querySelectorAll('[data-result-select]').forEach(select => {
+                    if (document.activeElement !== select) {
+                        select.value = result;
+                    }
+                });
             }
         });
     }
@@ -455,7 +458,8 @@
     document.querySelectorAll('[data-result-save]').forEach(button => {
         button.addEventListener('click', async () => {
             const studentId = button.dataset.studentId;
-            const select = document.querySelector(`[data-result-select][data-student-id="${studentId}"]`);
+            const select = button.closest('td')?.querySelector('[data-result-select]');
+            if (!studentId || !select) return;
             button.disabled = true;
             try {
                 const response = await fetch(`/glv/bang-diem/${studentId}/update-result`, {
@@ -466,9 +470,12 @@
                 const data = await response.json();
                 if (!response.ok) throw new Error(data.error || 'Không thể cập nhật kết quả.');
                 
-                const cell = button.closest('tr').querySelector('[data-result-cell]');
-                cell.textContent = select.value;
-                cell.classList.remove('is-inactive');
+                const row = button.closest('tr');
+                if (!row) return;
+                row.querySelectorAll('[data-result-cell]').forEach(cell => {
+                    cell.textContent = select.value;
+                    cell.classList.remove('is-inactive');
+                });
             } catch (error) {
                 window.alert(error.message);
             } finally {

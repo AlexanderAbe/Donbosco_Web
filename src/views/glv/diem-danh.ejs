@@ -7,25 +7,6 @@
         margin-left: calc(50% - 50vw);
         margin-top: -2.5rem;
     }
-    #attendance-context-modal {
-        position: fixed;
-        top: 50%;
-        left: 50%;
-        right: auto;
-        bottom: auto;
-        width: min(32rem, calc(100vw - 2rem));
-        max-width: none;
-        max-height: min(85vh, 85dvh);
-        margin: 0;
-        padding: 0;
-        overflow-y: auto;
-        border: 0;
-        border-radius: 1rem;
-        background: #fff;
-        box-shadow: 0 24px 64px rgb(15 23 42 / 24%);
-        transform: translate(-50%, -50%);
-    }
-    #attendance-context-modal::backdrop { background: rgb(15 23 42 / 50%); }
     #attendance-picker-dialog {
         position: fixed;
         inset: auto 0 0;
@@ -101,10 +82,7 @@
     @media (min-width: 640px) {
         #attendance-context-sticky { margin-top: -3rem; }
     }
-    @media (min-width: 768px) {
-        #attendance-context-desktop-controls { display: flex; }
-        #open-attendance-context { display: none; }
-    }
+    @media (min-width: 768px) { #attendance-context-desktop-controls { display: flex; } }
     @media (min-width: 1025px) {
         #attendance-context-sticky {
             top: 90px;
@@ -126,21 +104,15 @@
             <input type="hidden" name="nien_khoa" value="<%= selectedYearId %>">
             <input id="attendance-class" type="hidden" name="id_lop" value="<%= selectedClassId %>">
             <section id="attendance-context-sticky" class="sticky rounded-b-[3rem] border-b border-slate-200 bg-white px-4 py-4 shadow-sm sm:px-6 sm:py-5 lg:px-8" aria-label="Thông tin điểm danh">
-                <div class="flex flex-wrap items-center justify-between gap-2">
-                    <div class="flex min-w-0 flex-wrap items-center gap-3">
-                        <span class="inline-flex items-center gap-2.5 rounded-lg bg-blue-50 px-4 py-2.5 text-sm font-bold text-blue-700">
-                            <i class="fa-solid fa-layer-group" aria-hidden="true"></i>
-                            <span><%= classes.find(item => item.id_lop === selectedClassId)?.ten_lop || 'Lớp của bạn' %></span>
-                        </span>
-                        <span class="inline-flex items-center gap-2 rounded-lg bg-slate-100 px-3 py-2.5 text-sm font-medium text-slate-700 md:hidden">
-                            <i class="fa-solid fa-clipboard-check text-slate-500" aria-hidden="true"></i>
-                            <span><%= sessionType || 'Chưa chọn loại buổi' %> | <%= selectedDate ? selectedDate.split('-').reverse().join('/') : 'Chưa chọn ngày' %></span>
-                        </span>
-                        <div id="attendance-context-desktop-controls" class="hidden items-center gap-2">
-                            <label for="attendance-date" class="sr-only">Ngày điểm danh</label>
+                <div class="flex flex-col gap-2 md:flex-row md:items-end">
+                    <div id="attendance-context-desktop-controls" class="hidden items-end gap-3">
+                        <div class="flex flex-col gap-1">
+                            <label for="attendance-date" class="text-xs font-semibold text-slate-600">Ngày điểm danh</label>
                             <input id="attendance-date" name="ngay_diem_danh" type="date" value="<%= selectedDate %>" max="<%= todayKey %>"
                                 class="h-11 rounded-lg border border-slate-200 bg-slate-100 px-3 text-sm font-medium text-slate-700 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20">
-                            <label for="attendance-type" class="sr-only">Loại buổi</label>
+                        </div>
+                        <div class="flex flex-col gap-1">
+                            <label for="attendance-type" class="text-xs font-semibold text-slate-600">Loại buổi</label>
                             <select id="attendance-type" name="loai_buoi" class="h-11 max-w-48 rounded-lg border border-slate-200 bg-slate-100 px-3 text-sm font-medium text-slate-700 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20">
                                 <% if (!sessionTypes.length) { %><option value="">Ngày không khớp lịch</option><% } %>
                                 <% sessionTypes.forEach(type => { %>
@@ -149,14 +121,24 @@
                             </select>
                         </div>
                     </div>
-                    <div class="flex shrink-0 items-center gap-2 sm:gap-3">
-                        <button type="button" id="open-attendance-context"
-                            class="inline-flex h-11 items-center gap-2 rounded-lg border border-blue-200 bg-blue-50 px-4 text-sm font-semibold text-blue-600 transition-colors hover:bg-blue-100"
-                            aria-haspopup="dialog" aria-controls="attendance-context-modal">
-                            <i class="fa-solid fa-sliders" aria-hidden="true"></i>
-                            <span>Đổi</span>
-                        </button>
-                        <div id="attendance-save-status" class="inline-flex items-center gap-1.5 rounded-full border px-3 py-2 text-xs font-medium sm:px-4 sm:text-sm [&.is-saved]:border-emerald-200 [&.is-saved]:bg-emerald-50 [&.is-saved]:text-emerald-700 [&.is-unsaved]:border-amber-200 [&.is-unsaved]:bg-amber-50 [&.is-unsaved]:text-amber-700 <%= attendanceSaved ? 'is-saved' : 'is-unsaved' %>">
+                    <div class="grid grid-cols-2 gap-2 md:hidden">
+                        <div class="min-w-0">
+                            <label for="attendance-date-mobile" class="mb-1 block text-xs font-semibold text-slate-600">Ngày điểm danh</label>
+                            <input id="attendance-date-mobile" type="date" value="<%= selectedDate %>" max="<%= todayKey %>"
+                                class="h-10 w-full rounded-lg border border-slate-200 bg-slate-100 px-3 text-sm font-medium text-slate-700 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20">
+                        </div>
+                        <div class="min-w-0">
+                            <label for="attendance-type-mobile" class="mb-1 block text-xs font-semibold text-slate-600">Loại buổi</label>
+                            <select id="attendance-type-mobile" class="h-10 w-full rounded-lg border border-slate-200 bg-slate-100 px-3 text-sm font-medium text-slate-700 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20">
+                                <% if (!sessionTypes.length) { %><option value="">Ngày không khớp lịch</option><% } %>
+                                <% sessionTypes.forEach(type => { %>
+                                    <option value="<%= type %>" <%= type === sessionType ? 'selected' : '' %>><%= type %></option>
+                                <% }) %>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="flex justify-end md:ml-auto">
+                        <div id="attendance-save-status" class="inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-medium [&.is-saved]:border-emerald-200 [&.is-saved]:bg-emerald-50 [&.is-saved]:text-emerald-700 [&.is-unsaved]:border-amber-200 [&.is-unsaved]:bg-amber-50 [&.is-unsaved]:text-amber-700 <%= attendanceSaved ? 'is-saved' : 'is-unsaved' %>">
                             <i class="fa-solid <%= attendanceSaved ? 'fa-circle-check' : 'fa-clock' %>" aria-hidden="true"></i>
                             <span id="attendance-save-status-text">Đã lưu <%= attendanceSavedCount %>/<%= students.length %></span>
                         </div>
@@ -179,33 +161,6 @@
                 </div>
             </section>
 
-            <dialog id="attendance-context-modal" aria-labelledby="attendance-context-title">
-                <div class="flex items-center justify-between border-b border-slate-100 px-5 pb-4 pt-3">
-                    <div>
-                        <h2 id="attendance-context-title" class="text-base font-bold text-slate-900">Đổi thông tin điểm danh</h2>
-                        <p class="mt-1 text-xs text-slate-500">Chọn ngày và loại buổi điểm danh.</p>
-                    </div>
-                    <button type="button" data-close-attendance-context class="flex h-9 w-9 items-center justify-center rounded-full bg-slate-100 text-slate-600 hover:bg-slate-200" aria-label="Đóng">
-                        <i class="fa-solid fa-xmark" aria-hidden="true"></i>
-                    </button>
-                </div>
-                <div class="space-y-4 px-5 py-5">
-                    <div class="space-y-1.5">
-                        <label for="attendance-date-mobile" class="text-xs font-semibold text-slate-600">Ngày điểm danh</label>
-                        <input id="attendance-date-mobile" type="date" value="<%= selectedDate %>" max="<%= todayKey %>" required
-                            class="h-10 w-full rounded-xl border border-slate-200 bg-white px-3.5 text-sm font-medium text-slate-800 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20">
-                    </div>
-                    <div class="space-y-1.5">
-                        <label for="attendance-type-mobile" class="text-xs font-semibold text-slate-600">Loại buổi</label>
-                        <select id="attendance-type-mobile" class="h-10 w-full rounded-xl border border-slate-200 bg-white px-3.5 text-sm font-medium text-slate-800 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"></select>
-                    </div>
-                </div>
-                <div class="border-t border-slate-100 bg-slate-50 px-5 py-4">
-                    <button type="button" id="apply-attendance-context" class="h-10 w-full rounded-xl bg-blue-600 px-4 text-sm font-semibold text-white transition-colors hover:bg-blue-700">
-                        Áp dụng
-                    </button>
-                </div>
-            </dialog>
         </form>
 
         <form method="POST" action="/glv/diem-danh/save" id="attendance-save-form"
@@ -228,20 +183,20 @@
                         <thead class="max-[600px]:hidden">
                             <tr class="bg-slate-50 text-[11px] font-bold uppercase tracking-wider text-slate-500">
                                 <th class="w-14 border-b border-slate-200 px-3.5 py-3 text-center">STT</th>
-                                <th class="border-b border-slate-200 px-3.5 py-3 text-left">Mã TN</th>
-                                <th class="border-b border-slate-200 px-3.5 py-3 text-left">Tên Thánh &amp; Họ Tên</th>
+                                <th class="border-b border-slate-200 px-3.5 py-3 text-left">MSTN</th>
+                                <th class="border-b border-slate-200 px-3.5 py-3 text-left">Họ và tên</th>
                                 <th class="border-b border-slate-200 px-3.5 py-3 text-left">Điểm danh</th>
                             </tr>
                         </thead>
                         <tbody class="text-sm max-[600px]:block">
                             <% students.forEach((student, index) => { %>
-                                <tr data-attendance-row data-student-id="<%= student.id_tn %>" data-saved="<%= student.da_luu ? 'true' : 'false' %>" data-search="<%= `${student.mstn || ''} ${student.ten_thanh || ''} ${student.ho_va_ten_lot || ''} ${student.ten || ''}`.toLowerCase() %>" class="hover:bg-blue-50/50 max-[600px]:mb-3 max-[600px]:block max-[600px]:rounded-xl max-[600px]:border max-[600px]:border-slate-200 max-[600px]:bg-white max-[600px]:p-3">
+                                <tr data-attendance-row data-student-id="<%= student.id_tn %>" data-saved="<%= student.da_luu ? 'true' : 'false' %>" data-search="<%= `${student.mstn || ''} ${student.ten_thanh || ''} ${student.ho_va_ten_lot || ''} ${student.ten || ''}`.toLowerCase() %>" class="max-[600px]:mb-3 max-[600px]:block max-[600px]:rounded-xl max-[600px]:border max-[600px]:border-slate-200 max-[600px]:bg-white max-[600px]:px-3 max-[600px]:py-2 max-[600px]:transition-colors max-[600px]:hover:bg-slate-50/50">
                                     <td class="border-b border-slate-100 px-3.5 py-3 text-center text-slate-400 max-[600px]:hidden"><%= index + 1 %></td>
-                                    <td class="border-b border-slate-100 px-3.5 py-3 max-[600px]:block max-[600px]:border-0 max-[600px]:px-0 max-[600px]:py-1"><span class="hidden text-xs font-medium text-slate-500 max-[600px]:inline">Mã TN: </span><%= student.mstn || '-' %></td>
-                                    <td class="border-b border-slate-100 px-3.5 py-3 max-[600px]:block max-[600px]:border-0 max-[600px]:px-0 max-[600px]:py-1"><span class="hidden text-xs font-medium text-slate-500 max-[600px]:inline">Họ tên: </span><strong class="font-semibold text-slate-900"><%= [student.ten_thanh, student.ho_va_ten_lot, student.ten].filter(Boolean).join(' ') %></strong></td>
-                                    <td class="border-b border-slate-100 px-3.5 py-3 max-[600px]:block max-[600px]:border-0 max-[600px]:px-0 max-[600px]:pt-2"><span class="mb-2 hidden text-xs font-medium text-slate-500 max-[600px]:block">Điểm danh</span>
+                                    <td class="border-b border-slate-100 px-3.5 py-3 max-[600px]:mb-2 max-[600px]:block max-[600px]:border-0 max-[600px]:px-0 max-[600px]:py-0 max-[600px]:text-xs max-[600px]:font-semibold max-[600px]:text-slate-500"><span class="hidden h-6 w-6 items-center justify-center rounded-full bg-slate-100 text-xs font-bold text-slate-500 max-[600px]:inline-flex"><%= index + 1 %></span><span class="max-[600px]:ml-2"><%= student.mstn || '-' %></span></td>
+                                    <td class="border-b border-slate-100 px-3.5 py-3 max-[600px]:mb-2 max-[600px]:block max-[600px]:border-0 max-[600px]:px-0 max-[600px]:py-0"><strong class="text-sm font-bold leading-snug text-slate-900"><%= [student.ten_thanh, student.ho_va_ten_lot, student.ten].filter(Boolean).join(' ') %></strong></td>
+                                    <td class="border-b border-slate-100 px-3.5 py-3 max-[600px]:block max-[600px]:border-0 max-[600px]:px-0 max-[600px]:py-0"><!--<span class="mb-2 hidden text-xs font-medium text-slate-500 max-[600px]:block">Điểm danh</span>-->
                                         <button type="button" data-attendance-picker-trigger
-                                            class="mb-2 inline-flex min-h-11 w-full items-center justify-between rounded-xl border border-slate-200 bg-white px-4 text-left text-sm font-semibold text-slate-700 shadow-sm transition-colors hover:border-blue-300 hover:bg-blue-50 min-[1025px]:hidden"
+                                            class="mb-2 inline-flex min-h-11 w-full items-center justify-between rounded-xl border border-slate-200 bg-slate-50 px-3 text-left text-sm font-semibold text-slate-700 shadow-sm transition-colors hover:border-blue-300 hover:bg-blue-50 max-[600px]:mb-0 min-[1025px]:hidden"
                                             aria-haspopup="dialog" aria-controls="attendance-picker-dialog"
                                             aria-label="Chọn trạng thái điểm danh cho <%= [student.ten_thanh, student.ho_va_ten_lot, student.ten].filter(Boolean).join(' ') %>">
                                             <span data-attendance-picker-label><%= student.trang_thai_diem_danh || 'Chọn trạng thái' %></span>

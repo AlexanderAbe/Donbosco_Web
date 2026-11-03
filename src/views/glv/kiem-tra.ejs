@@ -14,28 +14,8 @@
         margin-left: calc(50% - 50vw);
         margin-top: -2.5rem;
     }
-    #exam-context-modal {
-        position: fixed;
-        top: 50%;
-        left: 50%;
-        right: auto;
-        bottom: auto;
-        width: min(32rem, calc(100vw - 2rem));
-        max-width: none;
-        max-height: min(85vh, 85dvh);
-        margin: 0;
-        padding: 0;
-        overflow-y: auto;
-        border: 0;
-        border-radius: 1rem;
-        background: #fff;
-        box-shadow: 0 24px 64px rgb(15 23 42 / 24%);
-        transform: translate(-50%, -50%);
-    }
-    #exam-context-modal::backdrop { background: rgb(15 23 42 / 50%); }
     @media (min-width: 768px) {
         #exam-context-desktop-controls { display: flex; }
-        #open-exam-context { display: none; }
     }
     @media (min-width: 640px) {
         #exam-context-sticky { margin-top: -3rem; }
@@ -67,39 +47,41 @@
 
             <!-- Sticky exam context sub-header -->
             <section id="exam-context-sticky" class="sticky rounded-b-[3rem] px-4 sm:px-6 lg:px-8 py-4 sm:py-5 bg-white border-b border-slate-200 shadow-sm" aria-label="Thông tin bài kiểm tra">
-                    <div class="flex flex-wrap items-center justify-between gap-2">
-                        <div class="flex min-w-0 flex-wrap items-center gap-3">
-                            <span class="inline-flex items-center gap-2.5 rounded-lg bg-blue-50 px-4 py-2.5 text-sm font-bold text-blue-700">
-                                <i class="fa-solid fa-layer-group" aria-hidden="true"></i>
-                                <span><%= classes.find(item => item.id_lop === selectedClassId)?.ten_lop || 'Lớp của bạn' %></span>
-                            </span>
-                            <span class="inline-flex items-center gap-2 rounded-lg bg-slate-100 px-4 py-2.5 text-sm font-medium text-slate-700 md:hidden">
-                                <i class="fa-solid fa-file-lines text-slate-500" aria-hidden="true"></i>
-                                <span id="exam-context-mobile-label">Bài kiểm tra <%= selectedExam %> | <%= selectedDate ? selectedDate.split('-').reverse().join('/') : 'Chưa chọn ngày' %></span>
-                            </span>
-                            <div id="exam-context-desktop-controls" class="hidden items-center gap-2">
-                                <label for="test-number" class="sr-only">Bài kiểm tra</label>
+                    <div class="flex flex-col gap-2 md:flex-row md:items-center">
+                        <div id="exam-context-desktop-controls" class="hidden items-end gap-3">
+                            <div class="flex flex-col gap-1">
+                                <label for="test-number" class="text-xs font-semibold text-slate-600">Bài kiểm tra</label>
                                 <select id="test-number" name="bai_kiem_tra" class="h-11 rounded-lg border border-slate-200 bg-slate-100 px-3 text-sm font-medium text-slate-700 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20">
                                     <% for (let number = 1; number <= examCount; number += 1) { %>
-                                        <option value="<%= number %>" <%= number === selectedExam ? 'selected' : '' %>>Bài kiểm tra <%= number %></option>
+                                        <option value="<%= number %>" <%= number === selectedExam ? 'selected' : '' %>>Bài số <%= number %></option>
                                     <% } %>
                                 </select>
-                                <label for="test-date" class="sr-only">Ngày kiểm tra</label>
+                            </div>
+                            <div class="flex flex-col gap-1">
+                                <label for="test-date" class="text-xs font-semibold text-slate-600">Ngày kiểm tra</label>
                                 <input id="test-date" name="ngay_kiem_tra" type="date" value="<%= selectedDate ?? '' %>"
                                     class="h-11 rounded-lg border border-slate-200 bg-slate-100 px-3 text-sm font-medium text-slate-700 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20">
                             </div>
                         </div>
-
-                        <div class="flex shrink-0 items-center gap-3">
-                            <button type="button" id="open-exam-context"
-                                class="inline-flex h-11 items-center gap-2 rounded-lg border border-blue-200 bg-blue-50 px-4 text-sm font-semibold text-blue-600 transition-colors hover:bg-blue-100"
-                                aria-haspopup="dialog" aria-controls="exam-context-modal">
-                                <i class="fa-solid fa-sliders" aria-hidden="true"></i>
-                                <span>Đổi</span>
-                            </button>
-                            <div id="score-save-status" class="inline-flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-medium <%= scoreSaveStatusClasses %>">
-                                <i class="fa-solid <%= scoreSaveIcon %>" aria-hidden="true"></i>
-                                <span id="score-save-status-text">Đã lưu <%= savedScoreCount %>/<%= students.length %></span>
+                        <div class="grid grid-cols-2 gap-2 md:hidden">
+                            <div class="min-w-0">
+                                <label for="test-number-mobile" class="mb-1 block text-xs font-semibold text-slate-600">Bài kiểm tra</label>
+                                <select id="test-number-mobile" class="h-10 w-full rounded-lg border border-slate-200 bg-slate-100 px-3 text-sm font-medium text-slate-700 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20">
+                                    <% for (let number = 1; number <= examCount; number += 1) { %>
+                                        <option value="<%= number %>" <%= number === selectedExam ? 'selected' : '' %>>Bài số <%= number %></option>
+                                    <% } %>
+                                </select>
+                            </div>
+                            <div class="min-w-0">
+                                <label for="test-date-mobile" class="mb-1 block text-xs font-semibold text-slate-600">Ngày kiểm tra</label>
+                                <input id="test-date-mobile" type="date" value="<%= selectedDate ?? '' %>"
+                                    class="h-10 w-full rounded-lg border border-slate-200 bg-slate-100 px-3 text-sm font-medium text-slate-700 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20">
+                            </div>
+                        </div>
+                        <div class="flex justify-end md:ml-auto">
+                            <div id="score-save-status" class="inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-medium <%= scoreSaveStatusClasses %>">
+                            <i class="fa-solid <%= scoreSaveIcon %>" aria-hidden="true"></i>
+                            <span id="score-save-status-text">Đã lưu <%= savedScoreCount %>/<%= students.length %></span>
                             </div>
                         </div>
                     </div>
@@ -125,39 +107,6 @@
                         </button>
                     </div>
             </section>
-
-                <dialog id="exam-context-modal" aria-labelledby="exam-context-title" class="overflow-y-auto">
-                    <div class="flex items-center justify-between border-b border-slate-100 px-5 pb-4 pt-3">
-                        <div>
-                            <h2 id="exam-context-title" class="text-base font-bold text-slate-900">Đổi thông tin kiểm tra</h2>
-                            <p class="mt-1 text-xs text-slate-500">Chọn bài và ngày kiểm tra.</p>
-                        </div>
-                        <button type="button" data-close-exam-context class="flex h-9 w-9 items-center justify-center rounded-full bg-slate-100 text-slate-600 hover:bg-slate-200" aria-label="Đóng">
-                            <i class="fa-solid fa-xmark" aria-hidden="true"></i>
-                        </button>
-                    </div>
-                    <div class="space-y-4 px-5 py-5">
-                        <div class="space-y-1.5">
-                            <label for="test-number-mobile" class="text-xs font-semibold text-slate-600">Bài kiểm tra</label>
-                            <select id="test-number-mobile" class="h-10 w-full rounded-xl border border-slate-200 bg-white px-3.5 text-sm font-medium text-slate-800 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20">
-                                <% for (let number = 1; number <= examCount; number += 1) { %>
-                                    <option value="<%= number %>" <%= number === selectedExam ? 'selected' : '' %>>Bài kiểm tra <%= number %></option>
-                                <% } %>
-                            </select>
-                        </div>
-                        <div class="space-y-1.5">
-                            <label for="test-date-mobile" class="text-xs font-semibold text-slate-600">Ngày kiểm tra</label>
-                            <input id="test-date-mobile" type="date" value="<%= selectedDate ?? '' %>"
-                                class="h-10 w-full rounded-xl border border-slate-200 bg-white px-3.5 text-sm font-medium text-slate-800 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20">
-                            <p class="text-xs text-slate-500" id="score-date-hint">Chọn ngày kiểm tra trước khi nhập điểm.</p>
-                        </div>
-                    </div>
-                    <div class="border-t border-slate-100 bg-slate-50 px-5 py-4">
-                        <button type="button" id="apply-exam-context" class="h-10 w-full rounded-xl bg-blue-600 px-4 text-sm font-semibold text-white transition-colors hover:bg-blue-700">
-                            Áp dụng
-                        </button>
-                    </div>
-                </dialog>
             </form>
 
             <!-- Main Score Input Form -->
@@ -181,7 +130,7 @@
                     </div>
                 <% } else { %>
                     <!-- Score List Container with Hybrid Responsive Layout -->
-                    <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden flex-1 flex flex-col">
+                    <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden flex-1 flex flex-col max-md:overflow-visible max-md:border-0 max-md:bg-transparent max-md:shadow-none">
                         <!-- Desktop Table View (Visible on Medium screens and up) -->
                         <div class="hidden md:block overflow-x-auto flex-1" data-score-layout="desktop">
                             <table class="w-full table-fixed text-left border-collapse min-w-175">
@@ -194,8 +143,8 @@
                                 <thead>
                                     <tr class="bg-slate-50/75 border-b border-slate-200 text-slate-500 text-[11px] font-bold uppercase tracking-wider">
                                         <th class="py-3.5 px-4 text-center w-16">STT</th>
-                                        <th class="py-3.5 px-4 w-32">Mã số</th>
-                                        <th class="py-3.5 px-4">Họ và tên thiếu nhi</th>
+                                        <th class="py-3.5 px-4 w-32">MSTN</th>
+                                        <th class="py-3.5 px-4">Họ và tên</th>
                                         <th class="py-3.5 px-4 w-40 text-center">Điểm số (0 - 10)</th>
                                     </tr>
                                 </thead>
@@ -220,26 +169,24 @@
                         </div>
 
                         <!-- Mobile Card List View (Visible on small screens below md, eliminating horizontal scrolling) -->
-                        <div class="md:hidden divide-y divide-slate-100" data-score-layout="mobile">
+                        <div class="md:hidden space-y-3" data-score-layout="mobile">
                             <% students.forEach((student, index) => { %>
                                 <div data-student-row data-student-id="<%= student.id_tn %>" data-saved="<%= student.da_luu ? 'true' : 'false' %>" data-search="<%= `${student.mstn || ''} ${student.ten_thanh || ''} ${student.ho_va_ten_lot || ''} ${student.ten || ''}`.toLowerCase() %>"
-                                    class="p-4 flex flex-col gap-3 hover:bg-slate-50/50 transition-colors">
+                                    class="flex flex-col gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2 transition-colors hover:bg-slate-50/50">
                                     <div class="flex items-center justify-between">
                                         <div class="flex items-center space-x-2">
-                                            <span class="w-6 h-6 rounded-full bg-slate-100 text-slate-500 font-bold text-xs flex items-center justify-center"><%= index + 1 %></span>
-                                            <span><%= student.mstn || '-' %></span>
+                                            <span class="flex h-6 w-6 items-center justify-center rounded-full bg-slate-100 text-xs font-bold text-slate-500"><%= index + 1 %></span>
+                                            <span class="text-xs font-semibold text-slate-500"><%= student.mstn || '-' %></span>
                                         </div>
                                     </div>
+                                    <div class="text-sm font-bold leading-snug text-slate-900">
+                                        <%= [student.ten_thanh, student.ho_va_ten_lot, student.ten].filter(Boolean).join(' ') %>
+                                    </div>
                                     <div class="flex items-center justify-between gap-3">
-                                        <div class="font-bold text-slate-900 text-sm leading-snug">
-                                            <%= [student.ten_thanh, student.ho_va_ten_lot, student.ten].filter(Boolean).join(' ') %>
-                                        </div>
-                                        <div class="flex items-center gap-2 shrink-0">
-                                            <label for="score-mob-<%= index %>" class="text-xs font-bold text-slate-500 uppercase">Điểm:</label>
-                                            <input id="score-mob-<%= index %>" class="score-input w-24 px-3 py-2 text-center font-bold text-slate-800 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-blue-500/20 focus:border-blue-600 transition-all shadow-2xs text-base disabled:cursor-not-allowed disabled:opacity-50" 
-                                                type="number" name="scores[<%= index %>][diem_so]" min="0" max="10" step="0.01" value="<%= student.diem_so ?? '' %>">
-                                            <input type="hidden" name="scores[<%= index %>][id_tn]" value="<%= student.id_tn %>">
-                                        </div>
+                                        <label for="score-mob-<%= index %>" class="text-xs font-bold text-slate-500 uppercase">Điểm:</label>
+                                        <input id="score-mob-<%= index %>" class="score-input min-w-0 flex-1 px-3 py-2 text-center font-bold text-slate-800 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-blue-500/20 focus:border-blue-600 transition-all shadow-2xs text-base disabled:cursor-not-allowed disabled:opacity-50"
+                                            type="number" name="scores[<%= index %>][diem_so]" min="0" max="10" step="0.01" value="<%= student.diem_so ?? '' %>">
+                                        <input type="hidden" name="scores[<%= index %>][id_tn]" value="<%= student.id_tn %>">
                                     </div>
                                 </div>
                             <% }) %>
@@ -316,86 +263,28 @@
 <script src="/js/glv/glv-kiem-tra.js" defer></script>
 <script>
     (() => {
-        const contextModal = document.getElementById('exam-context-modal');
-        const openContextButton = document.getElementById('open-exam-context');
-        const applyContextButton = document.getElementById('apply-exam-context');
         const examSelector = document.getElementById('test-number');
         const mobileExamSelector = document.getElementById('test-number-mobile');
         const dateInput = document.getElementById('test-date');
         const mobileDateInput = document.getElementById('test-date-mobile');
         const desktopViewport = window.matchMedia('(min-width: 768px)');
 
-        if (!contextModal || !openContextButton || !applyContextButton
-            || !examSelector || !mobileExamSelector || !dateInput || !mobileDateInput) return;
-
-        let mobileDateWasChanged = false;
-        let mobileExamLoadId = 0;
-        const applyExamContext = () => {
-            examSelector.dispatchEvent(new Event('change', { bubbles: true }));
-        };
+        if (!examSelector || !mobileExamSelector || !dateInput || !mobileDateInput) return;
 
         examSelector.addEventListener('change', () => {
             dateInput.disabled = true;
         });
-        openContextButton.addEventListener('click', () => {
-            mobileExamSelector.value = examSelector.value;
-            mobileDateInput.value = dateInput.value;
-            mobileDateWasChanged = false;
-            contextModal.showModal();
-        });
-        mobileExamSelector.addEventListener('change', async () => {
-            const loadId = ++mobileExamLoadId;
-            const query = new URLSearchParams({
-                nien_khoa: '<%= selectedYearId %>',
-                id_lop: '<%= selectedClassId %>',
-                bai_kiem_tra: mobileExamSelector.value
-            });
-            mobileDateInput.disabled = true;
-            applyContextButton.disabled = true;
-            try {
-                const response = await fetch(`/glv/kiem-tra/exam-date?${query}`);
-                const result = await response.json();
-                if (!response.ok || !result.success) {
-                    throw new Error(result.message || 'Không thể tải ngày kiểm tra.');
-                }
-                if (loadId !== mobileExamLoadId) return;
-                mobileDateInput.value = result.date || '';
-                mobileDateWasChanged = false;
-            } catch (error) {
-                if (loadId === mobileExamLoadId) {
-                    mobileExamSelector.value = examSelector.value;
-                    mobileDateInput.value = dateInput.value;
-                    window.alert(error.message || 'Không thể tải ngày kiểm tra.');
-                }
-            } finally {
-                if (loadId === mobileExamLoadId) {
-                    mobileDateInput.disabled = false;
-                    applyContextButton.disabled = false;
-                }
-            }
+        mobileExamSelector.addEventListener('change', () => {
+            examSelector.value = mobileExamSelector.value;
+            examSelector.dispatchEvent(new Event('change', { bubbles: true }));
         });
         mobileDateInput.addEventListener('change', () => {
-            mobileDateWasChanged = true;
-        });
-        contextModal.querySelectorAll('[data-close-exam-context]').forEach(button => {
-            button.addEventListener('click', () => contextModal.close());
-        });
-        applyContextButton.addEventListener('click', () => {
-            if (mobileDateWasChanged) {
-                document.dispatchEvent(new CustomEvent('exam-date-save', {
-                    detail: {
-                        date: mobileDateInput.value,
-                        exam: mobileExamSelector.value
-                    }
-                }));
-                return;
-            }
-            contextModal.close();
-            if (mobileExamSelector.value !== examSelector.value) {
-                examSelector.value = mobileExamSelector.value;
-                dateInput.disabled = true;
-                applyExamContext();
-            }
+            document.dispatchEvent(new CustomEvent('exam-date-save', {
+                detail: {
+                    date: mobileDateInput.value,
+                    exam: mobileExamSelector.value
+                }
+            }));
         });
         dateInput.addEventListener('change', () => {
             if (desktopViewport.matches) {

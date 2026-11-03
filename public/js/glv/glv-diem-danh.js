@@ -356,12 +356,9 @@
     const type = document.getElementById('attendance-type');
     const filter = document.getElementById('attendance-filter');
     const date = document.getElementById('attendance-date');
-    const modal = document.getElementById('attendance-context-modal');
-    const openButton = document.getElementById('open-attendance-context');
     const mobileDate = document.getElementById('attendance-date-mobile');
     const mobileType = document.getElementById('attendance-type-mobile');
-    const applyButton = document.getElementById('apply-attendance-context');
-    if (!filter || !type || !date) return;
+    if (!filter || !type || !date || !mobileDate || !mobileType) return;
 
     const getSessionTypes = value => {
         if (!/^\d{4}-\d{2}-\d{2}$/.test(value || '')) return [];
@@ -389,27 +386,20 @@
     type.addEventListener('change', () => filter.requestSubmit());
     date.addEventListener('change', () => {
         updateTypeOptions(type, date.value, type.value);
+        mobileDate.value = date.value;
+        updateTypeOptions(mobileType, date.value, type.value);
         filter.requestSubmit();
     });
-
-    if (!modal || !openButton || !mobileDate || !mobileType || !applyButton) return;
-    openButton.addEventListener('click', () => {
-        mobileDate.value = date.value;
-        updateTypeOptions(mobileType, mobileDate.value, type.value);
-        modal.showModal();
-    });
-    modal.querySelectorAll('[data-close-attendance-context]').forEach(button => {
-        button.addEventListener('click', () => modal.close());
-    });
     mobileDate.addEventListener('change', () => {
-        updateTypeOptions(mobileType, mobileDate.value, mobileType.value);
-    });
-    applyButton.addEventListener('click', () => {
-        if (!mobileDate.reportValidity()) return;
+        if (!mobileDate.value || !mobileDate.reportValidity()) return;
+        const selectedType = updateTypeOptions(mobileType, mobileDate.value, mobileType.value);
         date.value = mobileDate.value;
-        const selectedType = updateTypeOptions(type, date.value, mobileType.value);
-        type.value = selectedType;
-        modal.close();
+        type.value = updateTypeOptions(type, date.value, selectedType);
+        filter.requestSubmit();
+    });
+    mobileType.addEventListener('change', () => {
+        date.value = mobileDate.value;
+        type.value = updateTypeOptions(type, date.value, mobileType.value);
         filter.requestSubmit();
     });
 })();
