@@ -2,6 +2,101 @@
     // --- TÍCH HỢP WEBSOCKET CHO TRANG BẢNG ĐIỂM ---
     const scorePage = document.getElementById('score-page');
     const yearId = scorePage?.dataset.yearId;
+    const scoreRows = [...(scorePage?.querySelectorAll('[data-score-row]') || [])];
+    const scoreCards = [...(scorePage?.querySelectorAll('[data-score-card]') || [])];
+    const originalRowsByCard = new Map(scoreCards.map(card => [
+        card,
+        [...card.querySelectorAll('[data-score-row]')]
+    ]));
+    const retainedFilterButton = document.getElementById('filter-retained-students');
+    const scoreRankingButton = document.getElementById('rank-student-scores');
+    const retainedEmptyState = document.getElementById('score-retained-empty');
+    const studentSearch = document.getElementById('score-student-search');
+    let retainedFilterActive = false;
+    let scoreRankingActive = false;
+
+    const isRetained = row => [...row.querySelectorAll('[data-result-cell]')]
+        .some(cell => cell.textContent.trim() === 'Ở lại lớp');
+    const updateRetainedFilter = () => {
+        scoreRows.forEach(row => {
+            row.hidden = retainedFilterActive && !isRetained(row);
+        });
+        retainedFilterButton?.setAttribute('aria-pressed', String(retainedFilterActive));
+        retainedFilterButton?.classList.toggle('is-active', retainedFilterActive);
+        const mobileLabel = retainedFilterButton?.querySelector('[data-retained-filter-label-mobile]');
+        const desktopLabel = retainedFilterButton?.querySelector('[data-retained-filter-label-desktop]');
+        if (mobileLabel) mobileLabel.textContent = retainedFilterActive ? 'Bỏ lọc' : 'Ở lại';
+        if (desktopLabel) desktopLabel.textContent = retainedFilterActive ? 'Hiện tất cả' : 'Lọc ở lại';
+
+        if (retainedEmptyState) {
+            const searchMatches = scoreRows.filter(row => !row.classList.contains('search-hidden'));
+            const retainedMatches = searchMatches.some(isRetained);
+            retainedEmptyState.hidden = !retainedFilterActive
+                || !searchMatches.length
+                || retainedMatches;
+        }
+        document.dispatchEvent(new Event('pagination:refresh'));
+    };
+
+    const updateScoreRanking = () => {
+        let sortOrder = 0;
+        scoreCards.forEach(card => {
+            const originalRows = originalRowsByCard.get(card) || [];
+            const originalPositions = new Map(originalRows.map((row, index) => [row, index]));
+            const orderedRows = scoreRankingActive
+                ? [...originalRows].sort((first, second) => {
+                    const firstScore = Number(first.dataset.totalScore);
+                    const secondScore = Number(second.dataset.totalScore);
+                    const firstHasScore = first.dataset.totalScore !== '' && Number.isFinite(firstScore);
+                    const secondHasScore = second.dataset.totalScore !== '' && Number.isFinite(secondScore);
+                    if (firstHasScore !== secondHasScore) return firstHasScore ? -1 : 1;
+                    if (firstHasScore && firstScore !== secondScore) return secondScore - firstScore;
+                    return originalPositions.get(first) - originalPositions.get(second);
+                })
+                : originalRows;
+            const tbody = card.querySelector('tbody');
+            let previousScore = null;
+            let previousRank = 0;
+
+            orderedRows.forEach((row, index) => {
+                if (tbody) tbody.append(row);
+                row.dataset.scoreSortOrder = String(sortOrder++);
+                let rank = String(originalPositions.get(row) + 1);
+                if (scoreRankingActive) {
+                    const score = row.dataset.totalScore === '' ? null : Number(row.dataset.totalScore);
+                    if (score === null || !Number.isFinite(score)) {
+                        rank = '-';
+                    } else {
+                        if (score !== previousScore) previousRank = index + 1;
+                        rank = String(previousRank);
+                        previousScore = score;
+                    }
+                }
+                row.querySelectorAll('[data-score-student-number]').forEach(number => {
+                    number.textContent = rank;
+                });
+            });
+        });
+        scoreRankingButton?.setAttribute('aria-pressed', String(scoreRankingActive));
+        scoreRankingButton?.classList.toggle('is-active', scoreRankingActive);
+        const mobileLabel = scoreRankingButton?.querySelector('[data-score-ranking-label-mobile]');
+        const desktopLabel = scoreRankingButton?.querySelector('[data-score-ranking-label-desktop]');
+        if (mobileLabel) mobileLabel.textContent = scoreRankingActive ? 'Bỏ hạng' : 'Xếp hạng';
+        if (desktopLabel) desktopLabel.textContent = scoreRankingActive ? 'Bỏ xếp hạng' : 'Xếp hạng điểm';
+        document.dispatchEvent(new Event('pagination:refresh'));
+    };
+
+    retainedFilterButton?.addEventListener('click', () => {
+        retainedFilterActive = !retainedFilterActive;
+        updateRetainedFilter();
+    });
+    studentSearch?.addEventListener('input', () => {
+        if (retainedFilterActive) updateRetainedFilter();
+    });
+    scoreRankingButton?.addEventListener('click', () => {
+        scoreRankingActive = !scoreRankingActive;
+        updateScoreRanking();
+    });
     
     if (yearId) {
         const socket = io();
@@ -64,6 +159,8 @@
                         row.classList.add('bg-green-50', 'transition-colors');
                         window.setTimeout(() => row.classList.remove('bg-green-50'), 1000);
                     });
+                    if (scoreRankingActive) updateScoreRanking();
+                    if (retainedFilterActive) updateRetainedFilter();
                 } catch (error) {
                     if (error.name !== 'AbortError') {
                         console.error('Không thể đồng bộ bảng điểm thời gian thực:', error);
@@ -95,6 +192,7 @@
                         select.value = result;
                     }
                 });
+                if (retainedFilterActive) updateRetainedFilter();
             }
         });
     }
@@ -476,6 +574,7 @@
                     cell.textContent = select.value;
                     cell.classList.remove('is-inactive');
                 });
+                if (retainedFilterActive) updateRetainedFilter();
             } catch (error) {
                 window.alert(error.message);
             } finally {

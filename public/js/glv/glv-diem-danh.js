@@ -9,12 +9,21 @@
     const saveErrors = new Map();
     const studentRows = [...form.querySelectorAll('[data-student-id][data-saved]')];
     const totalStudents = new Set(studentRows.map(row => row.dataset.studentId)).size;
+    const markRemainingButton = document.getElementById('mark-remaining-attendance');
     const pickerDialog = document.getElementById('attendance-picker-dialog');
     const pickerStudent = pickerDialog?.querySelector('[data-attendance-picker-student]');
     let activePickerRow = null;
+    let markingRemaining = false;
     const savedStudents = new Set(studentRows
         .filter(row => row.dataset.saved === 'true')
         .map(row => row.dataset.studentId));
+    const updateMarkRemainingButton = () => {
+        if (!markRemainingButton) return;
+        const hasUnmarkedStudents = studentRows.some(row =>
+            row.dataset.saved !== 'true' && !studentSaves.has(row.dataset.studentId)
+        );
+        markRemainingButton.disabled = markingRemaining || !hasUnmarkedStudents;
+    };
     const classId = form.dataset.classId;
     const yearId = form.dataset.yearId;
     const attendanceDate = form.dataset.attendanceDate;
@@ -22,12 +31,14 @@
     const socket = io();
     socket.emit('join_room', `attendance_${yearId}_${classId}_${attendanceDate}_${encodeURIComponent(sessionType)}`);
 
+    updateMarkRemainingButton();
     const updateStudentSaved = (studentId, saved) => {
         form.querySelectorAll('[data-student-id]').forEach(row => {
             if (row.dataset.studentId === studentId) row.dataset.saved = String(saved);
         });
         if (saved) savedStudents.add(studentId);
         else savedStudents.delete(studentId);
+        updateMarkRemainingButton();
     };
     const updatePickerLabel = row => {
         const selected = row.querySelector('.attendance-options input[type="radio"]:checked');
@@ -98,12 +109,46 @@
             }).finally(() => {
                 pendingSaves.delete(currentSave);
                 if (studentSaves.get(studentId) === currentSave) studentSaves.delete(studentId);
+                updateMarkRemainingButton();
             });
 
             currentSave.catch(() => {});
             studentSaves.set(studentId, currentSave);
             pendingSaves.add(currentSave);
+            updateMarkRemainingButton();
         });
+    });
+
+    markRemainingButton?.addEventListener('click', async () => {
+        const rowsToMark = studentRows.filter(row =>
+            row.dataset.saved !== 'true' && !studentSaves.has(row.dataset.studentId)
+        );
+        if (!rowsToMark.length) return;
+
+        markingRemaining = true;
+        updateMarkRemainingButton();
+        try {
+            rowsToMark.forEach(row => {
+                const input = row.querySelector('.attendance-options input[type="radio"][value="Có mặt"]');
+                if (!input) {
+                    throw new Error('Không tìm thấy lựa chọn "Có mặt" cho một dòng điểm danh.');
+                }
+                input.checked = true;
+                input.dispatchEvent(new Event('change', { bubbles: true }));
+            });
+
+            const results = await Promise.allSettled([...pendingSaves]);
+            const failedSave = results.find(result => result.status === 'rejected');
+            const error = failedSave?.reason || saveErrors.values().next().value;
+            if (error) {
+                setStatus(error.message || 'Không thể lưu điểm danh.', false);
+            } else {
+                setStatus('Đã lưu', true);
+            }
+        } finally {
+            markingRemaining = false;
+            updateMarkRemainingButton();
+        }
     });
 
     if (pickerDialog && pickerStudent) {

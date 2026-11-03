@@ -146,6 +146,12 @@
         const render = () => {
             if (config.mode === 'client') {
                 filteredRows = rows.filter(visibleToFilter);
+                if (config.sortAttribute) {
+                    filteredRows.sort((first, second) =>
+                        Number(first.getAttribute(config.sortAttribute))
+                        - Number(second.getAttribute(config.sortAttribute))
+                    );
+                }
                 const paginationItems = config.rowGroupAttribute
                     ? [...filteredRows.reduce((groupedRows, row) => {
                         const key = row.getAttribute(config.rowGroupAttribute) || row;
