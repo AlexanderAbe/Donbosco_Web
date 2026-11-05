@@ -1,15 +1,33 @@
 (() => {
     const qrPage = document.querySelector('.attendance-page');
     const { yearId, classId, sessionType, selectedDate } = qrPage.dataset;
+    const filterForm = document.getElementById('qr-filter');
     const statusElement = document.getElementById('qr-scan-status');
-    const stopButton = document.getElementById('qr-stop-button');
     const toast = document.getElementById('qr-toast');
+    const saveForm = document.getElementById('qr-attendance-save-form');
+    const saveButton = document.getElementById('qr-attendance-save-button');
     const scanUrl = '/glv/diem-danh/scan';
-    let scanner;
     let requestInFlight = false;
     let lastCode = '';
     let lastScanAt = 0;
     let toastTimer;
+    let saveSubmitted = false;
+
+    filterForm.querySelectorAll('select, input[type="date"]').forEach(field => {
+        field.addEventListener('change', () => filterForm.requestSubmit());
+    });
+
+    saveForm.addEventListener('submit', event => {
+        if (saveSubmitted) {
+            event.preventDefault();
+            return;
+        }
+
+        saveSubmitted = true;
+        saveButton.disabled = true;
+        saveButton.setAttribute('aria-busy', 'true');
+        saveButton.innerHTML = '<i class="fa-solid fa-spinner fa-spin" aria-hidden="true"></i> <span>Đang lưu...</span>';
+    });
 
     const showToast = (message, type) => {
         toast.textContent = message;
@@ -61,7 +79,7 @@
             showToast('Không thể khởi tạo camera.', 'error');
             return;
         }
-        scanner = new Html5Qrcode('qr-reader');
+        const scanner = new Html5Qrcode('qr-reader');
         try {
             await scanner.start(
                 { facingMode: 'environment' },
@@ -69,20 +87,11 @@
                 sendScan,
                 () => {}
             );
-            stopButton.disabled = false;
-            setStatus('Camera đang sẵn sàng. Đưa mã QR vào khung quét.');
         } catch (error) {
             setStatus('Không thể mở camera. Hãy cấp quyền camera và dùng HTTPS hoặc localhost.', true);
             showToast('Không thể mở camera.', 'error');
         }
     };
 
-    stopButton.addEventListener('click', async () => {
-        if (!scanner) return;
-        await scanner.stop();
-        stopButton.disabled = true;
-        setStatus('Camera đã dừng.');
-    });
-
-    startScanner();
+    if (document.getElementById('qr-reader')) startScanner();
 })();

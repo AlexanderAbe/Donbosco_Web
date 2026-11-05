@@ -20,6 +20,12 @@ const isFutureDate = value => /^\d{4}-\d{2}-\d{2}$/.test(value || '') && value >
 
 const isTodayDate = value => value === getTodayKey();
 
+const getWeekday = value => {
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(value || '')) return null;
+    const [year, month, day] = value.split('-').map(Number);
+    return new Date(year, month - 1, day).getDay();
+};
+
 const getAttendanceRoom = (yearId, classId, attendanceDate, sessionType) =>
     `attendance_${yearId}_${classId}_${attendanceDate}_${encodeURIComponent(sessionType)}`;
 
@@ -32,18 +38,19 @@ const broadcastAttendanceUpdate = (req, yearId, classId, attendanceDate, session
 };
 
 const getSessionTypesForDate = value => {
-    if (!/^\d{4}-\d{2}-\d{2}$/.test(value || '')) return [];
-    const [year, month, day] = value.split('-').map(Number);
-    const weekDay = new Date(year, month - 1, day).getDay();
+    const weekDay = getWeekday(value);
+    if (weekDay === null) return [];
     if (weekDay === 2) return ['Lễ Thứ 3'];
     if (weekDay === 4) return ['Lễ Thứ 5'];
     if (weekDay === 0) return ['Lễ Chúa Nhật', 'Học Giáo Lý'];
-    return [];
+    return ['Học Giáo Lý', 'Lễ Thứ 3', 'Lễ Thứ 5', 'Lễ Chúa Nhật'];
 };
 
-const getAutomaticQrSessionType = sessionTypes => {
+const getAutomaticQrSessionType = (sessionTypes, attendanceDate) => {
     if (!sessionTypes.length) return '';
-    if (!sessionTypes.includes('Học Giáo Lý')) return sessionTypes[0];
+    if (getWeekday(attendanceDate) !== 0 || !sessionTypes.includes('Học Giáo Lý')) {
+        return sessionTypes[0];
+    }
 
     const now = new Date();
     return now.getHours() >= 9 ? 'Học Giáo Lý' : 'Lễ Chúa Nhật';
@@ -75,7 +82,7 @@ const parseQrValue = value => {
 };
 
 const getQrAttendanceStatus = (attendanceDate, sessionType) => {
-    if (sessionType !== 'Lễ Chúa Nhật') return 'Có mặt';
+    if (sessionType !== 'Lễ Chúa Nhật' || getWeekday(attendanceDate) !== 0) return 'Có mặt';
 
     const now = new Date();
     const today = [now.getFullYear(), now.getMonth() + 1, now.getDate()]
@@ -98,16 +105,19 @@ const DiemDanhController = {
             const selectedClassId = classes.some(item => item.id_lop === requestedClass)
                 ? requestedClass
                 : classes[0]?.id_lop;
-            const selectedDate = getTodayKey();
+            const selectedDate = /^\d{4}-\d{2}-\d{2}$/.test(req.query.ngay_diem_danh || '')
+                ? req.query.ngay_diem_danh
+                : getTodayKey();
             const sessionTypes = getSessionTypesForDate(selectedDate);
-            const sessionType = getAutomaticQrSessionType(sessionTypes);
+            const sessionType = sessionTypes.includes(req.query.loai_buoi)
+                ? req.query.loai_buoi
+                : getAutomaticQrSessionType(sessionTypes, selectedDate);
 
             return res.render('glv/diem-danh-qr', {
                 title: 'Quét QR điểm danh', selectedYearId, classes,
                 selectedClassId, sessionTypes, sessionType, selectedDate,
                 todayKey: getTodayKey(),
-                isFutureDate: isFutureDate(selectedDate),
-                isQrDate: isTodayDate(selectedDate)
+                isFutureDate: isFutureDate(selectedDate)
             });
         } catch (error) {
             console.error('Lỗi tải trang quét QR GLV:', error);
@@ -288,8 +298,8 @@ const DiemDanhController = {
         const qrPayload = parseQrValue(req.body.qr_value);
 
         try {
-            if (!isTodayDate(attendanceDate)) {
-                throw new Error('Quét QR chỉ được sử dụng trong đúng ngày hôm nay.');
+            if (isFutureDate(attendanceDate)) {
+                throw new Error('Không thể quét QR cho ngày chưa tới.');
             }
             if (!qrPayload || !getSessionTypesForDate(attendanceDate).includes(sessionType)) {
                 throw new Error('QR, ngày hoặc loại buổi không hợp lệ.');

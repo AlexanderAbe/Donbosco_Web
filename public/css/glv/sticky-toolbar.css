@@ -1,0 +1,65 @@
+[data-scroll-sticky] {
+    position: sticky;
+    top: 76px;
+    z-index: 20;
+    margin-top: -2.5rem;
+    margin-bottom: 1rem;
+    overflow-anchor: none;
+    border-radius: 0.75rem;
+    box-shadow: none;
+    transition: margin 180ms ease, border-radius 180ms ease, box-shadow 180ms ease;
+}
+
+[data-scroll-sticky].is-scroll-collapsed {
+    margin-right: 0.5rem;
+    margin-left: 0.5rem;
+    border-radius: 9999px;
+    box-shadow: 0 10px 24px rgb(15 23 42 / 10%);
+    gap: 0;
+}
+
+[data-scroll-collapse] {
+    max-height: 12rem;
+    overflow: hidden;
+    opacity: 1;
+    transition: max-height 180ms ease, opacity 180ms ease;
+}
+
+[data-scroll-sticky].is-scroll-collapsed [data-scroll-collapse] {
+    max-height: 0;
+    opacity: 0;
+}
+
+[data-scroll-sticky] [data-scroll-content] {
+    transition: margin 180ms ease, border-width 180ms ease, padding 180ms ease;
+}
+
+[data-scroll-sticky].is-scroll-collapsed [data-scroll-content] {
+    margin-top: 0;
+    border-top-width: 0;
+    padding-top: 0;
+}
+
+[data-scroll-sticky].is-scroll-collapsed [data-scroll-collapse] {
+    margin-bottom: 0;
+}
+
+@media (min-width: 1025px) {
+    [data-scroll-sticky] {
+        top: 106px;
+    }
+}
+
+@media (min-width: 640px) {
+    [data-scroll-sticky] {
+        margin-top: -3rem;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    [data-scroll-sticky],
+    [data-scroll-collapse],
+    [data-scroll-content] {
+        transition: none;
+    }
+}

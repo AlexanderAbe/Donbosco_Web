@@ -2,6 +2,7 @@
     const form = document.getElementById('attendance-save-form');
     const saveStatus = document.getElementById('attendance-save-status');
     const saveStatusText = document.getElementById('attendance-save-status-text');
+    const collapsedStatus = document.getElementById('attendance-collapsed-status');
     if (!form || !saveStatus || !saveStatusText) return;
 
     const pendingSaves = new Set();
@@ -10,6 +11,8 @@
     const studentRows = [...form.querySelectorAll('[data-student-id][data-saved]')];
     const totalStudents = new Set(studentRows.map(row => row.dataset.studentId)).size;
     const markRemainingButton = document.getElementById('mark-remaining-attendance');
+    const markRemainingIcon = markRemainingButton?.querySelector('i');
+    const markRemainingLabels = markRemainingButton?.querySelectorAll('[data-mark-remaining-label]');
     const pickerDialog = document.getElementById('attendance-picker-dialog');
     const pickerStudent = pickerDialog?.querySelector('[data-attendance-picker-student]');
     let activePickerRow = null;
@@ -51,6 +54,14 @@
         saveStatus.classList.toggle('is-unsaved', !isFullySaved);
         saveStatus.querySelector('i').className = `fa-solid ${isFullySaved ? 'fa-circle-check' : 'fa-clock'}`;
         saveStatusText.textContent = `${text} · Đã lưu ${savedStudents.size}/${totalStudents}`;
+        collapsedStatus.classList.toggle('border-emerald-200', isFullySaved);
+        collapsedStatus.classList.toggle('bg-emerald-50', isFullySaved);
+        collapsedStatus.classList.toggle('text-emerald-700', isFullySaved);
+        collapsedStatus.classList.toggle('border-amber-200', !isFullySaved);
+        collapsedStatus.classList.toggle('bg-amber-50', !isFullySaved);
+        collapsedStatus.classList.toggle('text-amber-700', !isFullySaved);
+        collapsedStatus.textContent = `${savedStudents.size}/${totalStudents}`;
+        collapsedStatus.setAttribute('aria-label', `Đã lưu ${savedStudents.size} trên ${totalStudents}`);
     };
 
     socket.on('attendance_entry_updated', ({ studentId, status, saved }) => {
@@ -126,6 +137,9 @@
         if (!rowsToMark.length) return;
 
         markingRemaining = true;
+        markRemainingButton.setAttribute('aria-busy', 'true');
+        markRemainingIcon.className = 'fa-solid fa-spinner fa-spin';
+        markRemainingLabels.forEach(label => { label.textContent = 'Đang lưu...'; });
         updateMarkRemainingButton();
         try {
             rowsToMark.forEach(row => {
@@ -147,6 +161,10 @@
             }
         } finally {
             markingRemaining = false;
+            markRemainingButton.setAttribute('aria-busy', 'false');
+            markRemainingIcon.className = 'fa-solid fa-users';
+            markRemainingLabels[0].textContent = 'Có mặt';
+            markRemainingLabels[1].textContent = 'Đánh dấu có mặt';
             updateMarkRemainingButton();
         }
     });

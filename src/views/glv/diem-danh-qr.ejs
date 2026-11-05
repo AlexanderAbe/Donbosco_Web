@@ -6,23 +6,12 @@
     data-class-id="<%= selectedClassId %>"
     data-session-type="<%= sessionType %>"
     data-selected-date="<%= selectedDate %>">
-    <header class="class-header">
-        <span class="class-eyebrow"><i class="fa-solid fa-qrcode"></i> Điểm danh tức thì</span>
-        <h1>Quét QR điểm danh</h1>
-    </header>
 
     <% if (!classes.length) { %>
         <div class="attendance-empty"><i class="fa-solid fa-triangle-exclamation"></i> Bạn chưa được phân công lớp trong niên khóa này.</div>
     <% } else { %>
         <form class="attendance-toolbar" method="GET" action="/glv/diem-danh/qr" id="qr-filter">
-            <div class="attendance-field">
-                <label for="qr-class"><i class="fa-solid fa-school"></i> Lớp</label>
-                <select id="qr-class" name="id_lop" required>
-                    <% classes.forEach(item => { %>
-                        <option value="<%= item.id_lop %>" <%= item.id_lop === selectedClassId ? 'selected' : '' %>><%= item.ten_khoi %> - <%= item.ten_lop %></option>
-                    <% }) %>
-                </select>
-            </div>
+            <input type="hidden" name="id_lop" value="<%= selectedClassId %>">
             <div class="attendance-field">
                 <label for="qr-type"><i class="fa-solid fa-clock"></i> Loại buổi</label>
                 <select id="qr-type" name="loai_buoi" required>
@@ -36,48 +25,44 @@
                 <label for="qr-date"><i class="fa-solid fa-calendar-day"></i> Ngày điểm danh</label>
                 <input id="qr-date" type="date" name="ngay_diem_danh" value="<%= selectedDate %>" max="<%= todayKey %>" required>
             </div>
-            <button class="attendance-save-button" type="submit" <%= isFutureDate ? 'disabled' : '' %>><i class="fa-solid fa-filter"></i> Chọn</button>
-            <a class="attendance-save-button" href="/glv/diem-danh?id_lop=<%= selectedClassId %>&loai_buoi=<%= encodeURIComponent(sessionType) %>&ngay_diem_danh=<%= selectedDate %>"><i class="fa-solid fa-list-check"></i> Xem bảng</a>
         </form>
 
-        <section class="qr-attendance-panel" aria-labelledby="qr-attendance-title">
-            <div class="qr-panel-heading">
-                <div>
-                    <span class="class-eyebrow"><i class="fa-solid fa-camera"></i> <%= classes.find(item => item.id_lop === selectedClassId)?.ten_lop %></span>
-                    <h2 id="qr-attendance-title">Quét mã QR từng thiếu nhi</h2>
-                    <p>Mỗi lượt quét thành công sẽ được lưu ngay vào hệ thống.</p>
-                </div>
-                <button class="attendance-save-button qr-stop-button" id="qr-stop-button" type="button" disabled <%= !isQrDate ? 'hidden' : '' %>><i class="fa-solid fa-stop"></i> Dừng camera</button>
-            </div>
+        <section class="qr-attendance-panel" aria-label="Máy quét QR điểm danh">
             <% if (isFutureDate) { %>
                 <div class="attendance-empty"><i class="fa-solid fa-calendar-xmark"></i> Không thể quét QR cho ngày chưa tới.</div>
-            <% } else if (!isQrDate) { %>
-                <div class="attendance-empty"><i class="fa-solid fa-calendar-xmark"></i> Quét QR chỉ được sử dụng trong đúng ngày hôm nay.</div>
             <% } else if (!sessionType) { %>
                 <div class="attendance-empty"><i class="fa-solid fa-calendar-xmark"></i> Ngày này không có loại buổi điểm danh.</div>
             <% } else { %>
                 <div class="qr-scanner-layout">
                     <div id="qr-reader" class="qr-reader"></div>
-                    <div class="qr-scan-status" id="qr-scan-status"><i class="fa-solid fa-circle-info"></i> Đang khởi tạo camera...</div>
+                    <div class="qr-scan-status" id="qr-scan-status"></div>
                 </div>
             <% } %>
             <div id="qr-toast" class="qr-toast" role="status" aria-live="polite"></div>
         </section>
 
-        <form method="POST" action="/glv/diem-danh/qr/save" class="attendance-summary">
+        <form method="POST" action="/glv/diem-danh/qr/save" class="attendance-summary qr-attendance-summary" id="qr-attendance-save-form">
             <input type="hidden" name="nien_khoa" value="<%= selectedYearId %>">
             <input type="hidden" name="id_lop" value="<%= selectedClassId %>">
             <input type="hidden" name="loai_buoi" value="<%= sessionType %>">
             <input type="hidden" name="ngay_diem_danh" value="<%= selectedDate %>">
-            <span><i class="fa-solid fa-circle-info"></i> Sau khi lưu, các em chưa được quét sẽ được đánh <strong>Vắng không phép</strong>.</span>
-            <button class="attendance-save-button" type="submit" <%= !sessionType || isFutureDate || !isQrDate ? 'disabled' : '' %>>
-                <i class="fa-solid fa-floppy-disk"></i> Lưu điểm danh
-            </button>
+            <div class="qr-attendance-alert" role="alert">
+                <i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i>
+                <span>Sau khi lưu, các em chưa được quét sẽ được đánh <strong>Vắng không phép</strong>.</span>
+            </div>
+            <div class="qr-attendance-actions">
+                <a class="attendance-save-button qr-view-button" href="/glv/diem-danh?id_lop=<%= selectedClassId %>&loai_buoi=<%= encodeURIComponent(sessionType) %>&ngay_diem_danh=<%= selectedDate %>">Xem bảng</a>
+                <button class="attendance-save-button" id="qr-attendance-save-button" type="submit" aria-busy="false" <%= !sessionType || isFutureDate ? 'disabled' : '' %>>
+                    <span>Lưu</span>
+                </button>
+            </div>
         </form>
     <% } %>
 </main>
 
-<% if (classes.length && !isFutureDate && isQrDate && sessionType) { %>
+<% if (classes.length) { %>
+    <% if (!isFutureDate && sessionType) { %>
 <script src="/vendor/html5-qrcode/html5-qrcode.min.js"></script>
+    <% } %>
 <script src="/js/glv/glv-diem-danh-qr.js" defer></script>
 <% } %>

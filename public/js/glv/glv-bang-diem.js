@@ -10,6 +10,8 @@
     ]));
     const retainedFilterButton = document.getElementById('filter-retained-students');
     const scoreRankingButton = document.getElementById('rank-student-scores');
+    const scoreSubheader = document.getElementById('score-subheader');
+    const scoreToolbarActions = document.getElementById('score-toolbar-actions');
     const retainedEmptyState = document.getElementById('score-retained-empty');
     const studentSearch = document.getElementById('score-student-search');
     let retainedFilterActive = false;
@@ -96,6 +98,69 @@
     scoreRankingButton?.addEventListener('click', () => {
         scoreRankingActive = !scoreRankingActive;
         updateScoreRanking();
+    });
+    let previousScrollY = window.scrollY;
+    let scrollDirection = 0;
+    let distanceInScrollDirection = 0;
+    let pendingDirectionDelta = 0;
+    let scrollUpdateScheduled = false;
+    window.addEventListener('scroll', () => {
+        if (scrollUpdateScheduled) return;
+        scrollUpdateScheduled = true;
+        window.requestAnimationFrame(() => {
+            const currentScrollY = window.scrollY;
+            const scrollDelta = currentScrollY - previousScrollY;
+            const toolbarHasFocus = scoreToolbarActions?.contains(document.activeElement);
+            const currentScrollDirection = Math.sign(scrollDelta);
+
+            if (currentScrollY <= 120 || toolbarHasFocus) {
+                scoreSubheader?.classList.remove('is-toolbar-collapsed');
+                scrollDirection = 0;
+                distanceInScrollDirection = 0;
+                pendingDirectionDelta = 0;
+            } else if (currentScrollDirection !== 0) {
+                if (scrollDirection === 0) {
+                    scrollDirection = currentScrollDirection;
+                }
+
+                if (currentScrollDirection === scrollDirection) {
+                    pendingDirectionDelta = 0;
+                    distanceInScrollDirection += Math.abs(scrollDelta);
+                } else {
+                    pendingDirectionDelta += Math.abs(scrollDelta);
+                    if (pendingDirectionDelta >= 48) {
+                        scrollDirection = currentScrollDirection;
+                        distanceInScrollDirection = pendingDirectionDelta;
+                        pendingDirectionDelta = 0;
+                    }
+                }
+
+                if (
+                    scrollDirection > 0
+                    && !scoreSubheader?.classList.contains('is-toolbar-collapsed')
+                    && distanceInScrollDirection >= 96
+                ) {
+                    scoreSubheader?.classList.add('is-toolbar-collapsed');
+                    distanceInScrollDirection = 0;
+                } else if (
+                    scrollDirection < 0
+                    && scoreSubheader?.classList.contains('is-toolbar-collapsed')
+                    && distanceInScrollDirection >= 96
+                ) {
+                    scoreSubheader?.classList.remove('is-toolbar-collapsed');
+                    distanceInScrollDirection = 0;
+                }
+            }
+
+            previousScrollY = currentScrollY;
+            scrollUpdateScheduled = false;
+        });
+    }, { passive: true });
+    scoreToolbarActions?.addEventListener('focusin', () => {
+        scoreSubheader?.classList.remove('is-toolbar-collapsed');
+        scrollDirection = 0;
+        distanceInScrollDirection = 0;
+        pendingDirectionDelta = 0;
     });
     
     if (yearId) {

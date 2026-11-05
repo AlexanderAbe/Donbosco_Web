@@ -2,6 +2,7 @@
     const scoreForm = document.getElementById('score-form');
     const saveStatus = document.getElementById('score-save-status');
     const saveStatusText = document.getElementById('score-save-status-text');
+    const collapsedStatus = document.getElementById('exam-collapsed-status');
 
     if (scoreForm && saveStatus && saveStatusText) {
         const dateInput = document.getElementById('test-date');
@@ -69,6 +70,14 @@
             );
             saveStatus.querySelector('i').className = `fa-solid ${isFullySaved ? 'fa-circle-check' : 'fa-clock'}`;
             saveStatusText.textContent = `${text} · Đã lưu ${savedStudents.size}/${totalStudents}`;
+            collapsedStatus.classList.toggle('border-emerald-200', isFullySaved);
+            collapsedStatus.classList.toggle('bg-emerald-50', isFullySaved);
+            collapsedStatus.classList.toggle('text-emerald-700', isFullySaved);
+            collapsedStatus.classList.toggle('border-amber-200', !isFullySaved);
+            collapsedStatus.classList.toggle('bg-amber-50', !isFullySaved);
+            collapsedStatus.classList.toggle('text-amber-700', !isFullySaved);
+            collapsedStatus.textContent = `${savedStudents.size}/${totalStudents}`;
+            collapsedStatus.setAttribute('aria-label', `Đã lưu ${savedStudents.size} trên ${totalStudents}`);
         };
 
         socket.on('exam_score_updated', ({ studentId, score, saved }) => {

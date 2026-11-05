@@ -1141,6 +1141,26 @@
     @apply my-5 rounded-xl border border-blue-200 bg-blue-50/50 p-5 shadow-sm;
   }
 
+  .qr-attendance-actions {
+    @apply flex w-full flex-nowrap gap-3;
+  }
+
+  .qr-attendance-summary {
+    @apply flex-col items-stretch gap-3;
+  }
+
+  .qr-attendance-alert {
+    @apply flex items-start gap-2 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900;
+  }
+
+  .qr-attendance-actions > * {
+    @apply min-w-0 flex-1;
+  }
+
+  .qr-view-button {
+    @apply border border-blue-600 bg-white text-blue-700 hover:bg-blue-50;
+  }
+
   .qr-panel-heading {
     @apply mb-4 flex flex-col justify-between gap-4 sm:flex-row sm:items-center;
   }
@@ -1170,7 +1190,7 @@
   }
 
   .qr-scan-status {
-    @apply rounded-lg bg-sky-100 p-3.5 text-sm text-sky-800;
+    @apply text-sm text-sky-800;
   }
 
   .qr-scan-status.is-error {
