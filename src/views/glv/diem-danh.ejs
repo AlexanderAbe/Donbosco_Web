@@ -96,13 +96,13 @@
                     <div id="attendance-context-desktop-controls" class="hidden items-end gap-3">
                         <div class="flex flex-col gap-1">
                             <label for="attendance-date" class="text-xs font-semibold text-slate-600">Ngày điểm danh</label>
-                            <input id="attendance-date" name="ngay_diem_danh" type="date" value="<%= selectedDate %>" max="<%= todayKey %>"
+                            <input id="attendance-date" name="ngay_diem_danh" type="date" value="<%= selectedDate %>" max="<%= todayKey %>" data-attendance-date-input
                                 class="h-11 rounded-lg border border-slate-200 bg-slate-100 px-3 text-sm font-medium text-slate-700 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20">
                         </div>
                         <div class="flex flex-col gap-1">
                             <label for="attendance-type" class="text-xs font-semibold text-slate-600">Loại buổi</label>
                             <select id="attendance-type" name="loai_buoi" class="h-11 max-w-48 rounded-lg border border-slate-200 bg-slate-100 px-3 text-sm font-medium text-slate-700 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20">
-                                <% if (!sessionTypes.length) { %><option value="">Ngày không khớp lịch</option><% } %>
+                                <% if (!sessionTypes.length) { %><option value="">Ngày không đúng lịch</option><% } %>
                                 <% sessionTypes.forEach(type => { %>
                                     <option value="<%= type %>" <%= type === sessionType ? 'selected' : '' %>><%= type %></option>
                                 <% }) %>
@@ -112,13 +112,14 @@
                     <div class="grid min-w-0 flex-1 grid-cols-1 gap-2 md:hidden">
                         <div class="min-w-0">
                             <label for="attendance-date-mobile" class="mb-1 block text-xs font-semibold text-slate-600">Ngày điểm danh</label>
-                            <input id="attendance-date-mobile" type="date" value="<%= selectedDate %>" max="<%= todayKey %>"
+                            <input id="attendance-date-mobile" type="date" value="<%= selectedDate %>" max="<%= todayKey %>" data-attendance-date-input
                                 class="h-10 w-full rounded-lg border border-slate-200 bg-slate-100 px-3 text-sm font-medium text-slate-700 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20">
+                            <span class="text-xs text-slate-500">Chỉ Thứ 3, Thứ 5 và Chúa Nhật.</span>
                         </div>
                         <div class="min-w-0">
                             <label for="attendance-type-mobile" class="mb-1 block text-xs font-semibold text-slate-600">Loại buổi</label>
                             <select id="attendance-type-mobile" class="h-10 w-full rounded-lg border border-slate-200 bg-slate-100 px-3 text-sm font-medium text-slate-700 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20">
-                                <% if (!sessionTypes.length) { %><option value="">Ngày không khớp lịch</option><% } %>
+                                <% if (!sessionTypes.length) { %><option value="">Ngày không đúng lịch</option><% } %>
                                 <% sessionTypes.forEach(type => { %>
                                     <option value="<%= type %>" <%= type === sessionType ? 'selected' : '' %>><%= type %></option>
                                 <% }) %>

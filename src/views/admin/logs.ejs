@@ -9,7 +9,9 @@
             <div>
                 <h2>Toàn bộ Nhật ký hoạt động hệ thống</h2>
                 <p style="color: #718096; font-size: 13px; margin-top: 4px;">
-                    Hiển thị lịch sử thao tác (Trang <%= currentPage %> / <%= totalPages %>)
+                    <% const firstRecord = totalRecords ? (currentPage - 1) * limit + 1 : 0; %>
+                    <% const lastRecord = Math.min(currentPage * limit, totalRecords); %>
+                    Hiển thị <%= firstRecord %>–<%= lastRecord %> trên <%= totalRecords %> nhật ký (Trang <%= currentPage %> / <%= totalPages %>)
                 </p>
             </div>
             <a href="/admin" class="view-all-link">
@@ -23,22 +25,29 @@
         </div>
 
         <!-- FORM LỌC -->
-        <form method="GET" action="" class="filter-form">
-            <input type="hidden" name="limit" value="<%= limit %>">
-
+        <form method="GET" action="/admin/logs" class="filter-form">
             <div class="filter-group">
                 <label for="log-search"><i class="fa-solid fa-user"></i> Tên hoặc số điện thoại:</label>
                 <input id="log-search" type="search" name="search" value="<%= search %>" class="form-control" placeholder="Nhập tên hoặc số điện thoại">
             </div>
             
             <div class="filter-group">
-                <label><i class="fa-regular fa-calendar-days"></i> Từ ngày:</label>
-                <input type="date" name="from" value="<%= fromDate %>" class="form-control">
+                <label for="log-from"><i class="fa-regular fa-calendar-days"></i> Từ ngày:</label>
+                <input id="log-from" type="date" name="from" value="<%= fromDate %>" class="form-control">
             </div>
             
             <div class="filter-group">
-                <label><i class="fa-regular fa-calendar-check"></i> Đến ngày:</label>
-                <input type="date" name="to" value="<%= toDate %>" class="form-control">
+                <label for="log-to"><i class="fa-regular fa-calendar-check"></i> Đến ngày:</label>
+                <input id="log-to" type="date" name="to" value="<%= toDate %>" class="form-control">
+            </div>
+
+            <div class="filter-group">
+                <label for="log-limit"><i class="fa-solid fa-list-ol"></i> Số dòng mỗi trang:</label>
+                <select id="log-limit" name="limit" class="form-control">
+                    <% [20, 50, 100].forEach(size => { %>
+                        <option value="<%= size %>" <%= limit === size ? 'selected' : '' %>><%= size %></option>
+                    <% }) %>
+                </select>
             </div>
             
             <div class="filter-actions">
@@ -53,8 +62,12 @@
             </div>
         </form>
 
+        <% if (logsError) { %>
+            <div class="alert alert-danger" role="alert"><%= logsError %></div>
+        <% } %>
+
         <!-- BẢNG DỮ LIỆU -->
-        <%- include('../partials/audit-logs-table', { logs: logs }) %>
+        <%- include('../partials/audit-logs-table', { logs: logs, logsError: logsError }) %>
 
         <!-- THANH PHÂN TRANG -->
         <div class="pagination-container">
@@ -63,7 +76,7 @@
             </div>
             <div class="pagination-nav">
                 <% if (currentPage > 1) { %>
-                    <a href="?page=<%= currentPage - 1 %>&limit=<%= limit %>&from=<%= fromDate %>&to=<%= toDate %>&search=<%= encodeURIComponent(search) %>" class="page-btn">
+                    <a href="?page=<%= currentPage - 1 %>&amp;<%= paginationQuery %>" class="page-btn">
                         <i class="fa-solid fa-chevron-left"></i> Trước
                     </a>
                 <% } %>
@@ -71,7 +84,7 @@
                 <span class="page-current"><%= currentPage %></span>
 
                 <% if (currentPage < totalPages) { %>
-                    <a href="?page=<%= currentPage + 1 %>&limit=<%= limit %>&from=<%= fromDate %>&to=<%= toDate %>&search=<%= encodeURIComponent(search) %>" class="page-btn">
+                    <a href="?page=<%= currentPage + 1 %>&amp;<%= paginationQuery %>" class="page-btn">
                         Sau <i class="fa-solid fa-chevron-right"></i>
                     </a>
                 <% } %>

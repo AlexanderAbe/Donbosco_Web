@@ -15,7 +15,7 @@
             <div class="attendance-field">
                 <label for="qr-type"><i class="fa-solid fa-clock"></i> Loại buổi</label>
                 <select id="qr-type" name="loai_buoi" required>
-                    <% if (!sessionTypes.length) { %><option value="">Ngày không khớp lịch</option><% } %>
+                    <% if (!sessionTypes.length) { %><option value="">Ngày không đúng lịch</option><% } %>
                     <% sessionTypes.forEach(type => { %>
                         <option value="<%= type %>" <%= type === sessionType ? 'selected' : '' %>><%= type %></option>
                     <% }) %>
@@ -23,7 +23,7 @@
             </div>
             <div class="attendance-field">
                 <label for="qr-date"><i class="fa-solid fa-calendar-day"></i> Ngày điểm danh</label>
-                <input id="qr-date" type="date" name="ngay_diem_danh" value="<%= selectedDate %>" max="<%= todayKey %>" required>
+                <input id="qr-date" type="date" name="ngay_diem_danh" value="<%= selectedDate %>" max="<%= todayKey %>" data-attendance-date-input required>
             </div>
         </form>
 

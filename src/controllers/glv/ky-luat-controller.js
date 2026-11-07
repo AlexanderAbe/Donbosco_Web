@@ -107,11 +107,15 @@ const KyLuatController = {
                 yearId,
                 classId,
                 month,
-                scores
+                scores,
+                true,
+                {
+                    id_tk: req.session.user?.id_tk,
+                    action: `Lưu điểm kỷ luật thành công cho Lớp ID: ${classId} (Tháng: ${month}, Niên khóa ID: ${yearId})`,
+                    status: 'Thành công'
+                }
             );
             broadcastBangDiemRefresh(req, yearId);
-
-            await logAction(req, `Lưu điểm kỷ luật thành công cho Lớp ID: ${classId} (Tháng: ${month}, Niên khóa ID: ${yearId})`, 'Thành công');
 
             return res.redirect(`/glv/ky-luat?nien_khoa=${yearId}&id_lop=${classId}&thang=${month}&message=Đã lưu điểm kỷ luật.`);
         } catch (error) {
@@ -141,12 +145,22 @@ const KyLuatController = {
         const score = rawScore === '' ? null : Number(rawScore);
         if (!yearId || !classId || !month || month > 12 || !studentId
             || (score !== null && (!Number.isFinite(score) || score < 0 || score > 10))) {
+            await logAction(
+                req,
+                `Lưu điểm kỷ luật từng em thất bại (Học viên ID: ${studentId || 'N/A'}, Lớp ID: ${classId || 'N/A'}, Tháng: ${month || 'N/A'}): Thông tin điểm không hợp lệ`,
+                'Thất bại'
+            );
             return res.status(400).json({ success: false, message: 'Thông tin điểm kỷ luật không hợp lệ.' });
         }
 
         try {
             await KyLuatModel.saveDisciplineScores(
-                idGlv, yearId, classId, month, [{ id_tn: studentId, diem: rawScore }], false
+                idGlv, yearId, classId, month, [{ id_tn: studentId, diem: rawScore }], false,
+                {
+                    id_tk: req.session.user?.id_tk,
+                    action: `Lưu điểm kỷ luật từng em thành công (Học viên ID: ${studentId}, Lớp ID: ${classId}, Niên khóa ID: ${yearId}, Tháng: ${month}, Điểm: ${rawScore === '' ? 'Đã xóa' : rawScore})`,
+                    status: 'Thành công'
+                }
             );
             broadcastBangDiemRefresh(req, yearId);
 
@@ -164,6 +178,11 @@ const KyLuatController = {
             return res.json({ success: true });
         } catch (error) {
             console.error('Lỗi lưu điểm kỷ luật thiếu nhi:', error);
+            await logAction(
+                req,
+                `Lưu điểm kỷ luật từng em thất bại (Học viên ID: ${studentId}, Lớp ID: ${classId}, Tháng: ${month}, Điểm: ${rawScore === '' ? 'Xóa' : rawScore}): ${error.message || 'Không thể lưu điểm kỷ luật.'}`,
+                'Thất bại'
+            );
             const status = error.code === 'FORBIDDEN' ? 403
                 : error.code === 'DISCIPLINE_ABSENCE'
                     || error.message === 'Điểm kỷ luật phải nằm trong khoảng từ 0 đến 10.' ? 400

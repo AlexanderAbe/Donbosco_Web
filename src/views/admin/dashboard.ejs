@@ -17,6 +17,9 @@
             <h2>Nhật ký hoạt động gần đây (Audit Logs)</h2>
             <a href="/admin/logs" class="view-all-link">Xem tất cả <i class="fa-solid fa-arrow-right"></i></a>
         </div>
-        <%- include('../partials/audit-logs-table', { logs: recentLogs }) %>
+        <% if (recentLogsError) { %>
+            <div class="alert alert-danger" role="alert"><%= recentLogsError %></div>
+        <% } %>
+        <%- include('../partials/audit-logs-table', { logs: recentLogs, logsError: recentLogsError }) %>
     </div>
 </div>

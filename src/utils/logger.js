@@ -8,16 +8,21 @@ const LogModel = require('../models/admin/logs-model'); // Trỏ đường dẫn
  * @param {number|null} [explicitIdTk=null] - Truyền trực tiếp id_tk nếu muốn ép buộc (dùng cho lúc đăng nhập thất bại)
  */
 async function logAction(req, action, status = 'Thành công', explicitIdTk = null) {
+    const id_tk = (explicitIdTk !== null && explicitIdTk !== undefined)
+        ? explicitIdTk
+        : (req.session && req.session.user && req.session.user.id_tk ? req.session.user.id_tk : null);
+
     try {
-        // Nếu có truyền explicitIdTk trực tiếp, dùng nó. Nếu không, lấy từ session.
-        const id_tk = (explicitIdTk !== null && explicitIdTk !== undefined)
-            ? explicitIdTk 
-            : (req.session && req.session.user && req.session.user.id_tk ? req.session.user.id_tk : null);
-        
-        // Gọi model để lưu vào DB
         await LogModel.createLog(id_tk, action, status);
+        return true;
     } catch (err) {
-        console.error('❌ Lỗi tại logger helper:', err);
+        console.error('❌ Audit log write failed:', {
+            id_tk,
+            action,
+            status,
+            error: err
+        });
+        return false;
     }
 }
 

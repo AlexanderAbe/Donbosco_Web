@@ -1,4 +1,5 @@
 const pool = require('../../../config/database');
+const LogModel = require('../admin/logs-model');
 
 const DashboardModel = {
     async getSacramentBlocks(idGlv, yearId) {
@@ -19,12 +20,15 @@ const DashboardModel = {
         return rows;
     },
 
-    async createSacramentBulk(idGlv, yearId, blockId, sacramentType, receivedDate, studentIds) {
+    async createSacramentBulk(idGlv, yearId, blockId, sacramentType, receivedDate, studentIds, auditLog = null) {
         const validTypes = ['Rửa tội', 'Xưng tội & Rước lễ', 'Thêm sức'];
         if (!validTypes.includes(sacramentType) || !/^\d{4}-\d{2}-\d{2}$/.test(receivedDate || '')) {
             throw new Error('Thông tin bí tích không hợp lệ.');
         }
-        const { rows } = await pool.query(`
+        const client = await pool.connect();
+        try {
+            await client.query('BEGIN');
+            const { rows } = await client.query(`
             INSERT INTO BI_TICH (loai_bi_tich, ngay_lanh_nhan, id_tn)
             SELECT $4::enum_bi_tich, $5::date, pl.id_tn
             FROM PHAN_LOP pl
@@ -40,8 +44,21 @@ const DashboardModel = {
               AND ($6::int[] IS NULL OR pl.id_tn = ANY($6::int[]))
             ON CONFLICT (id_tn, loai_bi_tich) DO NOTHING
             RETURNING id_bi_tich
-        `, [idGlv, yearId, blockId, sacramentType, receivedDate, studentIds === undefined ? null : studentIds]);
-        return rows.length;
+            `, [idGlv, yearId, blockId, sacramentType, receivedDate, studentIds === undefined ? null : studentIds]);
+            if (auditLog) {
+                const action = typeof auditLog.action === 'function'
+                    ? auditLog.action(rows.length)
+                    : auditLog.action;
+                await LogModel.insertLog(client, auditLog.id_tk, action, auditLog.status);
+            }
+            await client.query('COMMIT');
+            return rows.length;
+        } catch (error) {
+            await client.query('ROLLBACK');
+            throw error;
+        } finally {
+            client.release();
+        }
     },
 
     async getSacramentStudents(idGlv, yearId, blockId) {

@@ -437,7 +437,7 @@
         const selectedType = sessionTypes.includes(preferredType) ? preferredType : sessionTypes[0] || '';
         select.replaceChildren();
         if (!sessionTypes.length) {
-            select.add(new Option('Ngày không khớp lịch', ''));
+            select.add(new Option('Ngày không đúng lịch', ''));
             return '';
         }
         sessionTypes.forEach(sessionType => {

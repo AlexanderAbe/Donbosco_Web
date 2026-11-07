@@ -35,10 +35,16 @@
                         </td>
                     </tr>
                 <% }) %>
+            <% } else if (typeof logsError !== 'undefined' && logsError) { %>
+                <tr>
+                    <td colspan="4" style="text-align: center; color: var(--text-muted, #718096); padding: 20px;">
+                        Nhật ký không khả dụng do có lỗi tải dữ liệu.
+                    </td>
+                </tr>
             <% } else { %>
                 <tr>
                     <td colspan="4" style="text-align: center; color: var(--text-muted, #718096); padding: 20px;">
-                        Chưa có nhật ký hoạt động nào gần đây.
+                        Không tìm thấy nhật ký phù hợp với bộ lọc.
                     </td>
                 </tr>
             <% } %>

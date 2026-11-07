@@ -213,7 +213,13 @@ const KiemTraController = {
                 classId,
                 examNumber,
                 scores,
-                ngayKiemTra // Truyền thêm ngày kiểm tra vào Model
+                ngayKiemTra,
+                true,
+                {
+                    id_tk: req.session.user?.id_tk,
+                    action: `Lưu điểm kiểm tra thành công cho Lớp ID: ${classId} (Bài kiểm tra số: ${examNumber}, Ngày: ${ngayKiemTra}, Niên khóa ID: ${yearId})`,
+                    status: 'Thành công'
+                }
             );
             broadcastBangDiemRefresh(req, yearId);
             const savedStudents = await KiemTraModel.getExamStudents(idGlv, yearId, classId, examNumber);
@@ -221,8 +227,6 @@ const KiemTraController = {
                 req, yearId, classId, examNumber,
                 { studentId: student.id_tn, score: student.diem_so, saved: student.da_luu }
             ));
-
-            await logAction(req, `Lưu điểm kiểm tra thành công cho Lớp ID: ${classId} (Bài kiểm tra số: ${examNumber}, Ngày: ${ngayKiemTra || 'Không có'}, Niên khóa ID: ${yearId})`, 'Thành công');
 
             const query = new URLSearchParams({
                 nien_khoa: yearId,
@@ -262,6 +266,11 @@ const KiemTraController = {
         if (!yearId || !classId || !examNumber || !studentId || !isValidDateKey(examDate)
             || (score !== null && (!Number.isFinite(score) || score < 0 || score > 10))
         ) {
+            await logAction(
+                req,
+                `Lưu điểm kiểm tra từng em thất bại (Học viên ID: ${studentId || 'N/A'}, Lớp ID: ${classId || 'N/A'}, Bài kiểm tra: ${examNumber || 'N/A'}): Thông tin điểm không hợp lệ`,
+                'Thất bại'
+            );
             return res.status(400).json({ success: false, message: 'Thông tin điểm kiểm tra không hợp lệ.' });
         }
 
@@ -270,7 +279,12 @@ const KiemTraController = {
                 idGlv, yearId, classId, examNumber,
                 [{ id_tn: studentId, diem_so: rawScore }],
                 examDate,
-                false
+                false,
+                {
+                    id_tk: req.session.user?.id_tk,
+                    action: `Lưu điểm kiểm tra từng em thành công (Học viên ID: ${studentId}, Lớp ID: ${classId}, Niên khóa ID: ${yearId}, Bài kiểm tra: ${examNumber}, Ngày: ${examDate}, Điểm: ${rawScore === '' ? 'Đã xóa' : rawScore})`,
+                    status: 'Thành công'
+                }
             );
             broadcastBangDiemRefresh(req, yearId);
             broadcastExamUpdate(req, yearId, classId, examNumber, {
@@ -281,6 +295,11 @@ const KiemTraController = {
             return res.json({ success: true });
         } catch (error) {
             console.error('Lỗi lưu điểm kiểm tra thiếu nhi:', error);
+            await logAction(
+                req,
+                `Lưu điểm kiểm tra từng em thất bại (Học viên ID: ${studentId}, Lớp ID: ${classId}, Bài kiểm tra: ${examNumber}, Điểm: ${rawScore === '' ? 'Xóa' : rawScore}): ${error.message || 'Không thể lưu điểm kiểm tra.'}`,
+                'Thất bại'
+            );
             const status = error.code === 'FORBIDDEN' ? 403
                 : error.message === 'Điểm phải nằm trong khoảng từ 0 đến 10.' ? 400
                     : 500;

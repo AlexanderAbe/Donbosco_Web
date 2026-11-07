@@ -1,5 +1,16 @@
 const pool = require('../../../config/database');
 const { sortStudentsByName } = require('../../utils/student-sorter');
+const LogModel = require('../admin/logs-model');
+
+const isAttendanceDate = value => {
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(value || '')) return false;
+    const [year, month, day] = value.split('-').map(Number);
+    const date = new Date(Date.UTC(year, month - 1, day));
+    return date.getUTCFullYear() === year
+        && date.getUTCMonth() === month - 1
+        && date.getUTCDate() === day
+        && [0, 2, 4].includes(date.getUTCDay());
+};
 
 const DiemDanhModel = {
     async getAttendanceStudents(idGlv, yearId, classId, attendanceDate, sessionType) {
@@ -87,10 +98,10 @@ const DiemDanhModel = {
         };
     },
 
-    async saveAttendance(idGlv, yearId, classId, attendanceDate, sessionType, attendance, unmarkedStatus = 'Có mặt') {
+    async saveAttendance(idGlv, yearId, classId, attendanceDate, sessionType, attendance, unmarkedStatus = 'Có mặt', auditLog = null) {
         const sessionTypes = ['Lễ Thứ 3', 'Lễ Thứ 5', 'Lễ Chúa Nhật', 'Học Giáo Lý'];
         const statuses = ['Có mặt', 'Đi sớm', 'Đi trễ', 'Vắng phép', 'Vắng không phép'];
-        if (!Number.isInteger(yearId) || !Number.isInteger(classId) || !/^\d{4}-\d{2}-\d{2}$/.test(attendanceDate || '') || !sessionTypes.includes(sessionType) || !statuses.includes(unmarkedStatus)) {
+        if (!Number.isInteger(yearId) || !Number.isInteger(classId) || !isAttendanceDate(attendanceDate) || !sessionTypes.includes(sessionType) || !statuses.includes(unmarkedStatus)) {
             throw new Error('Thông tin điểm danh không hợp lệ.');
         }
         const client = await pool.connect();
@@ -150,6 +161,9 @@ const DiemDanhModel = {
                 SET tinh_trang = NULL
                 WHERE id_lop = $1 AND id_cau_hinh_nam_hoc = $2
             `, [classId, yearId]);
+            if (auditLog) {
+                await LogModel.insertLog(client, auditLog.id_tk, auditLog.action, auditLog.status);
+            }
             await client.query('COMMIT');
         } catch (error) {
             await client.query('ROLLBACK');
@@ -159,11 +173,11 @@ const DiemDanhModel = {
         }
     },
 
-    async saveStudentAttendance(idGlv, yearId, classId, studentId, attendanceDate, sessionType, status) {
+    async saveStudentAttendance(idGlv, yearId, classId, studentId, attendanceDate, sessionType, status, auditLog = null) {
         const sessionTypes = ['Lễ Thứ 3', 'Lễ Thứ 5', 'Lễ Chúa Nhật', 'Học Giáo Lý'];
         const statuses = ['Có mặt', 'Đi sớm', 'Đi trễ', 'Vắng phép', 'Vắng không phép'];
         if (!Number.isInteger(idGlv) || !Number.isInteger(yearId) || !Number.isInteger(classId)
-            || !Number.isInteger(studentId) || !/^\d{4}-\d{2}-\d{2}$/.test(attendanceDate || '')
+            || !Number.isInteger(studentId) || !isAttendanceDate(attendanceDate)
             || !sessionTypes.includes(sessionType) || !statuses.includes(status)) {
             throw new Error('Thông tin điểm danh không hợp lệ.');
         }
@@ -203,6 +217,9 @@ const DiemDanhModel = {
                 SET tinh_trang = NULL
                 WHERE id_tn = $1 AND id_lop = $2 AND id_cau_hinh_nam_hoc = $3
             `, [studentId, classId, yearId]);
+            if (auditLog) {
+                await LogModel.insertLog(client, auditLog.id_tk, auditLog.action, auditLog.status);
+            }
             await client.query('COMMIT');
         } catch (error) {
             await client.query('ROLLBACK');
@@ -212,11 +229,11 @@ const DiemDanhModel = {
         }
     },
 
-    async markAttendanceByQr(idGlv, yearId, classId, studentId, mstn, attendanceDate, sessionType, status = 'Có mặt') {
+    async markAttendanceByQr(idGlv, yearId, classId, studentId, mstn, attendanceDate, sessionType, status = 'Có mặt', auditLog = null) {
         const sessionTypes = ['Lễ Thứ 3', 'Lễ Thứ 5', 'Lễ Chúa Nhật', 'Học Giáo Lý'];
         const statuses = ['Có mặt', 'Đi sớm'];
         if (!Number.isInteger(yearId) || !Number.isInteger(classId)
-            || !/^\d{4}-\d{2}-\d{2}$/.test(attendanceDate || '')
+            || !isAttendanceDate(attendanceDate)
             || !sessionTypes.includes(sessionType) || !statuses.includes(status)) {
             throw new Error('Thông tin quét điểm danh không hợp lệ.');
         }
@@ -263,6 +280,9 @@ const DiemDanhModel = {
                 SET tinh_trang = NULL
                 WHERE id_tn = $1 AND id_lop = $2 AND id_cau_hinh_nam_hoc = $3
             `, [student.id_tn, classId, yearId]);
+            if (auditLog) {
+                await LogModel.insertLog(client, auditLog.id_tk, auditLog.action, auditLog.status);
+            }
 
             await client.query('COMMIT');
             return student;

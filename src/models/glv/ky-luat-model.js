@@ -1,5 +1,6 @@
 const pool = require('../../../config/database');
 const { sortStudentsByName } = require('../../utils/student-sorter');
+const LogModel = require('../admin/logs-model');
 
 const KyLuatModel = {
     async getDisciplineStudents(idGlv, yearId, classId, month) {
@@ -80,7 +81,7 @@ const KyLuatModel = {
         };
     },
 
-    async saveDisciplineScores(idGlv, yearId, classId, month, scores, fillMissing = true) {
+    async saveDisciplineScores(idGlv, yearId, classId, month, scores, fillMissing = true, auditLog = null) {
         const client = await pool.connect();
         try {
             await client.query('BEGIN');
@@ -189,6 +190,9 @@ const KyLuatModel = {
                     SET tinh_trang = NULL
                     WHERE id_lop = $1 AND id_cau_hinh_nam_hoc = $2
                 `, [classId, yearId]);
+            }
+            if (auditLog) {
+                await LogModel.insertLog(client, auditLog.id_tk, auditLog.action, auditLog.status);
             }
             await client.query('COMMIT');
         } catch (error) {

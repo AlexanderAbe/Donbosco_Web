@@ -2,6 +2,7 @@ const { getTruongKhoiBaseData } = require('../../utils/base-data-helper');
 const LopModel = require('../../models/truong-khoi/lop-model');
 const DashboardModel = require('../../models/truong-khoi/dashboard-model');
 const { getCurrentYear } = require('../../utils/current-year-helper');
+const { logAction } = require('../../utils/logger');
 
 const TruongKhoiDashboardController = {
     async getDashboard(req, res) {
@@ -38,11 +39,21 @@ const TruongKhoiDashboardController = {
                 blockId,
                 req.body.sacramentType,
                 req.body.receivedDate,
-                Array.isArray(req.body.studentIds) ? req.body.studentIds.map(id => Number.parseInt(id, 10)).filter(Number.isInteger) : undefined
+                Array.isArray(req.body.studentIds) ? req.body.studentIds.map(id => Number.parseInt(id, 10)).filter(Number.isInteger) : undefined,
+                {
+                    id_tk: req.session.user?.id_tk,
+                    action: count => `Tạo bí tích hàng loạt thành công (Khối ID: ${blockId}, Niên khóa ID: ${yearId}, Loại: ${req.body.sacramentType}, Ngày lãnh nhận: ${req.body.receivedDate}, Số bản ghi mới: ${count})`,
+                    status: 'Thành công'
+                }
             );
             return res.json({ success: true, count });
         } catch (error) {
             console.error('Lỗi tạo bí tích hàng loạt:', error);
+            await logAction(
+                req,
+                `Tạo bí tích hàng loạt thất bại (Khối ID: ${blockId || 'N/A'}, Niên khóa ID: ${yearId || 'N/A'}, Loại: ${req.body.sacramentType || 'N/A'}): ${error.message || 'Không thể tạo bí tích hàng loạt.'}`,
+                'Thất bại'
+            );
             return res.status(400).json({ error: error.message || 'Không thể tạo bí tích hàng loạt.' });
         }
     },
