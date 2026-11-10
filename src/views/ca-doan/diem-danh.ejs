@@ -1,0 +1,111 @@
+<section class="choir-attendance"
+    data-year-id="<%= selectedYearId || '' %>"
+    data-date="<%= selectedDate %>"
+    data-session="<%= sessionType %>">
+    <div class="choir-page-heading">
+        <div class="choir-member-count"><i class="fa-solid fa-music"></i> <%= students.length %> ca viên</div>
+    </div>
+
+    <% if (message) { %><div class="choir-feedback" role="status"><%= message %></div><% } %>
+
+    <form class="choir-filters" id="attendance-filters" action="/ca-doan/diem-danh" method="GET">
+        <% if (selectedYearId) { %>
+            <input type="hidden" name="nien_khoa" value="<%= selectedYearId %>">
+        <% } %>
+        <label>
+            <span>Ngày</span>
+            <input id="attendance-date" type="date" name="ngay_diem_danh" value="<%= selectedDate %>" max="<%= todayKey %>" required>
+        </label>
+    </form>
+
+    <% if (futureDate) { %>
+        <div class="choir-empty"><i class="fa-solid fa-calendar-xmark"></i><span>Không thể điểm danh cho ngày chưa tới.</span></div>
+    <% } else if (!sessionType) { %>
+        <div class="choir-empty"><i class="fa-solid fa-calendar-xmark"></i><span>Chỉ có thể điểm danh lễ Thứ 3, lễ Thứ 5 hoặc lễ Chúa Nhật.</span></div>
+    <% } else if (!selectedYearId) { %>
+        <div class="choir-empty"><i class="fa-solid fa-calendar-xmark"></i><span>Chưa có niên khóa để tải danh sách ca viên.</span></div>
+    <% } else { %>
+        <section class="choir-scan-card" aria-label="Quét mã ca viên">
+            <div class="choir-scan-copy">
+                <h2><i class="fa-solid fa-qrcode"></i> Quét mã ca viên</h2>
+                <p>Quét mã thiếu nhi đã đăng ký ca đoàn. Mã không thuộc ca đoàn sẽ không được ghi nhận.</p>
+            </div>
+            <div id="choir-qr-reader"></div>
+            <div class="choir-scan-status" id="scan-status" role="status" aria-live="polite"></div>
+        </section>
+
+        <section class="choir-roster overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+            <div class="flex flex-col gap-3 border-b border-slate-100 p-4 sm:flex-row sm:items-center sm:justify-between sm:px-6">
+                <div>
+                    <p class="m-0 text-sm font-semibold text-slate-800"><%= sessionType %> · <%= selectedDate %></p>
+                    <p class="m-0 mt-1 text-xs text-slate-500">
+                        Hiển thị <span id="attendance-visible-count"><%= students.length %></span>/<%= students.length %> ca viên
+                    </p>
+                </div>
+                <label for="attendance-search" class="sr-only">Tìm tên hoặc mã thiếu nhi</label>
+                <div class="relative min-w-0 sm:w-80">
+                    <i class="fa-solid fa-magnifying-glass pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-sm text-slate-400" aria-hidden="true"></i>
+                    <input id="attendance-search" type="search" placeholder="Tìm tên hoặc mã số..." autocomplete="off"
+                        data-table-search="[data-attendance-row]" data-search-empty="#attendance-search-empty"
+                        data-search-count="#attendance-visible-count"
+                        class="h-10 w-full rounded-xl border border-slate-200 bg-white py-2 pl-10 pr-3.5 text-sm text-slate-800 placeholder:text-slate-400 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20">
+                </div>
+            </div>
+            <% if (students.length) { %>
+                <div class="overflow-x-auto max-[600px]:overflow-visible">
+                    <table class="w-full min-w-175 border-collapse max-[600px]:min-w-0 max-[600px]:block">
+                        <thead class="max-[600px]:hidden">
+                            <tr class="bg-slate-50 text-[11px] font-bold uppercase tracking-wider text-slate-500">
+                                <th class="w-14 border-b border-slate-200 px-3.5 py-3 text-center">STT</th>
+                                <th class="border-b border-slate-200 px-3.5 py-3 text-left">MSTN</th>
+                                <th class="border-b border-slate-200 px-3.5 py-3 text-left">Họ và tên</th>
+                                <th class="border-b border-slate-200 px-3.5 py-3 text-left">Điểm danh</th>
+                            </tr>
+                        </thead>
+                        <tbody class="text-sm max-[600px]:block">
+                            <% students.forEach((student, index) => { %>
+                                <tr data-attendance-row data-student-row data-student-id="<%= student.id_tn %>"
+                                    data-search="<%= `${student.mstn || ''} ${student.ho_ten || ''}`.toLowerCase() %>"
+                                    class="max-[600px]:mb-3 max-[600px]:block max-[600px]:rounded-xl max-[600px]:border max-[600px]:border-slate-200 max-[600px]:bg-white max-[600px]:px-3 max-[600px]:py-2 max-[600px]:transition-colors max-[600px]:hover:bg-slate-50/50">
+                                    <td class="border-b border-slate-100 px-3.5 py-3 text-center text-slate-400 max-[600px]:hidden"><%= index + 1 %></td>
+                                    <td class="border-b border-slate-100 px-3.5 py-3 max-[600px]:mb-2 max-[600px]:block max-[600px]:border-0 max-[600px]:px-0 max-[600px]:py-0 max-[600px]:text-xs max-[600px]:font-semibold max-[600px]:text-slate-500">
+                                        <span class="hidden h-6 w-6 items-center justify-center rounded-full bg-slate-100 text-xs font-bold text-slate-500 max-[600px]:inline-flex"><%= index + 1 %></span>
+                                        <span class="max-[600px]:ml-2"><%= student.mstn || '-' %></span>
+                                    </td>
+                                    <td class="border-b border-slate-100 px-3.5 py-3 max-[600px]:mb-2 max-[600px]:block max-[600px]:border-0 max-[600px]:px-0 max-[600px]:py-0">
+                                        <strong class="text-sm font-bold leading-snug text-slate-900"><%= student.ho_ten %></strong>
+                                    </td>
+                                    <td class="border-b border-slate-100 px-3.5 py-3 max-[600px]:block max-[600px]:border-0 max-[600px]:px-0 max-[600px]:py-0">
+                                        <button class="mb-2 inline-flex min-h-11 w-full items-center justify-between rounded-xl border border-slate-200 bg-slate-50 px-3 text-left text-sm font-semibold text-slate-700 shadow-sm transition-colors hover:border-blue-300 hover:bg-blue-50 max-[600px]:mb-0 disabled:cursor-not-allowed disabled:opacity-70"
+                                            type="button" data-mark-student="<%= student.id_tn %>" <%= student.da_diem_danh ? 'disabled' : '' %>>
+                                            <span data-student-status><%= student.trang_thai_diem_danh || 'Chọn trạng thái' %></span>
+                                            <i class="fa-solid <%= student.da_diem_danh ? 'fa-circle-check text-emerald-600' : 'fa-chevron-down text-xs text-slate-400' %>" aria-hidden="true"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                            <% }) %>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="search-hidden border-t border-dashed border-slate-200 p-8 text-center text-slate-500" id="attendance-search-empty">Không tìm thấy thiếu nhi phù hợp.</div>
+                <%- include('../partials/pagination', {
+                    mode: 'client',
+                    currentPage: 1,
+                    totalPages: Math.max(Math.ceil(students.length / 25), 1),
+                    totalItems: students.length,
+                    pageSize: 25,
+                    rows: '[data-attendance-row]'
+                }) %>
+            <% } else { %>
+                <div class="border-t border-dashed border-slate-200 p-8 text-center text-slate-500"><i class="fa-solid fa-user-group mr-2 text-slate-400"></i>Chưa có ca viên được phân lớp trong niên khóa này.</div>
+            <% } %>
+        </section>
+    <% } %>
+    <div class="choir-toast" id="choir-toast" role="status" aria-live="polite"></div>
+</section>
+
+<% if (!futureDate && sessionType && selectedYearId) { %>
+    <script src="/vendor/html5-qrcode/html5-qrcode.min.js"></script>
+<% } %>
+<script src="/js/table-search.js" defer></script>
+<script src="/js/ca-doan/attendance.js" defer></script>

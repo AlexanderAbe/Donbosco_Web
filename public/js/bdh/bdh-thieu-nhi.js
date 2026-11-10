@@ -5,6 +5,8 @@
     const detail = document.getElementById('student-detail');
     const editButton = document.getElementById('modal-edit');
     const saveButton = document.getElementById('modal-save');
+    const modalCaDoan = document.getElementById('ca-doan-modal');
+    const btnOpenCaDoan = document.getElementById('btnOpenCaDoan');
     let currentStudentId = null;
     let currentStudentData = null;
     
@@ -17,6 +19,8 @@
         modalDetail.setAttribute('aria-hidden', 'true');
         modalImport.classList.remove('is-open');
         modalImport.setAttribute('aria-hidden', 'true');
+        modalCaDoan.classList.remove('is-open');
+        modalCaDoan.setAttribute('aria-hidden', 'true');
     };
 
     modalDetail.querySelectorAll('.modal-close, .modal-cancel').forEach(button => {
@@ -29,6 +33,322 @@
         modalImport.setAttribute('aria-hidden', 'false');
     });
 
+    const caDoanResults = document.getElementById('ca-doan-results');
+    const caDoanMembersResults = document.getElementById('ca-doan-members-results');
+    const caDoanSearch = document.getElementById('ca-doan-search');
+    const caDoanKhoi = document.getElementById('ca-doan-khoi');
+    const caDoanLop = document.getElementById('ca-doan-lop');
+    const caDoanGender = document.getElementById('ca-doan-gioi-tinh');
+    const caDoanStatus = document.getElementById('ca-doan-trang-thai');
+    const caDoanFilters = document.querySelector('.ca-doan-filters');
+    const caDoanFilterToggle = document.getElementById('ca-doan-filter-toggle');
+    const caDoanSelectPage = document.getElementById('ca-doan-select-page');
+    const caDoanChangeCount = document.getElementById('ca-doan-change-count');
+    const caDoanPageInfo = document.getElementById('ca-doan-page-info');
+    const caDoanPrevious = document.getElementById('ca-doan-prev');
+    const caDoanNext = document.getElementById('ca-doan-next');
+    const caDoanSave = document.getElementById('ca-doan-save');
+    const caDoanMessage = document.getElementById('ca-doan-message');
+    const caDoanSelectPanel = document.getElementById('ca-doan-panel-select');
+    const caDoanMembersPanel = document.getElementById('ca-doan-panel-members');
+    const caDoanStatusFilter = document.querySelector('.ca-doan-status-filter');
+    const caDoanTabs = [...modalCaDoan.querySelectorAll('[data-ca-doan-tab]')];
+    const isMobileCaDoan = window.matchMedia('(max-width: 600px)');
+    const pendingCaDoanChanges = new Map();
+    let caDoanPage = 1;
+    let caDoanTotalPages = 1;
+    let caDoanRequestId = 0;
+    let activeCaDoanTab = 'select';
+    let caDoanSaveInProgress = false;
+    let caDoanSearchTimer;
+
+    const updateCaDoanChangeCount = () => {
+        const count = pendingCaDoanChanges.size;
+        caDoanChangeCount.textContent = count
+            ? `Đã thay đổi ${count} em`
+            : 'Chưa có thay đổi';
+        caDoanSave.disabled = caDoanSaveInProgress || count === 0 || count > 500;
+        caDoanSave.title = count > 500 ? 'Mỗi lần chỉ lưu tối đa 500 em.' : '';
+        const checkboxes = [...caDoanResults.querySelectorAll('.ca-doan-student-checkbox')];
+        const checkedCount = checkboxes.filter(checkbox => checkbox.checked).length;
+        caDoanSelectPage.checked = checkboxes.length > 0 && checkedCount === checkboxes.length;
+        caDoanSelectPage.indeterminate = checkedCount > 0 && checkedCount < checkboxes.length;
+    };
+
+    const updateCaDoanStudent = (student, checked) => {
+        const id = String(student.id_tn);
+        const original = Boolean(student.is_ca_doan);
+        if (checked === original) pendingCaDoanChanges.delete(id);
+        else pendingCaDoanChanges.set(id, checked);
+        updateCaDoanChangeCount();
+    };
+
+    const renderCaDoanStudents = students => {
+        caDoanResults.replaceChildren();
+        if (!students.length) {
+            const empty = document.createElement('p');
+            empty.className = 'empty-state';
+            empty.textContent = 'Không tìm thấy thiếu nhi phù hợp.';
+            caDoanResults.append(empty);
+            updateCaDoanChangeCount();
+            return;
+        }
+
+        students.forEach(student => {
+            const row = document.createElement('label');
+            row.className = 'ca-doan-student';
+            const checkbox = document.createElement('input');
+            checkbox.type = 'checkbox';
+            checkbox.className = 'ca-doan-student-checkbox';
+            checkbox.dataset.id = String(student.id_tn);
+            checkbox.checked = pendingCaDoanChanges.has(String(student.id_tn))
+                ? pendingCaDoanChanges.get(String(student.id_tn))
+                : Boolean(student.is_ca_doan);
+            const name = document.createElement('strong');
+            name.textContent = student.ho_ten || 'Chưa có tên';
+            const details = document.createElement('span');
+            details.textContent = `${student.mstn || 'Chưa có mã'} · ${student.ten_khoi || 'Chưa có khối'} - ${student.ten_lop || 'Chưa có lớp'}`;
+            const status = document.createElement('span');
+            status.className = `ca-doan-student-status${student.is_ca_doan ? ' is-member' : ''}`;
+            status.textContent = student.is_ca_doan ? 'Đã thuộc ca đoàn' : 'Chưa thuộc ca đoàn';
+            const information = document.createElement('span');
+            information.className = 'ca-doan-student-info';
+            information.append(name, details, status);
+            row.append(checkbox, information);
+            checkbox.addEventListener('change', () => {
+                updateCaDoanStudent(student, checkbox.checked);
+                const hasPendingChange = checkbox.checked !== Boolean(student.is_ca_doan);
+                status.classList.toggle('is-member', checkbox.checked);
+                status.textContent = hasPendingChange
+                    ? checkbox.checked ? 'Sẽ thêm vào ca đoàn' : 'Sẽ bỏ khỏi ca đoàn'
+                    : checkbox.checked ? 'Đã thuộc ca đoàn' : 'Chưa thuộc ca đoàn';
+            });
+            caDoanResults.append(row);
+        });
+        updateCaDoanChangeCount();
+    };
+
+    const renderCaDoanMembers = students => {
+        caDoanMembersResults.replaceChildren();
+        if (!students.length) {
+            const empty = document.createElement('p');
+            empty.className = 'empty-state';
+            empty.textContent = 'Chưa có thành viên ca đoàn phù hợp.';
+            caDoanMembersResults.append(empty);
+            return;
+        }
+
+        students.forEach(student => {
+            const row = document.createElement('div');
+            row.className = 'ca-doan-member-row';
+            const information = document.createElement('div');
+            information.className = 'ca-doan-member-info';
+            const name = document.createElement('strong');
+            name.textContent = student.ho_ten || 'Chưa có tên';
+            const details = document.createElement('span');
+            details.textContent = `${student.mstn || 'Chưa có mã'} · ${student.ten_khoi || 'Chưa có khối'} - ${student.ten_lop || 'Chưa có lớp'}`;
+            information.append(name, details);
+
+            const removeButton = document.createElement('button');
+            removeButton.type = 'button';
+            removeButton.className = 'ca-doan-remove';
+            removeButton.dataset.id = String(student.id_tn);
+            removeButton.textContent = 'Gỡ';
+            removeButton.addEventListener('click', async () => {
+                removeButton.disabled = true;
+                removeButton.textContent = 'Đang gỡ...';
+                caDoanMessage.textContent = '';
+                try {
+                    const response = await fetch('/bdh/thieu-nhi/ca-doan/save', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            nien_khoa: Number(yearId),
+                            changes: [{ id_tn: Number(student.id_tn), is_ca_doan: false }]
+                        })
+                    });
+                    const result = await response.json();
+                    if (!response.ok) throw new Error(result.error || 'Không thể gỡ thiếu nhi khỏi ca đoàn.');
+
+                    pendingCaDoanChanges.delete(String(student.id_tn));
+                    updateCaDoanChangeCount();
+                    if (caDoanPage > 1 && caDoanMembersResults.children.length === 1) {
+                        caDoanPage -= 1;
+                    }
+                    await loadCaDoanStudents();
+                } catch (error) {
+                    console.error('Lỗi gỡ thành viên ca đoàn:', error);
+                    caDoanMessage.textContent = error.message;
+                    removeButton.disabled = false;
+                    removeButton.textContent = 'Gỡ';
+                }
+            });
+            row.append(information, removeButton);
+            caDoanMembersResults.append(row);
+        });
+    };
+
+    const loadCaDoanStudents = async () => {
+        const requestId = ++caDoanRequestId;
+        const params = new URLSearchParams({
+            nien_khoa: yearId,
+            page: String(caDoanPage),
+            limit: '30',
+            search: caDoanSearch.value.trim(),
+            id_khoi: caDoanKhoi.value,
+            id_lop: caDoanLop.value,
+            gioi_tinh: caDoanGender.value,
+            ca_doan: activeCaDoanTab === 'members' ? '1' : caDoanStatus.value
+        });
+        const resultsContainer = activeCaDoanTab === 'members' ? caDoanMembersResults : caDoanResults;
+        resultsContainer.replaceChildren();
+        const loading = document.createElement('p');
+        loading.className = 'empty-state';
+        loading.textContent = 'Đang tải danh sách...';
+        resultsContainer.append(loading);
+        caDoanMessage.textContent = '';
+
+        try {
+            const response = await fetch(`/bdh/thieu-nhi/ca-doan/candidates?${params}`);
+            const result = await response.json();
+            if (requestId !== caDoanRequestId) return;
+            if (!response.ok) throw new Error(result.error || 'Không thể tải danh sách thiếu nhi.');
+
+            if (activeCaDoanTab === 'members') renderCaDoanMembers(result.students);
+            else renderCaDoanStudents(result.students);
+            caDoanPage = result.page;
+            caDoanTotalPages = result.totalPages;
+            caDoanPageInfo.textContent = `Trang ${result.page}/${result.totalPages} · ${result.total} em`;
+            caDoanPrevious.disabled = result.page <= 1;
+            caDoanNext.disabled = result.page >= result.totalPages;
+        } catch (error) {
+            if (requestId !== caDoanRequestId) return;
+            console.error('Lỗi tải danh sách thành viên ca đoàn:', error);
+            resultsContainer.replaceChildren();
+            caDoanMessage.textContent = error.message;
+            caDoanPrevious.disabled = true;
+            caDoanNext.disabled = true;
+        }
+    };
+
+    btnOpenCaDoan.addEventListener('click', () => {
+        closeAllModals();
+        modalCaDoan.classList.add('is-open');
+        modalCaDoan.setAttribute('aria-hidden', 'false');
+        caDoanPage = 1;
+        loadCaDoanStudents();
+    });
+
+    caDoanTabs.forEach(tab => {
+        tab.addEventListener('click', () => {
+            activeCaDoanTab = tab.dataset.caDoanTab;
+            caDoanTabs.forEach(item => {
+                const isActive = item === tab;
+                item.classList.toggle('is-active', isActive);
+                item.setAttribute('aria-selected', String(isActive));
+            });
+            caDoanSelectPanel.hidden = activeCaDoanTab !== 'select';
+            caDoanMembersPanel.hidden = activeCaDoanTab !== 'members';
+            caDoanStatusFilter.hidden = activeCaDoanTab === 'members';
+            caDoanPage = 1;
+            loadCaDoanStudents();
+        });
+    });
+
+    modalCaDoan.querySelectorAll('.modal-close-ca-doan').forEach(button => {
+        button.addEventListener('click', closeAllModals);
+    });
+    caDoanSearch.addEventListener('input', () => {
+        window.clearTimeout(caDoanSearchTimer);
+        caDoanSearchTimer = window.setTimeout(() => {
+            caDoanPage = 1;
+            loadCaDoanStudents();
+        }, 250);
+    });
+    caDoanFilterToggle.addEventListener('click', () => {
+        const expanded = caDoanFilterToggle.getAttribute('aria-expanded') !== 'true';
+        caDoanFilterToggle.setAttribute('aria-expanded', String(expanded));
+        caDoanFilters.classList.toggle('is-expanded', expanded);
+        caDoanFilterToggle.textContent = expanded ? 'Thu gọn bộ lọc' : 'Mở rộng bộ lọc';
+    });
+    const syncCaDoanFilterToggle = () => {
+        if (!isMobileCaDoan.matches) {
+            caDoanFilters.classList.remove('is-expanded');
+            caDoanFilterToggle.setAttribute('aria-expanded', 'false');
+            caDoanFilterToggle.textContent = 'Mở rộng bộ lọc';
+        }
+    };
+    isMobileCaDoan.addEventListener('change', syncCaDoanFilterToggle);
+    [caDoanKhoi, caDoanLop, caDoanGender, caDoanStatus].forEach(select => {
+        select.addEventListener('change', () => {
+            if (select === caDoanKhoi) {
+                [...caDoanLop.options].forEach(option => {
+                    option.hidden = Boolean(option.value && caDoanKhoi.value
+                        && option.dataset.khoi !== caDoanKhoi.value);
+                });
+                if (caDoanLop.selectedOptions[0]?.hidden) caDoanLop.value = '';
+            }
+            caDoanPage = 1;
+            loadCaDoanStudents();
+        });
+    });
+    caDoanSelectPage.addEventListener('change', () => {
+        const shouldSelect = caDoanSelectPage.checked;
+        caDoanResults.querySelectorAll('.ca-doan-student-checkbox').forEach(checkbox => {
+            if (checkbox.checked !== shouldSelect) {
+                checkbox.checked = shouldSelect;
+                checkbox.dispatchEvent(new Event('change'));
+            }
+        });
+        updateCaDoanChangeCount();
+    });
+    caDoanPrevious.addEventListener('click', () => {
+        if (caDoanPage > 1) {
+            caDoanPage -= 1;
+            loadCaDoanStudents();
+        }
+    });
+    caDoanNext.addEventListener('click', () => {
+        if (caDoanPage < caDoanTotalPages) {
+            caDoanPage += 1;
+            loadCaDoanStudents();
+        }
+    });
+    caDoanSave.addEventListener('click', async () => {
+        if (!pendingCaDoanChanges.size || pendingCaDoanChanges.size > 500 || caDoanSaveInProgress) return;
+        caDoanSaveInProgress = true;
+        caDoanSave.textContent = 'Đang lưu...';
+        updateCaDoanChangeCount();
+
+        try {
+            const response = await fetch('/bdh/thieu-nhi/ca-doan/save', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    nien_khoa: Number(yearId),
+                    changes: [...pendingCaDoanChanges].map(([id_tn, is_ca_doan]) => ({
+                        id_tn: Number(id_tn),
+                        is_ca_doan
+                    }))
+                })
+            });
+            const result = await response.json();
+            if (!response.ok) throw new Error(result.error || 'Không thể lưu thành viên ca đoàn.');
+
+            pendingCaDoanChanges.clear();
+            const pageUrl = new URL(window.location.href);
+            pageUrl.searchParams.set('ca_doan_updated', '1');
+            window.location.assign(pageUrl);
+        } catch (error) {
+            console.error('Lỗi lưu thành viên ca đoàn:', error);
+            caDoanMessage.textContent = error.message;
+        } finally {
+            caDoanSaveInProgress = false;
+            caDoanSave.textContent = 'Lưu thay đổi';
+            updateCaDoanChangeCount();
+        }
+    });
+
     // Đóng Modal khi bấm nút đóng hoặc hủy
     document.querySelectorAll('.modal-close, .modal-close-import').forEach(button => {
         button.addEventListener('click', closeAllModals);
@@ -36,7 +356,7 @@
 
     // Đóng Modal khi click ra ngoài vùng chứa
     window.addEventListener('click', event => {
-        if (event.target === modalDetail || event.target === modalImport) {
+        if (event.target === modalDetail || event.target === modalImport || event.target === modalCaDoan) {
             closeAllModals();
         }
     });

@@ -3,6 +3,6 @@ node_modules/
 .DS_Store
 npm-debug.log
 .clinic
-database
+database/
 docker
 service-account-key.json

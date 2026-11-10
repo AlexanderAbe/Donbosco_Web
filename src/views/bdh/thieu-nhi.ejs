@@ -9,10 +9,14 @@
                 <h1>Danh sách Thiếu Nhi</h1>
                 <p>Tra cứu theo niên khóa, khối, lớp và thông tin cơ bản.</p>
             </div>
-            <!-- Nút bấm mở Modal Import Excel -->
-            <button type="button" class="btn btn-primary" id="btnOpenImport">
-                + Import Thiếu Nhi
-            </button>
+            <div class="page-actions">
+                <button type="button" class="btn btn-view" id="btnOpenCaDoan" <%= !selectedYearId ? 'disabled' : '' %>>
+                    Chọn thành viên ca đoàn
+                </button>
+                <button type="button" class="btn btn-primary" id="btnOpenImport">
+                    + Import Thiếu Nhi
+                </button>
+            </div>
         </div>
         
         <form method="GET" action="/bdh/thieu-nhi" class="filter-form">
@@ -63,6 +67,9 @@
         <h2>Danh sách thiếu nhi</h2>
         <span><%= total %> em</span>
     </div>
+    <% if (updatedCaDoan) { %>
+        <div class="tn-notice" role="status">Đã cập nhật thành viên ca đoàn.</div>
+    <% } %>
     <% if (!students.length) { %>
         <div class="empty-state">Không tìm thấy dữ liệu phù hợp.</div>
     <% } else { %>
@@ -105,6 +112,97 @@
         }) %>
     <% } %>
 </section>
+</div>
+
+<div class="tn-modal ca-doan-modal" id="ca-doan-modal" aria-hidden="true">
+    <div class="modal-dialog" role="dialog" aria-modal="true" aria-labelledby="ca-doan-modal-title">
+        <div class="modal-header">
+            <div>
+                <span>Quản lý thành viên</span>
+                <h2 id="ca-doan-modal-title">Chọn thiếu nhi thuộc ca đoàn</h2>
+            </div>
+            <button type="button" class="modal-close-ca-doan" aria-label="Đóng">×</button>
+        </div>
+        <div class="modal-body">
+            <div class="ca-doan-tabs" role="tablist" aria-label="Danh sách ca đoàn">
+                <button type="button" class="ca-doan-tab is-active" id="ca-doan-tab-select" role="tab" aria-selected="true" aria-controls="ca-doan-panel-select" data-ca-doan-tab="select">
+                    Chọn thành viên
+                </button>
+                <button type="button" class="ca-doan-tab" id="ca-doan-tab-members" role="tab" aria-selected="false" aria-controls="ca-doan-panel-members" data-ca-doan-tab="members">
+                    Danh sách ca đoàn
+                </button>
+            </div>
+            <div class="ca-doan-filters">
+                <label class="field-group ca-doan-search">
+                    <span>Tìm theo tên hoặc mã thiếu nhi</span>
+                    <input type="search" id="ca-doan-search" placeholder="Nhập tên, thánh danh hoặc mã số...">
+                </label>
+                <label class="field-group ca-doan-class-filter">
+                    <span>Lớp</span>
+                    <select id="ca-doan-lop">
+                        <option value="">Tất cả lớp</option>
+                        <% lopList.forEach(lop => { %>
+                            <option value="<%= lop.id_lop %>" data-khoi="<%= lop.id_khoi %>"><%= lop.ten_khoi %> - <%= lop.ten_lop %></option>
+                        <% }) %>
+                    </select>
+                </label>
+                <button type="button" class="ca-doan-filter-toggle" id="ca-doan-filter-toggle" aria-expanded="false" aria-controls="ca-doan-advanced-filters">
+                    Mở rộng bộ lọc
+                </button>
+                <div class="ca-doan-advanced-filters" id="ca-doan-advanced-filters">
+                    <label class="field-group">
+                        <span>Khối</span>
+                        <select id="ca-doan-khoi">
+                            <option value="">Tất cả khối</option>
+                            <% khoiList.forEach(khoi => { %>
+                                <option value="<%= khoi.id_khoi %>"><%= khoi.ten_khoi %></option>
+                            <% }) %>
+                        </select>
+                    </label>
+                    <label class="field-group">
+                        <span>Giới tính</span>
+                        <select id="ca-doan-gioi-tinh">
+                            <option value="">Tất cả</option>
+                            <option value="Nam">Nam</option>
+                            <option value="Nữ">Nữ</option>
+                        </select>
+                    </label>
+                    <label class="field-group ca-doan-status-filter">
+                        <span>Thành viên</span>
+                        <select id="ca-doan-trang-thai">
+                            <option value="">Tất cả</option>
+                            <option value="0">Chưa thuộc ca đoàn</option>
+                            <option value="1">Đã thuộc ca đoàn</option>
+                        </select>
+                    </label>
+                </div>
+            </div>
+            <div id="ca-doan-panel-select" role="tabpanel" aria-labelledby="ca-doan-tab-select">
+            <div class="ca-doan-selection-tools">
+                <label><input type="checkbox" id="ca-doan-select-page"> Chọn tất cả trên trang này</label>
+                <span id="ca-doan-change-count" aria-live="polite">Chưa có thay đổi</span>
+            </div>
+            <div class="ca-doan-results" id="ca-doan-results" aria-live="polite">
+                <p class="empty-state">Đang tải danh sách...</p>
+            </div>
+            </div>
+            <div id="ca-doan-panel-members" role="tabpanel" aria-labelledby="ca-doan-tab-members" hidden>
+                <div class="ca-doan-members-results" id="ca-doan-members-results" aria-live="polite">
+                    <p class="empty-state">Mở tab để tải danh sách thành viên.</p>
+                </div>
+            </div>
+            <div class="ca-doan-pagination">
+                <button type="button" class="btn btn-view" id="ca-doan-prev" disabled>Trước</button>
+                <span id="ca-doan-page-info">Trang 1</span>
+                <button type="button" class="btn btn-view" id="ca-doan-next" disabled>Sau</button>
+            </div>
+            <p class="ca-doan-message" id="ca-doan-message" role="status"></p>
+        </div>
+        <div class="modal-footer ca-doan-footer">
+            <button type="button" class="btn btn-secondary modal-close-ca-doan">Đóng</button>
+            <button type="button" class="btn btn-primary" id="ca-doan-save" disabled>Lưu thay đổi</button>
+        </div>
+    </div>
 </div>
 
 <%- include('../partials/student-profile-modal', {

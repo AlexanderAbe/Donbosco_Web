@@ -1,6 +1,6 @@
 <% 
    // Kiểm tra xem tài khoản có quyền cao hơn không
-   const hasElevatedRole = session.user.is_admin || session.user.is_bdh || session.user.is_truong_khoi;
+   const hasElevatedRole = session.user.is_admin || session.user.is_bdh || session.user.is_truong_khoi || session.user.is_ca_doan_manager;
    
    // Biến 'isGlv' được truyền từ layout (mặc định là false)
    const currentIsGlv = typeof isGlv !== 'undefined' ? isGlv : false;
@@ -17,11 +17,13 @@
         
         <!-- 1. GIAO DIỆN MÁY TÍNH (Các nút ngang truyền thống) -->
         <div class="desktop-switch-buttons" data-active-role="<%= activeRole %>" role="group" aria-label="Chuyển đổi vai trò">
+            <% if (session.user.id_glv) { %>
             <a href="/auth/switch-role/glv" class="switch-btn <%= activeRole === 'glv' ? 'is-current' : '' %>"
                 title="<%= activeRole === 'glv' ? 'Đang ở giao diện GLV' : 'Về giao diện GLV' %>"
                 <% if (activeRole === 'glv') { %>aria-current="page"<% } %>>
                 <i class="fa-solid fa-house"></i> GLV
             </a>
+            <% } %>
             <% if (session.user.is_truong_khoi) { %>
                 <a href="/auth/switch-role/truong-khoi" class="switch-btn <%= activeRole === 'truong-khoi' ? 'is-current' : '' %>"
                     title="Chuyển sang Trưởng Khối" <% if (activeRole === 'truong-khoi') { %>aria-current="page"<% } %>>
@@ -40,6 +42,12 @@
                     <i class="fa-solid fa-shield-halved"></i> Admin
                 </a>
             <% } %>
+            <% if (session.user.is_ca_doan_manager) { %>
+                <a href="/auth/switch-role/ca-doan" class="switch-btn <%= activeRole === 'ca-doan' ? 'is-current' : '' %>"
+                    title="Chuyển sang Điểm danh ca đoàn" <% if (activeRole === 'ca-doan') { %>aria-current="page"<% } %>>
+                    <i class="fa-solid fa-music"></i> Ca đoàn
+                </a>
+            <% } %>
         </div>
 
         <!-- 2. GIAO DIỆN ĐIỆN THOẠI / TABLET (Nút tròn icon xổ xuống) -->
@@ -48,7 +56,7 @@
                 <i class="fa-solid fa-rotate"></i>
             </button>
             <div class="mobile-switch-dropdown-menu" id="mobileSwitchDropdown">
-                <% if (!currentIsGlv) { %>
+                <% if (!currentIsGlv && session.user.id_glv) { %>
                     <a href="/auth/switch-role/glv" class="mobile-switch-item">
                         <i class="fa-solid fa-house"></i> Về giao diện GLV
                     </a>
@@ -66,6 +74,11 @@
                 <% if (session.user.is_admin) { %>
                     <a href="/auth/switch-role/admin" class="mobile-switch-item">
                         <i class="fa-solid fa-shield-halved"></i> Chuyển sang Admin
+                    </a>
+                <% } %>
+                <% if (session.user.is_ca_doan_manager) { %>
+                    <a href="/auth/switch-role/ca-doan" class="mobile-switch-item">
+                        <i class="fa-solid fa-music"></i> Điểm danh ca đoàn
                     </a>
                 <% } %>
             </div>

@@ -34,9 +34,16 @@ const getTruongKhoiBaseData = (req, title) => ({
     user: req.session.user
 });
 
+const getCaDoanBaseData = (req, title) => ({
+    title: `${title} - Xứ Đoàn Don Bosco`,
+    layout: 'layouts/ca-doan-layout',
+    user: req.session.user
+});
+
 module.exports = { 
     getAdminBaseData, 
     getBdhBaseData,
     getGlvBaseData,
-    getTruongKhoiBaseData
+    getTruongKhoiBaseData,
+    getCaDoanBaseData
 };

@@ -32,6 +32,8 @@ router.get(['/', '/dashboard'], DashboardController.getDashboard);
 
 // Quản lý thiếu nhi
 router.get('/thieu-nhi', ThieuNhiController.getTrangQuanLy);
+router.get('/thieu-nhi/ca-doan/candidates', ThieuNhiController.getCaDoanCandidates);
+router.post('/thieu-nhi/ca-doan/save', ThieuNhiController.updateCaDoanMembers);
 router.get('/thieu-nhi/:id/detail', ThieuNhiController.getDetail);
 router.post('/thieu-nhi/:id/update', ThieuNhiController.updateStudent);
 router.post('/thieu-nhi/import', upload.single('file'), ThieuNhiController.importExcel);

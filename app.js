@@ -63,6 +63,7 @@ app.use('/auth', require('./src/routes/auth-route'));
 app.use('/admin', require('./src/routes/admin-route'));
 app.use('/bdh', require('./src/routes/bdh-route'));
 app.use('/truong-khoi', require('./src/routes/truong-khoi-route'));
+app.use('/ca-doan', require('./src/routes/ca-doan-route'));
 app.use('/glv', require('./src/routes/glv-route'));
 
 // Route Sitemap.xml cho SEO Google

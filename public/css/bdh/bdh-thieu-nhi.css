@@ -194,6 +194,294 @@
   font-weight: 600;
 }
 
+.tn-page .tn-notice {
+  margin: 14px 20px;
+  padding: 10px 12px;
+  border: 1px solid #bbf7d0;
+  border-radius: 6px;
+  background: #f0fdf4;
+  color: #166534;
+  font-size: 13px;
+}
+
+.tn-page .page-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.tn-page .btn:disabled,
+.ca-doan-modal .btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+.ca-doan-modal .modal-dialog {
+  width: min(100%, 900px);
+}
+
+.ca-doan-modal .btn-primary {
+  border: 0;
+  border-radius: 6px;
+  padding: 8px 16px;
+  background: #c92323;
+  color: #fff;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.ca-doan-modal .btn-primary:hover:not(:disabled) {
+  background: #a91d1d;
+}
+
+.ca-doan-modal .btn-view {
+  border: 0;
+  border-radius: 6px;
+  padding: 8px 12px;
+  background: #e0f2fe;
+  color: #075985;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.ca-doan-tabs {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 16px;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.ca-doan-tab {
+  padding: 10px 14px;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  background: transparent;
+  color: #64748b;
+  cursor: pointer;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.ca-doan-tab.is-active {
+  border-bottom-color: #c92323;
+  color: #991b1b;
+}
+
+.ca-doan-tab:focus-visible,
+.ca-doan-remove:focus-visible {
+  outline: 3px solid rgba(37, 99, 235, 0.35);
+  outline-offset: 2px;
+}
+
+.ca-doan-filters {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.ca-doan-filters .field-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+  color: #475569;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.ca-doan-filters .ca-doan-search {
+  grid-column: span 2;
+}
+
+.ca-doan-advanced-filters {
+  display: contents;
+}
+
+.ca-doan-filter-toggle {
+  display: none;
+}
+
+.ca-doan-filters input,
+.ca-doan-filters select {
+  width: 100%;
+  min-width: 0;
+  padding: 9px 11px;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  background: #fff;
+  color: #1e293b;
+  box-sizing: border-box;
+}
+
+.ca-doan-selection-tools,
+.ca-doan-pagination {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  color: #64748b;
+  font-size: 13px;
+}
+
+.ca-doan-selection-tools {
+  padding: 10px 12px;
+  border-radius: 6px 6px 0 0;
+  background: #f8fafc;
+}
+
+.ca-doan-selection-tools label {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: #334155;
+  font-weight: 600;
+}
+
+.ca-doan-selection-tools input,
+.ca-doan-student-checkbox {
+  width: 17px;
+  height: 17px;
+  accent-color: #15803d;
+}
+
+.ca-doan-results {
+  max-height: min(45vh, 430px);
+  overflow: auto;
+  border: 1px solid #e2e8f0;
+  border-radius: 0 0 6px 6px;
+}
+
+.ca-doan-members-results {
+  max-height: min(45vh, 430px);
+  overflow: auto;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+}
+
+.ca-doan-student {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 11px 14px;
+  border-bottom: 1px solid #f1f5f9;
+  cursor: pointer;
+}
+
+.ca-doan-student:last-child {
+  border-bottom: 0;
+}
+
+.ca-doan-student:hover {
+  background: #f8fafc;
+}
+
+.ca-doan-student-info {
+  display: grid;
+  flex: 1;
+  grid-template-columns: minmax(150px, 1fr) minmax(180px, 1.4fr) auto;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+
+.ca-doan-student-info strong {
+  overflow: hidden;
+  color: #1e293b;
+  text-overflow: ellipsis;
+}
+
+.ca-doan-student-info > span:nth-child(2) {
+  overflow: hidden;
+  color: #64748b;
+  font-size: 12px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ca-doan-student-status {
+  justify-self: end;
+  color: #64748b;
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.ca-doan-student-status.is-member {
+  color: #166534;
+}
+
+.ca-doan-member-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 11px 14px;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.ca-doan-member-row:last-child {
+  border-bottom: 0;
+}
+
+.ca-doan-member-info {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+}
+
+.ca-doan-member-info strong {
+  overflow: hidden;
+  color: #1e293b;
+  text-overflow: ellipsis;
+}
+
+.ca-doan-member-info span {
+  overflow: hidden;
+  color: #64748b;
+  font-size: 12px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ca-doan-remove {
+  flex: 0 0 auto;
+  padding: 7px 12px;
+  border: 1px solid #fecaca;
+  border-radius: 6px;
+  background: #fff;
+  color: #b91c1c;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.ca-doan-remove:hover:not(:disabled) {
+  background: #fef2f2;
+}
+
+.ca-doan-remove:disabled {
+  cursor: wait;
+  opacity: 0.6;
+}
+
+.ca-doan-pagination {
+  justify-content: center;
+  margin-top: 12px;
+}
+
+.ca-doan-message {
+  min-height: 20px;
+  margin-top: 8px;
+  color: #b91c1c;
+  font-size: 13px;
+}
+
+.ca-doan-footer .btn-primary:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
 /* ==========================================
    4. MODAL CHUNG
    ========================================== */
@@ -427,6 +715,20 @@
     gap: 12px;
   }
 
+  .tn-page .page-heading-wrapper {
+    align-items: stretch !important;
+    flex-direction: column;
+  }
+
+  .tn-page .page-actions {
+    width: 100%;
+  }
+
+  .tn-page .page-actions .btn {
+    flex: 1;
+    white-space: normal;
+  }
+
   /* Biến form lọc thành lưới 2 cột gọn gàng, tránh bị dài dọc */
   .tn-page .filter-form {
     display: grid;
@@ -463,6 +765,10 @@
 
   .tn-modal .detail-grid {
     grid-template-columns: 1fr;
+  }
+
+  .ca-doan-filters {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
   
   .tn-modal .history-list div {
@@ -527,5 +833,72 @@
   }
   .tn-page .table-wrap td:nth-child(8) .btn-view {
     width: 100%;
+  }
+
+  .ca-doan-modal {
+    padding: 10px;
+  }
+
+  .ca-doan-filters {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .ca-doan-filters .ca-doan-search {
+    grid-column: 1 / -1;
+  }
+
+  .ca-doan-advanced-filters {
+    display: none;
+    grid-column: 1 / -1;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+  }
+
+  .ca-doan-filters.is-expanded .ca-doan-advanced-filters {
+    display: grid;
+  }
+
+  .ca-doan-filter-toggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 38px;
+    padding: 8px 10px;
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+    background: #f8fafc;
+    color: #334155;
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: 600;
+  }
+
+  .ca-doan-filter-toggle[aria-expanded="true"] {
+    border-color: #94a3b8;
+    background: #f1f5f9;
+  }
+
+  .ca-doan-student-info {
+    grid-template-columns: 1fr;
+    gap: 4px;
+  }
+
+  .ca-doan-tabs {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .ca-doan-tab {
+    padding: 10px 6px;
+    font-size: 12px;
+  }
+
+  .ca-doan-student-status {
+    justify-self: start;
+  }
+
+  .ca-doan-selection-tools {
+    align-items: flex-start;
+    flex-direction: column;
   }
 }

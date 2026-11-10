@@ -36,6 +36,10 @@ exports.getUsers = async (req, res) => {
                 roles.push('Quản trị viên');
             }
 
+            if (user.is_ca_doan_manager) {
+                roles.push('Quản lý ca đoàn');
+            }
+
             // Phòng hờ nếu tài khoản trống
             if (roles.length === 0) {
                 roles.push('Tài khoản hệ thống');
@@ -55,11 +59,59 @@ exports.getUsers = async (req, res) => {
             ...getAdminBaseData(req, 'Quản Lý Người Dùng'),
             activeUsers, 
             lockedUsers, 
-            searchQuery: searchQuery || ''
+            searchQuery: searchQuery || '',
+            caDoanAccountMessage: req.query.ca_doan_account === 'created'
+                ? 'Đã tạo tài khoản quản lý ca đoàn.'
+                : null
         });
     } catch (error) {
         console.error('❌ Lỗi trang quản lý user:', error);
         res.status(500).send('Lỗi máy chủ');
+    }
+};
+
+exports.createCaDoanManagerAccount = async (req, res) => {
+    const username = String(req.body.username || '').trim();
+    const password = String(req.body.password || '');
+    if (username.length < 3 || username.length > 50 || password.length < 8
+        || Buffer.byteLength(password, 'utf8') > 72) {
+        return res.status(400).send('Tên đăng nhập phải từ 3 đến 50 ký tự; mật khẩu tối thiểu 8 ký tự và tối đa 72 byte.');
+    }
+
+    try {
+        const account = await UserModel.createCaDoanManagerAccount(username, password);
+        await logAction(req, `Tạo tài khoản quản lý ca đoàn (ID: ${account.id_tk})`, 'Thành công');
+        return res.redirect('/admin/users?ca_doan_account=created');
+    } catch (error) {
+        console.error('Lỗi tạo tài khoản quản lý ca đoàn:', error);
+        await logAction(req, `Tạo tài khoản quản lý ca đoàn thất bại (${username}): ${error.message}`, 'Thất bại');
+        if (error.code === '23505') {
+            return res.status(409).send('Tên đăng nhập đã được sử dụng.');
+        }
+        return res.status(500).send('Lỗi máy chủ khi tạo tài khoản quản lý ca đoàn.');
+    }
+};
+
+exports.setCaDoanManagerRole = async (req, res) => {
+    const userId = Number(req.params.id);
+    const enabled = req.body.is_ca_doan_manager;
+    if (!Number.isInteger(userId) || userId < 1 || !['true', 'false'].includes(enabled)) {
+        return res.status(400).send('Thông tin phân quyền quản lý ca đoàn không hợp lệ.');
+    }
+
+    try {
+        const updated = await UserModel.setCaDoanManagerRole(userId, enabled === 'true');
+        if (!updated) return res.status(404).send('Không tìm thấy tài khoản.');
+        await logAction(
+            req,
+            `${enabled === 'true' ? 'Cấp' : 'Gỡ'} quyền quản lý ca đoàn cho tài khoản ID: ${userId}`,
+            'Thành công',
+        );
+        return res.redirect('/admin/users');
+    } catch (error) {
+        console.error('Lỗi cập nhật quyền quản lý ca đoàn:', error);
+        await logAction(req, `Cập nhật quyền quản lý ca đoàn thất bại (ID: ${userId}): ${error.message}`, 'Thất bại');
+        return res.status(500).send('Lỗi máy chủ khi cập nhật quyền quản lý ca đoàn.');
     }
 };
 

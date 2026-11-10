@@ -9,6 +9,26 @@
             <p>Quản lý tài khoản Giáo lý viên, phân quyền và trạng thái truy cập hệ thống</p>
         </div>
     </div>
+    <% if (caDoanAccountMessage) { %>
+        <div class="section-card" role="status" style="margin-bottom: 20px; padding: 14px; color: #166534; background: #f0fdf4;">
+            <%= caDoanAccountMessage %>
+        </div>
+    <% } %>
+    <section class="section-card" style="margin-bottom: 32px; padding: 20px;">
+        <h2 style="margin-bottom: 12px;">Tạo tài khoản quản lý ca đoàn</h2>
+        <p style="margin-bottom: 16px;">Tài khoản này không cần liên kết với hồ sơ giáo lý viên.</p>
+        <form action="/admin/users/create-ca-doan-manager" method="POST" style="display: flex; flex-wrap: wrap; align-items: end; gap: 12px;">
+            <label style="display: grid; gap: 6px;">
+                Tên đăng nhập
+                <input name="username" type="text" minlength="3" maxlength="50" autocomplete="username" required>
+            </label>
+            <label style="display: grid; gap: 6px;">
+                Mật khẩu ban đầu
+                <input name="password" type="password" minlength="8" maxlength="72" autocomplete="new-password" required>
+            </label>
+            <button type="submit" class="action-btn">Tạo tài khoản</button>
+        </form>
+    </section>
     <!-- 1. BẢNG TÀI KHOẢN ĐANG HOẠT ĐỘNG -->
     <%- include('../partials/user-table-section', {
         users: activeUsers,

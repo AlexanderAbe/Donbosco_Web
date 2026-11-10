@@ -50,6 +50,26 @@ const UserModel = {
         }
     },
 
+    async createCaDoanManagerAccount(username, password) {
+        const passwordHash = await bcrypt.hash(password, 10);
+        const { rows } = await pool.query(`
+            INSERT INTO TAI_KHOAN
+                (username, password_hash, is_admin, id_glv, is_ca_doan_manager)
+            VALUES ($1, $2, FALSE, NULL, TRUE)
+            RETURNING id_tk
+        `, [username, passwordHash]);
+        return rows[0];
+    },
+
+    async setCaDoanManagerRole(userId, enabled) {
+        const { rowCount } = await pool.query(`
+            UPDATE TAI_KHOAN
+            SET is_ca_doan_manager = $2
+            WHERE id_tk = $1
+        `, [userId, enabled]);
+        return rowCount > 0;
+    },
+
     // Lấy thông tin user theo ID (Dành cho trang Đổi mật khẩu)
     async getUserById(userId) {
         try {

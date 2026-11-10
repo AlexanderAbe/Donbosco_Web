@@ -21,7 +21,8 @@ const isAuthenticated = async (req, res, next) => {
             admin: Boolean(user.is_admin),
             bdh: isBdh,
             'truong-khoi': isTruongKhoi,
-            glv: Boolean(user.id_glv)
+            glv: Boolean(user.id_glv),
+            'ca-doan': Boolean(user.is_ca_doan_manager)
         };
 
         Object.assign(sessionUser, {
@@ -32,12 +33,18 @@ const isAuthenticated = async (req, res, next) => {
             is_admin: roles.admin,
             is_bdh: roles.bdh,
             is_truong_khoi: roles['truong-khoi'],
+            is_ca_doan_manager: roles['ca-doan'],
             id_glv: user.id_glv
         });
 
-        // Nếu role hiện tại vừa bị gỡ, chuyển về giao diện GLV hợp lệ.
+        // If a role was revoked, keep the user on a role they still have.
         if (!roles[sessionUser.active_role]) {
-            sessionUser.active_role = 'glv';
+            sessionUser.active_role = roles.glv ? 'glv'
+                : roles['ca-doan'] ? 'ca-doan'
+                    : roles.admin ? 'admin'
+                        : roles.bdh ? 'bdh'
+                            : roles['truong-khoi'] ? 'truong-khoi'
+                                : 'glv';
         }
 
         return next();

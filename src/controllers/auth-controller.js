@@ -37,6 +37,7 @@ exports.postLogin = async (req, res) => {
         
         let isBdh = false;
         let isTruongKhoi = false;
+        const isCaDoanManager = Boolean(user.is_ca_doan_manager);
         const id_glv = user.id_glv;
 
         if (id_glv) {
@@ -54,8 +55,9 @@ exports.postLogin = async (req, res) => {
             is_admin: user.is_admin || false,
             is_bdh: isBdh,
             is_truong_khoi: isTruongKhoi,
+            is_ca_doan_manager: isCaDoanManager,
             id_glv: id_glv,
-            active_role: 'glv'
+            active_role: !id_glv && isCaDoanManager ? 'ca-doan' : 'glv'
         };
 
         // 4. Ghi log thành công
@@ -67,7 +69,7 @@ exports.postLogin = async (req, res) => {
                 console.error("LỖI CHI TIẾT KHI LƯU SESSION:", err);
                 return res.status(500).send("Lỗi máy chủ nội bộ (Session Save)");
             }
-            return res.redirect('/glv');
+            return res.redirect(req.session.user.active_role === 'ca-doan' ? '/ca-doan' : '/glv');
         });
 
     } catch (error) {
@@ -92,6 +94,7 @@ exports.switchRole = async (req, res) => {
     if (targetRole === 'admin' && user.is_admin) canSwitch = true;
     if (targetRole === 'bdh' && user.is_bdh) canSwitch = true;
     if (targetRole === 'truong-khoi' && user.is_truong_khoi) canSwitch = true;
+    if (targetRole === 'ca-doan' && user.is_ca_doan_manager) canSwitch = true;
 
     if (canSwitch) {
         user.active_role = targetRole;
@@ -106,6 +109,7 @@ exports.switchRole = async (req, res) => {
         if (targetRole === 'admin') return res.redirect('/admin');
         if (targetRole === 'bdh') return res.redirect('/bdh');
         if (targetRole === 'truong-khoi') return res.redirect('/truong-khoi');
+        if (targetRole === 'ca-doan') return res.redirect('/ca-doan');
         return res.redirect('/glv');
     });
 };

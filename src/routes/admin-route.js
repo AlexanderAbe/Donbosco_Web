@@ -37,6 +37,8 @@ router.post('/logs/clear', dashboardController.clearAllLogs);
 
 // Route User
 router.get('/users', userController.getUsers);
+router.post('/users/create-ca-doan-manager', userController.createCaDoanManagerAccount);
+router.post('/users/:id/ca-doan-manager', userController.setCaDoanManagerRole);
 router.post('/users/lock/:id', userController.lockUser);
 router.post('/users/unlock/:id', userController.unlockUser);
 router.get('/users/reset-password/:id', userController.resetPasswordView);

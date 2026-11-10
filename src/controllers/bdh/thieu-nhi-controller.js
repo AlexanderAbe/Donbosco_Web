@@ -144,6 +144,7 @@ const ThieuNhiController = {
         limit,
         totalPages,
         queryString: buildQuery(query),
+        updatedCaDoan: req.query.ca_doan_updated === "1",
       });
     } catch (error) {
       console.error("Lỗi tải trang quản lý thiếu nhi:", error);
@@ -178,6 +179,77 @@ const ThieuNhiController = {
       console.error("Lỗi cập nhật thông tin thiếu nhi:", error);
       await logAction(req, `Cập nhật thông tin thiếu nhi thất bại (ID: ${idTn}): ${error.message}`, "Thất bại");
       return res.status(400).json({ error: error.message || "Không thể cập nhật thông tin." });
+    }
+  },
+  async getCaDoanCandidates(req, res) {
+    try {
+      const requestedYearId = getPositiveInt(req.query.nien_khoa);
+      const years = await ThieuNhiModel.getAcademicYears();
+      const yearId = getYearId(requestedYearId, years);
+      if (!yearId || yearId !== requestedYearId) {
+        return res.status(400).json({ error: "Niên khóa không hợp lệ." });
+      }
+
+      const page = Math.max(getPositiveInt(req.query.page) || 1, 1);
+      const limit = Math.min(Math.max(getPositiveInt(req.query.limit) || 25, 10), 100);
+      const result = await ThieuNhiModel.getCaDoanCandidates({
+        yearId,
+        khoiId: getPositiveInt(req.query.id_khoi),
+        lopId: getPositiveInt(req.query.id_lop),
+        gender: validGenders.includes(req.query.gioi_tinh) ? req.query.gioi_tinh : "",
+        status: ["1", "0"].includes(String(req.query.ca_doan || ""))
+          ? String(req.query.ca_doan)
+          : "",
+        search: String(req.query.search || "").trim().slice(0, 100),
+        page,
+        limit,
+      });
+
+      return res.json({
+        students: result.rows,
+        total: result.total,
+        page,
+        totalPages: Math.max(Math.ceil(result.total / limit), 1),
+      });
+    } catch (error) {
+      console.error("Lỗi tải danh sách chọn thành viên ca đoàn:", error);
+      return res.status(500).json({ error: "Lỗi máy chủ khi tải danh sách thiếu nhi." });
+    }
+  },
+  async updateCaDoanMembers(req, res) {
+    const yearId = getPositiveInt(req.body.nien_khoa);
+    const changes = req.body.changes;
+    if (!yearId || !Array.isArray(changes) || changes.length > 500
+      || changes.some(change => !change
+        || !Number.isSafeInteger(change.id_tn)
+        || change.id_tn < 1
+        || typeof change.is_ca_doan !== "boolean")
+      || new Set(changes.map(change => change.id_tn)).size !== changes.length) {
+      return res.status(400).json({ error: "Danh sách cập nhật thành viên ca đoàn không hợp lệ." });
+    }
+
+    try {
+      const years = await ThieuNhiModel.getAcademicYears();
+      if (getYearId(yearId, years) !== yearId) {
+        return res.status(400).json({ error: "Niên khóa không hợp lệ." });
+      }
+
+      await ThieuNhiModel.updateCaDoanMembers(yearId, changes);
+      if (changes.length) {
+        await logAction(
+          req,
+          `Cập nhật thành viên ca đoàn (${changes.length} thiếu nhi, niên khóa ID: ${yearId})`,
+          "Thành công",
+        );
+      }
+      return res.json({ success: true, updated: changes.length });
+    } catch (error) {
+      console.error("Lỗi cập nhật thành viên ca đoàn:", error);
+      await logAction(req, `Cập nhật thành viên ca đoàn thất bại: ${error.message}`, "Thất bại");
+      const status = error.code === "INVALID_STUDENTS" ? 400 : 500;
+      return res.status(status).json({
+        error: status === 400 ? error.message : "Lỗi máy chủ khi cập nhật thành viên ca đoàn.",
+      });
     }
   },
   async importExcel(req, res) {

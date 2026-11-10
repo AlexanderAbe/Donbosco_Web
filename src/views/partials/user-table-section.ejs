@@ -75,6 +75,12 @@
                                             </button>
                                         </form>
                                     <% } %>
+                                    <form action="/admin/users/<%= userItem.id_tk %>/ca-doan-manager" method="POST" style="margin:0;">
+                                        <input type="hidden" name="is_ca_doan_manager" value="<%= userItem.is_ca_doan_manager ? 'false' : 'true' %>">
+                                        <button type="submit" style="background:none; border:none; color: <%= userItem.is_ca_doan_manager ? '#b91c1c' : '#15803d' %>; cursor:pointer; font-size: 16px;" title="<%= userItem.is_ca_doan_manager ? 'Gỡ quyền quản lý ca đoàn' : 'Cấp quyền quản lý ca đoàn' %>">
+                                            <i class="fa-solid <%= userItem.is_ca_doan_manager ? 'fa-user-minus' : 'fa-music' %>"></i>
+                                        </button>
+                                    </form>
                                 </div>
                             </td>
                         </tr>

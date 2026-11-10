@@ -107,6 +107,115 @@ const ThieuNhiModel = {
         return { rows, total };
     },
 
+    async getCaDoanCandidates({ yearId, khoiId, lopId, gender, status, search, page, limit }) {
+        const values = [yearId];
+        const conditions = [
+            'pl.id_cau_hinh_nam_hoc = $1',
+            'pl.id_lop IS NOT NULL'
+        ];
+
+        if (khoiId) {
+            values.push(khoiId);
+            conditions.push(`l.id_khoi = $${values.length}`);
+        }
+        if (lopId) {
+            values.push(lopId);
+            conditions.push(`pl.id_lop = $${values.length}`);
+        }
+        if (validGenders.includes(gender)) {
+            values.push(gender);
+            conditions.push(`tn.gioi_tinh = $${values.length}`);
+        }
+        if (status === '1' || status === '0') {
+            values.push(status === '1');
+            conditions.push(`tn.is_ca_doan = $${values.length}`);
+        }
+        if (search) {
+            values.push(`%${search}%`);
+            conditions.push(`(
+                CONCAT_WS(' ', tn.ten_thanh, tn.ho_va_ten_lot, tn.ten) ILIKE $${values.length}
+                OR tn.mstn ILIKE $${values.length}
+                OR l.ten_lop ILIKE $${values.length}
+                OR k.ten_khoi ILIKE $${values.length}
+            )`);
+        }
+
+        const fromWhere = `
+            FROM THIEU_NHI tn
+            JOIN PHAN_LOP pl ON pl.id_tn = tn.id_tn
+            JOIN LOP_HOC l ON l.id_lop = pl.id_lop
+            JOIN KHOI k ON k.id_khoi = l.id_khoi
+            WHERE ${conditions.join(' AND ')}
+        `;
+        const countResult = await pool.query(
+            `SELECT COUNT(DISTINCT tn.id_tn)::int AS total ${fromWhere}`,
+            values,
+        );
+        const total = countResult.rows[0].total;
+        const offset = (page - 1) * limit;
+        const listValues = [...values, limit, offset];
+        const { rows } = await pool.query(`
+            SELECT
+                tn.id_tn,
+                tn.mstn,
+                CONCAT_WS(' ', tn.ten_thanh, tn.ho_va_ten_lot, tn.ten) AS ho_ten,
+                tn.is_ca_doan,
+                l.ten_lop,
+                k.ten_khoi
+            ${fromWhere}
+            ORDER BY k.stt ASC, l.ten_lop ASC, tn.ten ASC, tn.ho_va_ten_lot ASC
+            LIMIT $${listValues.length - 1} OFFSET $${listValues.length}
+        `, listValues);
+
+        return { rows, total };
+    },
+
+    async updateCaDoanMembers(yearId, changes) {
+        const client = await pool.connect();
+        try {
+            await client.query('BEGIN');
+            const ids = changes.map(change => change.id_tn);
+            const validStudents = await client.query(`
+                SELECT COUNT(DISTINCT pl.id_tn)::int AS total
+                FROM PHAN_LOP pl
+                WHERE pl.id_cau_hinh_nam_hoc = $1
+                  AND pl.id_lop IS NOT NULL
+                  AND pl.id_tn = ANY($2::int[])
+            `, [yearId, ids]);
+
+            if (validStudents.rows[0].total !== ids.length) {
+                const error = new Error('Một hoặc nhiều thiếu nhi không thuộc niên khóa đã chọn.');
+                error.code = 'INVALID_STUDENTS';
+                throw error;
+            }
+
+            const updated = await client.query(`
+                UPDATE THIEU_NHI tn
+                SET is_ca_doan = item.is_ca_doan
+                FROM jsonb_to_recordset($1::jsonb) AS item(id_tn integer, is_ca_doan boolean)
+                WHERE tn.id_tn = item.id_tn
+                  AND EXISTS (
+                      SELECT 1
+                      FROM PHAN_LOP pl
+                      WHERE pl.id_tn = tn.id_tn
+                        AND pl.id_cau_hinh_nam_hoc = $2
+                        AND pl.id_lop IS NOT NULL
+                  )
+            `, [JSON.stringify(changes), yearId]);
+            if (updated.rowCount !== changes.length) {
+                const error = new Error('Một hoặc nhiều thiếu nhi không thuộc niên khóa đã chọn.');
+                error.code = 'INVALID_STUDENTS';
+                throw error;
+            }
+            await client.query('COMMIT');
+        } catch (error) {
+            await client.query('ROLLBACK');
+            throw error;
+        } finally {
+            client.release();
+        }
+    },
+
     async getDetail(idTn, yearId) {
         const studentResult = await pool.query(`
             SELECT id_tn, ten_thanh, ho_va_ten_lot, ten,

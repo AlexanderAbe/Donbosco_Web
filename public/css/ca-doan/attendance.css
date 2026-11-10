@@ -1,0 +1,429 @@
+.choir-layout {
+    min-height: 100vh;
+    background: #f4f7fb;
+    color: #1e293b;
+}
+
+.choir-header {
+    min-height: 76px;
+    padding: 12px clamp(16px, 4vw, 56px);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    background: #fff;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.choir-brand {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    color: #0f172a;
+    text-decoration: none;
+}
+
+.choir-brand img {
+    width: 46px;
+    height: 46px;
+    object-fit: contain;
+}
+
+.choir-brand span,
+.choir-brand small {
+    display: block;
+}
+
+.choir-brand small {
+    margin-top: 3px;
+    color: #64748b;
+}
+
+.choir-header .desktop-switch-buttons {
+    display: flex;
+}
+
+.choir-header .mobile-switch-container {
+    position: relative;
+    display: none;
+}
+
+.choir-header .mobile-switch-icon-btn {
+    display: grid;
+    width: 40px;
+    height: 40px;
+    place-items: center;
+    border: 1px solid #cbd5e1;
+    border-radius: 50%;
+    background: #fff;
+    color: #334155;
+    cursor: pointer;
+}
+
+.choir-header .mobile-switch-dropdown-menu {
+    position: absolute;
+    top: 48px;
+    right: 0;
+    z-index: 5;
+    display: none;
+    min-width: 220px;
+    padding: 6px;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    background: #fff;
+    box-shadow: 0 8px 24px rgb(15 23 42 / 14%);
+}
+
+.choir-header .mobile-switch-dropdown-menu.show {
+    display: grid;
+}
+
+.choir-header .mobile-switch-item {
+    padding: 10px;
+    border-radius: 7px;
+    color: #334155;
+    text-decoration: none;
+}
+
+.choir-header .mobile-switch-item:hover {
+    background: #f1f5f9;
+}
+
+.choir-main {
+    width: min(1120px, calc(100% - 32px));
+    margin: 32px auto 60px;
+}
+
+.choir-attendance {
+    display: grid;
+    gap: 20px;
+}
+
+.choir-attendance .search-hidden,
+.choir-attendance .pagination-page-hidden {
+    display: none !important;
+}
+
+.choir-page-heading,
+.choir-roster-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+}
+
+.choir-eyebrow {
+    margin: 0 0 5px;
+    color: #0284c7;
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: .12em;
+}
+
+.choir-page-heading h1 {
+    margin: 0;
+    color: #0f172a;
+    font-size: clamp(24px, 4vw, 34px);
+}
+
+.choir-page-heading p:not(.choir-eyebrow),
+.choir-roster-heading p {
+    margin: 7px 0 0;
+    color: #64748b;
+}
+
+.choir-member-count {
+    flex: none;
+    padding: 10px 14px;
+    border-radius: 999px;
+    background: #e0f2fe;
+    color: #0369a1;
+    font-weight: 700;
+}
+
+.choir-filters,
+.choir-scan-card,
+.choir-feedback {
+    padding: 20px;
+    border: 1px solid #e2e8f0;
+    border-radius: 14px;
+    background: #fff;
+    box-shadow: 0 4px 16px rgb(15 23 42 / 4%);
+}
+
+.choir-filters {
+    display: flex;
+    align-items: end;
+    flex-wrap: wrap;
+    gap: 14px;
+}
+
+.choir-filters label {
+    width: min(100%, 300px);
+    display: grid;
+    gap: 7px;
+    color: #475569;
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.choir-filters select,
+.choir-filters input,
+.choir-search input {
+    min-height: 42px;
+    width: 100%;
+    padding: 8px 11px;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    background: #fff;
+    color: #0f172a;
+    font: inherit;
+}
+
+.choir-primary-button,
+.choir-mark-button {
+    min-height: 42px;
+    padding: 9px 14px;
+    border: 0;
+    border-radius: 8px;
+    background: #0369a1;
+    color: #fff;
+    font: inherit;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.choir-primary-button:hover,
+.choir-mark-button:hover:not(:disabled) {
+    background: #075985;
+}
+
+.choir-scan-card h2,
+.choir-roster h2 {
+    margin: 0;
+    color: #0f172a;
+    font-size: 19px;
+}
+
+.choir-scan-copy p {
+    margin: 6px 0 16px;
+    color: #64748b;
+}
+
+#choir-qr-reader {
+    width: min(100%, 520px);
+    margin: 0 auto;
+}
+
+#choir-qr-reader video {
+    border-radius: 10px;
+}
+
+.choir-scan-status {
+    min-height: 24px;
+    margin-top: 10px;
+    text-align: center;
+    color: #0369a1;
+    font-weight: 600;
+}
+
+.choir-scan-status.is-error {
+    color: #b91c1c;
+}
+
+.choir-roster-heading {
+    margin-bottom: 16px;
+}
+
+.choir-search {
+    position: relative;
+    width: min(100%, 320px);
+}
+
+.choir-search i {
+    position: absolute;
+    top: 14px;
+    left: 12px;
+    color: #64748b;
+}
+
+.choir-search input {
+    padding-left: 36px;
+}
+
+.choir-table-wrap {
+    overflow-x: auto;
+}
+
+.choir-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.choir-table th,
+.choir-table td {
+    padding: 12px 10px;
+    border-bottom: 1px solid #e2e8f0;
+    text-align: left;
+}
+
+.choir-table th {
+    color: #64748b;
+    font-size: 12px;
+    text-transform: uppercase;
+}
+
+.attendance-status {
+    display: inline-flex;
+    padding: 5px 9px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.attendance-status.is-present {
+    background: #dcfce7;
+    color: #166534;
+}
+
+.attendance-status.is-pending {
+    background: #f1f5f9;
+    color: #475569;
+}
+
+.choir-mark-button {
+    min-height: 34px;
+    padding: 6px 10px;
+    font-size: 13px;
+}
+
+.choir-mark-button:disabled {
+    background: #e2e8f0;
+    color: #475569;
+    cursor: default;
+}
+
+.choir-empty {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 18px;
+    border: 1px solid #bae6fd;
+    border-radius: 12px;
+    background: #f0f9ff;
+    color: #075985;
+}
+
+.choir-feedback {
+    color: #166534;
+}
+
+.choir-no-results {
+    margin: 18px 0 0;
+    color: #64748b;
+    text-align: center;
+}
+
+.choir-toast {
+    position: fixed;
+    z-index: 20;
+    right: 20px;
+    bottom: 20px;
+    max-width: min(440px, calc(100vw - 40px));
+    padding: 12px 16px;
+    border-radius: 10px;
+    background: #166534;
+    color: #fff;
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(10px);
+    transition: opacity .2s ease, transform .2s ease;
+}
+
+.choir-toast.is-visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.choir-toast.is-error {
+    background: #b91c1c;
+}
+
+@media (max-width: 680px) {
+    .choir-header {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .choir-header .header-right {
+        width: 100%;
+    }
+
+    .choir-header .desktop-switch-buttons {
+        display: none;
+    }
+
+    .choir-header .mobile-switch-container {
+        display: block;
+    }
+
+    .choir-main {
+        margin-top: 20px;
+    }
+
+    .choir-page-heading,
+    .choir-roster-heading {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .choir-member-count {
+        align-self: flex-start;
+    }
+
+    .choir-filters {
+        align-items: stretch;
+        padding: 15px;
+    }
+
+    .choir-filters label,
+    .choir-primary-button,
+    .choir-search {
+        width: 100%;
+    }
+
+    .choir-table thead {
+        display: none;
+    }
+
+    .choir-table,
+    .choir-table tbody,
+    .choir-table tr,
+    .choir-table td {
+        display: block;
+        width: 100%;
+    }
+
+    .choir-table tr {
+        padding: 10px 0;
+        border-bottom: 1px solid #e2e8f0;
+    }
+
+    .choir-table td {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 6px 2px;
+        border: 0;
+        text-align: right;
+    }
+
+    .choir-table td::before {
+        content: attr(data-label);
+        color: #64748b;
+        font-size: 12px;
+        font-weight: 700;
+        text-align: left;
+    }
+}
