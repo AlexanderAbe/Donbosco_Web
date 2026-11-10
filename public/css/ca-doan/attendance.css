@@ -43,6 +43,11 @@
     display: flex;
 }
 
+.choir-header > .header-right {
+    display: flex;
+    align-items: center;
+}
+
 .choir-header .mobile-switch-container {
     position: relative;
     display: none;
@@ -351,12 +356,13 @@
 
 @media (max-width: 680px) {
     .choir-header {
-        align-items: flex-start;
-        flex-direction: column;
+        align-items: center;
+        flex-direction: row;
+        gap: 8px;
     }
 
     .choir-header .header-right {
-        width: 100%;
+        width: auto;
     }
 
     .choir-header .desktop-switch-buttons {

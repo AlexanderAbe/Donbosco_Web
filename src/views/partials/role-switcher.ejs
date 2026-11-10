@@ -1,15 +1,14 @@
-<% 
-   // Kiểm tra xem tài khoản có quyền cao hơn không
-   const hasElevatedRole = session.user.is_admin || session.user.is_bdh || session.user.is_truong_khoi || session.user.is_ca_doan_manager;
-   
-   // Biến 'isGlv' được truyền từ layout (mặc định là false)
+<%
    const currentIsGlv = typeof isGlv !== 'undefined' ? isGlv : false;
    const activeRole = String(session.user.active_role || '').toLowerCase();
-   
-   // Xác định xem có cần hiển thị phần chuyển đổi vai trò hay không
-   // - Nếu KHÔNG ở trang GLV -> luôn hiển thị (vì ít nhất có nút về GLV).
-   // - Nếu đang ở trang GLV -> chỉ hiển thị khi có ít nhất 1 quyền cao hơn.
-   const showSwitcher = !currentIsGlv || hasElevatedRole;
+   const availableRoleCount = [
+       session.user.id_glv,
+       session.user.is_truong_khoi,
+       session.user.is_bdh,
+       session.user.is_admin,
+       session.user.is_ca_doan_manager
+   ].filter(Boolean).length;
+   const showSwitcher = availableRoleCount > 1;
 %>
 
 <% if (showSwitcher) { %>
