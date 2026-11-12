@@ -35,7 +35,6 @@
     --color-emerald-200: oklch(90.5% 0.093 164.15);
     --color-emerald-400: oklch(76.5% 0.177 163.223);
     --color-emerald-500: oklch(69.6% 0.17 162.48);
-    --color-emerald-600: oklch(59.6% 0.145 163.225);
     --color-emerald-700: oklch(50.8% 0.118 165.612);
     --color-emerald-800: oklch(43.2% 0.095 166.913);
     --color-sky-400: oklch(74.6% 0.16 232.661);
@@ -1270,9 +1269,6 @@
   .text-emerald-400 {
     color: var(--color-emerald-400);
   }
-  .text-emerald-600 {
-    color: var(--color-emerald-600);
-  }
   .text-emerald-700 {
     color: var(--color-emerald-700);
   }
@@ -1608,9 +1604,6 @@
   .disabled\:opacity-60:disabled {
     opacity: 60%;
   }
-  .disabled\:opacity-70:disabled {
-    opacity: 70%;
-  }
   .disabled\:opacity-100:disabled {
     opacity: 100%;
   }
@@ -1755,9 +1748,6 @@
     }
   }
   @media (width >= 40rem) {
-    .sm\:w-80 {
-      width: calc(var(--spacing) * 80);
-    }
     .sm\:w-auto {
       width: auto;
     }
@@ -1782,9 +1772,6 @@
     }
     .sm\:items-start {
       align-items: flex-start;
-    }
-    .sm\:justify-between {
-      justify-content: space-between;
     }
     .sm\:p-6 {
       padding: calc(var(--spacing) * 6);

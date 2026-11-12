@@ -1,22 +1,29 @@
-<section class="choir-attendance"
-    data-year-id="<%= selectedYearId || '' %>"
-    data-date="<%= selectedDate %>"
-    data-session="<%= sessionType %>">
-    <div class="choir-page-heading">
-        <div class="choir-member-count"><i class="fa-solid fa-music"></i> <%= students.length %> ca viên</div>
-    </div>
+<%
+    const dateParts = String(selectedDate || '').split('-');
+    const displayDate = dateParts.length === 3
+        ? `${dateParts[2]}/${dateParts[1]}/${dateParts[0]}`
+        : selectedDate;
+    const sessionDateLabel = `${sessionType || 'Điểm danh'} • ${displayDate}`;
+%>
+<section class="choir-attendance" data-year-id="<%= selectedYearId || '' %>" data-date="<%= selectedDate %>" data-session="<%= sessionType %>">
+    <% if (message) { %>
+        <div class="choir-feedback" role="status"><%= message %></div>
+    <% } %>
 
-    <% if (message) { %><div class="choir-feedback" role="status"><%= message %></div><% } %>
-
-    <form class="choir-filters" id="attendance-filters" action="/ca-doan/diem-danh" method="GET">
-        <% if (selectedYearId) { %>
-            <input type="hidden" name="nien_khoa" value="<%= selectedYearId %>">
-        <% } %>
-        <label>
-            <span>Ngày</span>
+    <header class="attendance-topbar">
+        <form class="attendance-date-form" id="attendance-filters" action="/ca-doan/diem-danh" method="GET">
+            <% if (selectedYearId) { %>
+                <input type="hidden" name="nien_khoa" value="<%= selectedYearId %>">
+            <% } %>
+            <label for="attendance-date">Ngày điểm danh</label>
+            <strong class="attendance-date-display"><%= sessionDateLabel %></strong>
             <input id="attendance-date" type="date" name="ngay_diem_danh" value="<%= selectedDate %>" max="<%= todayKey %>" required>
-        </label>
-    </form>
+        </form>
+        <div class="attendance-member-count" aria-label="<%= students.length %> ca viên">
+            <i class="fa-solid fa-music" aria-hidden="true"></i>
+            <span><strong><%= students.length %></strong> ca viên</span>
+        </div>
+    </header>
 
     <% if (futureDate) { %>
         <div class="choir-empty"><i class="fa-solid fa-calendar-xmark"></i><span>Không thể điểm danh cho ngày chưa tới.</span></div>
@@ -25,69 +32,103 @@
     <% } else if (!selectedYearId) { %>
         <div class="choir-empty"><i class="fa-solid fa-calendar-xmark"></i><span>Chưa có niên khóa để tải danh sách ca viên.</span></div>
     <% } else { %>
-        <section class="choir-scan-card" aria-label="Quét mã ca viên">
-            <div class="choir-scan-copy">
-                <h2><i class="fa-solid fa-qrcode"></i> Quét mã ca viên</h2>
-                <p>Quét mã thiếu nhi đã đăng ký ca đoàn. Mã không thuộc ca đoàn sẽ không được ghi nhận.</p>
+        <section class="attendance-scanner" aria-label="Quét mã ca đoàn">
+            <div class="attendance-scanner-heading">
+                <h2><i class="fa-solid fa-qrcode" aria-hidden="true"></i> Quét mã ca đoàn</h2>
+                <button class="attendance-scanner-toggle" id="scanner-toggle" type="button" aria-controls="scanner-panel" aria-expanded="true">
+                    <i class="fa-solid fa-chevron-up" aria-hidden="true"></i>
+                    <span>Thu gọn</span>
+                </button>
             </div>
-            <div id="choir-qr-reader"></div>
-            <div class="choir-scan-status" id="scan-status" role="status" aria-live="polite"></div>
+            <div id="scanner-panel" class="attendance-scanner-panel">
+                <div class="attendance-camera-frame">
+                    <div id="choir-qr-reader"></div>
+                    <button class="attendance-flash-button" id="scanner-flash" type="button" aria-pressed="false" aria-label="Bật đèn flash" disabled>
+                        <i class="fa-solid fa-bolt" aria-hidden="true"></i>
+                        <span>Flash</span>
+                    </button>
+                </div>
+                <div class="choir-scan-status" id="scan-status" role="status" aria-live="polite"></div>
+            </div>
         </section>
 
-        <section class="choir-roster overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
-            <div class="flex flex-col gap-3 border-b border-slate-100 p-4 sm:flex-row sm:items-center sm:justify-between sm:px-6">
+        <section class="choir-roster attendance-roster" aria-labelledby="attendance-list-title">
+            <div class="attendance-roster-title">
                 <div>
-                    <p class="m-0 text-sm font-semibold text-slate-800"><%= sessionType %> · <%= selectedDate %></p>
-                    <p class="m-0 mt-1 text-xs text-slate-500">
-                        Hiển thị <span id="attendance-visible-count"><%= students.length %></span>/<%= students.length %> ca viên
-                    </p>
-                </div>
-                <label for="attendance-search" class="sr-only">Tìm tên hoặc mã thiếu nhi</label>
-                <div class="relative min-w-0 sm:w-80">
-                    <i class="fa-solid fa-magnifying-glass pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-sm text-slate-400" aria-hidden="true"></i>
-                    <input id="attendance-search" type="search" placeholder="Tìm tên hoặc mã số..." autocomplete="off"
-                        data-table-search="[data-attendance-row]" data-search-empty="#attendance-search-empty"
-                        data-search-count="#attendance-visible-count"
-                        class="h-10 w-full rounded-xl border border-slate-200 bg-white py-2 pl-10 pr-3.5 text-sm text-slate-800 placeholder:text-slate-400 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20">
+                    <h2 id="attendance-list-title"><%= sessionDateLabel %></h2>
+                    <p>Danh sách ca viên trong niên khóa</p>
                 </div>
             </div>
+
             <% if (students.length) { %>
-                <div class="overflow-x-auto max-[600px]:overflow-visible">
-                    <table class="w-full min-w-175 border-collapse max-[600px]:min-w-0 max-[600px]:block">
-                        <thead class="max-[600px]:hidden">
-                            <tr class="bg-slate-50 text-[11px] font-bold uppercase tracking-wider text-slate-500">
-                                <th class="w-14 border-b border-slate-200 px-3.5 py-3 text-center">STT</th>
-                                <th class="border-b border-slate-200 px-3.5 py-3 text-left">MSTN</th>
-                                <th class="border-b border-slate-200 px-3.5 py-3 text-left">Họ và tên</th>
-                                <th class="border-b border-slate-200 px-3.5 py-3 text-left">Điểm danh</th>
-                            </tr>
-                        </thead>
-                        <tbody class="text-sm max-[600px]:block">
-                            <% students.forEach((student, index) => { %>
-                                <tr data-attendance-row data-student-row data-student-id="<%= student.id_tn %>"
-                                    data-search="<%= `${student.mstn || ''} ${student.ho_ten || ''}`.toLowerCase() %>"
-                                    class="max-[600px]:mb-3 max-[600px]:block max-[600px]:rounded-xl max-[600px]:border max-[600px]:border-slate-200 max-[600px]:bg-white max-[600px]:px-3 max-[600px]:py-2 max-[600px]:transition-colors max-[600px]:hover:bg-slate-50/50">
-                                    <td class="border-b border-slate-100 px-3.5 py-3 text-center text-slate-400 max-[600px]:hidden"><%= index + 1 %></td>
-                                    <td class="border-b border-slate-100 px-3.5 py-3 max-[600px]:mb-2 max-[600px]:block max-[600px]:border-0 max-[600px]:px-0 max-[600px]:py-0 max-[600px]:text-xs max-[600px]:font-semibold max-[600px]:text-slate-500">
-                                        <span class="hidden h-6 w-6 items-center justify-center rounded-full bg-slate-100 text-xs font-bold text-slate-500 max-[600px]:inline-flex"><%= index + 1 %></span>
-                                        <span class="max-[600px]:ml-2"><%= student.mstn || '-' %></span>
-                                    </td>
-                                    <td class="border-b border-slate-100 px-3.5 py-3 max-[600px]:mb-2 max-[600px]:block max-[600px]:border-0 max-[600px]:px-0 max-[600px]:py-0">
-                                        <strong class="text-sm font-bold leading-snug text-slate-900"><%= student.ho_ten %></strong>
-                                    </td>
-                                    <td class="border-b border-slate-100 px-3.5 py-3 max-[600px]:block max-[600px]:border-0 max-[600px]:px-0 max-[600px]:py-0">
-                                        <button class="mb-2 inline-flex min-h-11 w-full items-center justify-between rounded-xl border border-slate-200 bg-slate-50 px-3 text-left text-sm font-semibold text-slate-700 shadow-sm transition-colors hover:border-blue-300 hover:bg-blue-50 max-[600px]:mb-0 disabled:cursor-not-allowed disabled:opacity-70"
-                                            type="button" data-mark-student="<%= student.id_tn %>" <%= student.da_diem_danh ? 'disabled' : '' %>>
-                                            <span data-student-status><%= student.trang_thai_diem_danh || 'Chọn trạng thái' %></span>
-                                            <i class="fa-solid <%= student.da_diem_danh ? 'fa-circle-check text-emerald-600' : 'fa-chevron-down text-xs text-slate-400' %>" aria-hidden="true"></i>
-                                        </button>
-                                    </td>
-                                </tr>
-                            <% }) %>
-                        </tbody>
-                    </table>
+                <div class="attendance-sticky-tools">
+                    <label class="attendance-search" for="attendance-search">
+                        <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+                        <input id="attendance-search" type="search" placeholder="Tìm tên hoặc mã số..." autocomplete="off">
+                    </label>
+                    <nav class="attendance-status-filters" aria-label="Lọc danh sách theo trạng thái">
+                        <button type="button" class="attendance-filter is-active" data-attendance-filter="all" aria-pressed="true">
+                            Tất cả <span data-filter-count="all"><%= students.length %></span>
+                        </button>
+                        <button type="button" class="attendance-filter" data-attendance-filter="pending" aria-pressed="false">
+                            Chưa ĐD <span data-filter-count="pending">0</span>
+                        </button>
+                        <button type="button" class="attendance-filter" data-attendance-filter="present" aria-pressed="false">
+                            Có mặt <span data-filter-count="present">0</span>
+                        </button>
+                        <button type="button" class="attendance-filter" data-attendance-filter="permission" aria-pressed="false">
+                            Phép <span data-filter-count="permission">0</span>
+                        </button>
+                        <button type="button" class="attendance-filter" data-attendance-filter="absent" aria-pressed="false">
+                            Vắng <span data-filter-count="absent">0</span>
+                        </button>
+                    </nav>
                 </div>
-                <div class="search-hidden border-t border-dashed border-slate-200 p-8 text-center text-slate-500" id="attendance-search-empty">Không tìm thấy thiếu nhi phù hợp.</div>
+
+                <p class="attendance-result-count" aria-live="polite">
+                    Đang hiển thị <strong id="attendance-visible-count"><%= students.length %></strong>/<%= students.length %> ca viên
+                </p>
+
+                <div class="attendance-list" id="attendance-list">
+                    <% students.forEach((student, index) => {
+                        const savedStatus = student.trang_thai_diem_danh || '';
+                        const rowState = savedStatus === 'Vắng phép'
+                            ? 'permission'
+                            : savedStatus === 'Vắng không phép'
+                                ? 'absent'
+                                : savedStatus
+                                    ? 'present'
+                                    : 'pending';
+                        const statusLabel = savedStatus || 'Chưa điểm danh';
+                    %>
+                        <article class="attendance-row"
+                            data-attendance-row
+                            data-student-id="<%= student.id_tn %>"
+                            data-search="<%= `${student.mstn || ''} ${student.ho_ten || ''}`.toLowerCase() %>"
+                            data-status="<%= rowState %>"
+                            data-server-status="<%= rowState %>"
+                            data-status-copy="<%= statusLabel %>"
+                            data-persisted="<%= student.da_diem_danh ? 'true' : 'false' %>">
+                            <div class="attendance-student">
+                                <div class="attendance-student-meta">
+                                    <span class="attendance-index"><%= index + 1 %></span>
+                                    <span>Mã: <strong><%= student.mstn || '-' %></strong></span>
+                                </div>
+                                <strong class="attendance-student-name"><%= student.ho_ten %></strong>
+                                <span class="attendance-student-status" data-status-copy><%= statusLabel %></span>
+                            </div>
+                            <div class="attendance-actions" role="group" aria-label="Điểm danh <%= student.ho_ten %>">
+                                <label class="attendance-check" title="Đánh dấu có mặt">
+                                    <input type="checkbox" data-attendance-present
+                                        aria-label="Đánh dấu <%= student.ho_ten %> có mặt"
+                                        <%= rowState === 'present' ? 'checked' : '' %>>
+                                    <i class="fa-solid fa-check" aria-hidden="true"></i>
+                                </label>
+                            </div>
+                        </article>
+                    <% }); %>
+                </div>
+                <div class="attendance-no-results" id="attendance-search-empty" hidden>Không tìm thấy ca viên phù hợp.</div>
                 <%- include('../partials/pagination', {
                     mode: 'client',
                     currentPage: 1,
@@ -97,15 +138,15 @@
                     rows: '[data-attendance-row]'
                 }) %>
             <% } else { %>
-                <div class="border-t border-dashed border-slate-200 p-8 text-center text-slate-500"><i class="fa-solid fa-user-group mr-2 text-slate-400"></i>Chưa có ca viên được phân lớp trong niên khóa này.</div>
+                <div class="attendance-no-students"><i class="fa-solid fa-user-group" aria-hidden="true"></i>Chưa có ca viên được phân lớp trong niên khóa này.</div>
             <% } %>
         </section>
     <% } %>
+
     <div class="choir-toast" id="choir-toast" role="status" aria-live="polite"></div>
 </section>
 
 <% if (!futureDate && sessionType && selectedYearId) { %>
     <script src="/vendor/html5-qrcode/html5-qrcode.min.js"></script>
 <% } %>
-<script src="/js/table-search.js" defer></script>
 <script src="/js/ca-doan/attendance.js" defer></script>
