@@ -137,7 +137,9 @@
   html, :host {
     line-height: 1.5;
     -webkit-text-size-adjust: 100%;
-    tab-size: 4;
+    -moz-tab-size: 4;
+      -o-tab-size: 4;
+         tab-size: 4;
     font-family: var(--default-font-family, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", "Noto Sans", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji");
     font-feature-settings: var(--default-font-feature-settings, normal);
     font-variation-settings: var(--default-font-variation-settings, normal);
@@ -229,13 +231,24 @@
   ::file-selector-button {
     margin-inline-end: 4px;
   }
+  ::-moz-placeholder {
+    opacity: 1;
+  }
   ::placeholder {
     opacity: 1;
   }
   @supports (not (-webkit-appearance: -apple-pay-button))  or (contain-intrinsic-size: 1px) {
+    ::-moz-placeholder {
+      color: currentcolor;
+    }
     ::placeholder {
       color: currentcolor;
-      @supports (color: color-mix(in lab, red, red)) {
+    }
+    @supports (color: color-mix(in lab, red, red)) {
+      ::-moz-placeholder {
+        color: color-mix(in oklab, currentcolor 50%, transparent);
+      }
+      ::placeholder {
         color: color-mix(in oklab, currentcolor 50%, transparent);
       }
     }
@@ -266,7 +279,9 @@
     box-shadow: none;
   }
   button, input:where([type="button"], [type="reset"], [type="submit"]), ::file-selector-button {
-    appearance: button;
+    -webkit-appearance: button;
+       -moz-appearance: button;
+            appearance: button;
   }
   ::-webkit-inner-spin-button, ::-webkit-outer-spin-button {
     height: auto;
@@ -337,19 +352,29 @@
   }
   .container {
     width: 100%;
-    @media (width >= 40rem) {
+  }
+  @media (min-width: 40rem) {
+    .container {
       max-width: 40rem;
     }
-    @media (width >= 48rem) {
+  }
+  @media (min-width: 48rem) {
+    .container {
       max-width: 48rem;
     }
-    @media (width >= 64rem) {
+  }
+  @media (min-width: 64rem) {
+    .container {
       max-width: 64rem;
     }
-    @media (width >= 80rem) {
+  }
+  @media (min-width: 80rem) {
+    .container {
       max-width: 80rem;
     }
-    @media (width >= 96rem) {
+  }
+  @media (min-width: 96rem) {
+    .container {
       max-width: 96rem;
     }
   }
@@ -537,6 +562,7 @@
     width: calc(100vw - 2rem);
   }
   .w-fit {
+    width: -moz-fit-content;
     width: fit-content;
   }
   .w-full {
@@ -786,13 +812,17 @@
   }
   .border-amber-200\/80 {
     border-color: color-mix(in srgb, oklch(92.4% 0.12 95.746) 80%, transparent);
-    @supports (color: color-mix(in lab, red, red)) {
+  }
+  @supports (color: color-mix(in lab, red, red)) {
+    .border-amber-200\/80 {
       border-color: color-mix(in oklab, var(--color-amber-200) 80%, transparent);
     }
   }
   .border-amber-500\/30 {
     border-color: color-mix(in srgb, oklch(76.9% 0.188 70.08) 30%, transparent);
-    @supports (color: color-mix(in lab, red, red)) {
+  }
+  @supports (color: color-mix(in lab, red, red)) {
+    .border-amber-500\/30 {
       border-color: color-mix(in oklab, var(--color-amber-500) 30%, transparent);
     }
   }
@@ -801,7 +831,9 @@
   }
   .border-blue-100\/60 {
     border-color: color-mix(in srgb, oklch(93.2% 0.032 255.585) 60%, transparent);
-    @supports (color: color-mix(in lab, red, red)) {
+  }
+  @supports (color: color-mix(in lab, red, red)) {
+    .border-blue-100\/60 {
       border-color: color-mix(in oklab, var(--color-blue-100) 60%, transparent);
     }
   }
@@ -822,7 +854,9 @@
   }
   .border-sky-500\/30 {
     border-color: color-mix(in srgb, oklch(68.5% 0.169 237.323) 30%, transparent);
-    @supports (color: color-mix(in lab, red, red)) {
+  }
+  @supports (color: color-mix(in lab, red, red)) {
+    .border-sky-500\/30 {
       border-color: color-mix(in oklab, var(--color-sky-500) 30%, transparent);
     }
   }
@@ -837,7 +871,9 @@
   }
   .border-slate-200\/80 {
     border-color: color-mix(in srgb, oklch(92.9% 0.013 255.508) 80%, transparent);
-    @supports (color: color-mix(in lab, red, red)) {
+  }
+  @supports (color: color-mix(in lab, red, red)) {
+    .border-slate-200\/80 {
       border-color: color-mix(in oklab, var(--color-slate-200) 80%, transparent);
     }
   }
@@ -849,13 +885,17 @@
   }
   .border-slate-700\/40 {
     border-color: color-mix(in srgb, oklch(37.2% 0.044 257.287) 40%, transparent);
-    @supports (color: color-mix(in lab, red, red)) {
+  }
+  @supports (color: color-mix(in lab, red, red)) {
+    .border-slate-700\/40 {
       border-color: color-mix(in oklab, var(--color-slate-700) 40%, transparent);
     }
   }
   .border-slate-700\/60 {
     border-color: color-mix(in srgb, oklch(37.2% 0.044 257.287) 60%, transparent);
-    @supports (color: color-mix(in lab, red, red)) {
+  }
+  @supports (color: color-mix(in lab, red, red)) {
+    .border-slate-700\/60 {
       border-color: color-mix(in oklab, var(--color-slate-700) 60%, transparent);
     }
   }
@@ -870,7 +910,9 @@
   }
   .bg-amber-500\/10 {
     background-color: color-mix(in srgb, oklch(76.9% 0.188 70.08) 10%, transparent);
-    @supports (color: color-mix(in lab, red, red)) {
+  }
+  @supports (color: color-mix(in lab, red, red)) {
+    .bg-amber-500\/10 {
       background-color: color-mix(in oklab, var(--color-amber-500) 10%, transparent);
     }
   }
@@ -879,7 +921,9 @@
   }
   .bg-blue-50\/60 {
     background-color: color-mix(in srgb, oklch(97% 0.014 254.604) 60%, transparent);
-    @supports (color: color-mix(in lab, red, red)) {
+  }
+  @supports (color: color-mix(in lab, red, red)) {
+    .bg-blue-50\/60 {
       background-color: color-mix(in oklab, var(--color-blue-50) 60%, transparent);
     }
   }
@@ -912,7 +956,9 @@
   }
   .bg-sky-600\/10 {
     background-color: color-mix(in srgb, oklch(58.8% 0.158 241.966) 10%, transparent);
-    @supports (color: color-mix(in lab, red, red)) {
+  }
+  @supports (color: color-mix(in lab, red, red)) {
+    .bg-sky-600\/10 {
       background-color: color-mix(in oklab, var(--color-sky-600) 10%, transparent);
     }
   }
@@ -921,19 +967,25 @@
   }
   .bg-slate-50\/50 {
     background-color: color-mix(in srgb, oklch(98.4% 0.003 247.858) 50%, transparent);
-    @supports (color: color-mix(in lab, red, red)) {
+  }
+  @supports (color: color-mix(in lab, red, red)) {
+    .bg-slate-50\/50 {
       background-color: color-mix(in oklab, var(--color-slate-50) 50%, transparent);
     }
   }
   .bg-slate-50\/75 {
     background-color: color-mix(in srgb, oklch(98.4% 0.003 247.858) 75%, transparent);
-    @supports (color: color-mix(in lab, red, red)) {
+  }
+  @supports (color: color-mix(in lab, red, red)) {
+    .bg-slate-50\/75 {
       background-color: color-mix(in oklab, var(--color-slate-50) 75%, transparent);
     }
   }
   .bg-slate-50\/80 {
     background-color: color-mix(in srgb, oklch(98.4% 0.003 247.858) 80%, transparent);
-    @supports (color: color-mix(in lab, red, red)) {
+  }
+  @supports (color: color-mix(in lab, red, red)) {
+    .bg-slate-50\/80 {
       background-color: color-mix(in oklab, var(--color-slate-50) 80%, transparent);
     }
   }
@@ -942,7 +994,9 @@
   }
   .bg-slate-200\/60 {
     background-color: color-mix(in srgb, oklch(92.9% 0.013 255.508) 60%, transparent);
-    @supports (color: color-mix(in lab, red, red)) {
+  }
+  @supports (color: color-mix(in lab, red, red)) {
+    .bg-slate-200\/60 {
       background-color: color-mix(in oklab, var(--color-slate-200) 60%, transparent);
     }
   }
@@ -954,7 +1008,9 @@
   }
   .bg-slate-800\/60 {
     background-color: color-mix(in srgb, oklch(27.9% 0.041 260.031) 60%, transparent);
-    @supports (color: color-mix(in lab, red, red)) {
+  }
+  @supports (color: color-mix(in lab, red, red)) {
+    .bg-slate-800\/60 {
       background-color: color-mix(in oklab, var(--color-slate-800) 60%, transparent);
     }
   }
@@ -966,23 +1022,35 @@
   }
   .bg-linear-to-br {
     --tw-gradient-position: to bottom right;
-    @supports (background-image: linear-gradient(in lab, red, red)) {
+  }
+  @supports (background-image: linear-gradient(in lab, red, red)) {
+    .bg-linear-to-br {
       --tw-gradient-position: to bottom right in oklab;
     }
+  }
+  .bg-linear-to-br {
     background-image: linear-gradient(var(--tw-gradient-stops));
   }
   .bg-linear-to-r {
     --tw-gradient-position: to right;
-    @supports (background-image: linear-gradient(in lab, red, red)) {
+  }
+  @supports (background-image: linear-gradient(in lab, red, red)) {
+    .bg-linear-to-r {
       --tw-gradient-position: to right in oklab;
     }
+  }
+  .bg-linear-to-r {
     background-image: linear-gradient(var(--tw-gradient-stops));
   }
   .bg-linear-to-tr {
     --tw-gradient-position: to top right;
-    @supports (background-image: linear-gradient(in lab, red, red)) {
+  }
+  @supports (background-image: linear-gradient(in lab, red, red)) {
+    .bg-linear-to-tr {
       --tw-gradient-position: to top right in oklab;
     }
+  }
+  .bg-linear-to-tr {
     background-image: linear-gradient(var(--tw-gradient-stops));
   }
   .bg-\[radial-gradient\(\#fff_1px\,transparent_1px\)\] {
@@ -990,9 +1058,13 @@
   }
   .from-blue-50\/60 {
     --tw-gradient-from: color-mix(in srgb, oklch(97% 0.014 254.604) 60%, transparent);
-    @supports (color: color-mix(in lab, red, red)) {
+  }
+  @supports (color: color-mix(in lab, red, red)) {
+    .from-blue-50\/60 {
       --tw-gradient-from: color-mix(in oklab, var(--color-blue-50) 60%, transparent);
     }
+  }
+  .from-blue-50\/60 {
     --tw-gradient-stops: var(--tw-gradient-via-stops, var(--tw-gradient-position), var(--tw-gradient-from) var(--tw-gradient-from-position), var(--tw-gradient-to) var(--tw-gradient-to-position));
   }
   .from-blue-600 {
@@ -1006,9 +1078,13 @@
   }
   .to-indigo-50\/30 {
     --tw-gradient-to: color-mix(in srgb, oklch(96.2% 0.018 272.314) 30%, transparent);
-    @supports (color: color-mix(in lab, red, red)) {
+  }
+  @supports (color: color-mix(in lab, red, red)) {
+    .to-indigo-50\/30 {
       --tw-gradient-to: color-mix(in oklab, var(--color-indigo-50) 30%, transparent);
     }
+  }
+  .to-indigo-50\/30 {
     --tw-gradient-stops: var(--tw-gradient-via-stops, var(--tw-gradient-position), var(--tw-gradient-from) var(--tw-gradient-from-position), var(--tw-gradient-to) var(--tw-gradient-to-position));
   }
   .to-indigo-500 {
@@ -1380,7 +1456,9 @@
   }
   .shadow-blue-500\/20 {
     --tw-shadow-color: color-mix(in srgb, oklch(62.3% 0.214 259.815) 20%, transparent);
-    @supports (color: color-mix(in lab, red, red)) {
+  }
+  @supports (color: color-mix(in lab, red, red)) {
+    .shadow-blue-500\/20 {
       --tw-shadow-color: color-mix(in oklab, color-mix(in oklab, var(--color-blue-500) 20%, transparent) var(--tw-shadow-alpha), transparent);
     }
   }
@@ -1399,7 +1477,7 @@
     filter: var(--tw-blur,) var(--tw-brightness,) var(--tw-contrast,) var(--tw-grayscale,) var(--tw-hue-rotate,) var(--tw-invert,) var(--tw-saturate,) var(--tw-sepia,) var(--tw-drop-shadow,);
   }
   .transition {
-    transition-property: color, background-color, border-color, outline-color, text-decoration-color, fill, stroke, --tw-gradient-from, --tw-gradient-via, --tw-gradient-to, opacity, box-shadow, transform, translate, scale, rotate, filter, -webkit-backdrop-filter, backdrop-filter, display, content-visibility, overlay, pointer-events;
+    transition-property: color, background-color, border-color, outline-color, text-decoration-color, fill, stroke, --tw-gradient-from, --tw-gradient-via, --tw-gradient-to, opacity, box-shadow, transform, translate, scale, rotate, filter, backdrop-filter, display, content-visibility, overlay, pointer-events;
     transition-timing-function: var(--tw-ease, var(--default-transition-timing-function));
     transition-duration: var(--tw-duration, var(--default-transition-duration));
   }
@@ -1423,19 +1501,33 @@
   }
   .select-all {
     -webkit-user-select: all;
-    user-select: all;
+    -moz-user-select: all;
+         user-select: all;
   }
   .select-none {
     -webkit-user-select: none;
-    user-select: none;
+    -moz-user-select: none;
+         user-select: none;
+  }
+  .selection\:bg-blue-500 ::-moz-selection {
+    background-color: var(--color-blue-500);
   }
   .selection\:bg-blue-500 ::selection {
+    background-color: var(--color-blue-500);
+  }
+  .selection\:bg-blue-500::-moz-selection {
     background-color: var(--color-blue-500);
   }
   .selection\:bg-blue-500::selection {
     background-color: var(--color-blue-500);
   }
+  .selection\:text-white ::-moz-selection {
+    color: var(--color-white);
+  }
   .selection\:text-white ::selection {
+    color: var(--color-white);
+  }
+  .selection\:text-white::-moz-selection {
     color: var(--color-white);
   }
   .selection\:text-white::selection {
@@ -1461,15 +1553,23 @@
     --tw-font-weight: var(--font-weight-semibold);
     font-weight: var(--font-weight-semibold);
   }
+  .placeholder\:text-gray-400::-moz-placeholder {
+    color: var(--color-gray-400);
+  }
   .placeholder\:text-gray-400::placeholder {
     color: var(--color-gray-400);
+  }
+  .placeholder\:text-slate-400::-moz-placeholder {
+    color: var(--color-slate-400);
   }
   .placeholder\:text-slate-400::placeholder {
     color: var(--color-slate-400);
   }
   .backdrop\:bg-slate-900\/60::backdrop {
     background-color: color-mix(in srgb, oklch(20.8% 0.042 265.755) 60%, transparent);
-    @supports (color: color-mix(in lab, red, red)) {
+  }
+  @supports (color: color-mix(in lab, red, red)) {
+    .backdrop\:bg-slate-900\/60::backdrop {
       background-color: color-mix(in oklab, var(--color-slate-900) 60%, transparent);
     }
   }
@@ -1479,7 +1579,6 @@
   }
   .backdrop\:backdrop-blur-sm::backdrop {
     --tw-backdrop-blur: blur(var(--blur-sm));
-    -webkit-backdrop-filter: var(--tw-backdrop-blur,) var(--tw-backdrop-brightness,) var(--tw-backdrop-contrast,) var(--tw-backdrop-grayscale,) var(--tw-backdrop-hue-rotate,) var(--tw-backdrop-invert,) var(--tw-backdrop-opacity,) var(--tw-backdrop-saturate,) var(--tw-backdrop-sepia,);
     backdrop-filter: var(--tw-backdrop-blur,) var(--tw-backdrop-brightness,) var(--tw-backdrop-contrast,) var(--tw-backdrop-grayscale,) var(--tw-backdrop-hue-rotate,) var(--tw-backdrop-invert,) var(--tw-backdrop-opacity,) var(--tw-backdrop-saturate,) var(--tw-backdrop-sepia,);
   }
   @media (hover: hover) {
@@ -1575,19 +1674,25 @@
   }
   .focus\:ring-blue-500\/15:focus {
     --tw-ring-color: color-mix(in srgb, oklch(62.3% 0.214 259.815) 15%, transparent);
-    @supports (color: color-mix(in lab, red, red)) {
+  }
+  @supports (color: color-mix(in lab, red, red)) {
+    .focus\:ring-blue-500\/15:focus {
       --tw-ring-color: color-mix(in oklab, var(--color-blue-500) 15%, transparent);
     }
   }
   .focus\:ring-blue-500\/20:focus {
     --tw-ring-color: color-mix(in srgb, oklch(62.3% 0.214 259.815) 20%, transparent);
-    @supports (color: color-mix(in lab, red, red)) {
+  }
+  @supports (color: color-mix(in lab, red, red)) {
+    .focus\:ring-blue-500\/20:focus {
       --tw-ring-color: color-mix(in oklab, var(--color-blue-500) 20%, transparent);
     }
   }
   .focus\:ring-blue-500\/25:focus {
     --tw-ring-color: color-mix(in srgb, oklch(62.3% 0.214 259.815) 25%, transparent);
-    @supports (color: color-mix(in lab, red, red)) {
+  }
+  @supports (color: color-mix(in lab, red, red)) {
+    .focus\:ring-blue-500\/25:focus {
       --tw-ring-color: color-mix(in oklab, var(--color-blue-500) 25%, transparent);
     }
   }
@@ -1629,7 +1734,7 @@
   .has-checked\:text-blue-700:has(:checked) {
     color: var(--color-blue-700);
   }
-  @media (width < 600px) {
+  @media (max-width: 599.98px) {
     .max-\[600px\]\:mb-0 {
       margin-bottom: 0px;
     }
@@ -1723,7 +1828,7 @@
       }
     }
   }
-  @media (width < 48rem) {
+  @media (max-width: 47.999rem) {
     .max-md\:overflow-visible {
       overflow: visible;
     }
@@ -1739,7 +1844,7 @@
       box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
     }
   }
-  @media (width >= 1025px) {
+  @media (min-width: 1025px) {
     .min-\[1025px\]\:flex {
       display: flex;
     }
@@ -1747,7 +1852,7 @@
       display: none;
     }
   }
-  @media (width >= 40rem) {
+  @media (min-width: 40rem) {
     .sm\:w-auto {
       width: auto;
     }
@@ -1797,7 +1902,7 @@
       line-height: var(--tw-leading, var(--text-sm--line-height));
     }
   }
-  @media (width >= 48rem) {
+  @media (min-width: 48rem) {
     .md\:mb-2 {
       margin-bottom: calc(var(--spacing) * 2);
     }
@@ -1852,7 +1957,7 @@
       line-height: var(--tw-leading, var(--text-sm--line-height));
     }
   }
-  @media (width >= 64rem) {
+  @media (min-width: 64rem) {
     .lg\:px-8 {
       padding-inline: calc(var(--spacing) * 8);
     }
@@ -1916,22 +2021,31 @@
     --tw-shadow: 0 1px 3px 0 var(--tw-shadow-color, rgb(0 0 0 / 0.1)), 0 1px 2px -1px var(--tw-shadow-color, rgb(0 0 0 / 0.1));
     box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
     --tw-shadow-color: color-mix(in srgb, oklch(54.6% 0.245 262.881) 25%, transparent);
-    @supports (color: color-mix(in lab, red, red)) {
+  }
+  @supports (color: color-mix(in lab, red, red)) {
+    .glv-header {
       --tw-shadow-color: color-mix(in oklab, color-mix(in oklab, var(--color-blue-600) 25%, transparent) var(--tw-shadow-alpha), transparent);
     }
+  }
+  .glv-header {
     transition-property: all;
     transition-timing-function: var(--tw-ease, var(--default-transition-timing-function));
     transition-duration: var(--tw-duration, var(--default-transition-duration));
     --tw-duration: 300ms;
     transition-duration: 300ms;
-    @media (width >= 1025px) {
+  }
+  @media (min-width: 1025px) {
+    .glv-header {
       height: calc(var(--spacing) * 22.5);
     }
-    @media (width >= 1025px) {
+  }
+  @media (min-width: 1025px) {
+    .glv-header {
       padding-inline: calc(var(--spacing) * 8);
     }
   }
-  .glv-header .header-left, .glv-header .header-right {
+  .glv-header .header-left,
+  .glv-header .header-right {
     display: flex;
     align-items: center;
     gap: calc(var(--spacing) * 3);
@@ -1947,7 +2061,9 @@
     font-size: var(--text-2xl);
     line-height: var(--tw-leading, var(--text-2xl--line-height));
     color: var(--color-white);
-    @media (width < 1024px) {
+  }
+  @media (max-width: 1023.98px) {
+    .glv-header .menu-toggle-btn {
       display: block;
     }
   }
@@ -1958,28 +2074,39 @@
     border-style: var(--tw-border-style);
     border-width: 2px;
     border-color: var(--color-white);
-    object-fit: cover;
+    -o-object-fit: cover;
+       object-fit: cover;
     transition-property: all;
     transition-timing-function: var(--tw-ease, var(--default-transition-timing-function));
     transition-duration: var(--tw-duration, var(--default-transition-duration));
     --tw-duration: 300ms;
     transition-duration: 300ms;
-    @media (width >= 1025px) {
+  }
+  @media (min-width: 1025px) {
+    .glv-header .logo-circle img {
       height: calc(var(--spacing) * 16);
     }
-    @media (width >= 1025px) {
+  }
+  @media (min-width: 1025px) {
+    .glv-header .logo-circle img {
       width: calc(var(--spacing) * 16);
     }
   }
   .glv-header .church-info {
     display: none;
-    @media (width >= 1025px) {
+  }
+  @media (min-width: 1025px) {
+    .glv-header .church-info {
       display: flex;
     }
-    @media (width >= 1025px) {
+  }
+  @media (min-width: 1025px) {
+    .glv-header .church-info {
       flex-direction: column;
     }
-    @media (width >= 1025px) {
+  }
+  @media (min-width: 1025px) {
+    .glv-header .church-info {
       gap: var(--spacing);
     }
   }
@@ -2017,13 +2144,19 @@
     transition-duration: 300ms;
     --tw-ease: var(--ease-in-out);
     transition-timing-function: var(--ease-in-out);
-    @media (width >= 1025px) {
+  }
+  @media (min-width: 1025px) {
+    .glv-sidebar {
       top: calc(var(--spacing) * 22.5);
     }
-    @media (width >= 1025px) {
+  }
+  @media (min-width: 1025px) {
+    .glv-sidebar {
       height: calc(100vh - 90px);
     }
-    @media (width >= 1025px) {
+  }
+  @media (min-width: 1025px) {
+    .glv-sidebar {
       --tw-translate-x: 0px;
       translate: var(--tw-translate-x) var(--tw-translate-y);
     }
@@ -2045,7 +2178,9 @@
     font-size: var(--text-xl);
     line-height: var(--tw-leading, var(--text-xl--line-height));
     color: var(--color-slate-500);
-    @media (width < 1024px) {
+  }
+  @media (max-width: 1023.98px) {
+    .glv-sidebar .close-sidebar-btn {
       display: block;
     }
   }
@@ -2066,7 +2201,8 @@
   .glv-sidebar .menu-item {
     margin-bottom: var(--spacing);
   }
-  .glv-sidebar .menu-link, .glv-sidebar .dropdown-toggle {
+  .glv-sidebar .menu-link,
+  .glv-sidebar .dropdown-toggle {
     position: relative;
     display: flex;
     min-height: calc(var(--spacing) * 11);
@@ -2092,13 +2228,15 @@
     --tw-duration: 200ms;
     transition-duration: 200ms;
   }
-  .glv-sidebar .menu-link > span:first-child, .glv-sidebar .dropdown-toggle > span:first-child {
+  .glv-sidebar .menu-link > span:first-child,
+  .glv-sidebar .dropdown-toggle > span:first-child {
     display: flex;
     min-width: 0px;
     align-items: center;
     gap: calc(var(--spacing) * 3);
   }
-  .glv-sidebar .menu-link > span:first-child > i, .glv-sidebar .dropdown-toggle > span:first-child > i {
+  .glv-sidebar .menu-link > span:first-child > i,
+  .glv-sidebar .dropdown-toggle > span:first-child > i {
     width: calc(var(--spacing) * 4.5);
     flex-shrink: 0;
     text-align: center;
@@ -2107,7 +2245,8 @@
     transition-timing-function: var(--tw-ease, var(--default-transition-timing-function));
     transition-duration: var(--tw-duration, var(--default-transition-duration));
   }
-  .glv-sidebar .menu-link::before, .glv-sidebar .dropdown-toggle::before {
+  .glv-sidebar .menu-link::before,
+  .glv-sidebar .dropdown-toggle::before {
     content: "";
     position: absolute;
     top: calc(1 / 2 * 100%);
@@ -2125,21 +2264,29 @@
     --tw-duration: 200ms;
     transition-duration: 200ms;
   }
-  .glv-sidebar .menu-link:hover, .glv-sidebar .dropdown-toggle:hover {
+  .glv-sidebar .menu-link:hover,
+  .glv-sidebar .dropdown-toggle:hover {
     background-color: var(--color-blue-50);
     color: var(--color-blue-700);
   }
-  .glv-sidebar .menu-link:hover > span:first-child > i, .glv-sidebar .dropdown-toggle:hover > span:first-child > i {
+  .glv-sidebar .menu-link:hover > span:first-child > i,
+  .glv-sidebar .dropdown-toggle:hover > span:first-child > i {
     color: var(--color-blue-700);
   }
-  .glv-sidebar .menu-item.active > .menu-link, .glv-sidebar .menu-item.active > .dropdown-toggle, .glv-sidebar .menu-link.is-active {
+  .glv-sidebar .menu-item.active > .menu-link,
+  .glv-sidebar .menu-item.active > .dropdown-toggle,
+  .glv-sidebar .menu-link.is-active {
     background-color: var(--color-blue-50);
     color: var(--color-blue-600);
   }
-  .glv-sidebar .menu-item.active > .menu-link::before, .glv-sidebar .menu-item.active > .dropdown-toggle::before, .glv-sidebar .menu-link.is-active::before {
+  .glv-sidebar .menu-item.active > .menu-link::before,
+  .glv-sidebar .menu-item.active > .dropdown-toggle::before,
+  .glv-sidebar .menu-link.is-active::before {
     height: calc(var(--spacing) * 5.5);
   }
-  .glv-sidebar .menu-item.active > .menu-link > span:first-child > i, .glv-sidebar .menu-item.active > .dropdown-toggle > span:first-child > i, .glv-sidebar .menu-link.is-active > span:first-child > i {
+  .glv-sidebar .menu-item.active > .menu-link > span:first-child > i,
+  .glv-sidebar .menu-item.active > .dropdown-toggle > span:first-child > i,
+  .glv-sidebar .menu-link.is-active > span:first-child > i {
     color: var(--color-blue-600);
   }
   .glv-sidebar .submenu {
@@ -2172,15 +2319,15 @@
     transition-property: color, background-color, border-color, outline-color, text-decoration-color, fill, stroke, --tw-gradient-from, --tw-gradient-via, --tw-gradient-to;
     transition-timing-function: var(--tw-ease, var(--default-transition-timing-function));
     transition-duration: var(--tw-duration, var(--default-transition-duration));
-    &:hover {
-      @media (hover: hover) {
-        background-color: var(--color-blue-50);
-      }
+  }
+  @media (hover: hover) {
+    :is(.glv-sidebar .submenu li a):hover {
+      background-color: var(--color-blue-50);
     }
-    &:hover {
-      @media (hover: hover) {
-        color: var(--color-blue-700);
-      }
+  }
+  @media (hover: hover) {
+    :is(.glv-sidebar .submenu li a):hover {
+      color: var(--color-blue-700);
     }
   }
   .glv-sidebar .arrow-icon {
@@ -2279,14 +2426,18 @@
     display: none;
     align-items: center;
     gap: calc(var(--spacing) * 3);
-    @media (width >= 1025px) {
+  }
+  @media (min-width: 1025px) {
+    .glv-sidebar .desktop-switch-buttons {
       display: flex;
     }
   }
   .glv-sidebar .mobile-switch-container {
     position: relative;
     display: block;
-    @media (width >= 1025px) {
+  }
+  @media (min-width: 1025px) {
+    .glv-sidebar .mobile-switch-container {
       display: none;
     }
   }
@@ -2294,14 +2445,18 @@
     display: none;
     align-items: center;
     gap: calc(var(--spacing) * 3);
-    @media (width >= 1025px) {
+  }
+  @media (min-width: 1025px) {
+    .glv-header .desktop-switch-buttons {
       display: flex;
     }
   }
   .glv-header .mobile-switch-container {
     position: relative;
     display: block;
-    @media (width >= 1025px) {
+  }
+  @media (min-width: 1025px) {
+    .glv-header .mobile-switch-container {
       display: none;
     }
   }
@@ -2323,31 +2478,39 @@
     transition-property: color, background-color, border-color, outline-color, text-decoration-color, fill, stroke, --tw-gradient-from, --tw-gradient-via, --tw-gradient-to;
     transition-timing-function: var(--tw-ease, var(--default-transition-timing-function));
     transition-duration: var(--tw-duration, var(--default-transition-duration));
-    &:hover {
-      @media (hover: hover) {
-        border-color: var(--color-blue-800);
-      }
+  }
+  @media (hover: hover) {
+    :is(.glv-header .switch-btn):hover {
+      border-color: var(--color-blue-800);
     }
-    &:hover {
-      @media (hover: hover) {
-        background-color: var(--color-blue-800);
-      }
+  }
+  @media (hover: hover) {
+    :is(.glv-header .switch-btn):hover {
+      background-color: var(--color-blue-800);
     }
-    &:hover {
-      @media (hover: hover) {
-        color: var(--color-white);
-      }
+  }
+  @media (hover: hover) {
+    :is(.glv-header .switch-btn):hover {
+      color: var(--color-white);
     }
-    @media (width >= 1025px) {
+  }
+  @media (min-width: 1025px) {
+    .glv-header .switch-btn {
       border-radius: var(--radius-3xl);
     }
-    @media (width >= 1025px) {
+  }
+  @media (min-width: 1025px) {
+    .glv-header .switch-btn {
       padding-inline: calc(var(--spacing) * 5);
     }
-    @media (width >= 1025px) {
+  }
+  @media (min-width: 1025px) {
+    .glv-header .switch-btn {
       padding-block: calc(var(--spacing) * 2.5);
     }
-    @media (width >= 1025px) {
+  }
+  @media (min-width: 1025px) {
+    .glv-header .switch-btn {
       font-size: var(--text-sm);
       line-height: var(--tw-leading, var(--text-sm--line-height));
     }
@@ -2372,20 +2535,20 @@
     transition-property: color, background-color, border-color, outline-color, text-decoration-color, fill, stroke, --tw-gradient-from, --tw-gradient-via, --tw-gradient-to;
     transition-timing-function: var(--tw-ease, var(--default-transition-timing-function));
     transition-duration: var(--tw-duration, var(--default-transition-duration));
-    &:hover {
-      @media (hover: hover) {
-        border-color: var(--color-blue-800);
-      }
+  }
+  @media (hover: hover) {
+    :is(.glv-header .mobile-switch-icon-btn):hover {
+      border-color: var(--color-blue-800);
     }
-    &:hover {
-      @media (hover: hover) {
-        background-color: var(--color-blue-800);
-      }
+  }
+  @media (hover: hover) {
+    :is(.glv-header .mobile-switch-icon-btn):hover {
+      background-color: var(--color-blue-800);
     }
-    &:hover {
-      @media (hover: hover) {
-        color: var(--color-white);
-      }
+  }
+  @media (hover: hover) {
+    :is(.glv-header .mobile-switch-icon-btn):hover {
+      color: var(--color-white);
     }
   }
   .glv-header .mobile-switch-dropdown-menu {
@@ -2422,15 +2585,15 @@
     transition-property: color, background-color, border-color, outline-color, text-decoration-color, fill, stroke, --tw-gradient-from, --tw-gradient-via, --tw-gradient-to;
     transition-timing-function: var(--tw-ease, var(--default-transition-timing-function));
     transition-duration: var(--tw-duration, var(--default-transition-duration));
-    &:hover {
-      @media (hover: hover) {
-        background-color: var(--color-blue-50);
-      }
+  }
+  @media (hover: hover) {
+    :is(.glv-header .mobile-switch-item):hover {
+      background-color: var(--color-blue-50);
     }
-    &:hover {
-      @media (hover: hover) {
-        color: var(--color-blue-700);
-      }
+  }
+  @media (hover: hover) {
+    :is(.glv-header .mobile-switch-item):hover {
+      color: var(--color-blue-700);
     }
   }
   .sidebar-overlay {
@@ -2444,10 +2607,14 @@
     z-index: 1050;
     display: block;
     background-color: color-mix(in srgb, oklch(37.9% 0.146 265.522) 30%, transparent);
-    @supports (color: color-mix(in lab, red, red)) {
+  }
+  @supports (color: color-mix(in lab, red, red)) {
+    .sidebar-overlay.show {
       background-color: color-mix(in oklab, var(--color-blue-900) 30%, transparent);
     }
-    @media (width >= 1025px) {
+  }
+  @media (min-width: 1025px) {
+    .sidebar-overlay.show {
       top: calc(var(--spacing) * 22.5);
     }
   }
@@ -2463,16 +2630,24 @@
     transition-duration: 300ms;
     --tw-ease: var(--ease-in-out);
     transition-timing-function: var(--ease-in-out);
-    @media (width >= 1025px) {
+  }
+  @media (min-width: 1025px) {
+    .glv-main-container {
       margin-top: calc(var(--spacing) * 22.5);
     }
-    @media (width >= 1025px) {
+  }
+  @media (min-width: 1025px) {
+    .glv-main-container {
       margin-left: calc(var(--spacing) * 70);
     }
-    @media (width >= 1025px) {
+  }
+  @media (min-width: 1025px) {
+    .glv-main-container {
       min-height: calc(100vh - 90px);
     }
-    @media (width >= 40rem) {
+  }
+  @media (min-width: 40rem) {
+    .glv-main-container {
       padding: calc(var(--spacing) * 6);
     }
   }
@@ -2482,16 +2657,24 @@
     padding-inline: calc(var(--spacing) * 3.5);
     padding-block: calc(var(--spacing) * 6);
     color: var(--color-slate-800);
-    @media (width >= 1025px) {
+  }
+  @media (min-width: 1025px) {
+    .glv-dashboard {
       min-height: calc(100vh - 90px);
     }
-    @media (width >= 1025px) {
+  }
+  @media (min-width: 1025px) {
+    .glv-dashboard {
       padding-inline: calc(var(--spacing) * 14);
     }
-    @media (width >= 1025px) {
+  }
+  @media (min-width: 1025px) {
+    .glv-dashboard {
       padding-block: calc(var(--spacing) * 9);
     }
-    @media (width >= 40rem) {
+  }
+  @media (min-width: 40rem) {
+    .glv-dashboard {
       padding-inline: calc(var(--spacing) * 8);
     }
   }
@@ -2502,10 +2685,14 @@
     align-items: flex-start;
     justify-content: space-between;
     gap: calc(var(--spacing) * 6);
-    @media (width >= 40rem) {
+  }
+  @media (min-width: 40rem) {
+    .glv-dashboard .dashboard-hero {
       flex-direction: row;
     }
-    @media (width >= 40rem) {
+  }
+  @media (min-width: 40rem) {
+    .glv-dashboard .dashboard-hero {
       align-items: flex-end;
     }
   }
@@ -2532,7 +2719,8 @@
     margin-top: calc(var(--spacing) * 2);
     color: var(--color-blue-700);
   }
-  .glv-dashboard .dashboard-action, .glv-dashboard .panel-link {
+  .glv-dashboard .dashboard-action,
+  .glv-dashboard .panel-link {
     display: inline-flex;
     align-items: center;
     gap: calc(var(--spacing) * 2);
@@ -2549,23 +2737,25 @@
     padding-inline: calc(var(--spacing) * 4);
     padding-block: calc(var(--spacing) * 3);
     color: var(--color-white);
-    &:hover {
-      @media (hover: hover) {
-        background-color: var(--color-blue-700);
-      }
+  }
+  @media (hover: hover) {
+    :is(.glv-dashboard .dashboard-action):hover {
+      background-color: var(--color-blue-700);
     }
   }
   .glv-dashboard .dashboard-section {
     margin-bottom: calc(var(--spacing) * 7);
   }
-  .glv-dashboard .section-heading, .glv-dashboard .panel-heading {
+  .glv-dashboard .section-heading,
+  .glv-dashboard .panel-heading {
     margin-bottom: calc(var(--spacing) * 4);
     display: flex;
     align-items: flex-start;
     justify-content: space-between;
     gap: calc(var(--spacing) * 4);
   }
-  .glv-dashboard .section-heading h2, .glv-dashboard .panel-heading h2 {
+  .glv-dashboard .section-heading h2,
+  .glv-dashboard .panel-heading h2 {
     margin-top: var(--spacing);
     font-size: var(--text-xl);
     line-height: var(--tw-leading, var(--text-xl--line-height));
@@ -2577,11 +2767,15 @@
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: calc(var(--spacing) * 2);
-    @media (width >= 40rem) {
+  }
+  @media (min-width: 40rem) {
+    .glv-dashboard .stats-grid {
       gap: calc(var(--spacing) * 4);
     }
   }
-  .glv-dashboard .stat-card, .glv-dashboard .dashboard-panel, .glv-dashboard .dashboard-empty {
+  .glv-dashboard .stat-card,
+  .glv-dashboard .dashboard-panel,
+  .glv-dashboard .dashboard-empty {
     min-width: 0px;
     border-radius: var(--radius-xl);
     border-style: var(--tw-border-style);
@@ -2597,10 +2791,14 @@
     align-items: flex-start;
     gap: calc(var(--spacing) * 2);
     padding: calc(var(--spacing) * 2.5);
-    @media (width >= 40rem) {
+  }
+  @media (min-width: 40rem) {
+    .glv-dashboard .stat-card {
       gap: calc(var(--spacing) * 4);
     }
-    @media (width >= 40rem) {
+  }
+  @media (min-width: 40rem) {
+    .glv-dashboard .stat-card {
       padding: calc(var(--spacing) * 5);
     }
   }
@@ -2616,13 +2814,19 @@
     font-size: var(--text-lg);
     line-height: var(--tw-leading, var(--text-lg--line-height));
     color: var(--color-blue-600);
-    @media (width >= 40rem) {
+  }
+  @media (min-width: 40rem) {
+    .glv-dashboard .stat-icon {
       height: calc(var(--spacing) * 12);
     }
-    @media (width >= 40rem) {
+  }
+  @media (min-width: 40rem) {
+    .glv-dashboard .stat-icon {
       width: calc(var(--spacing) * 12);
     }
-    @media (width >= 40rem) {
+  }
+  @media (min-width: 40rem) {
+    .glv-dashboard .stat-icon {
       font-size: var(--text-2xl);
       line-height: var(--tw-leading, var(--text-2xl--line-height));
     }
@@ -2639,10 +2843,14 @@
     --tw-font-weight: var(--font-weight-semibold);
     font-weight: var(--font-weight-semibold);
     color: var(--color-slate-500);
-    @media (width >= 40rem) {
+  }
+  @media (min-width: 40rem) {
+    .glv-dashboard .stat-info h3 {
       margin-bottom: calc(var(--spacing) * 2);
     }
-    @media (width >= 40rem) {
+  }
+  @media (min-width: 40rem) {
+    .glv-dashboard .stat-info h3 {
       font-size: var(--text-sm);
       line-height: var(--tw-leading, var(--text-sm--line-height));
     }
@@ -2654,7 +2862,9 @@
     --tw-font-weight: var(--font-weight-extrabold);
     font-weight: var(--font-weight-extrabold);
     color: var(--color-slate-900);
-    @media (width >= 40rem) {
+  }
+  @media (min-width: 40rem) {
+    .glv-dashboard .stat-number {
       font-size: var(--text-3xl);
       line-height: var(--tw-leading, var(--text-3xl--line-height));
     }
@@ -2670,7 +2880,9 @@
     display: grid;
     grid-template-columns: repeat(1, minmax(0, 1fr));
     gap: calc(var(--spacing) * 5);
-    @media (width >= 80rem) {
+  }
+  @media (min-width: 80rem) {
+    .glv-dashboard .dashboard-two-col {
       grid-template-columns: minmax(0,0.85fr) minmax(0,1.15fr);
     }
   }
@@ -2701,14 +2913,22 @@
     border-width: 1px;
     border-color: var(--color-blue-100);
     background-color: color-mix(in srgb, oklch(97% 0.014 254.604) 50%, transparent);
-    @supports (color: color-mix(in lab, red, red)) {
+  }
+  @supports (color: color-mix(in lab, red, red)) {
+    .glv-dashboard .attendance-focus {
       background-color: color-mix(in oklab, var(--color-blue-50) 50%, transparent);
     }
+  }
+  .glv-dashboard .attendance-focus {
     padding: calc(var(--spacing) * 4);
-    @media (width >= 40rem) {
+  }
+  @media (min-width: 40rem) {
+    .glv-dashboard .attendance-focus {
       flex-direction: row;
     }
-    @media (width >= 40rem) {
+  }
+  @media (min-width: 40rem) {
+    .glv-dashboard .attendance-focus {
       align-items: center;
     }
   }
@@ -2718,7 +2938,8 @@
     line-height: var(--tw-leading, var(--text-base--line-height));
     color: var(--color-slate-900);
   }
-  .glv-dashboard .attendance-date span, .glv-dashboard .attendance-numbers span {
+  .glv-dashboard .attendance-date span,
+  .glv-dashboard .attendance-numbers span {
     font-size: var(--text-xs);
     line-height: var(--tw-leading, var(--text-xs--line-height));
     color: var(--color-slate-500);
@@ -2756,7 +2977,9 @@
     border-color: var(--color-slate-200);
     padding: calc(var(--spacing) * 1.5);
     text-align: center;
-    @media (width >= 40rem) {
+  }
+  @media (min-width: 40rem) {
+    .glv-dashboard .attendance-numbers > div {
       padding: calc(var(--spacing) * 3);
     }
   }
@@ -2765,7 +2988,9 @@
     font-size: var(--text-base);
     line-height: var(--tw-leading, var(--text-base--line-height));
     color: var(--color-slate-900);
-    @media (width >= 40rem) {
+  }
+  @media (min-width: 40rem) {
+    .glv-dashboard .attendance-numbers strong {
       font-size: var(--text-xl);
       line-height: var(--tw-leading, var(--text-xl--line-height));
     }
@@ -2776,7 +3001,9 @@
     font-size: 10px;
     --tw-leading: var(--leading-tight);
     line-height: var(--leading-tight);
-    @media (width >= 40rem) {
+  }
+  @media (min-width: 40rem) {
+    .glv-dashboard .attendance-numbers span {
       font-size: var(--text-xs);
       line-height: var(--tw-leading, var(--text-xs--line-height));
     }
@@ -2787,11 +3014,13 @@
     --tw-font-weight: var(--font-weight-semibold);
     font-weight: var(--font-weight-semibold);
     color: var(--color-blue-600);
-    &:hover {
-      @media (hover: hover) {
-        color: var(--color-blue-700);
-      }
+  }
+  @media (hover: hover) {
+    :is(.glv-dashboard .panel-link):hover {
+      color: var(--color-blue-700);
     }
+  }
+  .glv-dashboard .panel-link {
     font-family: inherit;
   }
   @media (max-width: 640px) {
@@ -2886,10 +3115,10 @@
     transition-property: color, background-color, border-color, outline-color, text-decoration-color, fill, stroke, --tw-gradient-from, --tw-gradient-via, --tw-gradient-to;
     transition-timing-function: var(--tw-ease, var(--default-transition-timing-function));
     transition-duration: var(--tw-duration, var(--default-transition-duration));
-    &:hover {
-      @media (hover: hover) {
-        color: var(--color-slate-800);
-      }
+  }
+  @media (hover: hover) {
+    :is(.glv-dashboard .alert-tab):hover {
+      color: var(--color-slate-800);
     }
   }
   .glv-dashboard .alert-tab.is-active {
@@ -2915,7 +3144,8 @@
     background-color: var(--color-blue-50);
     color: var(--color-blue-700);
   }
-  .glv-dashboard .alert-tab:focus-visible, .glv-dashboard .alert-tab-panel:focus-visible {
+  .glv-dashboard .alert-tab:focus-visible,
+  .glv-dashboard .alert-tab-panel:focus-visible {
     border-radius: var(--radius-sm);
     outline-style: var(--tw-outline-style);
     outline-width: 2px;
@@ -2954,10 +3184,10 @@
     padding-inline: calc(var(--spacing) * 3);
     padding-block: calc(var(--spacing) * 2.5);
     color: var(--color-slate-700);
-    &:last-child {
-      border-style: var(--tw-border-style);
-      border-width: 0px;
-    }
+  }
+  :is(.glv-dashboard .alert-table td):last-child {
+    border-style: var(--tw-border-style);
+    border-width: 0px;
   }
   .glv-dashboard .alert-table td:nth-child(2) {
     min-width: calc(var(--spacing) * 32);
@@ -2990,22 +3220,40 @@
     --tw-font-weight: var(--font-weight-bold);
     font-weight: var(--font-weight-bold);
   }
-  .class-page, .attendance-page, .discipline-page {
+  .class-page,
+  .attendance-page,
+  .discipline-page {
     min-height: calc(100vh - 60px);
     background-color: var(--color-slate-50);
     padding-inline: calc(var(--spacing) * 3.5);
     padding-block: calc(var(--spacing) * 6);
     color: var(--color-slate-800);
-    @media (width >= 1025px) {
+  }
+  @media (min-width: 1025px) {
+    .class-page,
+  .attendance-page,
+  .discipline-page {
       min-height: calc(100vh - 90px);
     }
-    @media (width >= 1025px) {
+  }
+  @media (min-width: 1025px) {
+    .class-page,
+  .attendance-page,
+  .discipline-page {
       padding-inline: calc(var(--spacing) * 14);
     }
-    @media (width >= 1025px) {
+  }
+  @media (min-width: 1025px) {
+    .class-page,
+  .attendance-page,
+  .discipline-page {
       padding-block: calc(var(--spacing) * 9);
     }
-    @media (width >= 40rem) {
+  }
+  @media (min-width: 40rem) {
+    .class-page,
+  .attendance-page,
+  .discipline-page {
       padding-inline: calc(var(--spacing) * 8);
     }
   }
@@ -3048,7 +3296,10 @@
     font-weight: var(--font-weight-bold);
     color: var(--color-slate-500);
   }
-  .class-search input, .year-filter select, .detail-form input, .detail-form select {
+  .class-search input,
+  .year-filter select,
+  .detail-form input,
+  .detail-form select {
     min-width: 0px;
     border-radius: var(--radius-lg);
     border-style: var(--tw-border-style);
@@ -3063,18 +3314,20 @@
     flex: 1;
     --tw-font-weight: var(--font-weight-normal);
     font-weight: var(--font-weight-normal);
-    &:focus {
-      border-color: var(--color-blue-600);
-    }
-    &:focus {
-      outline-style: var(--tw-outline-style);
-      outline-width: 2px;
-    }
-    &:focus {
-      outline-color: color-mix(in srgb, oklch(54.6% 0.245 262.881) 20%, transparent);
-      @supports (color: color-mix(in lab, red, red)) {
-        outline-color: color-mix(in oklab, var(--color-blue-600) 20%, transparent);
-      }
+  }
+  :is(.class-search input):focus {
+    border-color: var(--color-blue-600);
+  }
+  :is(.class-search input):focus {
+    outline-style: var(--tw-outline-style);
+    outline-width: 2px;
+  }
+  :is(.class-search input):focus {
+    outline-color: color-mix(in srgb, oklch(54.6% 0.245 262.881) 20%, transparent);
+  }
+  @supports (color: color-mix(in lab, red, red)) {
+    :is(.class-search input):focus {
+      outline-color: color-mix(in oklab, var(--color-blue-600) 20%, transparent);
     }
   }
   .year-filter {
@@ -3113,10 +3366,14 @@
     background-color: var(--color-slate-50);
     padding-inline: calc(var(--spacing) * 5);
     padding-block: calc(var(--spacing) * 4);
-    @media (width >= 40rem) {
+  }
+  @media (min-width: 40rem) {
+    .class-card-header {
       flex-direction: row;
     }
-    @media (width >= 40rem) {
+  }
+  @media (min-width: 40rem) {
+    .class-card-header {
       align-items: center;
     }
   }
@@ -3140,23 +3397,28 @@
     width: 100%;
     border-collapse: collapse;
   }
-  .student-table th, .student-table td {
+  .student-table th,
+  .student-table td {
     border-bottom-style: var(--tw-border-style);
     border-bottom-width: 1px;
     border-color: var(--color-slate-100);
     padding-inline: calc(var(--spacing) * 4);
     padding-block: calc(var(--spacing) * 3);
     text-align: left;
-    &:last-child {
-      border-style: var(--tw-border-style);
-      border-width: 0px;
-    }
+  }
+  :is(.student-table th,.student-table td):last-child {
+    border-style: var(--tw-border-style);
+    border-width: 0px;
   }
   .student-table th {
     background-color: color-mix(in srgb, oklch(97% 0.014 254.604) 50%, transparent);
-    @supports (color: color-mix(in lab, red, red)) {
+  }
+  @supports (color: color-mix(in lab, red, red)) {
+    .student-table th {
       background-color: color-mix(in oklab, var(--color-blue-50) 50%, transparent);
     }
+  }
+  .student-table th {
     font-size: var(--text-xs);
     line-height: var(--tw-leading, var(--text-xs--line-height));
     --tw-font-weight: var(--font-weight-bold);
@@ -3184,7 +3446,9 @@
     padding-block: calc(var(--spacing) * 1.5);
     color: var(--color-slate-800);
   }
-  .status-save-button, .detail-button, .modal-button {
+  .status-save-button,
+  .detail-button,
+  .modal-button {
     cursor: pointer;
     border-radius: var(--radius-lg);
     border-style: var(--tw-border-style);
@@ -3201,17 +3465,17 @@
     margin-left: var(--spacing);
     background-color: var(--color-blue-600);
     color: var(--color-white);
-    &:hover {
-      @media (hover: hover) {
-        background-color: var(--color-blue-700);
-      }
+  }
+  @media (hover: hover) {
+    .status-save-button:hover {
+      background-color: var(--color-blue-700);
     }
-    &:disabled {
-      cursor: wait;
-    }
-    &:disabled {
-      opacity: 60%;
-    }
+  }
+  .status-save-button:disabled {
+    cursor: wait;
+  }
+  .status-save-button:disabled {
+    opacity: 60%;
   }
   .result-locked {
     font-size: var(--text-xs);
@@ -3221,10 +3485,10 @@
   .detail-button {
     background-color: var(--color-blue-50);
     color: var(--color-blue-700);
-    &:hover {
-      @media (hover: hover) {
-        background-color: var(--color-blue-100);
-      }
+  }
+  @media (hover: hover) {
+    .detail-button:hover {
+      background-color: var(--color-blue-100);
     }
   }
   .student-actions {
@@ -3244,13 +3508,15 @@
     --tw-font-weight: var(--font-weight-bold);
     font-weight: var(--font-weight-bold);
     color: var(--color-amber-800);
-    &:hover {
-      @media (hover: hover) {
-        background-color: var(--color-amber-100);
-      }
+  }
+  @media (hover: hover) {
+    .status-button:hover {
+      background-color: var(--color-amber-100);
     }
   }
-  .empty-state, .attendance-empty, .discipline-empty {
+  .empty-state,
+  .attendance-empty,
+  .discipline-empty {
     border-radius: var(--radius-xl);
     border-style: var(--tw-border-style);
     border-width: 1px;
@@ -3281,13 +3547,19 @@
     --tw-shadow: 0 25px 50px -12px var(--tw-shadow-color, rgb(0 0 0 / 0.25));
     box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
   }
-  .student-modal::backdrop, .status-modal::backdrop {
+  .student-modal::backdrop,
+  .status-modal::backdrop {
     background-color: color-mix(in srgb, oklch(20.8% 0.042 265.755) 60%, transparent);
-    @supports (color: color-mix(in lab, red, red)) {
+  }
+  @supports (color: color-mix(in lab, red, red)) {
+    .student-modal::backdrop,
+  .status-modal::backdrop {
       background-color: color-mix(in oklab, var(--color-slate-900) 60%, transparent);
     }
+  }
+  .student-modal::backdrop,
+  .status-modal::backdrop {
     --tw-backdrop-blur: blur(3px);
-    -webkit-backdrop-filter: var(--tw-backdrop-blur,) var(--tw-backdrop-brightness,) var(--tw-backdrop-contrast,) var(--tw-backdrop-grayscale,) var(--tw-backdrop-hue-rotate,) var(--tw-backdrop-invert,) var(--tw-backdrop-opacity,) var(--tw-backdrop-saturate,) var(--tw-backdrop-sepia,);
     backdrop-filter: var(--tw-backdrop-blur,) var(--tw-backdrop-brightness,) var(--tw-backdrop-contrast,) var(--tw-backdrop-grayscale,) var(--tw-backdrop-hue-rotate,) var(--tw-backdrop-invert,) var(--tw-backdrop-opacity,) var(--tw-backdrop-saturate,) var(--tw-backdrop-sepia,);
   }
   .student-profile-modal {
@@ -3304,18 +3576,22 @@
     align-items: center;
     justify-content: center;
     background-color: color-mix(in srgb, oklch(20.8% 0.042 265.755) 60%, transparent);
-    @supports (color: color-mix(in lab, red, red)) {
+  }
+  @supports (color: color-mix(in lab, red, red)) {
+    .student-profile-modal:not(dialog) {
       background-color: color-mix(in oklab, var(--color-slate-900) 60%, transparent);
     }
+  }
+  .student-profile-modal:not(dialog) {
     padding: calc(var(--spacing) * 5);
     --tw-backdrop-blur: blur(3px);
-    -webkit-backdrop-filter: var(--tw-backdrop-blur,) var(--tw-backdrop-brightness,) var(--tw-backdrop-contrast,) var(--tw-backdrop-grayscale,) var(--tw-backdrop-hue-rotate,) var(--tw-backdrop-invert,) var(--tw-backdrop-opacity,) var(--tw-backdrop-saturate,) var(--tw-backdrop-sepia,);
     backdrop-filter: var(--tw-backdrop-blur,) var(--tw-backdrop-brightness,) var(--tw-backdrop-contrast,) var(--tw-backdrop-grayscale,) var(--tw-backdrop-hue-rotate,) var(--tw-backdrop-invert,) var(--tw-backdrop-opacity,) var(--tw-backdrop-saturate,) var(--tw-backdrop-sepia,);
   }
   .student-profile-modal:not(dialog).is-open {
     display: flex;
   }
-  .student-profile-modal:not(dialog) .modal-dialog, .student-profile-modal[open] {
+  .student-profile-modal:not(dialog) .modal-dialog,
+  .student-profile-modal[open] {
     max-height: calc(100vh - 2.5rem);
     width: 100%;
     max-width: calc(var(--spacing) * 190);
@@ -3332,6 +3608,7 @@
     position: fixed;
     inset: 0px;
     margin: auto;
+    height: -moz-fit-content;
     height: fit-content;
     padding: 0px;
   }
@@ -3358,14 +3635,19 @@
   }
   .student-profile-modal::backdrop {
     background-color: color-mix(in srgb, oklch(20.8% 0.042 265.755) 60%, transparent);
-    @supports (color: color-mix(in lab, red, red)) {
+  }
+  @supports (color: color-mix(in lab, red, red)) {
+    .student-profile-modal::backdrop {
       background-color: color-mix(in oklab, var(--color-slate-900) 60%, transparent);
     }
+  }
+  .student-profile-modal::backdrop {
     --tw-backdrop-blur: blur(3px);
-    -webkit-backdrop-filter: var(--tw-backdrop-blur,) var(--tw-backdrop-brightness,) var(--tw-backdrop-contrast,) var(--tw-backdrop-grayscale,) var(--tw-backdrop-hue-rotate,) var(--tw-backdrop-invert,) var(--tw-backdrop-opacity,) var(--tw-backdrop-saturate,) var(--tw-backdrop-sepia,);
     backdrop-filter: var(--tw-backdrop-blur,) var(--tw-backdrop-brightness,) var(--tw-backdrop-contrast,) var(--tw-backdrop-grayscale,) var(--tw-backdrop-hue-rotate,) var(--tw-backdrop-invert,) var(--tw-backdrop-opacity,) var(--tw-backdrop-saturate,) var(--tw-backdrop-sepia,);
   }
-  .student-profile-modal .modal-header, .student-profile-modal .modal-body, .student-profile-modal .modal-footer {
+  .student-profile-modal .modal-header,
+  .student-profile-modal .modal-body,
+  .student-profile-modal .modal-footer {
     padding-inline: calc(var(--spacing) * 5);
     padding-block: calc(var(--spacing) * 4);
   }
@@ -3376,9 +3658,13 @@
     border-bottom-style: var(--tw-border-style);
     border-bottom-width: 1px;
     --tw-gradient-position: to bottom right;
-    @supports (background-image: linear-gradient(in lab, red, red)) {
+  }
+  @supports (background-image: linear-gradient(in lab, red, red)) {
+    .student-profile-modal .modal-header {
       --tw-gradient-position: to bottom right in oklab;
     }
+  }
+  .student-profile-modal .modal-header {
     background-image: linear-gradient(var(--tw-gradient-stops));
     --tw-gradient-from: var(--profile-header-start);
     --tw-gradient-to: var(--color-white);
@@ -3450,7 +3736,8 @@
     gap: calc(var(--spacing) * 4);
     overflow-y: auto;
   }
-  .student-profile-modal .loading, .student-profile-modal .muted {
+  .student-profile-modal .loading,
+  .student-profile-modal .muted {
     font-size: var(--text-sm);
     line-height: var(--tw-leading, var(--text-sm--line-height));
     color: var(--color-slate-500);
@@ -3483,7 +3770,8 @@
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: calc(var(--spacing) * 2.5);
   }
-  .student-profile-modal .detail-grid > div, .student-profile-modal .detail-field {
+  .student-profile-modal .detail-grid > div,
+  .student-profile-modal .detail-field {
     display: flex;
     flex-direction: column;
     gap: var(--spacing);
@@ -3492,11 +3780,14 @@
     padding-inline: calc(var(--spacing) * 2.5);
     padding-block: calc(var(--spacing) * 2);
   }
-  .student-profile-modal .detail-grid span, .student-profile-modal .detail-field span, .student-profile-modal .detail-grid small {
+  .student-profile-modal .detail-grid span,
+  .student-profile-modal .detail-field span,
+  .student-profile-modal .detail-grid small {
     font-size: 11px;
     color: var(--color-slate-500);
   }
-  .student-profile-modal .detail-grid strong, .student-profile-modal .detail-field strong {
+  .student-profile-modal .detail-grid strong,
+  .student-profile-modal .detail-field strong {
     font-size: 13px;
     --tw-font-weight: var(--font-weight-bold);
     font-weight: var(--font-weight-bold);
@@ -3506,7 +3797,8 @@
     display: grid;
     gap: calc(var(--spacing) * 4);
   }
-  .student-profile-modal .detail-form input, .student-profile-modal .detail-form select {
+  .student-profile-modal .detail-form input,
+  .student-profile-modal .detail-form select {
     box-sizing: border-box;
     width: 100%;
     border-radius: var(--radius-md);
@@ -3523,7 +3815,9 @@
     grid-template-columns: repeat(2, minmax(0, 1fr));
     align-items: flex-end;
     gap: calc(var(--spacing) * 2);
-    @media (width >= 40rem) {
+  }
+  @media (min-width: 40rem) {
+    .student-profile-modal .repeat-row {
       grid-template-columns: 1fr 1.3fr 1fr auto;
     }
   }
@@ -3533,7 +3827,8 @@
     font-size: 11px;
     color: var(--color-slate-500);
   }
-  .student-profile-modal .repeat-row button, .student-profile-modal .add-row {
+  .student-profile-modal .repeat-row button,
+  .student-profile-modal .add-row {
     cursor: pointer;
     border-radius: var(--radius-md);
     border-style: var(--tw-border-style);
@@ -3560,7 +3855,9 @@
     border-top-width: 1px;
     border-color: var(--color-slate-200);
   }
-  .student-profile-modal .modal-footer .modal-button, .student-profile-modal .modal-footer .secondary-button, .student-profile-modal .modal-footer .btn-secondary {
+  .student-profile-modal .modal-footer .modal-button,
+  .student-profile-modal .modal-footer .secondary-button,
+  .student-profile-modal .modal-footer .btn-secondary {
     cursor: pointer;
     border-radius: var(--radius-md);
     border-style: var(--tw-border-style);
@@ -3568,14 +3865,18 @@
     padding-inline: calc(var(--spacing) * 4);
     padding-block: calc(var(--spacing) * 2);
   }
-  .student-profile-modal .modal-footer .modal-button.primary, .student-profile-modal .modal-footer .primary-button {
+  .student-profile-modal .modal-footer .modal-button.primary,
+  .student-profile-modal .modal-footer .primary-button {
     background: var(--profile-accent);
     color: var(--color-white);
   }
-  .student-profile-modal .modal-footer .modal-button.primary:hover, .student-profile-modal .modal-footer .primary-button:hover {
+  .student-profile-modal .modal-footer .modal-button.primary:hover,
+  .student-profile-modal .modal-footer .primary-button:hover {
     background: var(--profile-accent-strong);
   }
-  .student-profile-modal .modal-footer .modal-button.secondary, .student-profile-modal .modal-footer .secondary-button, .student-profile-modal .modal-footer .btn-secondary {
+  .student-profile-modal .modal-footer .modal-button.secondary,
+  .student-profile-modal .modal-footer .secondary-button,
+  .student-profile-modal .modal-footer .btn-secondary {
     background-color: var(--color-slate-200);
     color: var(--color-slate-700);
   }
@@ -3588,9 +3889,13 @@
     border-bottom-width: 1px;
     border-color: var(--color-slate-200);
     --tw-gradient-position: to bottom right;
-    @supports (background-image: linear-gradient(in lab, red, red)) {
+  }
+  @supports (background-image: linear-gradient(in lab, red, red)) {
+    .modal-header {
       --tw-gradient-position: to bottom right in oklab;
     }
+  }
+  .modal-header {
     background-image: linear-gradient(var(--tw-gradient-stops));
     --tw-gradient-from: var(--color-blue-50);
     --tw-gradient-to: var(--color-white);
@@ -3598,7 +3903,8 @@
     padding-inline: calc(var(--spacing) * 5);
     padding-block: calc(var(--spacing) * 4);
   }
-  .modal-header h2, .student-profile-modal h2 {
+  .modal-header h2,
+  .student-profile-modal h2 {
     margin-top: var(--spacing);
     font-size: var(--text-xl);
     line-height: var(--tw-leading, var(--text-xl--line-height));
@@ -3647,16 +3953,19 @@
     padding-inline: calc(var(--spacing) * 5);
     padding-block: calc(var(--spacing) * 4);
   }
-  .modal-button.primary, .student-profile-modal .primary-button {
+  .modal-button.primary,
+  .student-profile-modal .primary-button {
     background-color: var(--color-blue-600);
     color: var(--color-white);
-    &:hover {
-      @media (hover: hover) {
-        background-color: var(--color-blue-700);
-      }
+  }
+  @media (hover: hover) {
+    :is(.modal-button.primary,.student-profile-modal .primary-button):hover {
+      background-color: var(--color-blue-700);
     }
   }
-  .modal-button.secondary, .student-profile-modal .secondary-button, .student-profile-modal .btn-secondary {
+  .modal-button.secondary,
+  .student-profile-modal .secondary-button,
+  .student-profile-modal .btn-secondary {
     background-color: var(--color-slate-100);
     color: var(--color-slate-700);
   }
@@ -3667,9 +3976,9 @@
     border-width: 1px;
     border-color: var(--color-slate-200);
     padding: calc(var(--spacing) * 3.5);
-    &:last-child {
-      margin-bottom: 0px;
-    }
+  }
+  .detail-section:last-child {
+    margin-bottom: 0px;
   }
   .detail-section h3 {
     margin-bottom: calc(var(--spacing) * 3);
@@ -3683,7 +3992,9 @@
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: calc(var(--spacing) * 3);
-    @media (width < 700px) {
+  }
+  @media (max-width: 699.98px) {
+    .detail-grid {
       grid-template-columns: repeat(1, minmax(0, 1fr));
     }
   }
@@ -3704,7 +4015,8 @@
     display: grid;
     gap: calc(var(--spacing) * 4);
   }
-  .detail-form input, .detail-form select {
+  .detail-form input,
+  .detail-form select {
     box-sizing: border-box;
     width: 100%;
   }
@@ -3718,7 +4030,9 @@
     grid-template-columns: repeat(2, minmax(0, 1fr));
     align-items: flex-end;
     gap: calc(var(--spacing) * 2);
-    @media (width >= 40rem) {
+  }
+  @media (min-width: 40rem) {
+    .repeat-row {
       grid-template-columns: 1fr 1.3fr 1fr auto;
     }
   }
@@ -3728,7 +4042,8 @@
     font-size: 11px;
     color: var(--color-slate-500);
   }
-  .repeat-row button, .add-row {
+  .repeat-row button,
+  .add-row {
     cursor: pointer;
     border-radius: var(--radius-md);
     border-style: var(--tw-border-style);
@@ -3755,37 +4070,50 @@
     --tw-font-weight: var(--font-weight-bold);
     font-weight: var(--font-weight-bold);
     color: var(--color-blue-700);
-    &:hover {
-      @media (hover: hover) {
-        background-color: var(--color-blue-100);
-      }
+  }
+  @media (hover: hover) {
+    .add-row:hover {
+      background-color: var(--color-blue-100);
     }
   }
-  .attendance-toolbar, .discipline-toolbar {
+  .attendance-toolbar,
+  .discipline-toolbar {
     margin-block: calc(var(--spacing) * 5);
     display: grid;
     grid-template-columns: repeat(1, minmax(0, 1fr));
     align-items: flex-end;
     gap: calc(var(--spacing) * 3);
-    @media (width >= 40rem) {
+  }
+  @media (min-width: 40rem) {
+    .attendance-toolbar,
+  .discipline-toolbar {
       grid-template-columns: repeat(2, minmax(0, 1fr));
     }
-    @media (width >= 80rem) {
+  }
+  @media (min-width: 80rem) {
+    .attendance-toolbar,
+  .discipline-toolbar {
       grid-template-columns: minmax(220px,1fr) repeat(3,minmax(140px,190px));
     }
   }
-  .attendance-field, .discipline-field {
+  .attendance-field,
+  .discipline-field {
     display: grid;
     gap: calc(var(--spacing) * 1.5);
   }
-  .attendance-field label, .discipline-field label {
+  .attendance-field label,
+  .discipline-field label {
     font-size: var(--text-xs);
     line-height: var(--tw-leading, var(--text-xs--line-height));
     --tw-font-weight: var(--font-weight-bold);
     font-weight: var(--font-weight-bold);
     color: var(--color-slate-500);
   }
-  .attendance-field input, .attendance-field select, .discipline-field input, .discipline-field select, .discipline-input {
+  .attendance-field input,
+  .attendance-field select,
+  .discipline-field input,
+  .discipline-field select,
+  .discipline-input {
     box-sizing: border-box;
     width: 100%;
     border-radius: var(--radius-lg);
@@ -3797,7 +4125,8 @@
     padding-block: calc(var(--spacing) * 2.5);
     color: var(--color-slate-800);
   }
-  .attendance-summary, .discipline-summary {
+  .attendance-summary,
+  .discipline-summary {
     margin-bottom: calc(var(--spacing) * 4);
     display: flex;
     flex-direction: column;
@@ -3805,17 +4134,25 @@
     justify-content: space-between;
     gap: calc(var(--spacing) * 3.5);
     color: var(--color-slate-500);
-    @media (width >= 40rem) {
+  }
+  @media (min-width: 40rem) {
+    .attendance-summary,
+  .discipline-summary {
       flex-direction: row;
     }
-    @media (width >= 40rem) {
+  }
+  @media (min-width: 40rem) {
+    .attendance-summary,
+  .discipline-summary {
       align-items: center;
     }
   }
-  .attendance-summary strong, .discipline-summary strong {
+  .attendance-summary strong,
+  .discipline-summary strong {
     color: var(--color-slate-800);
   }
-  .attendance-table-wrap, .discipline-table-wrap {
+  .attendance-table-wrap,
+  .discipline-table-wrap {
     overflow-x: auto;
     border-radius: var(--radius-xl);
     border-style: var(--tw-border-style);
@@ -3825,7 +4162,8 @@
     --tw-shadow: 0 1px 3px 0 var(--tw-shadow-color, rgb(0 0 0 / 0.1)), 0 1px 2px -1px var(--tw-shadow-color, rgb(0 0 0 / 0.1));
     box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
   }
-  .attendance-table, .discipline-table {
+  .attendance-table,
+  .discipline-table {
     width: 100%;
     border-collapse: collapse;
   }
@@ -3835,23 +4173,33 @@
   .discipline-table {
     min-width: calc(var(--spacing) * 180);
   }
-  .attendance-table th, .attendance-table td, .discipline-table th, .discipline-table td {
+  .attendance-table th,
+  .attendance-table td,
+  .discipline-table th,
+  .discipline-table td {
     border-bottom-style: var(--tw-border-style);
     border-bottom-width: 1px;
     border-color: var(--color-slate-100);
     padding-inline: calc(var(--spacing) * 3.5);
     padding-block: calc(var(--spacing) * 3);
     text-align: left;
-    &:last-child {
-      border-style: var(--tw-border-style);
-      border-width: 0px;
-    }
   }
-  .attendance-table th, .discipline-table th {
+  :is(.attendance-table th,.attendance-table td,.discipline-table th,.discipline-table td):last-child {
+    border-style: var(--tw-border-style);
+    border-width: 0px;
+  }
+  .attendance-table th,
+  .discipline-table th {
     background-color: color-mix(in srgb, oklch(97% 0.014 254.604) 50%, transparent);
-    @supports (color: color-mix(in lab, red, red)) {
+  }
+  @supports (color: color-mix(in lab, red, red)) {
+    .attendance-table th,
+  .discipline-table th {
       background-color: color-mix(in oklab, var(--color-blue-50) 50%, transparent);
     }
+  }
+  .attendance-table th,
+  .discipline-table th {
     font-size: var(--text-xs);
     line-height: var(--tw-leading, var(--text-xs--line-height));
     --tw-font-weight: var(--font-weight-bold);
@@ -3861,7 +4209,10 @@
     color: var(--color-slate-500);
     text-transform: uppercase;
   }
-  .attendance-table th:first-child, .attendance-table td:first-child, .discipline-table th:first-child, .discipline-table td:first-child {
+  .attendance-table th:first-child,
+  .attendance-table td:first-child,
+  .discipline-table th:first-child,
+  .discipline-table td:first-child {
     width: calc(var(--spacing) * 14);
     text-align: center;
   }
@@ -3890,32 +4241,37 @@
     font-size: var(--text-sm);
     line-height: var(--tw-leading, var(--text-sm--line-height));
     color: var(--color-slate-600);
-    &:has(*:checked) {
-      border-color: var(--color-blue-600);
-    }
-    &:has(*:checked) {
-      background-color: var(--color-blue-50);
-    }
-    &:has(*:checked) {
-      --tw-font-weight: var(--font-weight-bold);
-      font-weight: var(--font-weight-bold);
-    }
-    &:has(*:checked) {
-      color: var(--color-blue-700);
-    }
+  }
+  :is(.attendance-options label):has(*:checked) {
+    border-color: var(--color-blue-600);
+  }
+  :is(.attendance-options label):has(*:checked) {
+    background-color: var(--color-blue-50);
+  }
+  :is(.attendance-options label):has(*:checked) {
+    --tw-font-weight: var(--font-weight-bold);
+    font-weight: var(--font-weight-bold);
+  }
+  :is(.attendance-options label):has(*:checked) {
+    color: var(--color-blue-700);
   }
   .attendance-options input {
     accent-color: var(--color-blue-600);
   }
-  .attendance-status, .discipline-status {
+  .attendance-status,
+  .discipline-status {
     --tw-font-weight: var(--font-weight-bold);
     font-weight: var(--font-weight-bold);
     color: var(--color-emerald-800);
   }
-  .attendance-status.inactive, .discipline-status.inactive {
+  .attendance-status.inactive,
+  .discipline-status.inactive {
     color: var(--color-amber-700);
   }
-  .attendance-save-button, .discipline-save-button, .attendance-print-button, .discipline-print-button {
+  .attendance-save-button,
+  .discipline-save-button,
+  .attendance-print-button,
+  .discipline-print-button {
     display: inline-flex;
     cursor: pointer;
     align-items: center;
@@ -3930,20 +4286,20 @@
     --tw-font-weight: var(--font-weight-bold);
     font-weight: var(--font-weight-bold);
     color: var(--color-white);
-    &:hover {
-      @media (hover: hover) {
-        background-color: var(--color-blue-700);
-      }
+  }
+  @media (hover: hover) {
+    :is(.attendance-save-button,.discipline-save-button,.attendance-print-button,.discipline-print-button):hover {
+      background-color: var(--color-blue-700);
     }
-    &:disabled {
-      cursor: not-allowed;
-    }
-    &:disabled {
-      background-color: var(--color-slate-400);
-    }
-    &:disabled {
-      opacity: 60%;
-    }
+  }
+  :is(.attendance-save-button,.discipline-save-button,.attendance-print-button,.discipline-print-button):disabled {
+    cursor: not-allowed;
+  }
+  :is(.attendance-save-button,.discipline-save-button,.attendance-print-button,.discipline-print-button):disabled {
+    background-color: var(--color-slate-400);
+  }
+  :is(.attendance-save-button,.discipline-save-button,.attendance-print-button,.discipline-print-button):disabled {
+    opacity: 60%;
   }
   .discipline-input {
     max-width: calc(var(--spacing) * 27.5);
@@ -3951,7 +4307,8 @@
     --tw-font-weight: var(--font-weight-bold);
     font-weight: var(--font-weight-bold);
   }
-  .attendance-print-modal, .discipline-print-modal {
+  .attendance-print-modal,
+  .discipline-print-modal {
     margin: auto;
     max-height: calc(100vh - 2.5rem);
     width: calc(100vw - 2rem);
@@ -3965,16 +4322,23 @@
     --tw-shadow: 0 25px 50px -12px var(--tw-shadow-color, rgb(0 0 0 / 0.25));
     box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
   }
-  .attendance-print-modal::backdrop, .discipline-print-modal::backdrop {
+  .attendance-print-modal::backdrop,
+  .discipline-print-modal::backdrop {
     background-color: color-mix(in srgb, oklch(20.8% 0.042 265.755) 60%, transparent);
-    @supports (color: color-mix(in lab, red, red)) {
+  }
+  @supports (color: color-mix(in lab, red, red)) {
+    .attendance-print-modal::backdrop,
+  .discipline-print-modal::backdrop {
       background-color: color-mix(in oklab, var(--color-slate-900) 60%, transparent);
     }
+  }
+  .attendance-print-modal::backdrop,
+  .discipline-print-modal::backdrop {
     --tw-backdrop-blur: blur(3px);
-    -webkit-backdrop-filter: var(--tw-backdrop-blur,) var(--tw-backdrop-brightness,) var(--tw-backdrop-contrast,) var(--tw-backdrop-grayscale,) var(--tw-backdrop-hue-rotate,) var(--tw-backdrop-invert,) var(--tw-backdrop-opacity,) var(--tw-backdrop-saturate,) var(--tw-backdrop-sepia,);
     backdrop-filter: var(--tw-backdrop-blur,) var(--tw-backdrop-brightness,) var(--tw-backdrop-contrast,) var(--tw-backdrop-grayscale,) var(--tw-backdrop-hue-rotate,) var(--tw-backdrop-invert,) var(--tw-backdrop-opacity,) var(--tw-backdrop-saturate,) var(--tw-backdrop-sepia,);
   }
-  .attendance-print-modal-heading, .discipline-print-modal-heading {
+  .attendance-print-modal-heading,
+  .discipline-print-modal-heading {
     display: flex;
     align-items: flex-start;
     justify-content: space-between;
@@ -3986,14 +4350,16 @@
     padding-top: calc(var(--spacing) * 5);
     padding-bottom: calc(var(--spacing) * 4);
   }
-  .attendance-print-modal-heading h2, .discipline-print-modal-heading h2 {
+  .attendance-print-modal-heading h2,
+  .discipline-print-modal-heading h2 {
     margin-top: var(--spacing);
     font-size: var(--text-xl);
     line-height: var(--tw-leading, var(--text-xl--line-height));
     --tw-font-weight: var(--font-weight-bold);
     font-weight: var(--font-weight-bold);
   }
-  .attendance-print-modal-close, .discipline-print-modal-close {
+  .attendance-print-modal-close,
+  .discipline-print-modal-close {
     cursor: pointer;
     border-style: var(--tw-border-style);
     border-width: 0px;
@@ -4003,13 +4369,14 @@
     --tw-leading: 1;
     line-height: 1;
     color: var(--color-slate-500);
-    &:hover {
-      @media (hover: hover) {
-        color: var(--color-slate-800);
-      }
+  }
+  @media (hover: hover) {
+    :is(.attendance-print-modal-close,.discipline-print-modal-close):hover {
+      color: var(--color-slate-800);
     }
   }
-  .attendance-print-modal-content, .discipline-print-modal-content {
+  .attendance-print-modal-content,
+  .discipline-print-modal-content {
     display: grid;
     gap: calc(var(--spacing) * 2);
     padding-inline: calc(var(--spacing) * 6);
@@ -4028,14 +4395,16 @@
     padding-block: calc(var(--spacing) * 2.5);
     color: var(--color-slate-800);
   }
-  .attendance-print-modal-content p, .discipline-print-modal-content p {
+  .attendance-print-modal-content p,
+  .discipline-print-modal-content p {
     margin: 0px;
     font-size: var(--text-sm);
     line-height: var(--tw-leading, var(--text-sm--line-height));
     --tw-leading: var(--leading-relaxed);
     line-height: var(--leading-relaxed);
   }
-  .attendance-print-modal-actions, .discipline-print-modal-actions {
+  .attendance-print-modal-actions,
+  .discipline-print-modal-actions {
     display: flex;
     justify-content: flex-end;
     gap: calc(var(--spacing) * 2.5);
@@ -4045,7 +4414,8 @@
     padding-inline: calc(var(--spacing) * 6);
     padding-block: calc(var(--spacing) * 4);
   }
-  .attendance-print-modal-actions button, .discipline-print-modal-actions button {
+  .attendance-print-modal-actions button,
+  .discipline-print-modal-actions button {
     display: inline-flex;
     min-height: calc(var(--spacing) * 10);
     cursor: pointer;
@@ -4060,26 +4430,29 @@
     --tw-font-weight: var(--font-weight-bold);
     font-weight: var(--font-weight-bold);
   }
-  .attendance-print-modal-cancel, .discipline-print-modal-cancel {
+  .attendance-print-modal-cancel,
+  .discipline-print-modal-cancel {
     background-color: var(--color-slate-100);
     color: var(--color-slate-700);
   }
-  .attendance-print-modal-confirm, .discipline-print-modal-confirm {
+  .attendance-print-modal-confirm,
+  .discipline-print-modal-confirm {
     background-color: var(--color-blue-600);
     color: var(--color-white);
-    &:hover {
-      @media (hover: hover) {
-        background-color: var(--color-blue-700);
-      }
-    }
-    &:disabled {
-      cursor: not-allowed;
-    }
-    &:disabled {
-      opacity: 60%;
+  }
+  @media (hover: hover) {
+    :is(.attendance-print-modal-confirm,.discipline-print-modal-confirm):hover {
+      background-color: var(--color-blue-700);
     }
   }
-  .attendance-empty, .discipline-empty {
+  :is(.attendance-print-modal-confirm,.discipline-print-modal-confirm):disabled {
+    cursor: not-allowed;
+  }
+  :is(.attendance-print-modal-confirm,.discipline-print-modal-confirm):disabled {
+    opacity: 60%;
+  }
+  .attendance-empty,
+  .discipline-empty {
     padding: calc(var(--spacing) * 8);
   }
   .attendance-notice {
@@ -4103,9 +4476,13 @@
     border-width: 1px;
     border-color: var(--color-blue-200);
     background-color: color-mix(in srgb, oklch(97% 0.014 254.604) 50%, transparent);
-    @supports (color: color-mix(in lab, red, red)) {
+  }
+  @supports (color: color-mix(in lab, red, red)) {
+    .qr-attendance-panel {
       background-color: color-mix(in oklab, var(--color-blue-50) 50%, transparent);
     }
+  }
+  .qr-attendance-panel {
     padding: calc(var(--spacing) * 5);
     --tw-shadow: 0 1px 3px 0 var(--tw-shadow-color, rgb(0 0 0 / 0.1)), 0 1px 2px -1px var(--tw-shadow-color, rgb(0 0 0 / 0.1));
     box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
@@ -4146,10 +4523,10 @@
     border-color: var(--color-blue-600);
     background-color: var(--color-white);
     color: var(--color-blue-700);
-    &:hover {
-      @media (hover: hover) {
-        background-color: var(--color-blue-50);
-      }
+  }
+  @media (hover: hover) {
+    .qr-view-button:hover {
+      background-color: var(--color-blue-50);
     }
   }
   .qr-panel-heading {
@@ -4158,10 +4535,14 @@
     flex-direction: column;
     justify-content: space-between;
     gap: calc(var(--spacing) * 4);
-    @media (width >= 40rem) {
+  }
+  @media (min-width: 40rem) {
+    .qr-panel-heading {
       flex-direction: row;
     }
-    @media (width >= 40rem) {
+  }
+  @media (min-width: 40rem) {
+    .qr-panel-heading {
       align-items: center;
     }
   }
@@ -4181,10 +4562,10 @@
   .qr-stop-button {
     align-self: flex-start;
     background-color: var(--color-slate-500);
-    &:hover {
-      @media (hover: hover) {
-        background-color: var(--color-slate-600);
-      }
+  }
+  @media (hover: hover) {
+    .qr-stop-button:hover {
+      background-color: var(--color-slate-600);
     }
   }
   .qr-scanner-layout {
@@ -4192,7 +4573,9 @@
     grid-template-columns: repeat(1, minmax(0, 1fr));
     align-items: center;
     gap: calc(var(--spacing) * 4);
-    @media (width >= 40rem) {
+  }
+  @media (min-width: 40rem) {
+    .qr-scanner-layout {
       grid-template-columns: minmax(280px,420px) 1fr;
     }
   }
@@ -4249,23 +4632,34 @@
   .qr-toast.error {
     background-color: var(--color-red-700);
   }
-  .attendance-print-body, .discipline-print-body, .exam-print-body {
+  .attendance-print-body,
+  .discipline-print-body,
+  .exam-print-body {
     margin: 0px;
   }
-  .attendance-print-watermark, .discipline-print-watermark, .exam-print-watermark, .score-print-watermark {
+  .attendance-print-watermark,
+  .discipline-print-watermark,
+  .exam-print-watermark,
+  .score-print-watermark {
     display: none;
   }
-  .attendance-print-document, .discipline-print-document, .exam-print-document {
+  .attendance-print-document,
+  .discipline-print-document,
+  .exam-print-document {
     font-family: Arial,sans-serif;
     color: var(--color-gray-900);
   }
-  .attendance-print-parish, .discipline-print-parish, .exam-print-parish {
+  .attendance-print-parish,
+  .discipline-print-parish,
+  .exam-print-parish {
     margin-bottom: calc(var(--spacing) * 3);
     font-size: 10pt;
     --tw-font-weight: var(--font-weight-bold);
     font-weight: var(--font-weight-bold);
   }
-  .attendance-print-document h1, .discipline-print-document h1, .exam-print-document h1 {
+  .attendance-print-document h1,
+  .discipline-print-document h1,
+  .exam-print-document h1 {
     margin-bottom: calc(var(--spacing) * 3);
     text-align: center;
     font-size: 14pt;
@@ -4274,13 +4668,20 @@
     margin-bottom: calc(var(--spacing) * 3.5);
     font-size: 9pt;
   }
-  .attendance-print-table, .discipline-print-table, .exam-print-table {
+  .attendance-print-table,
+  .discipline-print-table,
+  .exam-print-table {
     width: 100%;
     table-layout: fixed;
     border-collapse: collapse;
     font-size: 7pt;
   }
-  .attendance-print-table th, .attendance-print-table td, .discipline-print-table th, .discipline-print-table td, .exam-print-table th, .exam-print-table td {
+  .attendance-print-table th,
+  .attendance-print-table td,
+  .discipline-print-table th,
+  .discipline-print-table td,
+  .exam-print-table th,
+  .exam-print-table td {
     border-style: var(--tw-border-style);
     border-width: 1px;
     border-color: var(--color-slate-700);
@@ -4289,57 +4690,82 @@
     text-align: center;
     overflow-wrap: break-word;
   }
-  .attendance-print-table th, .discipline-print-table th, .exam-print-table th {
+  .attendance-print-table th,
+  .discipline-print-table th,
+  .exam-print-table th {
     background-color: var(--color-slate-100);
     --tw-font-weight: var(--font-weight-bold);
     font-weight: var(--font-weight-bold);
   }
-  .attendance-print-table tbody td:nth-child(3), .attendance-print-table tbody td:nth-child(4), .attendance-print-table tbody td:nth-child(5), .discipline-print-table tbody td:nth-child(3), .discipline-print-table tbody td:nth-child(4), .discipline-print-table tbody td:nth-child(5), .exam-print-table tbody td:nth-child(3), .exam-print-table tbody td:nth-child(4), .exam-print-table tbody td:nth-child(5) {
+  .attendance-print-table tbody td:nth-child(3),
+  .attendance-print-table tbody td:nth-child(4),
+  .attendance-print-table tbody td:nth-child(5),
+  .discipline-print-table tbody td:nth-child(3),
+  .discipline-print-table tbody td:nth-child(4),
+  .discipline-print-table tbody td:nth-child(5),
+  .exam-print-table tbody td:nth-child(3),
+  .exam-print-table tbody td:nth-child(4),
+  .exam-print-table tbody td:nth-child(5) {
     text-align: left;
   }
-  .attendance-print-table th:nth-child(1), .attendance-print-table td:nth-child(1) {
+  .attendance-print-table th:nth-child(1),
+  .attendance-print-table td:nth-child(1) {
     width: 7mm;
   }
-  .discipline-print-table th:nth-child(1), .discipline-print-table td:nth-child(1) {
+  .discipline-print-table th:nth-child(1),
+  .discipline-print-table td:nth-child(1) {
     width: 8mm;
   }
-  .exam-print-table th:nth-child(1), .exam-print-table td:nth-child(1) {
+  .exam-print-table th:nth-child(1),
+  .exam-print-table td:nth-child(1) {
     width: 8mm;
   }
-  .attendance-print-table th:nth-child(2), .attendance-print-table td:nth-child(2) {
+  .attendance-print-table th:nth-child(2),
+  .attendance-print-table td:nth-child(2) {
     width: 16mm;
   }
-  .discipline-print-table th:nth-child(2), .discipline-print-table td:nth-child(2) {
+  .discipline-print-table th:nth-child(2),
+  .discipline-print-table td:nth-child(2) {
     width: 15mm;
   }
-  .exam-print-table th:nth-child(2), .exam-print-table td:nth-child(2) {
+  .exam-print-table th:nth-child(2),
+  .exam-print-table td:nth-child(2) {
     width: 15mm;
   }
-  .attendance-print-table th:nth-child(3), .attendance-print-table td:nth-child(3) {
+  .attendance-print-table th:nth-child(3),
+  .attendance-print-table td:nth-child(3) {
     width: 21mm;
   }
-  .discipline-print-table th:nth-child(3), .discipline-print-table td:nth-child(3) {
+  .discipline-print-table th:nth-child(3),
+  .discipline-print-table td:nth-child(3) {
     width: 20mm;
   }
-  .exam-print-table th:nth-child(3), .exam-print-table td:nth-child(3) {
+  .exam-print-table th:nth-child(3),
+  .exam-print-table td:nth-child(3) {
     width: 20mm;
   }
-  .attendance-print-table th:nth-child(4), .attendance-print-table td:nth-child(4) {
+  .attendance-print-table th:nth-child(4),
+  .attendance-print-table td:nth-child(4) {
     width: 31mm;
   }
-  .discipline-print-table th:nth-child(4), .discipline-print-table td:nth-child(4) {
+  .discipline-print-table th:nth-child(4),
+  .discipline-print-table td:nth-child(4) {
     width: 28mm;
   }
-  .exam-print-table th:nth-child(4), .exam-print-table td:nth-child(4) {
+  .exam-print-table th:nth-child(4),
+  .exam-print-table td:nth-child(4) {
     width: 32mm;
   }
-  .attendance-print-table th:nth-child(5), .attendance-print-table td:nth-child(5) {
+  .attendance-print-table th:nth-child(5),
+  .attendance-print-table td:nth-child(5) {
     width: 18mm;
   }
-  .discipline-print-table th:nth-child(5), .discipline-print-table td:nth-child(5) {
+  .discipline-print-table th:nth-child(5),
+  .discipline-print-table td:nth-child(5) {
     width: 14mm;
   }
-  .exam-print-table th:nth-child(5), .exam-print-table td:nth-child(5) {
+  .exam-print-table th:nth-child(5),
+  .exam-print-table td:nth-child(5) {
     width: 14mm;
   }
   .discipline-print-document {
@@ -4375,7 +4801,8 @@
     font-size: 10pt;
     font-family: "Roboto Condensed Local", "Roboto Local", Arial, sans-serif;
   }
-  .score-print-table th, .score-print-table td {
+  .score-print-table th,
+  .score-print-table td {
     border-style: var(--tw-border-style);
     border-width: 1px;
     border-color: var(--color-gray-800);
@@ -4407,7 +4834,9 @@
   .score-print-class-table th:nth-child(n + 6) {
     width: 10%;
   }
-  .score-print-class-table th:nth-child(n + 2):nth-child(-n + 5), .score-print-class-table td:nth-child(n + 2):nth-child(-n + 5), .score-print-personal-summary td:nth-child(-n + 4) {
+  .score-print-class-table th:nth-child(n + 2):nth-child(-n + 5),
+  .score-print-class-table td:nth-child(n + 2):nth-child(-n + 5),
+  .score-print-personal-summary td:nth-child(-n + 4) {
     text-align: left;
   }
   .score-print-personal-summary th:nth-child(1) {
@@ -4482,7 +4911,8 @@
   .student-table td:first-child {
     grid-column: 1 / -1;
   }
-  .student-table td.student-status, .student-table td.student-actions {
+  .student-table td.student-status,
+  .student-table td.student-actions {
     grid-column: 1 / -1;
   }
   .student-table td.student-actions {
@@ -4492,7 +4922,8 @@
   .student-table td.student-actions::before {
     display: none;
   }
-  .student-actions .detail-button, .student-actions .status-button {
+  .student-actions .detail-button,
+  .student-actions .status-button {
     min-width: 0;
     min-height: 42px;
     width: 100%;
@@ -4502,15 +4933,18 @@
     text-align: center;
     white-space: normal;
   }
-  #score-page .student-table th, #score-page .student-table td {
+  #score-page .student-table th,
+  #score-page .student-table td {
     padding: 10px 8px;
   }
-  #score-page .student-table th:nth-child(2), #score-page .student-table td:nth-child(2) {
+  #score-page .student-table th:nth-child(2),
+  #score-page .student-table td:nth-child(2) {
     display: none;
   }
 }
 @media (max-width: 800px) {
-  .attendance-toolbar, .discipline-toolbar {
+  .attendance-toolbar,
+  .discipline-toolbar {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
   .attendance-options {
@@ -4518,12 +4952,15 @@
     flex-direction: column;
     align-items: stretch;
   }
-  .attendance-summary, .discipline-summary {
+  .attendance-summary,
+  .discipline-summary {
     align-items: flex-start;
   }
 }
 @media (max-width: 600px) {
-  .attendance-table-wrap, .discipline-table-wrap, #score-page .table-wrap {
+  .attendance-table-wrap,
+  .discipline-table-wrap,
+  #score-page .table-wrap {
     overflow: visible;
     border-style: var(--tw-border-style);
     border-width: 0px;
@@ -4531,31 +4968,49 @@
     --tw-shadow: 0 0 #0000;
     box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
   }
-  .attendance-table, .discipline-table, #score-page .score-table {
+  .attendance-table,
+  .discipline-table,
+  #score-page .score-table {
     display: block;
     min-width: 0;
   }
-  .attendance-table thead, .discipline-table thead, #score-page .score-table thead {
+  .attendance-table thead,
+  .discipline-table thead,
+  #score-page .score-table thead {
     display: none;
   }
-  .attendance-table tbody, .attendance-table tr, .attendance-table td, .discipline-table tbody, .discipline-table tr, .discipline-table td, #score-page .score-table tbody, #score-page .score-table tr, #score-page .score-table td {
+  .attendance-table tbody,
+  .attendance-table tr,
+  .attendance-table td,
+  .discipline-table tbody,
+  .discipline-table tr,
+  .discipline-table td,
+  #score-page .score-table tbody,
+  #score-page .score-table tr,
+  #score-page .score-table td {
     display: block;
     width: 100%;
     box-sizing: border-box;
   }
-  .attendance-table tr, .discipline-table tr, #score-page .score-table tr {
+  .attendance-table tr,
+  .discipline-table tr,
+  #score-page .score-table tr {
     margin-bottom: 12px;
     border: 1px solid #dbe5f0;
     border-radius: 8px;
     background: white;
     padding: 12px;
   }
-  .attendance-table td, .discipline-table td, #score-page .score-table td {
+  .attendance-table td,
+  .discipline-table td,
+  #score-page .score-table td {
     border: 0;
     padding: 4px 0;
     white-space: normal;
   }
-  .attendance-table td:first-child, .discipline-table td:first-child, #score-page .score-table td:first-child {
+  .attendance-table td:first-child,
+  .discipline-table td:first-child,
+  #score-page .score-table td:first-child {
     display: none;
   }
   .attendance-table td:nth-child(2)::before {
@@ -4597,11 +5052,15 @@
   #score-page .score-table td:nth-child(8)::before {
     content: "Tình trạng: ";
   }
-  .attendance-table td::before, .discipline-table td::before, #score-page .score-table td::before {
+  .attendance-table td::before,
+  .discipline-table td::before,
+  #score-page .score-table td::before {
     color: #64748b;
     font-size: .76rem;
   }
-  .attendance-table td:last-child, .discipline-table td:last-child, #score-page .score-table td:last-child {
+  .attendance-table td:last-child,
+  .discipline-table td:last-child,
+  #score-page .score-table td:last-child {
     padding-top: 8px;
   }
   .attendance-options {
@@ -4616,7 +5075,8 @@
     min-height: 42px;
     font-size: 1rem;
   }
-  #score-page .result-select, #score-page .status-save-button {
+  #score-page .result-select,
+  #score-page .status-save-button {
     min-height: 40px;
     width: 100%;
   }
@@ -4628,7 +5088,8 @@
   .student-profile-modal:not(dialog) {
     padding: calc(var(--spacing) * 3);
   }
-  .student-profile-modal:not(dialog) .modal-dialog, .student-profile-modal[open] {
+  .student-profile-modal:not(dialog) .modal-dialog,
+  .student-profile-modal[open] {
     max-height: calc(100vh - 24px);
   }
   .student-profile-modal .detail-grid {
@@ -4662,7 +5123,9 @@
     size: A4 portrait;
     margin: 20mm;
   }
-  .attendance-print-document, .discipline-print-document, .exam-print-document {
+  .attendance-print-document,
+  .discipline-print-document,
+  .exam-print-document {
     position: relative;
     isolation: isolate;
     width: 100%;
@@ -4680,11 +5143,13 @@
     page: score;
     position: relative;
     z-index: 2;
-    break-after: page;
+    -moz-column-break-after: page;
+         break-after: page;
     page-break-after: always;
   }
   .score-print-page:last-child {
-    break-after: auto;
+    -moz-column-break-after: auto;
+         break-after: auto;
     page-break-after: auto;
   }
   .score-print-page + .score-print-page {
@@ -4692,7 +5157,10 @@
     padding-top: 0;
     border-top: 0;
   }
-  .attendance-print-watermark, .discipline-print-watermark, .exam-print-watermark, .score-print-watermark {
+  .attendance-print-watermark,
+  .discipline-print-watermark,
+  .exam-print-watermark,
+  .score-print-watermark {
     position: fixed;
     z-index: 1;
     top: 50%;
@@ -4701,19 +5169,29 @@
     width: 90mm;
     height: 90mm;
     margin: -45mm 0 0 -45mm;
-    object-fit: contain;
+    -o-object-fit: contain;
+       object-fit: contain;
     opacity: .2;
     pointer-events: none;
   }
-  .attendance-print-document > :not(.attendance-print-watermark), .discipline-print-document > :not(.discipline-print-watermark), .exam-print-document > :not(.exam-print-watermark) {
+  .attendance-print-document > :not(.attendance-print-watermark),
+  .discipline-print-document > :not(.discipline-print-watermark),
+  .exam-print-document > :not(.exam-print-watermark) {
     position: relative;
     z-index: 2;
   }
-  .attendance-print-table thead, .discipline-print-table thead, .exam-print-table thead, .score-print-table thead {
+  .attendance-print-table thead,
+  .discipline-print-table thead,
+  .exam-print-table thead,
+  .score-print-table thead {
     display: table-header-group;
   }
-  .attendance-print-table tr, .discipline-print-table tr, .exam-print-table tr, .score-print-table tr {
-    break-inside: avoid;
+  .attendance-print-table tr,
+  .discipline-print-table tr,
+  .exam-print-table tr,
+  .score-print-table tr {
+    -moz-column-break-inside: avoid;
+         break-inside: avoid;
     page-break-inside: avoid;
   }
 }
@@ -4765,7 +5243,8 @@
     width: 100%;
     border-collapse: collapse;
   }
-  #score-page .student-table th, #score-page .student-table td {
+  #score-page .student-table th,
+  #score-page .student-table td {
     border-bottom-style: var(--tw-border-style);
     border-bottom-width: 1px;
     border-color: var(--color-slate-100);
@@ -4775,9 +5254,13 @@
   }
   #score-page .student-table th {
     background-color: color-mix(in srgb, oklch(97% 0.014 254.604) 50%, transparent);
-    @supports (color: color-mix(in lab, red, red)) {
+  }
+  @supports (color: color-mix(in lab, red, red)) {
+    #score-page .student-table th {
       background-color: color-mix(in oklab, var(--color-blue-50) 50%, transparent);
     }
+  }
+  #score-page .student-table th {
     font-size: var(--text-xs);
     line-height: var(--tw-leading, var(--text-xs--line-height));
     --tw-tracking: var(--tracking-wide);
@@ -4805,17 +5288,17 @@
     --tw-font-weight: var(--font-weight-bold);
     font-weight: var(--font-weight-bold);
     color: var(--color-white);
-    &:hover {
-      @media (hover: hover) {
-        background-color: var(--color-blue-700);
-      }
+  }
+  @media (hover: hover) {
+    :is(#score-page .status-save-button):hover {
+      background-color: var(--color-blue-700);
     }
-    &:disabled {
-      cursor: wait;
-    }
-    &:disabled {
-      opacity: 60%;
-    }
+  }
+  :is(#score-page .status-save-button):disabled {
+    cursor: wait;
+  }
+  :is(#score-page .status-save-button):disabled {
+    opacity: 60%;
   }
   #score-page .result-select {
     border-radius: var(--radius-md);
@@ -4859,11 +5342,14 @@
   }
   #score-page .score-print-modal::backdrop {
     background-color: color-mix(in srgb, oklch(20.8% 0.042 265.755) 60%, transparent);
-    @supports (color: color-mix(in lab, red, red)) {
+  }
+  @supports (color: color-mix(in lab, red, red)) {
+    #score-page .score-print-modal::backdrop {
       background-color: color-mix(in oklab, var(--color-slate-900) 60%, transparent);
     }
+  }
+  #score-page .score-print-modal::backdrop {
     --tw-backdrop-blur: blur(3px);
-    -webkit-backdrop-filter: var(--tw-backdrop-blur,) var(--tw-backdrop-brightness,) var(--tw-backdrop-contrast,) var(--tw-backdrop-grayscale,) var(--tw-backdrop-hue-rotate,) var(--tw-backdrop-invert,) var(--tw-backdrop-opacity,) var(--tw-backdrop-saturate,) var(--tw-backdrop-sepia,);
     backdrop-filter: var(--tw-backdrop-blur,) var(--tw-backdrop-brightness,) var(--tw-backdrop-contrast,) var(--tw-backdrop-grayscale,) var(--tw-backdrop-hue-rotate,) var(--tw-backdrop-invert,) var(--tw-backdrop-opacity,) var(--tw-backdrop-saturate,) var(--tw-backdrop-sepia,);
   }
   #score-page .score-print-heading {
@@ -4959,18 +5445,20 @@
     padding-block: calc(var(--spacing) * 2.5);
     text-align: left;
     color: var(--color-slate-800);
-    &:focus {
-      border-color: var(--color-blue-600);
-    }
-    &:focus {
-      outline-style: var(--tw-outline-style);
-      outline-width: 2px;
-    }
-    &:focus {
-      outline-color: color-mix(in srgb, oklch(54.6% 0.245 262.881) 20%, transparent);
-      @supports (color: color-mix(in lab, red, red)) {
-        outline-color: color-mix(in oklab, var(--color-blue-600) 20%, transparent);
-      }
+  }
+  :is(#score-page .score-student-multiselect-toggle):focus {
+    border-color: var(--color-blue-600);
+  }
+  :is(#score-page .score-student-multiselect-toggle):focus {
+    outline-style: var(--tw-outline-style);
+    outline-width: 2px;
+  }
+  :is(#score-page .score-student-multiselect-toggle):focus {
+    outline-color: color-mix(in srgb, oklch(54.6% 0.245 262.881) 20%, transparent);
+  }
+  @supports (color: color-mix(in lab, red, red)) {
+    :is(#score-page .score-student-multiselect-toggle):focus {
+      outline-color: color-mix(in oklab, var(--color-blue-600) 20%, transparent);
     }
   }
   #score-page .score-student-multiselect-options {
@@ -5002,18 +5490,20 @@
     background-color: var(--color-white);
     padding-inline: calc(var(--spacing) * 2.5);
     padding-block: calc(var(--spacing) * 2);
-    &:focus {
-      border-color: var(--color-blue-600);
-    }
-    &:focus {
-      outline-style: var(--tw-outline-style);
-      outline-width: 2px;
-    }
-    &:focus {
-      outline-color: color-mix(in srgb, oklch(54.6% 0.245 262.881) 20%, transparent);
-      @supports (color: color-mix(in lab, red, red)) {
-        outline-color: color-mix(in oklab, var(--color-blue-600) 20%, transparent);
-      }
+  }
+  :is(#score-page .score-student-search):focus {
+    border-color: var(--color-blue-600);
+  }
+  :is(#score-page .score-student-search):focus {
+    outline-style: var(--tw-outline-style);
+    outline-width: 2px;
+  }
+  :is(#score-page .score-student-search):focus {
+    outline-color: color-mix(in srgb, oklch(54.6% 0.245 262.881) 20%, transparent);
+  }
+  @supports (color: color-mix(in lab, red, red)) {
+    :is(#score-page .score-student-search):focus {
+      outline-color: color-mix(in oklab, var(--color-blue-600) 20%, transparent);
     }
   }
   #score-page .score-student-option {
@@ -5025,10 +5515,10 @@
     padding-inline: calc(var(--spacing) * 2);
     padding-block: calc(var(--spacing) * 2);
     color: var(--color-slate-800);
-    &:hover {
-      @media (hover: hover) {
-        background-color: var(--color-slate-100);
-      }
+  }
+  @media (hover: hover) {
+    :is(#score-page .score-student-option):hover {
+      background-color: var(--color-slate-100);
     }
   }
   #score-page .score-student-option input {
@@ -5037,7 +5527,8 @@
     width: calc(var(--spacing) * 4);
     accent-color: var(--color-blue-600);
   }
-  #score-page .score-student-option[hidden], #score-page .score-student-no-results[hidden] {
+  #score-page .score-student-option[hidden],
+  #score-page .score-student-no-results[hidden] {
     display: none;
   }
   #score-page .score-student-no-results {
@@ -5083,10 +5574,10 @@
   #score-page .score-print-confirm {
     background-color: var(--color-blue-600);
     color: var(--color-white);
-    &:hover {
-      @media (hover: hover) {
-        background-color: var(--color-blue-700);
-      }
+  }
+  @media (hover: hover) {
+    :is(#score-page .score-print-confirm):hover {
+      background-color: var(--color-blue-700);
     }
   }
   .score-print-page + .score-print-page {
@@ -5116,10 +5607,13 @@
   .shared-pagination[hidden] {
     display: none;
   }
-  .pagination-page-hidden, .pagination-filter-hidden {
+  .pagination-page-hidden,
+  .pagination-filter-hidden {
     display: none !important;
   }
-  .pagination-desktop, .pagination-mobile, .pagination-info {
+  .pagination-desktop,
+  .pagination-mobile,
+  .pagination-info {
     display: flex;
     align-items: center;
     gap: calc(var(--spacing) * 1.5);
@@ -5148,7 +5642,8 @@
     color: var(--color-slate-800);
     font: inherit;
   }
-  .pagination-desktop button, .pagination-mobile button {
+  .pagination-desktop button,
+  .pagination-mobile button {
     min-height: calc(var(--spacing) * 10);
     min-width: calc(var(--spacing) * 10);
     cursor: pointer;
@@ -5160,15 +5655,19 @@
     padding-inline: calc(var(--spacing) * 3);
     padding-block: calc(var(--spacing) * 1.5);
     color: var(--color-slate-800);
-    &:disabled {
-      cursor: not-allowed;
-    }
-    &:disabled {
-      opacity: 45%;
-    }
+  }
+  :is(.pagination-desktop button,.pagination-mobile button):disabled {
+    cursor: not-allowed;
+  }
+  :is(.pagination-desktop button,.pagination-mobile button):disabled {
+    opacity: 45%;
+  }
+  .pagination-desktop button,
+  .pagination-mobile button {
     font: inherit;
   }
-  .pagination-desktop button:hover:not(:disabled), .pagination-mobile button:hover:not(:disabled) {
+  .pagination-desktop button:hover:not(:disabled),
+  .pagination-mobile button:hover:not(:disabled) {
     background-color: var(--primary-30-light, #f1f5f9);
   }
   .pagination-desktop button[aria-current="page"] {
@@ -5214,7 +5713,8 @@
   .pagination-summary {
     text-align: center;
   }
-  .pagination-desktop, .pagination-size-control {
+  .pagination-desktop,
+  .pagination-size-control {
     display: none;
   }
   .pagination-mobile {
@@ -5277,7 +5777,8 @@
     background: #e2e8f0;
     color: #0f172a;
   }
-  .desktop-switch-buttons .switch-btn.is-current, .desktop-switch-buttons .switch-btn.is-current:hover {
+  .desktop-switch-buttons .switch-btn.is-current,
+  .desktop-switch-buttons .switch-btn.is-current:hover {
     border-color: var(--role-switch-border, #dbeafe);
     background: var(--role-switch-background, #fff);
     color: var(--role-switch-color, #1d4ed8);

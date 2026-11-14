@@ -5,7 +5,7 @@
   "main": "app.js",
   "scripts": {
     "start": "node app.js",
-    "build:css": "npx @tailwindcss/cli -i ./public/css/input.css -o ./public/css/output.css --watch"
+    "build:css": "postcss ./public/css/input.css --output ./public/css/output.css --watch"
   },
   "keywords": [],
   "author": "",
@@ -35,6 +35,9 @@
   },
   "devDependencies": {
     "@playwright/test": "^1.65.1",
-    "@types/node": "^26.6.6"
+    "@tailwindcss/postcss": "^4.3.3",
+    "@types/node": "^26.6.6",
+    "postcss-cli": "^12.0.0",
+    "postcss-preset-env": "^11.6.2"
   }
 }
