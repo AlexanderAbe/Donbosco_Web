@@ -212,13 +212,14 @@ const DiemDanhController = {
         }
     },
 
-    async saveDiemDanh(req, res, unmarkedStatus = 'Có mặt') {
+    async saveQrDiemDanh(req, res) {
         const idGlv = req.session.user?.id_glv;
         const yearId = getId(req.body.nien_khoa);
         const classId = getId(req.body.id_lop);
         const sessionType = req.body.loai_buoi;
         const attendanceDate = req.body.ngay_diem_danh;
         const attendance = Array.isArray(req.body.attendance) ? req.body.attendance : [];
+        const unmarkedStatus = 'Vắng không phép';
 
         try {
             if (isFutureDate(attendanceDate)) {
@@ -247,16 +248,16 @@ const DiemDanhController = {
 
             const query = new URLSearchParams({
                 nien_khoa: yearId, id_lop: classId, loai_buoi: sessionType,
-                ngay_diem_danh: attendanceDate, message: 'Đã lưu điểm danh.'
+                ngay_diem_danh: attendanceDate, message: 'Đã lưu điểm danh QR.'
             });
             return res.redirect(`/glv/diem-danh?${query.toString()}`);
         } catch (error) {
-            console.error('Lỗi lưu điểm danh GLV:', error);
+            console.error('Lỗi lưu điểm danh QR GLV:', error);
             const errMessage = error.message || 'Không thể lưu điểm danh.';
 
             await logAction(
                 req,
-                `Lưu điểm danh thất bại cho Lớp ID: ${classId} (Ngày: ${attendanceDate}, Buổi: ${sessionType}): ${errMessage}`,
+                `Lưu điểm danh QR thất bại cho Lớp ID: ${classId} (Ngày: ${attendanceDate}, Buổi: ${sessionType}): ${errMessage}`,
                 'Thất bại'
             );
 
@@ -266,10 +267,6 @@ const DiemDanhController = {
             });
             return res.redirect(`/glv/diem-danh?${query.toString()}`);
         }
-    },
-
-    async saveQrDiemDanh(req, res) {
-        return DiemDanhController.saveDiemDanh(req, res, 'Vắng không phép');
     },
 
     async saveAttendanceEntry(req, res) {

@@ -3,6 +3,18 @@ const { logAction } = require('../../utils/logger');
 const { broadcastBangDiemRefresh } = require('../../utils/bang-diem-realtime');
 const { getCaDoanBaseData } = require('../../utils/base-data-helper');
 
+const broadcastAttendanceUpdate = (req, yearId, student, attendanceDate, sessionType) => {
+    const io = req.app.get('io');
+    if (!io || !student.id_lop) return;
+
+    io.to(`attendance_${yearId}_${student.id_lop}_${attendanceDate}_${encodeURIComponent(sessionType)}`)
+        .emit('attendance_entry_updated', {
+            studentId: student.id_tn,
+            status: student.trang_thai_diem_danh,
+            saved: true
+        });
+};
+
 const getPositiveInt = value => {
     const id = Number(value);
     return Number.isSafeInteger(id) && id > 0 ? id : null;
@@ -121,6 +133,7 @@ const AttendanceController = {
                 idTk: req.session.user.id_tk
             });
             broadcastBangDiemRefresh(req, yearId);
+            broadcastAttendanceUpdate(req, yearId, student, attendanceDate, sessionType);
             return res.json({
                 success: true,
                 studentId: student.id_tn,
@@ -160,6 +173,7 @@ const AttendanceController = {
                 idTk: req.session.user.id_tk
             });
             broadcastBangDiemRefresh(req, yearId);
+            broadcastAttendanceUpdate(req, yearId, student, attendanceDate, sessionType);
             return res.json({
                 success: true,
                 studentId: student.id_tn,

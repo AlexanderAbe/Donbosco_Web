@@ -50,7 +50,6 @@ router.post('/ky-luat/entry-save', kyLuatController.saveDisciplineScoreEntry);
 router.get('/diem-danh', diemDanhController.getDiemDanh);
 router.get('/diem-danh/qr', diemDanhController.getQrDiemDanh);
 router.post('/diem-danh/print-data', diemDanhController.getMonthlyAttendanceForPrint);
-router.post('/diem-danh/save', diemDanhController.saveDiemDanh);
 router.post('/diem-danh/qr/save', diemDanhController.saveQrDiemDanh);
 router.post('/diem-danh/entry-save', diemDanhController.saveAttendanceEntry);
 router.post('/diem-danh/scan', diemDanhController.scanDiemDanh);

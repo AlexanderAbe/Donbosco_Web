@@ -167,17 +167,13 @@
 
         </form>
 
-        <form method="POST" action="/glv/diem-danh/save" id="attendance-save-form"
+        <form id="attendance-save-form"
             class="flex flex-col gap-6 flex-1"
             data-save-url="/glv/diem-danh/entry-save"
             data-year-id="<%= selectedYearId %>"
             data-class-id="<%= selectedClassId %>"
             data-session-type="<%= sessionType %>"
             data-attendance-date="<%= selectedDate %>">
-            <input type="hidden" name="nien_khoa" value="<%= selectedYearId %>">
-            <input type="hidden" name="id_lop" value="<%= selectedClassId %>">
-            <input type="hidden" name="loai_buoi" value="<%= sessionType %>">
-            <input type="hidden" name="ngay_diem_danh" value="<%= selectedDate %>">
             
             <% if (!students.length) { %>
                 <div class="rounded-2xl border border-dashed border-slate-300 bg-white p-8 text-center text-slate-500"><i class="fa-solid text-slate-400"></i> Lớp chưa có thiếu nhi đang học.</div>

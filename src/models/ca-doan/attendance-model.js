@@ -34,6 +34,7 @@ const AttendanceModel = {
                 tn.id_tn,
                 tn.mstn,
                 CONCAT_WS(' ', tn.ten_thanh, tn.ho_va_ten_lot, tn.ten) AS ho_ten,
+                pl.id_lop,
                 l.ten_lop,
                 dd.trang_thai AS trang_thai_diem_danh,
                 (dd.id_diem_danh IS NOT NULL) AS da_diem_danh

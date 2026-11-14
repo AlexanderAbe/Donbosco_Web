@@ -565,7 +565,7 @@
 
 .attendance-camera-frame {
     position: relative;
-    height: 176px;
+    height: 280px;
     overflow: hidden;
     border-radius: 12px;
     background: #0f172a;
@@ -573,13 +573,13 @@
 
 .attendance-camera-frame #choir-qr-reader {
     width: 100%;
-    height: 176px;
+    height: 280px;
     margin: 0 auto;
 }
 
 .attendance-camera-frame #choir-qr-reader video {
     width: 100% !important;
-    height: 176px !important;
+    height: 280px !important;
     border-radius: 12px;
     object-fit: cover;
 }

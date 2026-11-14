@@ -6,3 +6,10 @@ npm-debug.log
 database/
 docker
 service-account-key.json
+
+# Playwright
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
+/playwright/.auth/

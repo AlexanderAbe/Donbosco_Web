@@ -32,6 +32,13 @@
         absent: 'Vắng'
     };
 
+    const socket = window.io();
+    const attendanceRooms = new Set(rows
+        .map(row => row.dataset.classId)
+        .filter(Boolean)
+        .map(classId => `attendance_${yearId}_${classId}_${attendanceDate}_${encodeURIComponent(sessionType)}`));
+    attendanceRooms.forEach(room => socket.emit('join_room', room));
+
     const normalize = value => String(value || '')
         .normalize('NFD')
         .replace(/[\u0300-\u036f]/g, '')
@@ -60,6 +67,22 @@
         updateFilterCounts();
         renderRows();
     };
+
+    socket.on('attendance_entry_updated', ({ studentId, status, saved }) => {
+        const row = rows.find(item => item.dataset.studentId === String(studentId));
+        if (!row) return;
+
+        const state = status === 'Vắng phép'
+            ? 'permission'
+            : status === 'Vắng không phép'
+                ? 'absent'
+                : status
+                    ? 'present'
+                    : 'pending';
+        row.dataset.serverStatus = state;
+        row.dataset.persisted = String(saved);
+        setRowStatus(row, state, status || statusLabels.pending);
+    });
 
     const updateFilterCounts = () => {
         const counts = {
@@ -220,7 +243,13 @@
         scannerStartPromise = (async () => {
             await scanner.start(
                 { facingMode: 'environment' },
-                { fps: 10, qrbox: { width: 150, height: 150 } },
+                {
+                    fps: 10,
+                    qrbox: (viewWidth, viewHeight) => {
+                        const size = Math.min(250, viewWidth, viewHeight);
+                        return { width: size, height: size };
+                    }
+                },
                 handleDecodedQr,
                 () => {}
             );
